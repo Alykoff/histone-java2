@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.evaluator.nodes.NodeFactory;
-import ru.histone.tokenizer.Tokenizer;
+import ru.histone.tokenizer.OldTokenizer;
 import ru.histone.tokenizer.TokenizerFactory;
 
 /**
@@ -50,7 +50,7 @@ public class Parser {
     public ArrayNode parse(CharSequence input) throws ParserException {
         log.debug("parse(): input={}", new Object[]{input});
 
-        Tokenizer tokenizer = tokenizerFactory.match(input);
+        OldTokenizer tokenizer = tokenizerFactory.match(input);
         ParserImpl parser = new ParserImpl(tokenizer, nodeFactory);
         ArrayNode astTree = parser.parseTemplate();
         log.debug("parse(): astTree={}", astTree);

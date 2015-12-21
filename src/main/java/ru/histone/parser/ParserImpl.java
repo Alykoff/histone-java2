@@ -15,11 +15,7 @@
  */
 package ru.histone.parser;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -27,9 +23,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.evaluator.nodes.NodeFactory;
+import ru.histone.tokenizer.OldTokenizer;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.TokenType;
-import ru.histone.tokenizer.Tokenizer;
 import ru.histone.utils.HistoneVersion;
 import ru.histone.utils.StringEscapeUtils;
 import ru.histone.utils.StringUtils;
@@ -47,17 +43,21 @@ public class ParserImpl {
     private JsonFactory jsonFactory = new JsonFactory();
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private Tokenizer tokenizer;
+    private OldTokenizer tokenizer;
     private NodeFactory nodeFactory;
 
     /**
-     * Constructs parser with {@link ru.histone.tokenizer.Tokenizer} dependency
+     * Constructs parser with {@link OldTokenizer} dependency
      *
      * @param tokenizer tokenizer factory
      */
-    public ParserImpl(Tokenizer tokenizer, NodeFactory nodeFactory) {
+    public ParserImpl(OldTokenizer tokenizer, NodeFactory nodeFactory) {
         this.tokenizer = tokenizer;
         this.nodeFactory = nodeFactory;
+    }
+
+    private static String unescapeString(String val) {
+        return StringEscapeUtils.unescapeJavaScript(val);
     }
 
     /**
@@ -293,7 +293,7 @@ public class ParserImpl {
         Token blockToken = tokenizer.next(TokenType.EXPR_MACRO);
 
         Token nameToken = tokenizer.next(TokenType.EXPR_IDENT);
-        
+
         String nameTokenContent="";
         if (nameToken != null) {
             nameTokenContent = nameToken.getContent();
@@ -745,7 +745,7 @@ public class ParserImpl {
         return tree;
     }
 
-    private JsonNode parseMap(Tokenizer tokenizer) throws ParserException {
+    private JsonNode parseMap(OldTokenizer tokenizer) throws ParserException {
 
         ArrayNode items = nodeFactory.jsonArray();
         JsonNode key, value;
@@ -791,10 +791,6 @@ public class ParserImpl {
             throw expectedFound("]", tokenizer.next());
         }
         return nodeFactory.jsonArray(AstNodeType.MAP, items);
-    }
-
-    private static String unescapeString(String val) {
-        return StringEscapeUtils.unescapeJavaScript(val);
     }
 
     // public static String escapeString(String val) {

@@ -40,7 +40,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{abc ident ad34de ApPp90O forvar varfor varforvar}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -99,7 +99,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{()[]}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -143,7 +143,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{< > <= >= <> isNot != is mod not or and}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -215,7 +215,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{null false true}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -251,7 +251,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{'test'}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -279,7 +279,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{\"test\"}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -307,7 +307,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{+-/*.,:=}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -363,7 +363,7 @@ public class TokenizerSimpleExpressionsTest  {
 
 		input = "{{if elseif else for in var macro}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();

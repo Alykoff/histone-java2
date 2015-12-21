@@ -20,9 +20,7 @@ import org.junit.Test;
 import org.slf4j.MDC;
 import ru.histone.HistoneTokensHolder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TokenizerBlocksTest {
     private static final String MDC_TEST_NAME = "testCaseName";
@@ -37,7 +35,7 @@ public class TokenizerBlocksTest {
 	public void blocksStartsWithExpr() {
 		String input = "fragmnet{{dsfdsf}}fragment";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "fragmnet");
 		assertTrue(tokenizer.isNext(TokenType.T_FRAGMENT));
@@ -88,7 +86,7 @@ public class TokenizerBlocksTest {
 
 		input = "fragment{{ident}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "fragment2");
 		assertTrue(tokenizer.isNext(TokenType.T_FRAGMENT));
@@ -130,7 +128,7 @@ public class TokenizerBlocksTest {
 
 		input = "{{ident}} without opening token}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		assertTrue(tokenizer.isNext(TokenType.T_BLOCK_START));

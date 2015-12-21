@@ -20,9 +20,7 @@ import org.junit.Test;
 import org.slf4j.MDC;
 import ru.histone.HistoneTokensHolder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TokenizerCommentsTest {
     private static final String MDC_TEST_NAME = "testCaseName";
@@ -42,7 +40,7 @@ public class TokenizerCommentsTest {
 
 		input = "fragment1{{*comment*}}fragment2";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "fragment1");
 		assertTrue(tokenizer.isNext(TokenType.T_FRAGMENT));
@@ -91,7 +89,7 @@ public class TokenizerCommentsTest {
 
 		input = "{{*comment*}}fragment";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{*");
 		assertTrue(tokenizer.isNext(TokenType.T_COMMENT_START));
@@ -133,7 +131,7 @@ public class TokenizerCommentsTest {
 
 		input = "fragment{{*comment*}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "fragment2");
 		assertTrue(tokenizer.isNext(TokenType.T_FRAGMENT));
@@ -175,7 +173,7 @@ public class TokenizerCommentsTest {
 
 		input = "{{*comment without closing token";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{*");
 		assertTrue(tokenizer.isNext(TokenType.T_COMMENT_START));
@@ -203,7 +201,7 @@ public class TokenizerCommentsTest {
 
 		input = "{{*comment*}} without opening token*}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{*");
 		assertTrue(tokenizer.isNext(TokenType.T_COMMENT_START));

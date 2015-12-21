@@ -20,9 +20,7 @@ import org.junit.Test;
 import org.slf4j.MDC;
 import ru.histone.HistoneTokensHolder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TokenizerGeneralTest {
     private static final String MDC_TEST_NAME = "testCaseName";
@@ -43,7 +41,7 @@ public class TokenizerGeneralTest {
          * fragment1{{ident}}fragment2{{* comment *}}fragment3 < | | | | | | | | | | 1 1012 1719 28 31 40 43 52
          */
 
-        Tokenizer tokenizer = tokenizerFactory.match(input);
+        OldTokenizer tokenizer = tokenizerFactory.match(input);
 
         MDC.put(MDC_TEST_NAME, "fragment1");
         assertTrue(tokenizer.isNext(TokenType.T_FRAGMENT));
@@ -122,7 +120,7 @@ public class TokenizerGeneralTest {
          * fragment1{{ident}}fragment2{{* comment *}}fragment3 < | | | | | | | | | | 1 1012 1719 28 31 40 43 52
          */
 
-        Tokenizer tokenizer = tokenizerFactory.match(input);
+        OldTokenizer tokenizer = tokenizerFactory.match(input);
 
         MDC.put(MDC_TEST_NAME, "fragment1");
         assertTrue(tokenizer.isNext(TokenType.T_FRAGMENT));
@@ -174,7 +172,7 @@ public class TokenizerGeneralTest {
          * fragment1{{ident}}fragment2{{* comment *}}fragment3 < | | | | | | | | | | 1 1012 1719 28 31 40 43 52
          */
 
-        Tokenizer tokenizer = tokenizerFactory.match(input);
+        OldTokenizer tokenizer = tokenizerFactory.match(input);
 
         MDC.put(MDC_TEST_NAME, "fragment1");
         token = tokenizer.next(TokenType.T_FRAGMENT);
@@ -217,7 +215,7 @@ public class TokenizerGeneralTest {
 
         input = "fragment1{{ident}}fragment2";
 
-        Tokenizer tokenizer = tokenizerFactory.match(input);
+        OldTokenizer tokenizer = tokenizerFactory.match(input);
 
         MDC.put(MDC_TEST_NAME, "fragment1");
         token = tokenizer.next();
@@ -264,8 +262,8 @@ public class TokenizerGeneralTest {
 //        Token token;
 
         input = "{{var}}";
-        
-        Tokenizer tokenizer = tokenizerFactory.match(input);
+
+        OldTokenizer tokenizer = tokenizerFactory.match(input);
         
         
         tokenizer.next(TokenType.T_BLOCK_START);

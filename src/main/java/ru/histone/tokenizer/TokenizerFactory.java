@@ -18,11 +18,7 @@ package ru.histone.tokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Collections.unmodifiableMap;
 
@@ -75,19 +71,19 @@ public final class TokenizerFactory {
     /**
      * Constructs tokenizer for specified input sequence
      */
-    public Tokenizer match(CharSequence input) {
+    public OldTokenizer match(CharSequence input) {
         return match(input, TokenContext.TEMPLATE);
     }
 
     /**
      * Constructs tokenizer for specified input sequence and starting tokens context
      */
-    public Tokenizer match(CharSequence input, TokenContext startContext) {
+    public OldTokenizer match(CharSequence input, TokenContext startContext) {
         log.debug("tokenize(): input={}, currentContext={}", new Object[]{input, startContext});
         if (startContext == TokenContext.NONE) {
             throw new IllegalArgumentException("Start context undefined");
         }
-        Tokenizer tokenizer = new Tokenizer(tokens, regexpList);
+        OldTokenizer tokenizer = new OldTokenizer(tokens, regexpList);
         return tokenizer.tokenize(input, startContext);
     }
 

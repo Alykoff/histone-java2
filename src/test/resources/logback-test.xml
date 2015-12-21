@@ -7,7 +7,7 @@
         </encoder>
 	</appender>
 
-	<logger name="ru.histone.tokenizer.Tokenizer">
+	<logger name="ru.histone.tokenizer.OldTokenizer">
 		<level value="error" />
 	</logger>
 	<logger name="ru.histone.parser.Parser">

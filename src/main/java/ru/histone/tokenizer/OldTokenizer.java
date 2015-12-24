@@ -37,8 +37,8 @@ public class OldTokenizer {
     private CharSequence input;
     private int inputOffset = 0;
     private TokenContext currentContext = TokenContext.NONE;
-    private Token currentToken = null;
-    private Token tokenBuffer = null;
+    private OldToken currentToken = null;
+    private OldToken tokenBuffer = null;
     private TokenDef tokenDefBuffer = null;
     private Map<TokenContext, Matcher> matchers = new HashMap<TokenContext, Matcher>();
     private TokenTransitionCallback.NestedLevelHolder nestLevel = new TokenTransitionCallback.NestedLevelHolder();
@@ -108,7 +108,7 @@ public class OldTokenizer {
      *
      * @return next token
      */
-    public Token next() {
+    public OldToken next() {
         return next(null);
     }
 
@@ -120,15 +120,15 @@ public class OldTokenizer {
      * @param type token type
      * @return token if token type is the same, null in other case
      */
-    public Token next(TokenType type) {
+    public OldToken next(TokenType type) {
         log.trace("next()>>: type={}, currentToken={}", new Object[]{type, currentToken});
-        Token result = null;
+        OldToken result = null;
         if (type == null || isNext(type)) {
             if (currentToken == null) {
                 log.trace("next(): new1 currentToken={}", currentToken);
                 currentToken = getNextToken();
             }
-            result = new Token(currentToken);
+            result = new OldToken(currentToken);
             currentToken = getNextToken();
             log.trace("next(): new2 currentToken={}", currentToken);
         }
@@ -147,8 +147,8 @@ public class OldTokenizer {
     }
 
     // Implementation functions
-    private Token getNextToken() {
-        Token result = null;
+    private OldToken getNextToken() {
+        OldToken result = null;
 
         log.trace("getNextToken()>>: tokenBuffer={}, tokenDefBuffer={}, inputOffset={}, input.length={}", new Object[]{tokenBuffer, tokenDefBuffer, inputOffset, input.length()});
 
@@ -165,7 +165,7 @@ public class OldTokenizer {
             tokenDefBuffer = null;
         } else if (inputOffset == input.length()) {
             log.trace("getNextToken(): end of file reached");
-            result = Token.EOF_TOKEN;
+            result = OldToken.EOF_TOKEN;
         } else {
             log.trace("getNextToken(): searching for more tokens via regexp");
             Matcher m = getMatcher(getCurrentContext());
@@ -180,14 +180,14 @@ public class OldTokenizer {
 
                         if (m.start() - inputOffset > 0) {
                             // fragment
-                            result = new Token(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, m.start()).toString());
-                            tokenBuffer = new Token(def.getType(), m.start() + 1, m.group(0));
+                            result = new OldToken(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, m.start()).toString());
+                            tokenBuffer = new OldToken(def.getType(), m.start() + 1, m.group(0));
                         } else {
 
                             if (def.getKind() == TokenKind.TOKEN) {
-                                result = new Token(def.getType(), m.start() + 1, m.group(0));
+                                result = new OldToken(def.getType(), m.start() + 1, m.group(0));
                             } else if (def.getKind() == TokenKind.LITERAL) {
-                                result = new Token(def.getType(), m.start() + 1, m.group(0));
+                                result = new OldToken(def.getType(), m.start() + 1, m.group(0));
                             } else if (def.getKind() == TokenKind.IGNORE) {
                                 inputOffset = m.end();
                                 result = getNextToken();
@@ -205,7 +205,7 @@ public class OldTokenizer {
                     }
                 }
             } else {
-                result = new Token(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, input.length()).toString());
+                result = new OldToken(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, input.length()).toString());
                 inputOffset = input.length();
             }
         }

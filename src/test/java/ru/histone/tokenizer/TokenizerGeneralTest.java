@@ -34,7 +34,7 @@ public class TokenizerGeneralTest {
     @Test
     public void generalContexts() {
         String input;
-        Token token;
+        OldToken token;
 
         input = "fragment1{{ident}}fragment2{{* comment *}}fragment3 ";
         /*
@@ -113,7 +113,7 @@ public class TokenizerGeneralTest {
     @Test
     public void fragmentsWithNewLines() {
         String input;
-        Token token;
+        OldToken token;
 
         input = "fragment1\n{{ident}}\nfragment2\n";
         /*
@@ -165,7 +165,7 @@ public class TokenizerGeneralTest {
     @Test
     public void generalContextsWOIsNextCalls() {
         String input;
-        Token token;
+        OldToken token;
 
         input = "fragment1{{ident}}fragment2";
         /*
@@ -211,7 +211,7 @@ public class TokenizerGeneralTest {
     @Test
     public void generalContextsNoArgNextCalls() {
         String input;
-        Token token;
+        OldToken token;
 
         input = "fragment1{{ident}}fragment2";
 
@@ -259,7 +259,7 @@ public class TokenizerGeneralTest {
     @Test
     public void test(){
         String input;
-//        Token token;
+//        OldToken token;
 
         input = "{{var}}";
 

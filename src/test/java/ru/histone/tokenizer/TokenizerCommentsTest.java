@@ -36,7 +36,7 @@ public class TokenizerCommentsTest {
 	public void fragmentCommentFragment() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "fragment1{{*comment*}}fragment2";
 
@@ -85,7 +85,7 @@ public class TokenizerCommentsTest {
 	public void blocksStartsWithExpr() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{*comment*}}fragment";
 
@@ -127,7 +127,7 @@ public class TokenizerCommentsTest {
 	public void blocksEndsWithComment() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "fragment{{*comment*}}";
 
@@ -169,7 +169,7 @@ public class TokenizerCommentsTest {
 	public void commentWithoutClosingToken() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{*comment without closing token";
 
@@ -197,7 +197,7 @@ public class TokenizerCommentsTest {
 	public void commentWithoutOpeningToken() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{*comment*}} without opening token*}}";
 

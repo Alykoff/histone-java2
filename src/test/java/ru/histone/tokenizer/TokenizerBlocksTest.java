@@ -40,8 +40,8 @@ public class TokenizerBlocksTest {
 		MDC.put(MDC_TEST_NAME, "fragmnet");
 		assertTrue(tokenizer.isNext(TokenType.T_FRAGMENT));
 
-        Token token = tokenizer.next(TokenType.T_FRAGMENT);
-        assertNotNull(token);
+		OldToken token = tokenizer.next(TokenType.T_FRAGMENT);
+		assertNotNull(token);
         assertEquals(1, token.getPos());
         assertEquals("fragmnet", token.getContent());
 
@@ -82,7 +82,7 @@ public class TokenizerBlocksTest {
 	public void blocksEndsWithExpr() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "fragment{{ident}}";
 
@@ -124,7 +124,7 @@ public class TokenizerBlocksTest {
 	public void blockWithoutOpeningToken() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{ident}} without opening token}}";
 

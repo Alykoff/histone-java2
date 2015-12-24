@@ -36,7 +36,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void correctIdentifiers() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{abc ident ad34de ApPp90O forvar varfor varforvar}}";
 
@@ -95,7 +95,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void brackets() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{()[]}}";
 
@@ -139,7 +139,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void comparators() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{< > <= >= <> isNot != is mod not or and}}";
 
@@ -211,7 +211,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void constants() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{null false true}}";
 
@@ -247,7 +247,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void stringsSingleQuote() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{'test'}}";
 
@@ -275,7 +275,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void stringsDoubleQuote() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{\"test\"}}";
 
@@ -303,7 +303,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void operators() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{+-/*.,:=}}";
 
@@ -359,7 +359,7 @@ public class TokenizerSimpleExpressionsTest  {
 	public void constructions() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{if elseif else for in var macro}}";
 

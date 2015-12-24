@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.evaluator.nodes.NodeFactory;
+import ru.histone.tokenizer.OldToken;
 import ru.histone.tokenizer.OldTokenizer;
-import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.TokenType;
 import ru.histone.utils.HistoneVersion;
 import ru.histone.utils.StringEscapeUtils;
@@ -234,8 +234,8 @@ public class ParserImpl {
     }
 
     private JsonNode parseImport() throws ParserException {
-        Token blockToken = tokenizer.next(TokenType.EXPRT_IMPORT);
-        Token pathToken = tokenizer.next(TokenType.EXPR_STRING);
+        OldToken blockToken = tokenizer.next(TokenType.EXPRT_IMPORT);
+        OldToken pathToken = tokenizer.next(TokenType.EXPR_STRING);
         if (pathToken == null) {
             throw expectedFound("string", tokenizer.next());
         }
@@ -250,9 +250,9 @@ public class ParserImpl {
         log.trace("parseVar(): >>>");
 
         // skip 'var' token
-        Token blockToken = tokenizer.next(TokenType.EXPR_VAR);
+        OldToken blockToken = tokenizer.next(TokenType.EXPR_VAR);
 
-        Token nameToken = tokenizer.next(TokenType.EXPR_IDENT);
+        OldToken nameToken = tokenizer.next(TokenType.EXPR_IDENT);
         if (nameToken == null) {
             throw expectedFound("identifier", tokenizer.next());
         }
@@ -290,9 +290,9 @@ public class ParserImpl {
         log.trace("parseMacro(): >>>");
 
         // skip 'macro' token
-        Token blockToken = tokenizer.next(TokenType.EXPR_MACRO);
+        OldToken blockToken = tokenizer.next(TokenType.EXPR_MACRO);
 
-        Token nameToken = tokenizer.next(TokenType.EXPR_IDENT);
+        OldToken nameToken = tokenizer.next(TokenType.EXPR_IDENT);
 
         String nameTokenContent="";
         if (nameToken != null) {
@@ -343,14 +343,14 @@ public class ParserImpl {
     private JsonNode parseFor() throws ParserException {
         log.trace("parseFor(): >>>");
         // skip 'for' token
-        Token blockToken = tokenizer.next(TokenType.EXPR_FOR);
+        OldToken blockToken = tokenizer.next(TokenType.EXPR_FOR);
 
-        Token valueToken = tokenizer.next(TokenType.EXPR_IDENT);
+        OldToken valueToken = tokenizer.next(TokenType.EXPR_IDENT);
         if (valueToken == null) {
             throw expectedFound("identifier", tokenizer.next());
         }
 
-        Token keyToken = null;
+        OldToken keyToken = null;
         if (tokenizer.next(TokenType.EXPR_COLON) != null) {
             keyToken = valueToken;
             valueToken = tokenizer.next(TokenType.EXPR_IDENT);
@@ -407,7 +407,7 @@ public class ParserImpl {
     private JsonNode parseIf() throws ParserException {
         log.trace("parseIf(): >>>");
         // skip 'var' token
-        Token blockToken = tokenizer.next(TokenType.EXPR_IF);
+        OldToken blockToken = tokenizer.next(TokenType.EXPR_IF);
 
         ArrayNode conditions = nodeFactory.jsonArray();
 
@@ -697,21 +697,21 @@ public class ParserImpl {
         } else if ((tokenizer.next(TokenType.EXPR_FALSE) != null)) {
             tree = nodeFactory.jsonArray(AstNodeType.FALSE);
         } else if (tokenizer.isNext(TokenType.EXPR_INTEGER)) {
-            Token token = tokenizer.next();
+            OldToken token = tokenizer.next();
             BigInteger val = new BigInteger(token.getContent());
             tree = nodeFactory.jsonArray(AstNodeType.INT, nodeFactory.jsonNumber(val));
         } else if (tokenizer.isNext(TokenType.EXPR_DOUBLE)) {
-            Token token = tokenizer.next();
+            OldToken token = tokenizer.next();
             BigDecimal val = new BigDecimal(token.getContent());
             tree = nodeFactory.jsonArray(AstNodeType.DOUBLE, nodeFactory.jsonNumber(val.stripTrailingZeros()));
         } else if (tokenizer.isNext(TokenType.EXPR_STRING)) {
-            Token token = tokenizer.next();
+            OldToken token = tokenizer.next();
             String val = unescapeString(StringUtils.stripSuroundings(token.getContent(), "'\""));
             tree = nodeFactory.jsonArray(AstNodeType.STRING, nodeFactory.jsonString(val));
         } else if (tokenizer.next(TokenType.EXPR_LBRACKET) != null) {
             tree = parseMap(tokenizer);
         } else if (tokenizer.isNext(TokenType.EXPR_IDENT) || tokenizer.isNext(TokenType.EXPR_THIS) || tokenizer.isNext(TokenType.EXPR_SELF) || tokenizer.isNext(TokenType.EXPR_GLOBAL)) {
-            Token token = tokenizer.next();
+            OldToken token = tokenizer.next();
             ArrayNode val = nodeFactory.jsonArray();
             val.add(nodeFactory.jsonString(token.getContent()));
             tree = nodeFactory.jsonArray(AstNodeType.SELECTOR, val);
@@ -797,7 +797,7 @@ public class ParserImpl {
     // return StringEscapeUtils.escapeJavaScript(val);
     // }
 
-    private ParserException expectedFound(String expected, Token found) {
+    private ParserException expectedFound(String expected, OldToken found) {
         return expectedFound(expected, found.getContent());
     }
 
@@ -805,7 +805,7 @@ public class ParserImpl {
         return new ParserException(tokenizer.getLineNumber(), expected, found);
     }
 
-    // private ParserException unexpected(Token unexpected) {
+    // private ParserException unexpected(OldToken unexpected) {
     // return new ParserException(tokenizer.getLineNumber(),
     // tokenizer.getColumnNumber(), unexpected);
     // }

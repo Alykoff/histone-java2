@@ -41,6 +41,10 @@ public class AstNode {
         return this;
     }
 
+    public List<Object> getValues() {
+        return values;
+    }
+
     public AstNode add(AstNode... nodes) {
         this.nodes.addAll(Arrays.asList(nodes));
         return this;
@@ -57,8 +61,15 @@ public class AstNode {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AstNode{");
-        sb.append("type=").append(type);
+        sb.append("type=");
+        AstType t = AstType.fromId(type);
+        if (t == null) {
+            sb.append(type);
+        } else {
+            sb.append(t.name()).append("(").append(type).append(")");
+        }
         sb.append(", nodes=").append(nodes);
+        sb.append(", values=").append(values);
         sb.append('}');
         return sb.toString();
     }

@@ -51,6 +51,15 @@ public enum AstType {
         this.id = id;
     }
 
+    public static AstType fromId(int id) {
+        for (AstType type : values()) {
+            if (type.id == id) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public int getId() {
         return id;
     }

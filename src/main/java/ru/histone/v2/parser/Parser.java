@@ -174,7 +174,6 @@ public class Parser {
         AstNode result = new AstNode(AstType.AST_NODELIST);
 
         TokenizerResult name = tokenizer.next(Tokens.T_ID.getId());
-//        Token name = tokenizer.next(Tokens.T_ID.getId()).first();
         if (name.isFound()) {
             result.add(new AstNode(AstType.AST_NOP).addValue(name.first().getValue()));
         } else if (next(tokenizer, Tokens.T_LPAREN)) {
@@ -201,7 +200,6 @@ public class Parser {
         }
 
         return createMacroNode(tokenizer).add(result);
-//        return[Constants.AST_MACRO,[Constants.AST_NODELIST,[Constants.AST_RETURN, Expression(ctx)]]].concat(result);
     }
 
     private AstNode createMacroNode(Tokenizer tokenizer) throws ParserException {

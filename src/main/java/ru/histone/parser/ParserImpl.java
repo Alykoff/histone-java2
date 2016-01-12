@@ -35,7 +35,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Parser implementation
+ * OldParser implementation
  */
 public class ParserImpl {
     private final static Logger log = LoggerFactory.getLogger(ParserImpl.class);
@@ -425,7 +425,7 @@ public class ParserImpl {
             ArrayNode children = parse(TokenType.EXPR_DIV, TokenType.EXPR_ELSEIF, TokenType.EXPR_ELSE);
 
             ArrayNode condition = nodeFactory.jsonArray();
-            // condition.add(nodeFactory.jsonArray(AstNodeType.TRUE));
+            // condition.add(nodeFactory.jsonArray(AstType.TRUE));
             condition.add(expression);
             condition.add(children);
 
@@ -663,7 +663,7 @@ public class ParserImpl {
                 /*if(name.isArrayNode()) {
                     ArrayNode nameArr = name.getAsArrayNode();
                     JsonNode nameFirstElement = nameArr.get(0);
-                    if(nameFirstElement.isJsonPrimitive() && nameFirstElement.getAsJsonPrimitive().getAsNumber().equals(AstNodeType.STRING)) {
+                    if(nameFirstElement.isJsonPrimitive() && nameFirstElement.getAsJsonPrimitive().getAsNumber().equals(AstType.STRING)) {
                         name = nameArr.get(1);
                     }
                 }*/

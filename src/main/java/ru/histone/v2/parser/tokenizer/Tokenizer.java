@@ -1,8 +1,9 @@
-package ru.histone.tokenizer;
+package ru.histone.v2.parser.tokenizer;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.NotImplementedException;
 import ru.histone.expression.Expression;
+import ru.histone.tokenizer.BaseTokens;
+import ru.histone.tokenizer.Token;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -26,7 +27,7 @@ public class Tokenizer {
     private int lastIndex = 0;
 
     private Queue<Token> buffer;
-    private List<Token> ignored;
+    private List<Integer> ignored;
 
     private int lastTokenId = 1;
 //    public Tokenizer(int capacity) {
@@ -46,9 +47,12 @@ public class Tokenizer {
         matcher = mainPattern.matcher(input);
     }
 
+    public void setIgnored(List<Integer> ignored) {
+        this.ignored = ignored;
+    }
 
-    public void add(Expression expression) {
-        expressions.add(expression);
+    public String getBaseURI() {
+        return baseURI;
     }
 
     public void readTokenToBuffer() {
@@ -85,15 +89,17 @@ public class Tokenizer {
             readTokenToBuffer();
         }
 
-        Token token = buffer.peek();
-        if (ignored.size() > 0 /*&&*/) {
-            throw new NotImplementedException();
+        Token token = ((LinkedList<Token>) buffer).get(offset);
+        if (ignored.size() > 0 && compareToken(token, ignored)) {
+            Token res = new Token(token.getValue(), token.getTypes(), token.getIndex());
+            res.setIsIgnored(true);
+            return res;
         } else {
             return token;
         }
     }
 
-    private Token getTokenA(boolean consume) {
+    private TokenizerResult getTokenA(boolean consume) {
         int offset = 0;
         Token token;
         if (consume) {
@@ -106,24 +112,81 @@ public class Tokenizer {
                 token = getTokenFromBuffer(offset++);
             } while (token.isIgnored());
         }
-        return token;
+        return new TokenizerResult(token);
     }
 
-    private Token getTokenB(boolean consume, String... selector) {
-        throw new NotImplementedException();
+    private TokenizerResult getTokenB(boolean consume, int... selector) {
+
+        Token token;
+        int end = 0, y = 0, index = 0;
+        List<Token> result = new ArrayList<>();
+
+        for (; ; ) {
+            token = getTokenFromBuffer(end++);
+            y++;
+            if (compareToken(token, selector[index])) {
+                result.add(token);
+                if (++index >= selector.length) {
+                    break;
+                }
+            } else if (!token.isIgnored()) {
+                return new TokenizerResult(false);
+            }
+        }
+
+        if (!consume) {
+            return new TokenizerResult(true);
+        }
+
+        while (y-- > 0) {
+            buffer.remove();
+        }
+
+        return new TokenizerResult(result);
     }
 
-    public Token next(String... selector) {
+    private boolean compareToken(Token token, List<Integer> selectors) {
+        Integer[] arr = new Integer[selectors.size()];
+        return compareToken(token, selectors.toArray(arr));
+    }
+
+    private boolean compareToken(Token token, Integer... selectors) {
+        if (selectors == null || token == null) {
+            return false;
+        }
+        for (int selector : selectors) {
+            if (token.getTypes().contains(selector)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public TokenizerResult next(int... selector) {
         if (ArrayUtils.isNotEmpty(selector)) {
             return getTokenB(true, selector);
         }
         return getTokenA(true);
     }
 
-    public Token test(String... selector) {
+    public TokenizerResult test(int... selector) {
         if (ArrayUtils.isNotEmpty(selector)) {
             return getTokenB(false, selector);
         }
         return getTokenA(false);
+    }
+
+    public int getLineNumber(long index) {
+        int pos = -1;
+        int lineNumber = 1;
+        while (++pos < index) {
+            char code = input.charAt(pos);
+            if (code == '\r' || code == '\n') {
+                lineNumber++;
+            }
+        }
+
+        return lineNumber;
     }
 }

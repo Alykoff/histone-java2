@@ -11,7 +11,7 @@ public class Token {
     private final String value;
     private final List<Integer> types;
     private final int index;
-    private final boolean isIgnored;
+    private boolean isIgnored;
 
     public Token(String value, List<Integer> types, int index) {
         this.value = value;
@@ -38,6 +38,10 @@ public class Token {
         isIgnored = false;
     }
 
+    public void setIsIgnored(boolean isIgnored) {
+        this.isIgnored = isIgnored;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Token{");
@@ -57,7 +61,7 @@ public class Token {
         return types;
     }
 
-    public long getIndex() {
+    public int getIndex() {
         return index;
     }
 

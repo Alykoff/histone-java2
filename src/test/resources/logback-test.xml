@@ -10,7 +10,7 @@
 	<logger name="ru.histone.tokenizer.OldTokenizer">
 		<level value="error" />
 	</logger>
-	<logger name="ru.histone.parser.Parser">
+	<logger name="ru.histone.parser.OldParser">
 		<level value="error" />
 	</logger>
 

@@ -25,13 +25,12 @@ import ru.histone.HistoneBuilder;
 import ru.histone.HistoneException;
 import ru.histone.HistoneTokensHolder;
 import ru.histone.evaluator.nodes.NodeFactory;
-import ru.histone.parser.Parser;
+import ru.histone.parser.OldParser;
 import ru.histone.resourceloaders.DefaultResourceLoader;
 import ru.histone.resourceloaders.ResourceLoader;
 import ru.histone.tokenizer.TokenizerFactory;
 import ru.histone.utils.IOUtils;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -71,7 +70,7 @@ public class AstImportResolverTest {
     private AstImportResolver buildAstImportResolver() {
         NodeFactory nodeFactory = new NodeFactory(new ObjectMapper());
         TokenizerFactory tokenizerFactory = new TokenizerFactory(HistoneTokensHolder.getTokens());
-        Parser parser = new Parser(tokenizerFactory, nodeFactory);
+        OldParser parser = new OldParser(tokenizerFactory, nodeFactory);
         ResourceLoader resourceLoader = new DefaultResourceLoader();
         return new AstImportResolver(parser, resourceLoader, nodeFactory);
     }

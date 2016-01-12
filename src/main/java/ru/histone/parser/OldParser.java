@@ -22,18 +22,18 @@ import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.expression.BaseExpression;
 import ru.histone.expression.Expression;
 import ru.histone.tokenizer.OldTokenizer;
-import ru.histone.tokenizer.Tokenizer;
 import ru.histone.tokenizer.TokenizerFactory;
 import ru.histone.tokenizer.Tokens;
+import ru.histone.v2.parser.tokenizer.Tokenizer;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Parser wrapper class - takes tokens from tokenizer and process them generating Abstract Syntax AstNodeFactory (AST) from input sequence
+ * OldParser wrapper class - takes tokens from tokenizer and process them generating Abstract Syntax AstNodeFactory (AST) from input sequence
  */
-public class Parser {
-    private final static Logger log = LoggerFactory.getLogger(Parser.class);
+public class OldParser {
+    private final static Logger log = LoggerFactory.getLogger(OldParser.class);
     private TokenizerFactory tokenizerFactory;
     private NodeFactory nodeFactory;
 
@@ -42,7 +42,7 @@ public class Parser {
      *
      * @param tokenizerFactory tokenizer factory
      */
-    public Parser(TokenizerFactory tokenizerFactory, NodeFactory nodeFactory) {
+    public OldParser(TokenizerFactory tokenizerFactory, NodeFactory nodeFactory) {
         this.tokenizerFactory = tokenizerFactory;
         this.nodeFactory = nodeFactory;
     }

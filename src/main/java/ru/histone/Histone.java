@@ -25,26 +25,10 @@ import ru.histone.deparser.Deparser;
 import ru.histone.deparser.IDeparser;
 import ru.histone.evaluator.Evaluator;
 import ru.histone.evaluator.nodes.NodeFactory;
-import ru.histone.optimizer.AbstractASTWalker;
-import ru.histone.optimizer.AdditionalDataForOptimizationDebug;
-import ru.histone.optimizer.ConstantsSubstitutionOptimizer;
-import ru.histone.optimizer.EliminateSingleNodeArrayOptimizer;
-import ru.histone.optimizer.FragmentsConcatinationOptimizer;
-import ru.histone.optimizer.InlineMacroOptimizer;
-import ru.histone.optimizer.OptimizationProfile;
-import ru.histone.optimizer.OptimizationTrace;
-import ru.histone.optimizer.OptimizationTypes;
-import ru.histone.optimizer.SafeASTEvaluationOptimizer;
-import ru.histone.optimizer.SafeASTNodesMarker;
-import ru.histone.parser.Parser;
+import ru.histone.optimizer.*;
+import ru.histone.parser.OldParser;
 import ru.histone.parser.ParserException;
-import ru.histone.resourceloaders.AstResource;
-import ru.histone.resourceloaders.ContentType;
-import ru.histone.resourceloaders.Resource;
-import ru.histone.resourceloaders.ResourceLoadException;
-import ru.histone.resourceloaders.ResourceLoader;
-import ru.histone.resourceloaders.StreamResource;
-import ru.histone.resourceloaders.StringResource;
+import ru.histone.resourceloaders.*;
 import ru.histone.utils.IOUtils;
 
 import java.io.IOException;
@@ -79,13 +63,11 @@ public class Histone {
      * @deprecated (should be moved to GlobalProperties)
      */
     private static boolean devMode = false;
-
-    private Parser parser;
+    private final IDeparser deparser = new Deparser();
+    private OldParser parser;
     private Evaluator evaluator;
     private NodeFactory nodeFactory;
     private ResourceLoader resourceLoader;
-
-    private final IDeparser deparser = new Deparser();
 
     public Histone(HistoneBootstrap bootstrap) {
         this.parser = bootstrap.getParser();
@@ -94,82 +76,64 @@ public class Histone {
         this.resourceLoader = bootstrap.getResourceLoader();
     }
 
-    public ArrayNode parseTemplateToAST(String templateData) throws HistoneException {
-        return parseTemplateToAST(new StringReader(templateData));
-    }
+    /**
+     * Logs histone syntax error to special logger
+     *
+     * @param msg  message
+     * @param e    exception
+     * @param args arguments values that should be replaced in message
+     */
+    public static void runtime_log_error(String msg, Throwable e, Object... args) {
+        RUNTIME_LOG.error(msg, args);
 
-    public ArrayNode parseTemplateToAST(Reader templateReader) throws HistoneException {
-        String inputString = null;
-        try {
-            inputString = IOUtils.toString(templateReader);
-        } catch (IOException e) {
-            log.error("Error reading input Reader", e);
-            throw new HistoneException("Error reading input Reader", e);
-        }
-        return parser.parse(inputString);
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        // throw new HistoneException();
+
     }
 
     /**
-     * Optimize specified AST.
+     * Logs histone syntax info to special logger
+     *
+     * @param msg  message
+     * @param args arguments values that should be replaced in message
      */
-    public ArrayNode optimizeAST(ArrayNode templateAST, OptimizationTypes... optimizationsToRun) throws HistoneException {
-        return optimizeAST(templateAST, nodeFactory.jsonObject(), optimizationsToRun);
+    public static void runtime_log_info(String msg, Object... args) {
+        if (devMode) {
+            runtime_log_error(msg, null, args);
+        } else {
+            RUNTIME_LOG.info(msg, args);
+        }
     }
 
-    public ArrayNode optimizeAST(ArrayNode templateAST, ObjectNode context, OptimizationTypes... optimizationsToRun) throws HistoneException {
-//        Deque<AbstractASTWalker> optimizationsList = new LinkedList<AbstractASTWalker>();
-        ArrayList<AbstractASTWalker> optimizationsList = new ArrayList<AbstractASTWalker>();
+    /**
+     * Logs histone syntax warning to special logger
+     *
+     * @param msg  message
+     * @param args arguments values that should be replaced in message
+     */
 
-        Set<OptimizationTypes> optimizationsToRunSet = new TreeSet<OptimizationTypes>();
-        Collections.addAll(optimizationsToRunSet, optimizationsToRun);
-
-        ConstantsSubstitutionOptimizer constantsSubstitutionOptimizer = new ConstantsSubstitutionOptimizer(nodeFactory, context);
-        if (optimizationsToRunSet.contains(OptimizationTypes.CONSTANTS_SUBSTITUTION)) {
-            optimizationsList.add(0, constantsSubstitutionOptimizer);
+    public static void runtime_log_warn(String msg, Object... args) {
+        if (devMode) {
+            runtime_log_error(msg, null, args);
+        } else {
+            RUNTIME_LOG.warn(msg, args);
         }
+    }
 
-        SafeASTNodesMarker safeASTNodesMarker = new SafeASTNodesMarker(nodeFactory, evaluator);
-        if (optimizationsToRunSet.contains(OptimizationTypes.SAFE_CODE_MARKER)) {
-            int idx = optimizationsList.indexOf(constantsSubstitutionOptimizer);
-            // if we don't have constantsSubstitutionOptimizer, then we will insert at idx=0,
-            // otherwise right after constantsSubstitutionOptimizer
-            optimizationsList.add(++idx, safeASTNodesMarker);
+    /**
+     * Logs histone syntax error to special logger
+     *
+     * @param msg  message
+     * @param e    exception
+     * @param args arguments values that should be replaced in message
+     */
+
+    public static void runtime_log_warn_e(String msg, Throwable e, Object... args) {
+        if (devMode) {
+            runtime_log_error(msg, e, args);
+        } else {
+            RUNTIME_LOG.warn(msg, e, args);
         }
-
-        SafeASTEvaluationOptimizer safeASTEvaluationOptimizer = new SafeASTEvaluationOptimizer(nodeFactory, evaluator);
-        if (optimizationsToRunSet.contains(OptimizationTypes.SAFE_CODE_EVALUATION)) {
-            int idx = optimizationsList.indexOf(safeASTNodesMarker);
-            if (idx < 0) {
-                idx = optimizationsList.indexOf(constantsSubstitutionOptimizer);
-                // if we don't have constantsSubstitutionOptimizer, then we will insert at idx=0,
-                // otherwise right after constantsSubstitutionOptimizer
-                optimizationsList.add(++idx, safeASTNodesMarker);
-                optimizationsList.add(++idx, safeASTEvaluationOptimizer);
-            } else {
-                optimizationsList.add(++idx, safeASTEvaluationOptimizer);
-            }
-        }
-
-//        InlineMacroOptimizer inlineMacroOptimizer = new InlineMacroOptimizer(nodeFactory);
-//        if (optimizationsToRunSet.contains(OptimizationTypes.INLINE_MACRO)) {
-//            int idx = optimizationsList.indexOf(safeASTEvaluationOptimizer);
-//            optimizationsList.add(++idx, inlineMacroOptimizer);
-//        }
-
-        if (optimizationsList.size() > 0 || optimizationsToRunSet.contains(OptimizationTypes.FRAGMENT_CONCATENATION)) {
-            optimizationsList.add(new FragmentsConcatinationOptimizer(nodeFactory));
-        }
-        if (optimizationsList.size() > 0 || optimizationsToRunSet.contains(OptimizationTypes.ELIMINATE_SINGLE_NODE)) {
-            optimizationsList.add(new EliminateSingleNodeArrayOptimizer(nodeFactory));
-        }
-
-        ArrayNode ast = templateAST;
-
-        for (AbstractASTWalker optimization : optimizationsList) {
-            ast = optimization.process(ast);
-        }
-
-        return ast;
     }
 
     //<editor-fold desc="Histone optimization">
@@ -306,6 +270,83 @@ public class Histone {
         optimizationTrace.setProcessedAstAndSource(ast, deparser.deparse(ast));
         return ast;
     } */
+    public ArrayNode parseTemplateToAST(String templateData) throws HistoneException {
+        return parseTemplateToAST(new StringReader(templateData));
+    }
+
+    public ArrayNode parseTemplateToAST(Reader templateReader) throws HistoneException {
+        String inputString = null;
+        try {
+            inputString = IOUtils.toString(templateReader);
+        } catch (IOException e) {
+            log.error("Error reading input Reader", e);
+            throw new HistoneException("Error reading input Reader", e);
+        }
+        return parser.parse(inputString);
+    }
+
+    /**
+     * Optimize specified AST.
+     */
+    public ArrayNode optimizeAST(ArrayNode templateAST, OptimizationTypes... optimizationsToRun) throws HistoneException {
+        return optimizeAST(templateAST, nodeFactory.jsonObject(), optimizationsToRun);
+    }
+
+    public ArrayNode optimizeAST(ArrayNode templateAST, ObjectNode context, OptimizationTypes... optimizationsToRun) throws HistoneException {
+//        Deque<AbstractASTWalker> optimizationsList = new LinkedList<AbstractASTWalker>();
+        ArrayList<AbstractASTWalker> optimizationsList = new ArrayList<AbstractASTWalker>();
+
+        Set<OptimizationTypes> optimizationsToRunSet = new TreeSet<OptimizationTypes>();
+        Collections.addAll(optimizationsToRunSet, optimizationsToRun);
+
+        ConstantsSubstitutionOptimizer constantsSubstitutionOptimizer = new ConstantsSubstitutionOptimizer(nodeFactory, context);
+        if (optimizationsToRunSet.contains(OptimizationTypes.CONSTANTS_SUBSTITUTION)) {
+            optimizationsList.add(0, constantsSubstitutionOptimizer);
+        }
+
+        SafeASTNodesMarker safeASTNodesMarker = new SafeASTNodesMarker(nodeFactory, evaluator);
+        if (optimizationsToRunSet.contains(OptimizationTypes.SAFE_CODE_MARKER)) {
+            int idx = optimizationsList.indexOf(constantsSubstitutionOptimizer);
+            // if we don't have constantsSubstitutionOptimizer, then we will insert at idx=0,
+            // otherwise right after constantsSubstitutionOptimizer
+            optimizationsList.add(++idx, safeASTNodesMarker);
+        }
+
+        SafeASTEvaluationOptimizer safeASTEvaluationOptimizer = new SafeASTEvaluationOptimizer(nodeFactory, evaluator);
+        if (optimizationsToRunSet.contains(OptimizationTypes.SAFE_CODE_EVALUATION)) {
+            int idx = optimizationsList.indexOf(safeASTNodesMarker);
+            if (idx < 0) {
+                idx = optimizationsList.indexOf(constantsSubstitutionOptimizer);
+                // if we don't have constantsSubstitutionOptimizer, then we will insert at idx=0,
+                // otherwise right after constantsSubstitutionOptimizer
+                optimizationsList.add(++idx, safeASTNodesMarker);
+                optimizationsList.add(++idx, safeASTEvaluationOptimizer);
+            } else {
+                optimizationsList.add(++idx, safeASTEvaluationOptimizer);
+            }
+        }
+
+//        InlineMacroOptimizer inlineMacroOptimizer = new InlineMacroOptimizer(nodeFactory);
+//        if (optimizationsToRunSet.contains(OptimizationTypes.INLINE_MACRO)) {
+//            int idx = optimizationsList.indexOf(safeASTEvaluationOptimizer);
+//            optimizationsList.add(++idx, inlineMacroOptimizer);
+//        }
+
+        if (optimizationsList.size() > 0 || optimizationsToRunSet.contains(OptimizationTypes.FRAGMENT_CONCATENATION)) {
+            optimizationsList.add(new FragmentsConcatinationOptimizer(nodeFactory));
+        }
+        if (optimizationsList.size() > 0 || optimizationsToRunSet.contains(OptimizationTypes.ELIMINATE_SINGLE_NODE)) {
+            optimizationsList.add(new EliminateSingleNodeArrayOptimizer(nodeFactory));
+        }
+
+        ArrayNode ast = templateAST;
+
+        for (AbstractASTWalker optimization : optimizationsList) {
+            ast = optimization.process(ast);
+        }
+
+        return ast;
+    }
 
     /**
      * Add frame information to {@link OptimizationTrace}.
@@ -419,66 +460,6 @@ public class Histone {
 
     public void setGlobalProperty(GlobalProperty property, String value) {
         evaluator.setGlobalProperty(property, value);
-    }
-
-    /**
-     * Logs histone syntax error to special logger
-     *
-     * @param msg  message
-     * @param e    exception
-     * @param args arguments values that should be replaced in message
-     */
-    public static void runtime_log_error(String msg, Throwable e, Object... args) {
-        RUNTIME_LOG.error(msg, args);
-
-        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        // throw new HistoneException();
-
-    }
-
-    /**
-     * Logs histone syntax info to special logger
-     *
-     * @param msg  message
-     * @param args arguments values that should be replaced in message
-     */
-    public static void runtime_log_info(String msg, Object... args) {
-        if (devMode) {
-            runtime_log_error(msg, null, args);
-        } else {
-            RUNTIME_LOG.info(msg, args);
-        }
-    }
-
-    /**
-     * Logs histone syntax warning to special logger
-     *
-     * @param msg  message
-     * @param args arguments values that should be replaced in message
-     */
-
-    public static void runtime_log_warn(String msg, Object... args) {
-        if (devMode) {
-            runtime_log_error(msg, null, args);
-        } else {
-            RUNTIME_LOG.warn(msg, args);
-        }
-    }
-
-    /**
-     * Logs histone syntax error to special logger
-     *
-     * @param msg  message
-     * @param e    exception
-     * @param args arguments values that should be replaced in message
-     */
-
-    public static void runtime_log_warn_e(String msg, Throwable e, Object... args) {
-        if (devMode) {
-            runtime_log_error(msg, e, args);
-        } else {
-            RUNTIME_LOG.warn(msg, e, args);
-        }
     }
 
     private JsonNode readAstFromResource(Resource resource, String path, String currentBaseURI) throws HistoneException {

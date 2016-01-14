@@ -8,10 +8,10 @@ import java.util.List;
 /**
  * Created by alexey.nevinsky on 24.12.2015.
  */
-public class AstNode implements Serializable {
-    private final int type;
-    private List<AstNode> nodes = new ArrayList<>();
-    private List<Object> values = new ArrayList<>();
+public class AstNode<T> implements Serializable{
+    protected final int type;
+    protected List<AstNode> nodes = new ArrayList<>();
+    protected List<T> values = new ArrayList<>();
 
     public AstNode(int type) {
         this.type = type;
@@ -32,17 +32,29 @@ public class AstNode implements Serializable {
         return node;
     }
 
+    public boolean isSimpleNode() {
+        return true;
+    }
+
+    public Class<T> getValueClass() {
+        throw new IllegalStateException("This is simple node!");
+    }
+
+    public T getValue() {
+        throw new IllegalStateException("Simple node hasn't have a value!");
+    }
+
     public AstNode add(AstNode node) {
         nodes.add(node);
         return this;
     }
 
-    public AstNode addValue(Object node) {
+    public AstNode addValue(T node) {
         values.add(node);
         return this;
     }
 
-    public List<Object> getValues() {
+    public List<T> getValues() {
         return values;
     }
 
@@ -73,6 +85,10 @@ public class AstNode implements Serializable {
         sb.append(", values=").append(values);
         sb.append('}');
         return sb.toString();
+    }
+
+    public AstNode getNode(int index) {
+        return nodes.size() >= index + 1 ? nodes.get(index) : null;
     }
 
     public AstNode escaped() {

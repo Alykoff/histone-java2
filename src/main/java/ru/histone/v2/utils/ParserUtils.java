@@ -13,7 +13,7 @@ public class ParserUtils {
         return sb.toString();
     }
 
-    private static void nodeToString(StringBuffer sb, AstNode node) {
+    private static void nodeToString(StringBuffer sb, AstNode<?> node) {
         sb.append("[").append(node.getType());
         if (node.getType() != Integer.MIN_VALUE) {
             for (AstNode child : node.getNodes()) {

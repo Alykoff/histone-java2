@@ -12,7 +12,7 @@ public class Optimizer {
         if (node.getType() == AstType.AST_NODELIST.getId() || node.getType() == AstType.AST_NODES.getId()) {
 
         } else {
-            node.getNodes().forEach(this::mergeStrings);
+//            node.getNodes().forEach(this::mergeStrings);
         }
     }
 }

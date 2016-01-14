@@ -29,8 +29,8 @@ public class Parser {
     public AstNode process(String template, String baseURI) throws ParserException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         AstNode result = getNodeList(tokenizer);
-//        if (!tokenizer.next(tokenizer.$EOF))
-//            UnexpectedToken(tokenizer, 'EOF');
+        if (!tokenizer.next(BaseTokens.T_EOF.getId()).isFound())
+            UnexpectedToken(tokenizer, "EOF");
 //        Optimizer(template);
 //        markReferences(template);
         return result;
@@ -140,7 +140,7 @@ public class Parser {
         AstNode node = new AstNode(AstType.AST_IF);
         do {
             AstNode condition = getExpression(tokenizer);
-            if (!tokenizer.next(Tokens.T_BLOCK_END.getId()).isFound()) {
+            if (!next(tokenizer, Tokens.T_BLOCK_END)) {
                 UnexpectedToken(tokenizer, "}}");
             }
             node.add(getNodeList(tokenizer), condition);
@@ -152,7 +152,7 @@ public class Parser {
             }
             node.add(getNodeList(tokenizer));
         }
-        if (!tokenizer.next(Tokens.T_SLASH.getId(), Tokens.T_IF.getId(), Tokens.T_BLOCK_END.getId()).isFound()) {
+        if (!next(tokenizer, Tokens.T_SLASH, Tokens.T_IF, Tokens.T_BLOCK_END)) {
             UnexpectedToken(tokenizer, "{{/if}}");
         }
 
@@ -161,10 +161,10 @@ public class Parser {
 
     private AstNode getExpression(Tokenizer tokenizer) throws ParserException {
         if (test(tokenizer, Tokens.T_ARROW) ||
-            test(tokenizer, Tokens.T_ID, Tokens.T_ARROW) ||
-            test(tokenizer, Tokens.T_LPAREN, Tokens.T_RPAREN) ||
-            test(tokenizer, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_COMMA) ||
-            test(tokenizer, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_RPAREN, Tokens.T_ARROW)) {
+                test(tokenizer, Tokens.T_ID, Tokens.T_ARROW) ||
+                test(tokenizer, Tokens.T_LPAREN, Tokens.T_RPAREN) ||
+                test(tokenizer, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_COMMA) ||
+                test(tokenizer, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_RPAREN, Tokens.T_ARROW)) {
             return getMacroExpression(tokenizer);
         }
         return getTernaryExpression(tokenizer);
@@ -290,10 +290,10 @@ public class Parser {
     private AstNode getRelationalExpression(Tokenizer tokenizer) throws ParserException {
         AstNode res = getAdditiveExpression(tokenizer);
         while (tokenizer.next(Tokens.T_LE.getId()).isFound()
-            || tokenizer.next(Tokens.T_GE.getId()).isFound()
-            || tokenizer.next(Tokens.T_LT.getId()).isFound()
-            || tokenizer.next(Tokens.T_GT.getId()).isFound()
-            ) {
+                || tokenizer.next(Tokens.T_GE.getId()).isFound()
+                || tokenizer.next(Tokens.T_LT.getId()).isFound()
+                || tokenizer.next(Tokens.T_GT.getId()).isFound()
+                ) {
             AstNode node;
             if (tokenizer.next(Tokens.T_LE.getId()).isFound()) {
                 node = new AstNode(AstType.AST_LE);
@@ -328,9 +328,9 @@ public class Parser {
     private AstNode getMultiplicativeExpression(Tokenizer tokenizer) throws ParserException {
         AstNode res = getUnaryExpression(tokenizer);
         while (tokenizer.next(Tokens.T_STAR.getId()).isFound()
-            || tokenizer.next(Tokens.T_SLASH.getId()).isFound()
-            || tokenizer.next(Tokens.T_MOD.getId()).isFound()
-            ) {
+                || tokenizer.next(Tokens.T_SLASH.getId()).isFound()
+                || tokenizer.next(Tokens.T_MOD.getId()).isFound()
+                ) {
             AstNode node;
             if (tokenizer.next(Tokens.T_STAR.getId()).isFound()) {
                 node = new AstNode(AstType.AST_MUL);
@@ -410,7 +410,9 @@ public class Parser {
             return getRegexpLiteral(tokenizer);
         } else if (next(tokenizer, Tokens.T_LITERAL_START)) {
             return getLiteralStatement(tokenizer);
-        } else if (test(tokenizer, Tokens.T_SQUOTE, Tokens.T_DQUOTE)) {
+        } else if (test(tokenizer, Tokens.T_SQUOTE)) {
+            return getStringLiteral(tokenizer);
+        } else if (test(tokenizer, Tokens.T_DQUOTE)) {
             return getStringLiteral(tokenizer);
         } else if (next(tokenizer, Tokens.T_LBRACKET)) {
             return getArrayExpression(tokenizer);
@@ -492,10 +494,10 @@ public class Parser {
     }
 
     private AstNode getStringLiteral(Tokenizer tokenizer) throws ParserException {
-        AstNode res = AstNode.forValue("");
+        AstNode res = new AstNode(Integer.MIN_VALUE);
         String start = tokenizer.next().first().getValue();
         TokenizerResult fragment;
-        while ((fragment = tokenizer.next()) != null) {
+        while ((fragment = tokenizer.next()).isFound()) {
             if (fragment.first().getTypes().contains(BaseTokens.T_EOF.getId())) {
                 SyntaxError(tokenizer, "unterminated string literal");
             }
@@ -596,9 +598,9 @@ public class Parser {
         return tokenizer.test(toIntArr(tokens)).isFound();
     }
 
-    private int[] toIntArr(Tokens... tokens) {
-        int[] ids = new int[tokens.length];
-        for (int i = 0; i < tokens.length; i++) {
+    private Integer[] toIntArr(Tokens... tokens) {
+        Integer[] ids = new Integer[tokens.length];
+        for (Integer i = 0; i < tokens.length; i++) {
             ids[i] = tokens[i].getId();
         }
         return ids;

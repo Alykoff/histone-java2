@@ -49,9 +49,9 @@ public class Evaluator {
             case AST_NOT:
                 break;
             case AST_AND:
-                break;
+                return processAndNode(node, context);
             case AST_OR:
-                break;
+                return processOrNode(node, context);
             case AST_TERNARY:
                 break;
             case AST_ADD:
@@ -77,7 +77,7 @@ public class Evaluator {
             case AST_EQ:
                 return processEqNode(node, context);
             case AST_NEQ:
-                break;
+                return processEqNode(node, context).neg();
             case AST_REF:
                 break;
             case AST_METHOD:
@@ -116,8 +116,20 @@ public class Evaluator {
             default:
                 throw new HistoneException("WTF!?!?!?");
         }
-        throw new HistoneException("WTF!?!?!?");
+        throw new HistoneException("WTF!?!?!? " + type);
 
+    }
+
+    private AstNode processOrNode(AstNode node, Context context) throws HistoneException {
+        BooleanAstNode conditionNode1 = (BooleanAstNode) evaluateNode(node.getNode(0), context);
+        BooleanAstNode conditionNode2 = (BooleanAstNode) evaluateNode(node.getNode(1), context);
+        return new BooleanAstNode(conditionNode1.getValue() || conditionNode2.getValue());
+    }
+
+    private AstNode processAndNode(AstNode node, Context context) throws HistoneException {
+        BooleanAstNode conditionNode1 = (BooleanAstNode) evaluateNode(node.getNode(0), context);
+        BooleanAstNode conditionNode2 = (BooleanAstNode) evaluateNode(node.getNode(1), context);
+        return new BooleanAstNode(conditionNode1.getValue() && conditionNode2.getValue());
     }
 
     private AstNode processNodeList(AstNode node, Context context) throws HistoneException {
@@ -129,7 +141,7 @@ public class Evaluator {
         }
     }
 
-    private AstNode processEqNode(AstNode node, Context context) throws HistoneException {
+    private BooleanAstNode processEqNode(AstNode node, Context context) throws HistoneException {
         AstNode left = evaluateNode(node.getNode(0), context);
         AstNode right = evaluateNode(node.getNode(1), context);
         return new BooleanAstNode(EvalUtils.equalityNode(left, right));

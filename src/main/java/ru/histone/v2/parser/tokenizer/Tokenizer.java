@@ -115,7 +115,7 @@ public class Tokenizer {
         return new TokenizerResult(token);
     }
 
-    private TokenizerResult getTokenB(boolean consume, int... selector) {
+    private TokenizerResult getTokenB(boolean consume, Integer... selector) {
 
         Token token;
         int end = 0, y = 0, index = 0;
@@ -163,14 +163,14 @@ public class Tokenizer {
         return false;
     }
 
-    public TokenizerResult next(int... selector) {
+    public TokenizerResult next(Integer... selector) {
         if (ArrayUtils.isNotEmpty(selector)) {
             return getTokenB(true, selector);
         }
         return getTokenA(true);
     }
 
-    public TokenizerResult test(int... selector) {
+    public TokenizerResult test(Integer... selector) {
         if (ArrayUtils.isNotEmpty(selector)) {
             return getTokenB(false, selector);
         }

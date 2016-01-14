@@ -25,4 +25,18 @@ public class EvaluatorTest {
         String result = evaluator.process(baseUri, ifNode, context);
         Assert.assertEquals(expectedResult, result);
     }
+
+    @Test
+    public void testIf2() throws HistoneException {
+        String ifStatement = "sdjhfsdjkbfdsksd {{if 1 = 1 && 2 != \"fdsds4\" || '3' = 2}}1231231{{else}}aaa{{/if}}sdklbjfsdlkfdsbfsdksfd";
+        String expectedResult = "sdjhfsdjkbfdsksd 1231231sdklbjfsdlkfdsbfsdksfd";
+        String baseUri = "";
+
+        Parser parser = new Parser();
+        AstNode ifNode = parser.process(ifStatement, "");
+        Context context = new Context();
+        Evaluator evaluator = new Evaluator();
+        String result = evaluator.process(baseUri, ifNode, context);
+        Assert.assertEquals(expectedResult, result);
+    }
 }

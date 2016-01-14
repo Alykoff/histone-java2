@@ -15,4 +15,9 @@ public class BooleanAstNode extends AstNode<Boolean> {
     public Boolean getValue() {
         return values.get(0);
     }
+
+    public BooleanAstNode neg() {
+        values.set(0, !values.get(0));
+        return this;
+    }
 }

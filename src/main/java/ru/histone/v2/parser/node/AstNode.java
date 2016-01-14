@@ -1,5 +1,6 @@
 package ru.histone.v2.parser.node;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 /**
  * Created by alexey.nevinsky on 24.12.2015.
  */
-public class AstNode {
+public class AstNode implements Serializable {
     private final int type;
     private List<AstNode> nodes = new ArrayList<>();
     private List<Object> values = new ArrayList<>();

@@ -21,18 +21,12 @@ public class Tokenizer {
 
     private final String input;
     private final String baseURI;
-    private final Pattern mainPattern;
     private final Matcher matcher;
     private final int inputLen;
     private int lastIndex = 0;
 
     private Queue<Token> buffer;
     private List<Integer> ignored;
-
-    private int lastTokenId = 1;
-//    public Tokenizer(int capacity) {
-//        expressions = new ArrayList<Expression>(capacity);
-//    }
 
     public Tokenizer(String input, String baseURI, List<Expression> expressions) {
         this.expressions = new ArrayList<>(expressions.size());
@@ -43,7 +37,7 @@ public class Tokenizer {
         this.input = input;
         this.baseURI = baseURI;
         this.inputLen = input.length();
-        mainPattern = Pattern.compile(expressions.stream().map(Expression::getExpression).collect(Collectors.joining("|")));
+        Pattern mainPattern = Pattern.compile(expressions.stream().map(Expression::getExpression).collect(Collectors.joining("|")));
         matcher = mainPattern.matcher(input);
     }
 
@@ -116,29 +110,24 @@ public class Tokenizer {
     }
 
     private TokenizerResult getTokenB(boolean consume, Integer... selector) {
-
-        Token token;
-        int end = 0, y = 0, index = 0;
+        int count = 0, index = 0;
         List<Token> result = new ArrayList<>();
 
-        for (; ; ) {
-            token = getTokenFromBuffer(end++);
-            y++;
+        do {
+            Token token = getTokenFromBuffer(count++);
             if (compareToken(token, selector[index])) {
                 result.add(token);
-                if (++index >= selector.length) {
-                    break;
-                }
+                index++;
             } else if (!token.isIgnored()) {
                 return new TokenizerResult(false);
             }
-        }
+        } while (index < selector.length);
 
         if (!consume) {
             return new TokenizerResult(true);
         }
 
-        while (y-- > 0) {
+        while (count-- > 0) {
             buffer.remove();
         }
 

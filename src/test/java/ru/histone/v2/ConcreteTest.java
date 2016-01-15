@@ -12,4 +12,14 @@ public class ConcreteTest extends BaseTest {
     public void spacesTest() throws HistoneException {
         doTest("a {{if true}} true {{/if}} b", "a  true  b");
     }
+
+    @Test
+    public void minusTest() throws HistoneException {
+        doTest("a {{if -10}} true {{/if}} b", "a  true  b");
+    }
+
+    @Test
+    public void expressionTest() throws HistoneException {
+        doTest("a {{if ''}} true {{/if}} b", "a  b");
+    }
 }

@@ -20,23 +20,23 @@
       },
       {
         input: "a {{if -10}} true {{/if}} b",
-        expectedResult: "a true b"
+        expectedResult: "a  true  b"
       },
       {
         input: "a {{if 0}} true {{/if}} b",
-        expectedResult: "a b"
+        expectedResult: "a  b"
       },
       {
         input: "a {{if 10}} true {{/if}} b",
-        expectedResult: "a true b"
+        expectedResult: "a  true  b"
       },
       {
         input: "a {{if ''}} true {{/if}} b",
-        expectedResult: "a b"
+        expectedResult: "a  b"
       },
       {
         input: "a {{if 'string'}} true {{/if}} b",
-        expectedResult: "a true b"
+        expectedResult: "a  true  b"
       },
       {
         input: "a {{if []}} true {{/if}} b",

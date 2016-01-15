@@ -2,7 +2,9 @@ package ru.histone.v2.evaluator;
 
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.node.BooleanAstNode;
+import ru.histone.v2.evaluator.node.IntAstNode;
 import ru.histone.v2.evaluator.node.NullAstNode;
+import ru.histone.v2.evaluator.node.StringAstNode;
 import ru.histone.v2.parser.node.AstNode;
 
 /**
@@ -19,6 +21,10 @@ public class EvalUtils {
             return false;
         } else if (node instanceof BooleanAstNode) {
             return (Boolean) node.getValue();
+        } else if (node instanceof IntAstNode) {
+            return ((int) node.getValue()) != 0;
+        } else if (node instanceof StringAstNode) {
+            return !node.getValue().equals("");
         }
         return true;
     }

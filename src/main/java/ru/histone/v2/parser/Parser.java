@@ -13,9 +13,7 @@ import ru.histone.v2.parser.tokenizer.TokenizerResult;
 import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -387,18 +385,15 @@ public class Parser {
     }
 
     private AstNode getUnaryExpression(TokenizerWrapper wrapper) throws ParserException {
-        AstNode res = getMemberExpression(wrapper);
-        while (next(wrapper, Tokens.T_NOT) || next(wrapper, Tokens.T_MINUS)) {
-            AstNode node;
-            if (next(wrapper, Tokens.T_NOT)) {
-                node = new AstNode(AstType.AST_NOT);
-            } else {
-                node = new AstNode(AstType.AST_USUB);
-            }
-            res = node.add(res);
-            res.add(getMemberExpression(wrapper));
+        if (next(wrapper, Tokens.T_NOT)) {
+            AstNode node = getUnaryExpression(wrapper);
+            return new AstNode(AstType.AST_NOT).add(node);
+        } else if (next(wrapper, Tokens.T_MINUS)) {
+            AstNode node = getUnaryExpression(wrapper);
+            return new AstNode(AstType.AST_USUB).add(node);
+        } else {
+            return getMemberExpression(wrapper);
         }
-        return res;
     }
 
     private AstNode getMemberExpression(TokenizerWrapper wrapper) throws ParserException {

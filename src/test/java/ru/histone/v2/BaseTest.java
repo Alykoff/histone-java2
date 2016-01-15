@@ -13,10 +13,11 @@ import ru.histone.v2.parser.node.AstNode;
 public class BaseTest {
     protected void doTest(String input, String expectedRes) throws HistoneException {
         Parser parser = new Parser();
-        AstNode ifNode = parser.process(input, "");
+        AstNode root = parser.process(input, "");
+//        System.out.println(ParserUtils.astToString(root));
         Context context = new Context();
         Evaluator evaluator = new Evaluator();
-        String result = evaluator.process("", ifNode, context);
+        String result = evaluator.process("", root, context);
         Assert.assertEquals(expectedRes, result);
     }
 

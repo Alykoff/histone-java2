@@ -2,10 +2,12 @@ package ru.histone.v2.evaluator;
 
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.BooleanAstNode;
+import ru.histone.v2.evaluator.node.IntAstNode;
 import ru.histone.v2.evaluator.node.NullAstNode;
 import ru.histone.v2.evaluator.node.StringAstNode;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstType;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -78,13 +80,13 @@ public class Evaluator {
             case AST_MOD:
                 break;
             case AST_USUB:
-                break;
+                return processUnaryMinus(node, context, currentContext);
             case AST_LT:
                 break;
             case AST_GT:
                 break;
             case AST_LE:
-                break;
+                return processLessOrEquals(node, context, currentContext);
             case AST_GE:
                 break;
             case AST_EQ:
@@ -130,12 +132,32 @@ public class Evaluator {
 
     }
 
+    private AstNode processUnaryMinus(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        AstNode res = evaluateNode(node.getNode(0), context, currentContext);
+        if (res instanceof IntAstNode) {
+            Integer value = (Integer) res.getValue();
+            return new IntAstNode(-value);
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
+    private AstNode processLessOrEquals(AstNode node, Context context, Context.NodeContext currentContext) {
+        throw new NotImplementedException();
+    }
+
     private AstNode getValueNode(AstNode node) {
+        if (node.getValues().size() == 0) {
+            return new StringAstNode("");
+        }
+
         Object val = node.getValues().get(0);
         if (val == null) {
             return new NullAstNode();
         } else if (val instanceof Boolean) {
             return new BooleanAstNode((Boolean) val);
+        } else if (val instanceof Integer) {
+            return new IntAstNode((Integer) val);
         }
         return new StringAstNode(val + "");
     }

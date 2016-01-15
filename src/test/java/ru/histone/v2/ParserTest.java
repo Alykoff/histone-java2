@@ -1,31 +1,34 @@
 package ru.histone.v2;
 
-import org.junit.Assert;
 import org.junit.Test;
-import ru.histone.v2.parser.Parser;
-import ru.histone.v2.parser.ParserException;
-import ru.histone.v2.parser.node.AstNode;
-import ru.histone.v2.utils.ParserUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.histone.HistoneException;
+import ru.histone.v2.test.TestRunner;
+import ru.histone.v2.test.dto.HistoneTestCase;
+
+import java.util.List;
 
 /**
  * Created by alexey.nevinsky on 25.12.2015.
  */
-public class ParserTest {
-    @Test
-    public void ifTest() throws ParserException {
-        String ifStatement = "sdjhfsdjkbfdsksd {{if 1 = 1}}1231231{{else}}aaa{{/if}}sdklbjfsdlkfdsbfsdksfd";
-        String ifResult = "[31,[-2147483648,'sdjhfsdjkbfdsksd'],[-2147483648,' '],[26,[31,[-2147483648,'1231231']],[19,[-2147483648,'1'],[-2147483648,'1']],[31,[-2147483648,'aaa']]],[-2147483648,'sdklbjfsdlkfdsbfsdksfd']]";
-        Parser parser = new Parser();
-        AstNode node = parser.process(ifStatement, "");
-        Assert.assertEquals(ifResult, ParserUtils.astToString(node));
+public class ParserTest extends BaseTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ParserTest.class);
+
+    private void runTest(String filePath) throws HistoneException {
+        List<HistoneTestCase> cases = TestRunner.loadTestCase(filePath);
+        for (HistoneTestCase histoneTestCase : cases) {
+            System.out.println("Run test '" + histoneTestCase.getName() + "'");
+            for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
+                System.out.println("Expression: " + testCase.getInput());
+                doTest(testCase.getInput(), testCase.getExpectedResult());
+            }
+        }
     }
 
     @Test
-    public void ifTest2() throws ParserException {
-        String ifStatement = "sdjhfsdjkbfdsksd {{if 1 = 1 && '2' != 'fdsds4'}}1231231{{else}}aaa{{/if}}sdklbjfsdlkfdsbfsdksfd";
-        String ifResult = "[31,[-2147483648,'sdjhfsdjkbfdsksd'],[-2147483648,' '],[26,[31,[-2147483648,'1231231']],[6,[19,[-2147483648,'1'],[-2147483648,'1']],[20,[-2147483648,'2'],[-2147483648,'fdsds4']]],[31,[-2147483648,'aaa']]],[-2147483648,'sdklbjfsdlkfdsbfsdksfd']]";
-        Parser parser = new Parser();
-        AstNode node = parser.process(ifStatement, "");
-        Assert.assertEquals(ifResult, ParserUtils.astToString(node));
+    public void ifTest() throws HistoneException {
+        runTest("base/ifStatement.json");
     }
 }

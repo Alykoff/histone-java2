@@ -10,6 +10,7 @@ import ru.histone.v2.parser.node.AstType;
 import ru.histone.v2.parser.tokenizer.ExpressionList;
 import ru.histone.v2.parser.tokenizer.Tokenizer;
 import ru.histone.v2.parser.tokenizer.TokenizerResult;
+import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collections;
@@ -28,19 +29,21 @@ public class Parser {
 
     public AstNode process(String template, String baseURI) throws ParserException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
-        AstNode result = getNodeList(tokenizer);
-        if (!tokenizer.next(BaseTokens.T_EOF.getId()).isFound())
-            UnexpectedToken(tokenizer, "EOF");
+        TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
+        AstNode result = getNodeList(wrapper);
+        if (!wrapper.next(BaseTokens.T_EOF.getId()).isFound())
+            UnexpectedToken(wrapper, "EOF");
 //        Optimizer(template);
 //        markReferences(template);
         return result;
     }
 
-    private AstNode getNodeList(Tokenizer tokenizer) throws ParserException {
+    private AstNode getNodeList(TokenizerWrapper wrapper) throws ParserException {
         AstNode result = new AstNode(AstType.AST_NODELIST);
         AstNode node;
+        wrapper = new TokenizerWrapper(wrapper);
         for (; ; ) {
-            node = getStatement(tokenizer);
+            node = getStatement(wrapper);
             if (node.getType() == T_BREAK) {
                 break;
             } else if (node.getType() != T_NOP) {
@@ -55,343 +58,342 @@ public class Parser {
         return result;
     }
 
-    private AstNode getStatement(Tokenizer tokenizer) throws ParserException {
-        if (tokenizer.next(Tokens.T_BLOCK_START.getId()).isFound()) {
-            return getTemplateStatement(tokenizer);
+    private AstNode getStatement(TokenizerWrapper wrapper) throws ParserException {
+        if (next(wrapper, Tokens.T_BLOCK_START)) {
+            return getTemplateStatement(wrapper);
         }
-        if (tokenizer.next(Tokens.T_LITERAL_START.getId()).isFound()) {
-            return getLiteralStatement(tokenizer);
+        if (next(wrapper, Tokens.T_LITERAL_START)) {
+            return getLiteralStatement(wrapper);
         }
-        if (tokenizer.next(Tokens.T_CMT_START.getId()).isFound()) {
-            return getCommentStatement(tokenizer);
+        if (next(wrapper, Tokens.T_CMT_START)) {
+            return getCommentStatement(wrapper);
         }
-        if (!tokenizer.test(BaseTokens.T_EOF.getId()).isFound()) {
-            return AstNode.forValue(tokenizer.next().first().getValue());
+        if (!wrapper.test(BaseTokens.T_EOF.getId()).isFound()) {
+            return AstNode.forValue(wrapper.next().first().getValue());
         }
         return new AstNode(T_BREAK);
     }
 
-    private AstNode getCommentStatement(Tokenizer tokenizer) {
+    private AstNode getCommentStatement(TokenizerWrapper wrapper) {
         throw new NotImplementedException();
     }
 
-    private AstNode getTemplateStatement(Tokenizer tokenizer) throws ParserException {
-        tokenizer.setIgnored(Collections.singletonList(Tokens.T_SPACES.getId()));
+    private AstNode getTemplateStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Collections.singletonList(Tokens.T_SPACES.getId()));
         AstNode result;
-        if (next(tokenizer, Tokens.T_IF)) {
-            result = getIfStatement(tokenizer);
-        } else if (next(tokenizer, Tokens.T_FOR)) {
-            result = getForStatement(tokenizer);
-        } else if (next(tokenizer, Tokens.T_VAR)) {
-            result = getVarStatement(tokenizer);
-        } else if (next(tokenizer, Tokens.T_MACRO)) {
-            result = getMacroExpression(tokenizer);
-        } else if (next(tokenizer, Tokens.T_RETURN)) {
-            result = getReturnStatement(tokenizer);
-        } else if (next(tokenizer, Tokens.T_SUPRESS)) {
-            result = getSupressStatement(tokenizer);
-        } else if (next(tokenizer, Tokens.T_LISTEN)) {
-            result = getListenStatement(tokenizer, AstType.AST_LISTEN);
-        } else if (next(tokenizer, Tokens.T_TRIGGER)) {
-            result = getListenStatement(tokenizer, AstType.AST_TRIGGER);
-        } else if (test(tokenizer, Tokens.T_SLASH, Tokens.T_STATEMENT, Tokens.T_BLOCK_END)) {
+        if (next(wrapper, Tokens.T_IF)) {
+            result = getIfStatement(wrapper);
+        } else if (next(wrapper, Tokens.T_FOR)) {
+            result = getForStatement(wrapper);
+        } else if (next(wrapper, Tokens.T_VAR)) {
+            result = getVarStatement(wrapper);
+        } else if (next(wrapper, Tokens.T_MACRO)) {
+            result = getMacroExpression(wrapper);
+        } else if (next(wrapper, Tokens.T_RETURN)) {
+            result = getReturnStatement(wrapper);
+        } else if (next(wrapper, Tokens.T_SUPRESS)) {
+            result = getSupressStatement(wrapper);
+        } else if (next(wrapper, Tokens.T_LISTEN)) {
+            result = getListenStatement(wrapper, AstType.AST_LISTEN);
+        } else if (next(wrapper, Tokens.T_TRIGGER)) {
+            result = getListenStatement(wrapper, AstType.AST_TRIGGER);
+        } else if (test(wrapper, Tokens.T_SLASH, Tokens.T_STATEMENT, Tokens.T_BLOCK_END)) {
             result = new AstNode(T_BREAK);
-        } else if (test(tokenizer, Tokens.T_STATEMENT)) {
+        } else if (test(wrapper, Tokens.T_STATEMENT)) {
             result = new AstNode(T_BREAK);
         } else {
-            result = getExpressionStatement(tokenizer);
+            result = getExpressionStatement(wrapper);
         }
-        tokenizer.setIgnored(Collections.emptyList());
         return result;
     }
 
-    private AstNode getExpressionStatement(Tokenizer tokenizer) throws ParserException {
-        if (next(tokenizer, Tokens.T_BLOCK_END)) {
+    private AstNode getExpressionStatement(TokenizerWrapper wrapper) throws ParserException {
+        if (next(wrapper, Tokens.T_BLOCK_END)) {
             return new AstNode(T_NOP);
         }
-        AstNode expression = getExpression(tokenizer);
-        if (!next(tokenizer, Tokens.T_BLOCK_END)) {
-            UnexpectedToken(tokenizer, "}}");
+        AstNode expression = getExpression(wrapper);
+        if (!next(wrapper, Tokens.T_BLOCK_END)) {
+            UnexpectedToken(wrapper, "}}");
         }
         return expression;
     }
 
-    private AstNode getListenStatement(Tokenizer tokenizer, AstType astListen) {
+    private AstNode getListenStatement(TokenizerWrapper wrapper, AstType astListen) {
         throw new org.apache.commons.lang.NotImplementedException();
     }
 
-    private AstNode getSupressStatement(Tokenizer tokenizer) {
+    private AstNode getSupressStatement(TokenizerWrapper wrapper) {
         throw new org.apache.commons.lang.NotImplementedException();
     }
 
-    private AstNode getReturnStatement(Tokenizer tokenizer) {
+    private AstNode getReturnStatement(TokenizerWrapper wrapper) {
         throw new org.apache.commons.lang.NotImplementedException();
     }
 
-    private AstNode getVarStatement(Tokenizer tokenizer) {
+    private AstNode getVarStatement(TokenizerWrapper wrapper) {
         throw new org.apache.commons.lang.NotImplementedException();
     }
 
-    private AstNode getForStatement(Tokenizer tokenizer) {
+    private AstNode getForStatement(TokenizerWrapper wrapper) {
         throw new org.apache.commons.lang.NotImplementedException();
     }
 
-    private AstNode getIfStatement(Tokenizer tokenizer) throws ParserException {
+    private AstNode getIfStatement(TokenizerWrapper wrapper) throws ParserException {
         AstNode node = new AstNode(AstType.AST_IF);
         do {
-            AstNode condition = getExpression(tokenizer);
-            if (!next(tokenizer, Tokens.T_BLOCK_END)) {
-                UnexpectedToken(tokenizer, "}}");
+            AstNode condition = getExpression(wrapper);
+            if (!next(wrapper, Tokens.T_BLOCK_END)) {
+                UnexpectedToken(wrapper, "}}");
             }
-            node.add(getNodeList(tokenizer), condition);
-        } while (next(tokenizer, Tokens.T_ELSEIF));
+            node.add(getNodeList(wrapper), condition);
+        } while (next(wrapper, Tokens.T_ELSEIF));
 
-        if (next(tokenizer, Tokens.T_ELSE)) {
-            if (!next(tokenizer, Tokens.T_BLOCK_END)) {
-                UnexpectedToken(tokenizer, "}}");
+        if (next(wrapper, Tokens.T_ELSE)) {
+            if (!next(wrapper, Tokens.T_BLOCK_END)) {
+                UnexpectedToken(wrapper, "}}");
             }
-            node.add(getNodeList(tokenizer));
+            node.add(getNodeList(wrapper));
         }
-        if (!next(tokenizer, Tokens.T_SLASH, Tokens.T_IF, Tokens.T_BLOCK_END)) {
-            UnexpectedToken(tokenizer, "{{/if}}");
+        if (!next(wrapper, Tokens.T_SLASH, Tokens.T_IF, Tokens.T_BLOCK_END)) {
+            UnexpectedToken(wrapper, "{{/if}}");
         }
 
         return node;
     }
 
-    private AstNode getExpression(Tokenizer tokenizer) throws ParserException {
-        if (test(tokenizer, Tokens.T_ARROW) ||
-                test(tokenizer, Tokens.T_ID, Tokens.T_ARROW) ||
-                test(tokenizer, Tokens.T_LPAREN, Tokens.T_RPAREN) ||
-                test(tokenizer, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_COMMA) ||
-                test(tokenizer, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_RPAREN, Tokens.T_ARROW)) {
-            return getMacroExpression(tokenizer);
+    private AstNode getExpression(TokenizerWrapper wrapper) throws ParserException {
+        if (test(wrapper, Tokens.T_ARROW) ||
+                test(wrapper, Tokens.T_ID, Tokens.T_ARROW) ||
+                test(wrapper, Tokens.T_LPAREN, Tokens.T_RPAREN) ||
+                test(wrapper, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_COMMA) ||
+                test(wrapper, Tokens.T_LPAREN, Tokens.T_ID, Tokens.T_RPAREN, Tokens.T_ARROW)) {
+            return getMacroExpression(wrapper);
         }
-        return getTernaryExpression(tokenizer);
+        return getTernaryExpression(wrapper);
     }
 
-    private AstNode getMacroExpression(Tokenizer tokenizer) throws ParserException {
+    private AstNode getMacroExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode result = new AstNode(AstType.AST_NODELIST);
 
-        TokenizerResult name = tokenizer.next(Tokens.T_ID.getId());
+        TokenizerResult name = wrapper.next(Tokens.T_ID.getId());
         if (name.isFound()) {
             result.add(new AstNode(AstType.AST_NOP).addValue(name.first().getValue()));
-        } else if (next(tokenizer, Tokens.T_LPAREN)) {
-            if (!test(tokenizer, Tokens.T_RPAREN)) {
+        } else if (next(wrapper, Tokens.T_LPAREN)) {
+            if (!test(wrapper, Tokens.T_RPAREN)) {
                 do {
-                    name = tokenizer.next(Tokens.T_ID.getId());
+                    name = wrapper.next(Tokens.T_ID.getId());
                     if (name.isFound()) {
                         result.add(new AstNode(AstType.AST_NOP).addValue(name.first().getValue()));
                     } else {
-                        UnexpectedToken(tokenizer, "IDENTIFIER");
+                        UnexpectedToken(wrapper, "IDENTIFIER");
                     }
-                } while (next(tokenizer, Tokens.T_COMMA));
+                } while (next(wrapper, Tokens.T_COMMA));
             }
-            if (!next(tokenizer, Tokens.T_RPAREN)) {
-                UnexpectedToken(tokenizer, ")");
+            if (!next(wrapper, Tokens.T_RPAREN)) {
+                UnexpectedToken(wrapper, ")");
             }
         }
-        if (!next(tokenizer, Tokens.T_ARROW)) {
-            UnexpectedToken(tokenizer, "=>");
+        if (!next(wrapper, Tokens.T_ARROW)) {
+            UnexpectedToken(wrapper, "=>");
         }
         if (result.getNodes().size() > 0) {
             //todo
 //            result.unshift(result.length);
         }
 
-        return createMacroNode(tokenizer).add(result);
+        return createMacroNode(wrapper).add(result);
     }
 
-    private AstNode createMacroNode(Tokenizer tokenizer) throws ParserException {
-        AstNode returnNode = new AstNode(AstType.AST_RETURN).add(getExpression(tokenizer));
+    private AstNode createMacroNode(TokenizerWrapper wrapper) throws ParserException {
+        AstNode returnNode = new AstNode(AstType.AST_RETURN).add(getExpression(wrapper));
         AstNode nodeList = new AstNode(AstType.AST_NODELIST).add(returnNode);
         AstNode node = new AstNode(AstType.AST_MACRO).add(nodeList);
         return node;
     }
 
-    private AstNode getTernaryExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getLogicalOrExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_QUERY.getId()).isFound()) {
+    private AstNode getTernaryExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getLogicalOrExpression(wrapper);
+        while (next(wrapper, Tokens.T_QUERY)) {
             AstNode node = new AstNode(AstType.AST_TERNARY);
-            res = node.add(res, getExpression(tokenizer));
-            if (tokenizer.next(Tokens.T_COLON.getId()).isFound()) {
-                res.add(getExpression(tokenizer));
+            res = node.add(res, getExpression(wrapper));
+            if (next(wrapper, Tokens.T_COLON)) {
+                res.add(getExpression(wrapper));
             }
         }
         return res;
     }
 
-    private AstNode getLogicalOrExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getLogicalAndExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_OR.getId()).isFound()) {
+    private AstNode getLogicalOrExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getLogicalAndExpression(wrapper);
+        while (next(wrapper, Tokens.T_OR)) {
             AstNode node = new AstNode(AstType.AST_OR);
             res = node.add(res);
-            res.add(getLogicalAndExpression(tokenizer));
+            res.add(getLogicalAndExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getLogicalAndExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getBitwiseOrExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_AND.getId()).isFound()) {
+    private AstNode getLogicalAndExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getBitwiseOrExpression(wrapper);
+        while (next(wrapper, Tokens.T_AND)) {
             AstNode node = new AstNode(AstType.AST_AND);
             res = node.add(res);
-            res.add(getBitwiseOrExpression(tokenizer));
+            res.add(getBitwiseOrExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getBitwiseOrExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getBitwiseXorExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_BOR.getId()).isFound()) {
+    private AstNode getBitwiseOrExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getBitwiseXorExpression(wrapper);
+        while (next(wrapper, Tokens.T_BOR)) {
             AstNode node = new AstNode(AstType.AST_BOR);
             res = node.add(res);
-            res.add(getBitwiseXorExpression(tokenizer));
+            res.add(getBitwiseXorExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getBitwiseXorExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getBitwiseAndExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_BXOR.getId()).isFound()) {
+    private AstNode getBitwiseXorExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getBitwiseAndExpression(wrapper);
+        while (next(wrapper, Tokens.T_BXOR)) {
             AstNode node = new AstNode(AstType.AST_BXOR);
             res = node.add(res);
-            res.add(getBitwiseAndExpression(tokenizer));
+            res.add(getBitwiseAndExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getBitwiseAndExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getEqualityExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_BAND.getId()).isFound()) {
+    private AstNode getBitwiseAndExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getEqualityExpression(wrapper);
+        while (next(wrapper, Tokens.T_BAND)) {
             AstNode node = new AstNode(AstType.AST_BAND);
             res = node.add(res);
-            res.add(getEqualityExpression(tokenizer));
+            res.add(getEqualityExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getEqualityExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getRelationalExpression(tokenizer);
-        while (test(tokenizer, Tokens.T_EQ) || test(tokenizer, Tokens.T_NEQ)) {
+    private AstNode getEqualityExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getRelationalExpression(wrapper);
+        while (test(wrapper, Tokens.T_EQ) || test(wrapper, Tokens.T_NEQ)) {
             AstNode node;
-            if (next(tokenizer, Tokens.T_EQ)) {
+            if (next(wrapper, Tokens.T_EQ)) {
                 node = new AstNode(AstType.AST_EQ);
             } else {
-                next(tokenizer, Tokens.T_NEQ);// we needed to read next token for right work
+                next(wrapper, Tokens.T_NEQ);// we needed to read next token for right work
                 node = new AstNode(AstType.AST_NEQ);
             }
             res = node.add(res);
-            res.add(getRelationalExpression(tokenizer));
+            res.add(getRelationalExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getRelationalExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getAdditiveExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_LE.getId()).isFound()
-                || tokenizer.next(Tokens.T_GE.getId()).isFound()
-                || tokenizer.next(Tokens.T_LT.getId()).isFound()
-                || tokenizer.next(Tokens.T_GT.getId()).isFound()
+    private AstNode getRelationalExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getAdditiveExpression(wrapper);
+        while (next(wrapper, Tokens.T_LE)
+                || next(wrapper, Tokens.T_GE)
+                || next(wrapper, Tokens.T_LT)
+                || next(wrapper, Tokens.T_GT)
                 ) {
             AstNode node;
-            if (tokenizer.next(Tokens.T_LE.getId()).isFound()) {
+            if (next(wrapper, Tokens.T_LE)) {
                 node = new AstNode(AstType.AST_LE);
-            } else if (tokenizer.next(Tokens.T_GE.getId()).isFound()) {
+            } else if (next(wrapper, Tokens.T_GE)) {
                 node = new AstNode(AstType.AST_GE);
-            } else if (tokenizer.next(Tokens.T_LT.getId()).isFound()) {
+            } else if (next(wrapper, Tokens.T_LT)) {
                 node = new AstNode(AstType.AST_LT);
             } else {
                 node = new AstNode(AstType.AST_GT);
             }
             res = node.add(res);
-            res.add(getAdditiveExpression(tokenizer));
+            res.add(getAdditiveExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getAdditiveExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getMultiplicativeExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_PLUS.getId()).isFound() || tokenizer.next(Tokens.T_MINUS.getId()).isFound()) {
+    private AstNode getAdditiveExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getMultiplicativeExpression(wrapper);
+        while (next(wrapper, Tokens.T_PLUS) || next(wrapper, Tokens.T_MINUS)) {
             AstNode node;
-            if (tokenizer.next(Tokens.T_PLUS.getId()).isFound()) {
+            if (next(wrapper, Tokens.T_PLUS)) {
                 node = new AstNode(AstType.AST_ADD);
             } else {
                 node = new AstNode(AstType.AST_SUB);
             }
             res = node.add(res);
-            res.add(getMultiplicativeExpression(tokenizer));
+            res.add(getMultiplicativeExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getMultiplicativeExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getUnaryExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_STAR.getId()).isFound()
-                || tokenizer.next(Tokens.T_SLASH.getId()).isFound()
-                || tokenizer.next(Tokens.T_MOD.getId()).isFound()
+    private AstNode getMultiplicativeExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getUnaryExpression(wrapper);
+        while (next(wrapper, Tokens.T_STAR)
+                || next(wrapper, Tokens.T_SLASH)
+                || next(wrapper, Tokens.T_MOD)
                 ) {
             AstNode node;
-            if (tokenizer.next(Tokens.T_STAR.getId()).isFound()) {
+            if (next(wrapper, Tokens.T_STAR)) {
                 node = new AstNode(AstType.AST_MUL);
-            } else if (tokenizer.next(Tokens.T_SLASH.getId()).isFound()) {
+            } else if (next(wrapper, Tokens.T_SLASH)) {
                 node = new AstNode(AstType.AST_DIV);
             } else {
                 node = new AstNode(AstType.AST_MOD);
             }
             res = node.add(res);
-            res.add(getUnaryExpression(tokenizer));
+            res.add(getUnaryExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getUnaryExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getMemberExpression(tokenizer);
-        while (tokenizer.next(Tokens.T_NOT.getId()).isFound() || tokenizer.next(Tokens.T_MINUS.getId()).isFound()) {
+    private AstNode getUnaryExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getMemberExpression(wrapper);
+        while (next(wrapper, Tokens.T_NOT) || next(wrapper, Tokens.T_MINUS)) {
             AstNode node;
-            if (tokenizer.next(Tokens.T_NOT.getId()).isFound()) {
+            if (next(wrapper, Tokens.T_NOT)) {
                 node = new AstNode(AstType.AST_NOT);
             } else {
                 node = new AstNode(AstType.AST_USUB);
             }
             res = node.add(res);
-            res.add(getMemberExpression(tokenizer));
+            res.add(getMemberExpression(wrapper));
         }
         return res;
     }
 
-    private AstNode getMemberExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode res = getPrimaryExpression(tokenizer);
+    private AstNode getMemberExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode res = getPrimaryExpression(wrapper);
 
         while (true) {
-            if (tokenizer.next(Tokens.T_DOT.getId()).isFound()) {
+            if (next(wrapper, Tokens.T_DOT)) {
                 res = new AstNode(AstType.AST_PROP, res);
-                if (tokenizer.test(Tokens.T_PROP.getId()) != null) {
-                    UnexpectedToken(tokenizer, "IDENTIFIER");
+                if (wrapper.test(Tokens.T_PROP.getId()) != null) {
+                    UnexpectedToken(wrapper, "IDENTIFIER");
                 }
-                res.addValue(tokenizer.next().first().getValue());
-            } else if (tokenizer.next(Tokens.T_METHOD.getId()).isFound()) {
+                res.addValue(wrapper.next().first().getValue());
+            } else if (next(wrapper, Tokens.T_METHOD)) {
                 res = new AstNode(AstType.AST_METHOD, res);
-                if (tokenizer.test(Tokens.T_PROP.getId()) != null) {
-                    UnexpectedToken(tokenizer, "IDENTIFIER");
+                if (wrapper.test(Tokens.T_PROP.getId()) != null) {
+                    UnexpectedToken(wrapper, "IDENTIFIER");
                 }
-                res.addValue(tokenizer.next().first().getValue());
-            } else if (tokenizer.next(Tokens.T_LBRACKET.getId()).isFound()) {
+                res.addValue(wrapper.next().first().getValue());
+            } else if (next(wrapper, Tokens.T_LBRACKET)) {
                 res = new AstNode(AstType.AST_PROP, res);
-                res.add(getExpression(tokenizer));
-                if (tokenizer.test(Tokens.T_RBRACKET.getId()) != null) {
-                    UnexpectedToken(tokenizer, "]");
+                res.add(getExpression(wrapper));
+                if (wrapper.test(Tokens.T_RBRACKET.getId()) != null) {
+                    UnexpectedToken(wrapper, "]");
                 }
-            } else if (tokenizer.next(Tokens.T_LPAREN.getId()).isFound()) {
+            } else if (next(wrapper, Tokens.T_LPAREN)) {
                 res = new AstNode(AstType.AST_CALL, res);
-                if (tokenizer.next(Tokens.T_RPAREN.getId()) != null) {
+                if (wrapper.next(Tokens.T_RPAREN.getId()) != null) {
                     continue;
                 }
                 do {
-                    res.add(getExpression(tokenizer));
-                } while (tokenizer.next(Tokens.T_COMMA.getId()).isFound());
-                if (tokenizer.test(Tokens.T_RPAREN.getId()) != null) {
-                    UnexpectedToken(tokenizer, "]");
+                    res.add(getExpression(wrapper));
+                } while (next(wrapper, Tokens.T_COMMA));
+                if (wrapper.test(Tokens.T_RPAREN.getId()) != null) {
+                    UnexpectedToken(wrapper, "]");
                 }
             } else {
                 return res;
@@ -399,52 +401,52 @@ public class Parser {
         }
     }
 
-    private AstNode getPrimaryExpression(Tokenizer tokenizer) throws ParserException {
-        if (next(tokenizer, Tokens.T_NULL)) {
+    private AstNode getPrimaryExpression(TokenizerWrapper wrapper) throws ParserException {
+        if (next(wrapper, Tokens.T_NULL)) {
             return AstNode.forValue(null);
-        } else if (next(tokenizer, Tokens.T_TRUE)) {
+        } else if (next(wrapper, Tokens.T_TRUE)) {
             return AstNode.forValue(true);
-        } else if (next(tokenizer, Tokens.T_FALSE)) {
+        } else if (next(wrapper, Tokens.T_FALSE)) {
             return AstNode.forValue(false);
-        } else if (next(tokenizer, Tokens.T_SLASH)) {
-            return getRegexpLiteral(tokenizer);
-        } else if (next(tokenizer, Tokens.T_LITERAL_START)) {
-            return getLiteralStatement(tokenizer);
-        } else if (test(tokenizer, Tokens.T_SQUOTE)) {
-            return getStringLiteral(tokenizer);
-        } else if (test(tokenizer, Tokens.T_DQUOTE)) {
-            return getStringLiteral(tokenizer);
-        } else if (next(tokenizer, Tokens.T_LBRACKET)) {
-            return getArrayExpression(tokenizer);
-        } else if (next(tokenizer, Tokens.T_BLOCK_START)) {
+        } else if (next(wrapper, Tokens.T_SLASH)) {
+            return getRegexpLiteral(wrapper);
+        } else if (next(wrapper, Tokens.T_LITERAL_START)) {
+            return getLiteralStatement(wrapper);
+        } else if (test(wrapper, Tokens.T_SQUOTE)) {
+            return getStringLiteral(wrapper);
+        } else if (test(wrapper, Tokens.T_DQUOTE)) {
+            return getStringLiteral(wrapper);
+        } else if (next(wrapper, Tokens.T_LBRACKET)) {
+            return getArrayExpression(wrapper);
+        } else if (next(wrapper, Tokens.T_BLOCK_START)) {
             throw new NotImplementedException();
 //            NodesStatement
-        } else if (next(tokenizer, Tokens.T_THIS)) {
+        } else if (next(wrapper, Tokens.T_THIS)) {
             return new AstNode(AstType.AST_THIS);
-        } else if (next(tokenizer, Tokens.T_GLOBAL)) {
+        } else if (next(wrapper, Tokens.T_GLOBAL)) {
             return new AstNode(AstType.AST_GLOBAL);
-        } else if (test(tokenizer, Tokens.T_INT)) {
-            return AstNode.forValue(Integer.parseInt(tokenizer.next().first().getValue(), 10));
-        } else if (test(tokenizer, Tokens.T_BIN)) {
-            return AstNode.forValue(Integer.parseInt(tokenizer.next().first().getValue().substring(2), 2));
-        } else if (test(tokenizer, Tokens.T_HEX)) {
-            return AstNode.forValue(Integer.parseInt(tokenizer.next().first().getValue().substring(2), 16));
-        } else if (test(tokenizer, Tokens.T_FLOAT)) {
-            return AstNode.forValue(Float.parseFloat(tokenizer.next().first().getValue()));
-        } else if (test(tokenizer, Tokens.T_REF)) {
+        } else if (test(wrapper, Tokens.T_INT)) {
+            return AstNode.forValue(Integer.parseInt(wrapper.next().first().getValue(), 10));
+        } else if (test(wrapper, Tokens.T_BIN)) {
+            return AstNode.forValue(Integer.parseInt(wrapper.next().first().getValue().substring(2), 2));
+        } else if (test(wrapper, Tokens.T_HEX)) {
+            return AstNode.forValue(Integer.parseInt(wrapper.next().first().getValue().substring(2), 16));
+        } else if (test(wrapper, Tokens.T_FLOAT)) {
+            return AstNode.forValue(Float.parseFloat(wrapper.next().first().getValue()));
+        } else if (test(wrapper, Tokens.T_REF)) {
             AstNode node = new AstNode(AstType.AST_REF);
-            node.addValue(tokenizer.next().first().getValue());
+            node.addValue(wrapper.next().first().getValue());
             return node;
-        } else if (next(tokenizer, Tokens.T_LPAREN)) {
-            return getParenthesizedExpression(tokenizer);
+        } else if (next(wrapper, Tokens.T_LPAREN)) {
+            return getParenthesizedExpression(wrapper);
         } else {
-            UnexpectedToken(tokenizer, "EXPRESSION");
+            UnexpectedToken(wrapper, "EXPRESSION");
         }
         //todo remove this thrown
         throw new NotImplementedException();
     }
 
-    private AstNode getArrayExpression(Tokenizer tokenizer) throws ParserException {
+    private AstNode getArrayExpression(TokenizerWrapper wrapper) throws ParserException {
         throw new NotImplementedException();
 //        int counter = 0, values = 0;
 //
@@ -454,16 +456,16 @@ public class Parser {
 //        String key;
 //        AstNode value;
 //        do {
-//            while (tokenizer.next(Tokens.T_COMMA.getId()) != null) ;
-//            if (tokenizer.next(Tokens.T_RBRACKET.getId()) != null) {
+//            while (wrapper.next(Tokens.T_COMMA.getId()) != null) ;
+//            if (wrapper.next(Tokens.T_RBRACKET.getId()) != null) {
 //                return result;
 //            }
 //            Token t = tokenizer.next(Tokens.T_PROP.getId(), Tokens.T_COLON.getId());
 //            if (t != null) {
 //                key = t.getValue();
-//                value = getExpression(tokenizer);
+//                value = getExpression(wrapper);
 //            } else if ((Utils_isString(key = Expression(ctx)) || Utils_isNumber(key)) && ctx.next(Tokens.T_COLON)) {
-//                value = getExpression(tokenizer);
+//                value = getExpression(wrapper);
 //                if (Utils_isString(key) && validInteger.test(key)) {
 //                    key = parseInt(key, 10);
 //                }
@@ -485,26 +487,26 @@ public class Parser {
 //                values[key] = result.length;
 //                result.push(value, key);
 //            }
-//        } while (tokenizer.next(Tokens.T_COMMA.getId()) != null);
+//        } while (wrapper.next(Tokens.T_COMMA.getId()) != null);
 //
-//        if (tokenizer.next(Tokens.T_RBRACKET.getId()) == null) {
-//            UnexpectedToken(tokenizer, "]");
+//        if (wrapper.next(Tokens.T_RBRACKET.getId()) == null) {
+//            UnexpectedToken(wrapper, "]");
 //        }
 //        return result;
     }
 
-    private AstNode getStringLiteral(Tokenizer tokenizer) throws ParserException {
+    private AstNode getStringLiteral(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = new AstNode(Integer.MIN_VALUE);
-        String start = tokenizer.next().first().getValue();
+        String start = wrapper.next().first().getValue();
         TokenizerResult fragment;
-        while ((fragment = tokenizer.next()).isFound()) {
+        while ((fragment = wrapper.next()).isFound()) {
             if (fragment.first().getTypes().contains(BaseTokens.T_EOF.getId())) {
-                SyntaxError(tokenizer, "unterminated string literal");
+                SyntaxError(wrapper, "unterminated string literal");
             }
             if (StringUtils.equals(fragment.first().getValue(), start)) {
                 break;
             } else if (StringUtils.equals(fragment.first().getValue(), "\\")) {
-                res.addValue("\\").addValue(tokenizer.next().first().getValue());
+                res.addValue("\\").addValue(wrapper.next().first().getValue());
             } else {
                 res.addValue(fragment.first().getValue());
             }
@@ -512,66 +514,67 @@ public class Parser {
         return res.escaped();
     }
 
-    private AstNode getLiteralStatement(Tokenizer tokenizer) throws ParserException {
+    private AstNode getLiteralStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper);
         AstNode node = AstNode.forValue("");
-        while (tokenizer.test(BaseTokens.T_EOF.getId(), Tokens.T_LITERAL_END.getId()) == null) {
-            node.addValue(tokenizer.next().first().getValue());
+        while (wrapper.test(BaseTokens.T_EOF.getId(), Tokens.T_LITERAL_END.getId()) == null) {
+            node.addValue(wrapper.next().first().getValue());
         }
-        if (!next(tokenizer, Tokens.T_LITERAL_END)) {
-            UnexpectedToken(tokenizer, "%}}");
-        }
-        return node;
-    }
-
-    private AstNode getParenthesizedExpression(Tokenizer tokenizer) throws ParserException {
-        AstNode node = getExpression(tokenizer);
-        if (!next(tokenizer, Tokens.T_RPAREN)) {
-            UnexpectedToken(tokenizer, ")");
+        if (!next(wrapper, Tokens.T_LITERAL_END)) {
+            UnexpectedToken(wrapper, "%}}");
         }
         return node;
     }
 
-    private AstNode getRegexpLiteral(Tokenizer tokenizer) throws ParserException {
+    private AstNode getParenthesizedExpression(TokenizerWrapper wrapper) throws ParserException {
+        AstNode node = getExpression(wrapper);
+        if (!next(wrapper, Tokens.T_RPAREN)) {
+            UnexpectedToken(wrapper, ")");
+        }
+        return node;
+    }
+
+    private AstNode getRegexpLiteral(TokenizerWrapper wrapper) throws ParserException {
         String result = "";
         boolean inCharSet = false;
 
         for (; ; ) {
-            if (tokenizer.test(BaseTokens.T_EOF.getId()).isFound()) {
+            if (wrapper.test(BaseTokens.T_EOF.getId()).isFound()) {
                 break;
             }
-            if (tokenizer.test(Tokens.T_EOL.getId()).isFound()) {
+            if (test(wrapper, Tokens.T_EOL)) {
                 break;
             }
-            if (!inCharSet && tokenizer.test(Tokens.T_SLASH.getId()).isFound()) {
+            if (!inCharSet && test(wrapper, Tokens.T_SLASH)) {
                 break;
             }
-            if (tokenizer.next(Tokens.T_BACKSLASH.getId()).isFound()) {
+            if (next(wrapper, Tokens.T_BACKSLASH)) {
                 result += "\\";
-            } else if (tokenizer.test(Tokens.T_LBRACKET.getId()).isFound()) {
+            } else if (test(wrapper, Tokens.T_LBRACKET)) {
                 inCharSet = true;
-            } else if (tokenizer.test(Tokens.T_RBRACKET.getId()).isFound()) {
+            } else if (test(wrapper, Tokens.T_RBRACKET)) {
                 inCharSet = false;
             }
-            result += tokenizer.next().first().getValue();
+            result += wrapper.next().first().getValue();
         }
 
-        if (!tokenizer.next(Tokens.T_SLASH.getId()).isFound()) {
-            SyntaxError(tokenizer, "unterminated regexp literal");
+        if (!next(wrapper, Tokens.T_SLASH)) {
+            SyntaxError(wrapper, "unterminated regexp literal");
         }
 
         try {
             Pattern.compile(result);
         } catch (Exception e) {
-            SyntaxError(tokenizer, e.getMessage());
+            SyntaxError(wrapper, e.getMessage());
         }
 
         int flagNum = 0;
-        Token flagToken = tokenizer.next(Tokens.T_PROP.getId()).first();
+        Token flagToken = wrapper.next(Tokens.T_PROP.getId()).first();
         if (flagToken != null) {
             String flagStr = flagToken.getValue();
 
             if (!regexpFlagsPattern.matcher(flagStr).find()) {
-                SyntaxError(tokenizer, "invalid flags supplied to regular expression '" + flagStr + "'");
+                SyntaxError(wrapper, "invalid flags supplied to regular expression '" + flagStr + "'");
             }
 
             if (flagStr.contains("g")) {
@@ -590,12 +593,12 @@ public class Parser {
         return res;
     }
 
-    private boolean next(Tokenizer tokenizer, Tokens... tokens) {
-        return tokenizer.next(toIntArr(tokens)).isFound();
+    private boolean next(TokenizerWrapper wrapper, Tokens... tokens) {
+        return wrapper.next(toIntArr(tokens)).isFound();
     }
 
-    private boolean test(Tokenizer tokenizer, Tokens... tokens) {
-        return tokenizer.test(toIntArr(tokens)).isFound();
+    private boolean test(TokenizerWrapper wrapper, Tokens... tokens) {
+        return wrapper.test(toIntArr(tokens)).isFound();
     }
 
     private Integer[] toIntArr(Tokens... tokens) {
@@ -606,17 +609,17 @@ public class Parser {
         return ids;
     }
 
-    private void UnexpectedToken(Tokenizer tokenizer, String expected) throws ParserException {
-        Token token = tokenizer.next().first();
-        int line = tokenizer.getLineNumber(token.getIndex());
+    private void UnexpectedToken(TokenizerWrapper wrapper, String expected) throws ParserException {
+        Token token = wrapper.next().first();
+        int line = wrapper.getLineNumber(token.getIndex());
         String value = token.getTypes().contains(BaseTokens.T_EOF.getId()) ? "EOF" : token.getValue();
         String message = "unexpected '" + value + "', expected '" + expected + "'";
-        throw new ParserException(message, tokenizer.getBaseURI(), line);
+        throw new ParserException(message, wrapper.getBaseURI(), line);
     }
 
-    private void SyntaxError(Tokenizer tokenizer, String s) throws ParserException {
-        Token token = tokenizer.next().first();
-        int line = tokenizer.getLineNumber(token.getIndex());
-        throw new ParserException(s, tokenizer.getBaseURI(), line);
+    private void SyntaxError(TokenizerWrapper wrapper, String s) throws ParserException {
+        Token token = wrapper.next().first();
+        int line = wrapper.getLineNumber(token.getIndex());
+        throw new ParserException(s, wrapper.getBaseURI(), line);
     }
 }

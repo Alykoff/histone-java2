@@ -4,17 +4,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by alexey.nevinsky on 24.12.2015.
  */
-public class AstNode<T> implements Serializable{
+public class AstNode<T> implements Serializable {
+    protected final UUID id;
     protected final int type;
     protected List<AstNode> nodes = new ArrayList<>();
     protected List<T> values = new ArrayList<>();
 
     public AstNode(int type) {
         this.type = type;
+        id = UUID.randomUUID();
     }
 
     public AstNode(AstType type) {
@@ -94,5 +97,9 @@ public class AstNode<T> implements Serializable{
     public AstNode escaped() {
         //todo
         return this;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

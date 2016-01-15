@@ -116,7 +116,7 @@ public class OldParser {
 
         Tokenizer tokenizer = new Tokenizer(input, "blabla.json", expressions);
         for (int i = 0; i < 40; i++) {
-            System.out.println(tokenizer.next());
+//            System.out.println(tokenizer.next());
         }
     }
 

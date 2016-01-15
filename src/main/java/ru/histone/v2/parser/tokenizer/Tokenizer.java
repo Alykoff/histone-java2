@@ -26,23 +26,17 @@ public class Tokenizer {
     private int lastIndex = 0;
 
     private Queue<Token> buffer;
-    private List<Integer> ignored;
 
     public Tokenizer(String input, String baseURI, List<Expression> expressions) {
         this.expressions = new ArrayList<>(expressions.size());
         this.expressions.addAll(expressions);
 
         buffer = new LinkedList<>();
-        ignored = new ArrayList<>();
         this.input = input;
         this.baseURI = baseURI;
         this.inputLen = input.length();
         Pattern mainPattern = Pattern.compile(expressions.stream().map(Expression::getExpression).collect(Collectors.joining("|")));
         matcher = mainPattern.matcher(input);
-    }
-
-    public void setIgnored(List<Integer> ignored) {
-        this.ignored = ignored;
     }
 
     public String getBaseURI() {
@@ -77,7 +71,7 @@ public class Tokenizer {
         }
     }
 
-    public Token getTokenFromBuffer(int offset) {
+    public Token getTokenFromBuffer(int offset, List<Integer> ignored) {
         int toRead = offset - buffer.size() + 1;
         while (toRead-- > 0) {
             readTokenToBuffer();
@@ -93,28 +87,28 @@ public class Tokenizer {
         }
     }
 
-    private TokenizerResult getTokenA(boolean consume) {
+    private TokenizerResult getTokenA(boolean consume, List<Integer> ignored) {
         int offset = 0;
         Token token;
         if (consume) {
             do {
-                token = getTokenFromBuffer(0);
+                token = getTokenFromBuffer(0, ignored);
                 buffer.remove();
             } while (token.isIgnored());
         } else {
             do {
-                token = getTokenFromBuffer(offset++);
+                token = getTokenFromBuffer(offset++, ignored);
             } while (token.isIgnored());
         }
         return new TokenizerResult(token);
     }
 
-    private TokenizerResult getTokenB(boolean consume, Integer... selector) {
+    private TokenizerResult getTokenB(boolean consume, List<Integer> ignored, Integer... selector) {
         int count = 0, index = 0;
         List<Token> result = new ArrayList<>();
 
         do {
-            Token token = getTokenFromBuffer(count++);
+            Token token = getTokenFromBuffer(count++, ignored);
             if (compareToken(token, selector[index])) {
                 result.add(token);
                 index++;
@@ -152,18 +146,18 @@ public class Tokenizer {
         return false;
     }
 
-    public TokenizerResult next(Integer... selector) {
+    public TokenizerResult next(List<Integer> ignored, Integer... selector) {
         if (ArrayUtils.isNotEmpty(selector)) {
-            return getTokenB(true, selector);
+            return getTokenB(true, ignored, selector);
         }
-        return getTokenA(true);
+        return getTokenA(true, ignored);
     }
 
-    public TokenizerResult test(Integer... selector) {
+    public TokenizerResult test(List<Integer> ignored, Integer... selector) {
         if (ArrayUtils.isNotEmpty(selector)) {
-            return getTokenB(false, selector);
+            return getTokenB(false, ignored, selector);
         }
-        return getTokenA(false);
+        return getTokenA(false, ignored);
     }
 
     public int getLineNumber(long index) {

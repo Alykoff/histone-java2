@@ -22,7 +22,11 @@ public class ParserTest extends BaseTest {
             System.out.println("Run test '" + histoneTestCase.getName() + "'");
             for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
                 System.out.println("Expression: " + testCase.getInput());
-                doTest(testCase.getInput(), testCase.getExpectedResult());
+                try {
+                    doTest(testCase.getInput(), testCase.getExpectedResult());
+                } catch (Throwable ignore) {
+                    System.out.println("down");
+                }
             }
         }
     }

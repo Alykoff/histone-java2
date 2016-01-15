@@ -13,7 +13,9 @@ import ru.histone.v2.parser.tokenizer.TokenizerResult;
 import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -134,8 +136,45 @@ public class Parser {
         throw new org.apache.commons.lang.NotImplementedException();
     }
 
-    private AstNode getForStatement(TokenizerWrapper wrapper) {
-        throw new org.apache.commons.lang.NotImplementedException();
+    private AstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
+        final AstNode node = new AstNode(AstType.AST_FOR);
+        final TokenizerResult exp1 = wrapper.next(Tokens.T_ID.getId());
+        if (exp1.isFound()) {
+            node.addValue(exp1.getTokens());
+            final TokenizerResult exp2 = wrapper.next(Tokens.T_ID.getId());
+            if (exp2.isFound()) {
+               node.addValue(exp2.getTokens());
+            } else {
+                UnexpectedToken(wrapper, "IDENTIFIER");
+            }
+        } else {
+            node.addValue(null);
+            node.addValue(null);
+        }
+
+        if (!next(wrapper, Tokens.T_IN)) {
+            UnexpectedToken(wrapper, "in");
+        }
+
+        do {
+            final AstNode node2 = getExpression(wrapper);
+            if (!next(wrapper, Tokens.T_BLOCK_END)) {
+                UnexpectedToken(wrapper, "}}");
+            }
+            node.add(getNodeList(wrapper), node2);
+        } while (next(wrapper, Tokens.T_ELSEIF));
+
+        if (next(wrapper, Tokens.T_ELSE)) {
+            if (!next(wrapper, Tokens.T_BLOCK_END)) {
+                UnexpectedToken(wrapper, "}}");
+            }
+            node.add(getNodeList(wrapper));
+        }
+
+        if (!next(wrapper, Tokens.T_SLASH, Tokens.T_FOR, Tokens.T_BLOCK_END)) {
+            UnexpectedToken(wrapper, "{{/for}}");
+        }
+        return node;
     }
 
     private AstNode getIfStatement(TokenizerWrapper wrapper) throws ParserException {

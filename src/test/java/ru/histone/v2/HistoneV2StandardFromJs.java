@@ -18,20 +18,22 @@ public class HistoneV2StandardFromJs {
     private static final String PATH_TO_HISTONE2_JS_RUNNER = getRunnerJsAbsolutePath(RESOURCE_PATH_TO_RUNNER, RELATIVE_RESOURCE_PATH_TO_RUNNER);
 
     public static void main(String[] args) throws IOException {
-        System.out.println(getNodes("2 x 2 == {{2 * 2}}"));
-        System.out.println(getTpl("2 x 2 == {{2 * 2}}"));
+        System.out.println(getNodes("sdjhfsdjkbfdsksd {{if 1 = 1 && '2' != 'fdsds4'}}1231231{{else}}aaa{{/if}}sdklbjfsdlkfdsbfsdksfd"));
+        System.out.println(getTpl("sdjhfsdjkbfdsksd {{if 1 = 1 && '2' != 'fdsds4'}}1231231{{else}}aaa{{/if}}sdklbjfsdlkfdsbfsdksfd"));
     }
 
     public static String getNodes(String tpl) throws IOException {
+        tpl = tpl.replaceAll("\"", "\"");
         final ProcessBuilder processBuilder = new ProcessBuilder(
-                "node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl='" + tpl + "'", "-n"
+                "node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl=\"" + tpl + "\"", "-n"
         );
         return getProcessResult(processBuilder);
     }
 
     public static String getTpl(String tpl) throws IOException {
+        tpl = tpl.replaceAll("\"", "\"");
         final ProcessBuilder processBuilder = new ProcessBuilder(
-                "node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl='" + tpl + "'"
+                "node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl=\"" + tpl + "\""
         );
         return getProcessResult(processBuilder);
     }

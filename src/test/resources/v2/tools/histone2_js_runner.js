@@ -4,30 +4,30 @@ const FS = require('fs');
 const DEFAULT_SETTINGS = {
     expression: '',
     isReturnNodes: false,
-    isHelp: true
+    isHelp: true,
+    info: ''
 };
 const FILE_ENCODING = 'utf8';
 
 var settings = getSettings();
-var expression = settings.expression;
-var template = Histone(expression);
-var info = 'Options:\n' +
-    '\t--file=index.tpl\tHistone template in file\n' +
-    '\t--tpl=\'{{2 * 2}}\'\tHistone template\n' +
-    '\t-returnNode, -n\t\tReturn Nodes\n' +
-    '\t-help, -about\t\tHelp info\n';
+var template = Histone(settings.expression);
 
 if (settings.isHelp) {
-    console.log(info);
+    console.log(settings.info);
 }
 
 if (settings.isReturnNodes) {
-    console.log(template.b);
+    console.log(JSON.stringify(template.b));
 } else {
     template.render(console.log);
 }
 
 function getSettings() {
+    const INFO = 'Options:\n' +
+        '\t--file=index.tpl\tHistone template in file\n' +
+        '\t--tpl="{{2 * 2}}"\tHistone template\n' +
+        '\t-returnNode, -n\t\tReturn Nodes\n' +
+        '\t-help, -about\t\tHelp info\n';
     const TPL_ARG_FLAG = '--tpl=';
     const FILE_ARG_FLAG = '--file=';
     const RETURN_NODE_ARG_FLAG = '-returnNode';
@@ -36,12 +36,13 @@ function getSettings() {
     const ABOUT_ARG_FLAG = '-about';
 
     var settings = Object.assign({}, DEFAULT_SETTINGS);
+    settings.info = INFO;
     var usingHelpFlag = false;
     for (var key in process.argv) {
         var value = process.argv[key];
         if (value.startsWith(TPL_ARG_FLAG)) {
             var tplContent = value.substring(TPL_ARG_FLAG.length, value.length);
-            var isQuotes = tplContent.startsWith("'") && tplContent.endsWith("'");
+            var isQuotes = tplContent.startsWith('"') && tplContent.endsWith('"');
             if (isQuotes) {
                 tplContent = tplContent.substring(1, tplContent.length);
                 tplContent = tplContent.substring(0, tplContent.length - 1);

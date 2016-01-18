@@ -20,6 +20,6 @@ public class ConcreteTest extends BaseTest {
 
     @Test
     public void expressionTest() throws HistoneException {
-        doTest("a {{if ''}} true {{/if}} b", "a  b");
+        doTest("a {{if [foo: 1]}} true {{/if}} b", "a  true  b");
     }
 }

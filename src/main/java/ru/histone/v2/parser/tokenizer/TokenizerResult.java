@@ -42,4 +42,8 @@ public class TokenizerResult {
     public Token first() {
         return tokens.get(0);
     }
+
+    public String firstValue() {
+        return tokens.get(0).getValue();
+    }
 }

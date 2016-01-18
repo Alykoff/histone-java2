@@ -11,9 +11,13 @@ import ru.histone.v2.parser.tokenizer.ExpressionList;
 import ru.histone.v2.parser.tokenizer.Tokenizer;
 import ru.histone.v2.parser.tokenizer.TokenizerResult;
 import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
+import ru.histone.v2.utils.ParserUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -486,20 +490,53 @@ public class Parser {
     }
 
     private AstNode getArrayExpression(TokenizerWrapper wrapper) throws ParserException {
-        throw new NotImplementedException();
-//        int counter = 0, values = 0;
-//
+        int counter = 0;
+
+        Map<String, Object> values = new HashMap<>();
+
 //        Token key, value;
-//
-//        AstNode result = new AstNode(AstType.AST_ARRAY);
+
+        AstNode result = new AstNode(AstType.AST_ARRAY);
 //        String key;
 //        AstNode value;
-//        do {
-//            while (wrapper.next(Tokens.T_COMMA.getId()) != null) ;
-//            if (wrapper.next(Tokens.T_RBRACKET.getId()) != null) {
-//                return result;
-//            }
-//            Token t = tokenizer.next(Tokens.T_PROP.getId(), Tokens.T_COLON.getId());
+        AstNode key;
+        AstNode value;
+        Map<String, AstNode> map = new LinkedHashMap<>();
+
+
+        do {
+            while (next(wrapper, Tokens.T_COMMA)) ;
+            if (next(wrapper, Tokens.T_RBRACKET)) {
+                return result;
+            }
+            TokenizerResult tokenRes = wrapper.next(Tokens.T_PROP.getId(), Tokens.T_COLON.getId());
+            if (tokenRes.isFound()) {
+                map.put(tokenRes.firstValue(), getExpression(wrapper));
+            } else {
+                key = getExpression(wrapper);
+                Object val = key.getValues().get(0);
+                if ((ParserUtils.isString(val) || ParserUtils.isNumber(val)) && next(wrapper, Tokens.T_COLON)) {
+                    value = getExpression(wrapper);
+                    Object mapKey = val;
+                    if (ParserUtils.isString(val) && ParserUtils.isInt((String) val)) {
+                        mapKey = Integer.valueOf((String) val); //todo check this
+                    }
+                    if (ParserUtils.isDouble((String) val)) {
+                        Double d = Double.parseDouble((String) val);
+                        if (d.intValue() < counter) {
+                            mapKey = d.intValue() + "";
+                        } else {
+                            counter = d.intValue();
+                            mapKey = (counter++) + "";
+                        }
+                    }
+                    map.put(mapKey + "", value);
+                } else {
+                    map.put((counter++) + "", key);
+                }
+            }
+
+
 //            if (t != null) {
 //                key = t.getValue();
 //                value = getExpression(wrapper);
@@ -526,12 +563,39 @@ public class Parser {
 //                values[key] = result.length;
 //                result.push(value, key);
 //            }
-//        } while (wrapper.next(Tokens.T_COMMA.getId()) != null);
-//
-//        if (wrapper.next(Tokens.T_RBRACKET.getId()) == null) {
-//            UnexpectedToken(wrapper, "]");
-//        }
-//        return result;
+        } while (next(wrapper, Tokens.T_COMMA));
+
+        if (!next(wrapper, Tokens.T_RBRACKET)) {
+            UnexpectedToken(wrapper, "]");
+        }
+        for (Map.Entry<String, AstNode> entry : map.entrySet()) {
+            result.add(AstNode.forValue(entry.getKey())).add(entry.getValue());
+        }
+
+        return result;
+    }
+
+    private boolean isStringOrNumber(AstNode node) {
+        Object value = node.getValues().get(0);
+
+        if (!(value instanceof String)) {
+            return false;
+        }
+
+        try {
+            Integer.parseInt((String) value);
+            return true;
+        } catch (Exception ignore) {
+
+        }
+
+        try {
+            Double.parseDouble((String) value);
+            return true;
+        } catch (Exception ignore) {
+
+        }
+        return true;
     }
 
     private AstNode getStringLiteral(TokenizerWrapper wrapper) throws ParserException {

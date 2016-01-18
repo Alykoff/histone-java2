@@ -88,15 +88,15 @@
       },
       {
         "input": "a {{if []}} true {{else}} false {{/if}} b",
-        "expectedResult": "a true b"
+        "expectedResult": "a  true  b"
       },
       {
         "input": "a {{if [1, 2, 3]}} true {{else}} false {{/if}} b",
-        "expectedResult": "a true b"
+        "expectedResult": "a  true  b"
       },
       {
         "input": "a {{if [foo: 1]}} true {{else}} false {{/if}} b",
-        "expectedResult": "a true b"
+        "expectedResult": "a  true  b"
       }
     ]
   },

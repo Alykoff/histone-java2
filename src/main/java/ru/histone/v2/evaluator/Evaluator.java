@@ -1,13 +1,15 @@
 package ru.histone.v2.evaluator;
 
+import org.apache.commons.collections.CollectionUtils;
 import ru.histone.HistoneException;
-import ru.histone.v2.evaluator.node.BooleanAstNode;
-import ru.histone.v2.evaluator.node.IntAstNode;
-import ru.histone.v2.evaluator.node.NullAstNode;
-import ru.histone.v2.evaluator.node.StringAstNode;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstType;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -54,7 +56,7 @@ public class Evaluator {
             case AST_NOP:
                 break;
             case AST_ARRAY:
-                break;
+                return processArrayNode(node, context, currentContext);
             case AST_REGEXP:
                 break;
             case AST_THIS:
@@ -130,6 +132,19 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + type);
 
+    }
+
+    private AstNode processArrayNode(AstNode<?> node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        if (CollectionUtils.isEmpty(node.getNodes())) {
+            return new ObjectAstNode(Collections.emptyMap());
+        }
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (int i = 0; i < node.getNodes().size() / 2; i++) {
+            AstNode key = evaluateNode(node.getNodes().get(i * 2), context, currentContext);
+            AstNode value = evaluateNode(node.getNodes().get(i * 2 + 1), context, currentContext);
+            map.put(key.getValue() + "", value.getValue());
+        }
+        return new ObjectAstNode(map);
     }
 
     private AstNode processUnaryMinus(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {

@@ -27,4 +27,50 @@ public class ParserUtils {
             sb.append("']");
         }
     }
+
+    public static boolean isString(Object obj) {
+        return obj instanceof String;
+    }
+
+    public static boolean isNumber(Object value) {
+        if (value instanceof Number) {
+            return true;
+        } else if (!isString(value)) {
+            return false;
+        }
+
+        String v = (String) value;
+        try {
+            Integer.parseInt(v);
+            return true;
+        } catch (Exception ignore) {
+
+        }
+
+        try {
+            Double.parseDouble(v);
+            return true;
+        } catch (Exception ignore) {
+
+        }
+        return false;
+    }
+
+    public static boolean isInt(String value) {
+        try {
+            Integer.parseInt(value);
+            return true;
+        } catch (Exception ignore) {
+            return false;
+        }
+    }
+
+    public static boolean isDouble(String val) {
+        try {
+            Double.parseDouble(val);
+            return true;
+        } catch (Exception ignore) {
+            return false;
+        }
+    }
 }

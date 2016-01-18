@@ -58,7 +58,7 @@ public class Tokenizer {
             }
 
             int i = 1;
-            while (i < matcher.groupCount() - 1 && matcher.group(i) == null) {
+            while (i < matcher.groupCount() && matcher.group(i) == null) {
                 i++;
             }
 

@@ -1,12 +1,7 @@
 package ru.histone.v2;
 
-import junit.framework.Assert;
 import org.junit.Test;
-import org.junit.runner.Description;
-import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
-import org.junit.runner.Runner;
-import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,22 +24,25 @@ public class ParserTest extends BaseTest {
 
     private String input;
     private String expected;
+    private Integer index;
 
-    public ParserTest(String input, String expected) {
+    public ParserTest(Integer index, String input, String expected) {
+        this.index = index;
         this.input = input;
         this.expected = expected;
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "{index}: `{1}`")
     public static Collection<Object[]> data() {
         final List<Object[]> result = new ArrayList<>();
         final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCase(BASE_IF_STATEMENT_JSON);
+        int i = 0;
         for (HistoneTestCase histoneTestCase : histoneTestCases) {
             System.out.println("Run test '" + histoneTestCase.getName() + "'");
             for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
                 System.out.println("Expression: " + testCase.getInput());
                 result.add(new Object[] {
-                        testCase.getInput(), testCase.getExpectedResult()
+                        i++, testCase.getInput(), testCase.getExpectedResult()
                 });
             }
         }

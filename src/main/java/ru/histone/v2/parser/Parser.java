@@ -138,12 +138,17 @@ public class Parser {
         final AstNode node = new AstNode(AstType.AST_FOR);
         final TokenizerResult exp1 = wrapper.next(Tokens.T_ID.getId());
         if (exp1.isFound()) {
-            node.addValue(exp1.getTokens());
-            final TokenizerResult exp2 = wrapper.next(Tokens.T_ID.getId());
-            if (exp2.isFound()) {
-               node.addValue(exp2.getTokens());
+            if (next(wrapper, Tokens.T_COLON)) {
+                node.addValue(exp1.getTokens());
+                final TokenizerResult exp2 = wrapper.next(Tokens.T_ID.getId());
+                if (exp2.isFound()) {
+                    node.addValue(exp2.getTokens());
+                } else {
+                    UnexpectedToken(wrapper, "IDENTIFIER");
+                }
             } else {
-                UnexpectedToken(wrapper, "IDENTIFIER");
+                node.addValue(null);
+                node.addValue(exp1.getTokens());
             }
         } else {
             node.addValue(null);

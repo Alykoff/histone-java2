@@ -1,5 +1,6 @@
 package ru.histone.v2.parser;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import ru.histone.tokenizer.BaseTokens;
 import ru.histone.tokenizer.Token;
@@ -12,7 +13,6 @@ import ru.histone.v2.parser.tokenizer.Tokenizer;
 import ru.histone.v2.parser.tokenizer.TokenizerResult;
 import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
 import ru.histone.v2.utils.ParserUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -123,19 +123,19 @@ public class Parser {
     }
 
     private AstNode getListenStatement(TokenizerWrapper wrapper, AstType astListen) {
-        throw new org.apache.commons.lang.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     private AstNode getSupressStatement(TokenizerWrapper wrapper) {
-        throw new org.apache.commons.lang.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     private AstNode getReturnStatement(TokenizerWrapper wrapper) {
-        throw new org.apache.commons.lang.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     private AstNode getVarStatement(TokenizerWrapper wrapper) {
-        throw new org.apache.commons.lang.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     private AstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {

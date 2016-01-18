@@ -1,0 +1,103 @@
+[
+  {
+    "name": "variable defenition",
+    "cases": [
+      {
+        "input": "{{var name = 10",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{var name 10",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "10"
+        }
+      },
+      {
+        "input": "a {{var x = 10}} f",
+        "expectedAST": "[\"a \", [1001, \"x\", [101, 10]], \" f\"]"
+      },
+      {
+        "input": "a {{var x = -10}} f",
+        "expectedAST": "[\"a \", [1001, \"x\", [14, [101, 10]]], \" f\"]"
+      },
+      {
+        "input": "a {{var this = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "identifier",
+          "found": "this"
+        }
+      },
+      {
+        "input": "a {{var self = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "identifier",
+          "found": "self"
+        }
+      },
+      {
+        "input": "a {{var global = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "identifier",
+          "found": "global"
+        }
+      },
+      {
+        "input": "frag{{var}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "identifier",
+          "found": "}}"
+        }
+      },
+      {
+        "input": "frag{{var $a}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/var}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "frag{{var $a =}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "expression",
+          "found": "}}"
+        }
+      },
+      {
+        "input": "a {{var x}} b {{/var}} c",
+        "expectedAST": "[\"a \", [1001, \"x\", [109, [\" b \"]]], \" c\"]"
+      },
+      {
+        "input": "frag{{var $a}} bla {{/www}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/var}}",
+          "found": "www"
+        }
+      },
+      {
+        "input": "a {{var simple = 10}} b {{simple}} c",
+        "expectedAST": "[\"a \", [1001, \"simple\", [101, 10]], \" b \", [105, [\"simple\"]], \" c\"]"
+      },
+      {
+        "input": "a {{var simple = -10}} b {{simple}} c",
+        "expectedAST": "[\"a \", [1001, \"simple\", [14, [101, 10]]], \" b \", [105, [\"simple\"]], \" c\"]"
+      },
+      {
+        "input": "a {{var extended}} b {{/var}} c {{extended}} d",
+        "expectedAST": "[\"a \", [1001, \"extended\", [109, [\" b \"]]], \" c \", [105, [\"extended\"]], \" d\"]"
+      }
+    ]
+  }
+]

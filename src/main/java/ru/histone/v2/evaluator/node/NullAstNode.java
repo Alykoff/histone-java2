@@ -1,17 +1,17 @@
 package ru.histone.v2.evaluator.node;
 
-import ru.histone.v2.parser.node.AstNode;
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * Created by inv3r on 15/01/16.
  */
-public class NullAstNode extends AstNode {
+public class NullAstNode extends EvalNode<ObjectUtils.Null> {
     public NullAstNode() {
-        super(Integer.MIN_VALUE);
+        super(ObjectUtils.NULL);
     }
 
     @Override
-    public Object getValue() {
+    public ObjectUtils.Null getValue() {
         return null;
     }
 }

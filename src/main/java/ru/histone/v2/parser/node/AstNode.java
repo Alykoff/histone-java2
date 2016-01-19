@@ -9,15 +9,14 @@ import java.util.UUID;
 /**
  * Created by alexey.nevinsky on 24.12.2015.
  */
-public class AstNode<T> implements Serializable {
-    protected final UUID id;
+public class AstNode implements Serializable {
+    protected final UUID id = UUID.randomUUID();
     protected final int type;
     protected List<AstNode> nodes = new ArrayList<>();
-    protected List<T> values = new ArrayList<>();
+    private Object value = null;
 
     public AstNode(int type) {
         this.type = type;
-        id = UUID.randomUUID();
     }
 
     public AstNode(AstType type) {
@@ -31,20 +30,8 @@ public class AstNode<T> implements Serializable {
 
     public static AstNode forValue(Object object) {
         AstNode node = new AstNode(Integer.MIN_VALUE);
-        node.addValue(object);
+        node.setValue(object);
         return node;
-    }
-
-    public boolean isSimpleNode() {
-        return true;
-    }
-
-    public Class<T> getValueClass() {
-        throw new IllegalStateException("This is simple node!");
-    }
-
-    public T getValue() {
-        throw new IllegalStateException("Simple node hasn't have a value!");
     }
 
     public AstNode add(AstNode node) {
@@ -52,13 +39,13 @@ public class AstNode<T> implements Serializable {
         return this;
     }
 
-    public AstNode addValue(T node) {
-        values.add(node);
-        return this;
+    public Object getValue() {
+        return value;
     }
 
-    public List<T> getValues() {
-        return values;
+    public AstNode setValue(Object value) {
+        this.value = value;
+        return this;
     }
 
     public AstNode add(AstNode... nodes) {
@@ -85,7 +72,7 @@ public class AstNode<T> implements Serializable {
             sb.append(t.name()).append("(").append(type).append(")");
         }
         sb.append(", nodes=").append(nodes);
-        sb.append(", values=").append(values);
+        sb.append(", value=").append(value);
         sb.append('}');
         return sb.toString();
     }

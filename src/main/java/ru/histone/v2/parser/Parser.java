@@ -5,7 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import ru.histone.tokenizer.BaseTokens;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
-import ru.histone.v2.evaluator.node.NullAstNode;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstRegexType;
 import ru.histone.v2.parser.node.AstType;
@@ -148,7 +147,7 @@ public class Parser {
             }
             result = new AstNode(AstType.AST_VAR);
             result.add(getNodesStatement(wrapper, false));
-            result.addValue(name.firstValue());
+            result.setValue(name.firstValue());
             if (!next(wrapper, Tokens.T_SLASH, Tokens.T_VAR)) {
                 UnexpectedToken(wrapper, "{{/var}}");
             }
@@ -163,7 +162,7 @@ public class Parser {
                     UnexpectedToken(wrapper, "=");
                 }
                 AstNode varNode = new AstNode(AstType.AST_VAR).add(getExpression(wrapper));
-                varNode.addValue(name.firstValue());
+                varNode.setValue(name.firstValue());
                 result.add(varNode);
                 if (!next(wrapper, Tokens.T_COMMA)) {
                     break;
@@ -217,12 +216,12 @@ public class Parser {
                     UnexpectedToken(wrapper, "IDENTIFIER");
                 }
             } else {
-                node.add(new NullAstNode())
-                    .add(AstNode.forValue(exp1.firstValue()));
+                node.add(AstNode.forValue(null))
+                        .add(AstNode.forValue(exp1.firstValue()));
             }
         } else {
-            node.add(new NullAstNode())
-                .add(new NullAstNode());
+            node.add(AstNode.forValue(null))
+                    .add(AstNode.forValue(null));
         }
 
         if (!next(wrapper, Tokens.T_IN)) {
@@ -289,13 +288,13 @@ public class Parser {
 
         TokenizerResult name = wrapper.next(Tokens.T_ID.getId());
         if (name.isFound()) {
-            result.add(new AstNode(AstType.AST_NOP).addValue(name.first().getValue()));
+            result.add(new AstNode(AstType.AST_NOP).setValue(name.first().getValue()));
         } else if (next(wrapper, Tokens.T_LPAREN)) {
             if (!test(wrapper, Tokens.T_RPAREN)) {
                 do {
                     name = wrapper.next(Tokens.T_ID.getId());
                     if (name.isFound()) {
-                        result.add(new AstNode(AstType.AST_NOP).addValue(name.first().getValue()));
+                        result.add(new AstNode(AstType.AST_NOP).setValue(name.first().getValue()));
                     } else {
                         UnexpectedToken(wrapper, "IDENTIFIER");
                     }
@@ -480,13 +479,13 @@ public class Parser {
                 if (wrapper.test(Tokens.T_PROP.getId()) != null) {
                     UnexpectedToken(wrapper, "IDENTIFIER");
                 }
-                res.addValue(wrapper.next().first().getValue());
+                res.setValue(wrapper.next().first().getValue());
             } else if (next(wrapper, Tokens.T_METHOD)) {
                 res = new AstNode(AstType.AST_METHOD, res);
                 if (wrapper.test(Tokens.T_PROP.getId()) != null) {
                     UnexpectedToken(wrapper, "IDENTIFIER");
                 }
-                res.addValue(wrapper.next().first().getValue());
+                res.setValue(wrapper.next().first().getValue());
             } else if (next(wrapper, Tokens.T_LBRACKET)) {
                 res = new AstNode(AstType.AST_PROP, res);
                 res.add(getExpression(wrapper));
@@ -543,7 +542,7 @@ public class Parser {
             return AstNode.forValue(Float.parseFloat(wrapper.next().first().getValue()));
         } else if (test(wrapper, Tokens.T_REF)) {
             AstNode node = new AstNode(AstType.AST_REF);
-            node.addValue(wrapper.next().first().getValue());
+            node.setValue(wrapper.next().first().getValue());
             return node;
         } else if (next(wrapper, Tokens.T_LPAREN)) {
             return getParenthesizedExpression(wrapper);
@@ -579,7 +578,7 @@ public class Parser {
                 map.put(tokenRes.firstValue(), getExpression(wrapper));
             } else {
                 key = getExpression(wrapper);
-                Object val = key.getValues().get(0);
+                Object val = key.getValue();
                 if ((ParserUtils.isString(val) || ParserUtils.isNumber(val)) && next(wrapper, Tokens.T_COLON)) {
                     value = getExpression(wrapper);
                     Object mapKey = val;
@@ -641,7 +640,7 @@ public class Parser {
     }
 
     private boolean isStringOrNumber(AstNode node) {
-        Object value = node.getValues().get(0);
+        Object value = node.getValue();
 
         if (!(value instanceof String)) {
             return false;
@@ -674,9 +673,9 @@ public class Parser {
             if (StringUtils.equals(fragment.first().getValue(), start)) {
                 break;
             } else if (StringUtils.equals(fragment.first().getValue(), "\\")) {
-                res.addValue("\\").addValue(wrapper.next().first().getValue());
+                res.setValue("\\").setValue(wrapper.next().first().getValue());
             } else {
-                res.addValue(fragment.first().getValue());
+                res.setValue(fragment.first().getValue());
             }
         }
         return res.escaped();
@@ -686,7 +685,7 @@ public class Parser {
         wrapper = new TokenizerWrapper(wrapper);
         AstNode node = AstNode.forValue("");
         while (wrapper.test(BaseTokens.T_EOF.getId(), Tokens.T_LITERAL_END.getId()) == null) {
-            node.addValue(wrapper.next().first().getValue());
+            node.setValue(wrapper.next().first().getValue());
         }
         if (!next(wrapper, Tokens.T_LITERAL_END)) {
             UnexpectedToken(wrapper, "%}}");
@@ -757,7 +756,7 @@ public class Parser {
         }
 
         AstNode res = new AstNode(AstType.AST_REGEXP);
-        res.addValue(result).addValue(flagNum);
+        res.setValue(result).setValue(flagNum);
         return res;
     }
 

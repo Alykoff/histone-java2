@@ -7,6 +7,7 @@ import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstType;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,16 +17,16 @@ import java.util.Map;
  */
 public class Evaluator {
 
-    public String process(String baseUri, AstNode<?> node, Context context) throws HistoneException {
+    public String process(String baseUri, AstNode node, Context context) throws HistoneException {
         context.setBaseUri(baseUri);
         return processInternal(node, context);
     }
 
-    private String processInternal(AstNode<?> node, Context context) throws HistoneException {
+    private String processInternal(AstNode node, Context context) throws HistoneException {
         StringBuilder sb = new StringBuilder();
         Context.NodeContext root = createRootContext();
         for (AstNode currentNode : node.getNodes()) {
-            AstNode astNode = evaluateNode(currentNode, context, root);
+            EvalNode astNode = evaluateNode(currentNode, context, root);
             if (astNode.getValue() != null) {
                 sb.append(astNode.getValue());
             }
@@ -38,7 +39,7 @@ public class Evaluator {
         return root;
     }
 
-    private AstNode evaluateNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode evaluateNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         if (node == null) {
             return new NullAstNode();
         }
@@ -134,21 +135,21 @@ public class Evaluator {
 
     }
 
-    private AstNode processArrayNode(AstNode<?> node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode processArrayNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         if (CollectionUtils.isEmpty(node.getNodes())) {
             return new ObjectAstNode(Collections.emptyMap());
         }
         Map<String, Object> map = new LinkedHashMap<>();
         for (int i = 0; i < node.getNodes().size() / 2; i++) {
-            AstNode key = evaluateNode(node.getNodes().get(i * 2), context, currentContext);
-            AstNode value = evaluateNode(node.getNodes().get(i * 2 + 1), context, currentContext);
+            EvalNode key = evaluateNode(node.getNodes().get(i * 2), context, currentContext);
+            EvalNode value = evaluateNode(node.getNodes().get(i * 2 + 1), context, currentContext);
             map.put(key.getValue() + "", value.getValue());
         }
         return new ObjectAstNode(map);
     }
 
-    private AstNode processUnaryMinus(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        AstNode res = evaluateNode(node.getNode(0), context, currentContext);
+    private EvalNode processUnaryMinus(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode res = evaluateNode(node.getNode(0), context, currentContext);
         if (res instanceof IntAstNode) {
             Integer value = (Integer) res.getValue();
             return new IntAstNode(-value);
@@ -157,16 +158,16 @@ public class Evaluator {
         }
     }
 
-    private AstNode processLessOrEquals(AstNode node, Context context, Context.NodeContext currentContext) {
+    private EvalNode processLessOrEquals(AstNode node, Context context, Context.NodeContext currentContext) {
         throw new NotImplementedException();
     }
 
-    private AstNode getValueNode(AstNode node) {
-        if (node.getValues().size() == 0) {
+    private EvalNode<? extends Serializable> getValueNode(AstNode node) {
+        if (node.getValue() == null) {
             return new StringAstNode("");
         }
 
-        Object val = node.getValues().get(0);
+        Object val = node.getValue();
         if (val == null) {
             return new NullAstNode();
         } else if (val instanceof Boolean) {
@@ -177,8 +178,8 @@ public class Evaluator {
         return new StringAstNode(val + "");
     }
 
-    private AstNode processReferenceNode(AstNode node, Context context, Context.NodeContext currentContext) {
-        Object value = getValueFromParentContext(currentContext, (String) node.getValues().get(0));
+    private EvalNode processReferenceNode(AstNode node, Context context, Context.NodeContext currentContext) {
+        Object value = getValueFromParentContext(currentContext, (String) node.getValue());
         if (value != null) {
             return null;
         } else {
@@ -196,19 +197,19 @@ public class Evaluator {
         return null;
     }
 
-    private AstNode processOrNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode processOrNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         BooleanAstNode conditionNode1 = (BooleanAstNode) evaluateNode(node.getNode(0), context, currentContext);
         BooleanAstNode conditionNode2 = (BooleanAstNode) evaluateNode(node.getNode(1), context, currentContext);
         return new BooleanAstNode(conditionNode1.getValue() || conditionNode2.getValue());
     }
 
-    private AstNode processAndNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode processAndNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         BooleanAstNode conditionNode1 = (BooleanAstNode) evaluateNode(node.getNode(0), context, currentContext);
         BooleanAstNode conditionNode2 = (BooleanAstNode) evaluateNode(node.getNode(1), context, currentContext);
         return new BooleanAstNode(conditionNode1.getValue() && conditionNode2.getValue());
     }
 
-    private AstNode processNodeList(AstNode<?> node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode processNodeList(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         //todo rework this method, add rtti and other cool features
         if (node.getNodes().size() == 1) {
             AstNode node1 = node.getNode(0);
@@ -216,7 +217,7 @@ public class Evaluator {
         } else {
             StringBuilder sb = new StringBuilder();
             for (AstNode currNode : node.getNodes()) {
-                AstNode processed = evaluateNode(currNode, context, currentContext);
+                EvalNode processed = evaluateNode(currNode, context, currentContext);
                 sb.append(processed.getValue());
             }
             return new StringAstNode(sb.toString());
@@ -224,16 +225,16 @@ public class Evaluator {
     }
 
     private BooleanAstNode processEqNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        AstNode left = evaluateNode(node.getNode(0), context, currentContext);
-        AstNode right = evaluateNode(node.getNode(1), context, currentContext);
+        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
         return new BooleanAstNode(EvalUtils.equalityNode(left, right));
     }
 
-    private AstNode processIfNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode processIfNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         Context.NodeContext current = new Context.NodeContext();
         current.setParent(currentContext);
-        AstNode conditionNode = evaluateNode(node.getNode(1), context, currentContext);
-        AstNode result;
+        EvalNode conditionNode = evaluateNode(node.getNode(1), context, currentContext);
+        EvalNode result;
         if (EvalUtils.nodeAsBoolean(conditionNode)) {
             result = evaluateNode(node.getNode(0), context, current);
         } else {

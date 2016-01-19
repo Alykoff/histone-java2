@@ -13,15 +13,31 @@ public class EvalUtils {
     }
 
     public static boolean nodeAsBoolean(EvalNode node) {
-        if (node instanceof NullAstNode) {
+        if (node instanceof NullEvalNode) {
             return false;
-        } else if (node instanceof BooleanAstNode) {
+        } else if (node instanceof BooleanEvalNode) {
             return (Boolean) node.getValue();
-        } else if (node instanceof IntAstNode) {
+        } else if (node instanceof IntEvalNode) {
             return ((int) node.getValue()) != 0;
-        } else if (node instanceof StringAstNode) {
+        } else if (node instanceof StringEvalNode) {
             return !node.getValue().equals("");
         }
         return true;
+    }
+
+    public static EvalNode<?> createEvalNode(Object object) {
+        if (object == null) {
+            return new NullEvalNode();
+        }
+        if (object instanceof Boolean) {
+            return new BooleanEvalNode((Boolean) object);
+        }
+        if (object instanceof Float) {
+            return new FloatEvalNode((Float) object);
+        }
+        if (object instanceof Integer) {
+            return new IntEvalNode((Integer) object);
+        }
+        return new StringEvalNode((String) object);
     }
 }

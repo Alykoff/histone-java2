@@ -66,7 +66,8 @@ public class EvaluatorTest {
             AstNode root = parser.process(input, "");
             if (testCase.getExpectedAST() != null) {
                 Assert.assertEquals(ParserUtils.astToString(root), testCase.getExpectedAST());
-            } else {
+            }
+            if (testCase.getExpectedResult() != null) {
                 String result = evaluator.process("", root, context);
                 Assert.assertEquals(testCase.getExpectedResult(), result);
             }

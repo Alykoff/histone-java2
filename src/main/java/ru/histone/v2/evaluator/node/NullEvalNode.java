@@ -5,8 +5,8 @@ import org.apache.commons.lang.ObjectUtils;
 /**
  * Created by inv3r on 15/01/16.
  */
-public class NullAstNode extends EvalNode<ObjectUtils.Null> {
-    public NullAstNode() {
+public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
+    public NullEvalNode() {
         super(ObjectUtils.NULL);
     }
 

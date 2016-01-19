@@ -18,7 +18,7 @@ public class ConcreteTest {
     @Test
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedAST("[\"a \", [1001, \"x\", [101, 10]], \" f\"]");
+        testCase.setExpectedResult("a  b 10 c");
         doTest("a {{var simple = 10}} b {{simple}} c", testCase);
     }
 

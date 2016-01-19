@@ -18,8 +18,9 @@ public class ConcreteTest {
     @Test
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("");
-        doTest("{{var x = sadfdasf}}{{x}}", testCase);
+        testCase.setExpectedResult("true");
+//        testCase.setExpectedAST("[31,[26,[31],[7,1,[6,2,[32,3,[34,4,2]]]]]]");
+        doTest("{{if 1 < 3 && 2 > 0 && 5 >=6 && 6 >=6 && 7 <= 8 && 7 <=7 && 8 = 8}}true{{else}}false{{/if}}", testCase);
     }
 
     private void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {

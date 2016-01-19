@@ -15,10 +15,10 @@ public class ParserUtils {
     private static void nodeToString(StringBuffer sb, AstNode node) {
         Object nodeValue = node.getValue();
         if (node.getType() == AstNode.LEAF_NODE_TYPE_ID) {
-            if (nodeValue == null) {
-                sb.append("null");
+            if (node.getValue() instanceof Number) {
+                sb.append(node.getValue());
             } else {
-                sb.append("\"").append(nodeValue).append("\"");
+                sb.append("\"").append(node.getValue()).append("\"");
             }
         } else {
             sb.append("[").append(node.getType());

@@ -29,6 +29,19 @@ public class EvalUtils {
         return true;
     }
 
+//    public static boolean greaterThan(EvalNode left, EvalNode right) {
+//        if (isNumberNode(left) && isNumberNode(right)) {
+//            Float a = 1f;
+//            Integer b = 9;
+//
+//            return right.getValue()
+//        }
+//    }
+
+    public static boolean isNumberNode(EvalNode node) {
+        return node instanceof IntEvalNode || node instanceof FloatEvalNode;
+    }
+
     public static EvalNode<?> createEvalNode(Object object) {
         if (object == null) {
             throw new NullPointerException();

@@ -65,7 +65,7 @@ public class EvaluatorTest {
         try {
             AstNode root = parser.process(input, "");
             if (testCase.getExpectedAST() != null) {
-                Assert.assertEquals(ParserUtils.astToString(root), testCase.getExpectedAST());
+                Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
             }
             if (testCase.getExpectedResult() != null) {
                 String result = evaluator.process("", root, context);
@@ -74,8 +74,8 @@ public class EvaluatorTest {
         } catch (ParserException ex) {
             if (testCase.getExpectedException() != null) {
                 HistoneTestCase.ExpectedException e = testCase.getExpectedException();
-                Assert.assertEquals(ex.getLine(), e.getLine());
-                Assert.assertEquals(ex.getMessage(), "unexpected '" + e.getFound() + "', expected '" + e.getExpected() + "'");
+                Assert.assertEquals(e.getLine(), ex.getLine());
+                Assert.assertEquals("unexpected '" + e.getFound() + "', expected '" + e.getExpected() + "'", ex.getMessage());
             } else {
                 throw new RuntimeException(ex);
             }

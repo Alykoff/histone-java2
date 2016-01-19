@@ -89,7 +89,7 @@ public class Evaluator {
             case AST_LT:
                 break;
             case AST_GT:
-                break;
+                return processGreaterThan(node, context, currentContext);
             case AST_LE:
                 return processLessOrEquals(node, context, currentContext);
             case AST_GE:
@@ -122,11 +122,11 @@ public class Evaluator {
             case AST_NODELIST:
                 return processNodeList(node, context, currentContext);
             case AST_BOR:
-                break;
+                return processBorNode(node, context, currentContext);
             case AST_BXOR:
-                break;
+                return processBxorNode(node, context, currentContext);
             case AST_BAND:
-                break;
+                return processBandNode(node, context, currentContext);
             case AST_SUPRESS:
                 break;
             case AST_LISTEN:
@@ -136,6 +136,31 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + type);
 
+    }
+
+    private EvalNode processGreaterThan(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
+
+        return null;
+    }
+
+    private EvalNode processBorNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) | EvalUtils.nodeAsBoolean(conditionNode2));
+    }
+
+    private EvalNode processBxorNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) ^ EvalUtils.nodeAsBoolean(conditionNode2));
+    }
+
+    private EvalNode processBandNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) & EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processVarNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
@@ -216,15 +241,15 @@ public class Evaluator {
     }
 
     private EvalNode processOrNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        BooleanEvalNode conditionNode1 = (BooleanEvalNode) evaluateNode(node.getNode(0), context, currentContext);
-        BooleanEvalNode conditionNode2 = (BooleanEvalNode) evaluateNode(node.getNode(1), context, currentContext);
-        return new BooleanEvalNode(conditionNode1.getValue() || conditionNode2.getValue());
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) || EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processAndNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        BooleanEvalNode conditionNode1 = (BooleanEvalNode) evaluateNode(node.getNode(0), context, currentContext);
-        BooleanEvalNode conditionNode2 = (BooleanEvalNode) evaluateNode(node.getNode(1), context, currentContext);
-        return new BooleanEvalNode(conditionNode1.getValue() && conditionNode2.getValue());
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) && EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processNodeList(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {

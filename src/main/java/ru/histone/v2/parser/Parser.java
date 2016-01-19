@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import ru.histone.tokenizer.BaseTokens;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
+import ru.histone.v2.evaluator.node.NullAstNode;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstRegexType;
 import ru.histone.v2.parser.node.AstType;
@@ -143,20 +144,20 @@ public class Parser {
         final TokenizerResult exp1 = wrapper.next(Tokens.T_ID.getId());
         if (exp1.isFound()) {
             if (next(wrapper, Tokens.T_COLON)) {
-                node.addValue(exp1.getTokens());
+                node.add(AstNode.forValue(exp1.firstValue()));
                 final TokenizerResult exp2 = wrapper.next(Tokens.T_ID.getId());
                 if (exp2.isFound()) {
-                    node.addValue(exp2.getTokens());
+                    node.add(AstNode.forValue(exp2.firstValue()));
                 } else {
                     UnexpectedToken(wrapper, "IDENTIFIER");
                 }
             } else {
-                node.addValue(null);
-                node.addValue(exp1.getTokens());
+                node.add(new NullAstNode())
+                    .add(AstNode.forValue(exp1.firstValue()));
             }
         } else {
-            node.addValue(null);
-            node.addValue(null);
+            node.add(new NullAstNode())
+                .add(new NullAstNode());
         }
 
         if (!next(wrapper, Tokens.T_IN)) {

@@ -62,6 +62,10 @@ public class AstNode implements Serializable {
         return nodes;
     }
 
+    public void setNodes(List<AstNode> nodes) {
+        this.nodes = nodes;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AstNode{");

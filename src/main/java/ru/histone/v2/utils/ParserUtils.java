@@ -13,12 +13,17 @@ public class ParserUtils {
     }
 
     private static void nodeToString(StringBuffer sb, AstNode node) {
+        Object nodeValue = node.getValue();
         if (node.getType() == AstNode.LEAF_NODE_TYPE_ID) {
-            sb.append("\"").append(node.getValue()).append("\"");
+            if (nodeValue == null) {
+                sb.append("null");
+            } else {
+                sb.append("\"").append(nodeValue).append("\"");
+            }
         } else {
             sb.append("[").append(node.getType());
-            if (node.getValue() != null) {
-                sb.append(",\"").append(node.getValue()).append("\"");
+            if (nodeValue != null) {
+                sb.append(",\"").append(nodeValue).append("\"");
             }
             if (node.getNodes().size() > 0) {
                 for (AstNode child : node.getNodes()) {
@@ -36,7 +41,7 @@ public class ParserUtils {
     }
 
 
-    public static boolean isStringNode(AstNode node) {
+    public static boolean isStringLeafNode(AstNode node) {
         return isLeafNodeType(node)
                 && isString(node.getValue());
     }

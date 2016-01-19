@@ -37,7 +37,8 @@ public class Parser {
         AstNode result = getNodeList(wrapper);
         if (!wrapper.next(BaseTokens.T_EOF.getId()).isFound())
             UnexpectedToken(wrapper, "EOF");
-//        Optimizer(template);
+        final Optimizer optimizer = new Optimizer();
+        result = optimizer.mergeStrings(result);
 //        markReferences(template);
         return result;
     }

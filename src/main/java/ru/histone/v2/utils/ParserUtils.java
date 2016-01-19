@@ -1,6 +1,9 @@
 package ru.histone.v2.utils;
 
 import org.apache.commons.lang.StringUtils;
+import ru.histone.v2.evaluator.node.BooleanAstNode;
+import ru.histone.v2.evaluator.node.IntAstNode;
+import ru.histone.v2.evaluator.node.NullAstNode;
 import ru.histone.v2.parser.node.AstNode;
 
 /**
@@ -15,7 +18,13 @@ public class ParserUtils {
 
     private static void nodeToString(StringBuffer sb, AstNode<?> node) {
         if (node.getType() == Integer.MIN_VALUE) {
-            sb.append("\"").append(node.getValues().get(0)).append("\"");
+            if (node instanceof NullAstNode) {
+                sb.append("null");
+            } else if (node instanceof IntAstNode) {
+                sb.append(node.getValues().get(0));
+            } else {
+                sb.append("\"").append(node.getValues().get(0)).append("\"");
+            }
         } else {
             sb.append("[").append(node.getType());
             if (node.getValues().size() > 0) {

@@ -12,6 +12,6 @@ public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
 
     @Override
     public ObjectUtils.Null getValue() {
-        return null;
+        return ObjectUtils.NULL;
     }
 }

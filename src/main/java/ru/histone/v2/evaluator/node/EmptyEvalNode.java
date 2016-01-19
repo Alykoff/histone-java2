@@ -5,6 +5,11 @@ package ru.histone.v2.evaluator.node;
  */
 public class EmptyEvalNode extends EvalNode<String> {
     public EmptyEvalNode() {
-        super("");
+        super(null);
+    }
+
+    @Override
+    public String asString() {
+        return "";
     }
 }

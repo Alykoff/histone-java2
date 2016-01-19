@@ -3,6 +3,8 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.node.*;
 
+import java.util.Map;
+
 /**
  * Created by inv3r on 14/01/16.
  */
@@ -43,6 +45,12 @@ public class EvalUtils {
         if (object instanceof Integer) {
             return new IntEvalNode((Integer) object);
         }
-        return new StringEvalNode((String) object);
+        if (object instanceof String) {
+            return new StringEvalNode((String) object);
+        }
+        if (object instanceof Map) {
+            return new MapEvalNode((Map<String, Object>) object);
+        }
+        return new ObjectEvalNode(object);
     }
 }

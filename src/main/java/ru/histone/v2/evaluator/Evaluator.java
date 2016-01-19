@@ -1,7 +1,6 @@
 package ru.histone.v2.evaluator;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ObjectUtils;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.AstNode;
@@ -31,7 +30,7 @@ public class Evaluator {
             if (evalNode instanceof NullEvalNode) {
                 sb.append("null");
             } else if (evalNode.getValue() != null) {
-                sb.append(evalNode.getValue());
+                sb.append(evalNode.asString());
             }
         }
         return sb.toString();
@@ -143,10 +142,8 @@ public class Evaluator {
         EvalNode valueNode = evaluateNode(node.getNode(0), context, currentContext);
         if (valueNode.getValue() != null) {
             currentContext.getVars().putIfAbsent(node.getValue() + "", valueNode.getValue());
-        } else {
-            currentContext.getVars().putIfAbsent(node.getValue() + "", ObjectUtils.NULL);
         }
-        return new StringEvalNode("");
+        return new EmptyEvalNode();
     }
 
     private EvalNode processArrayNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
@@ -157,7 +154,7 @@ public class Evaluator {
             for (AstNode astNode : node.getNodes()) {
                 evaluateNode(astNode, context, currentContext);
             }
-            return new StringEvalNode("");
+            return new EmptyEvalNode();
         } else {
             Map<String, Object> map = new LinkedHashMap<>();
             for (int i = 0; i < node.getNodes().size() / 2; i++) {

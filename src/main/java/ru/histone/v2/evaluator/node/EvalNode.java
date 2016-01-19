@@ -16,4 +16,8 @@ public class EvalNode<T> {
     public T getValue() {
         return value;
     }
+
+    public String asString() {
+        return String.valueOf(value);
+    }
 }

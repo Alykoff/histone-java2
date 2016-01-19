@@ -13,7 +13,7 @@ public class ParserUtils {
     }
 
     private static void nodeToString(StringBuffer sb, AstNode node) {
-        if (node.getType() == Integer.MIN_VALUE) {
+        if (node.getType() == AstNode.LEAF_NODE_TYPE_ID) {
             sb.append("\"").append(node.getValue()).append("\"");
         } else {
             sb.append("[").append(node.getType());
@@ -28,6 +28,17 @@ public class ParserUtils {
             }
             sb.append("]");
         }
+    }
+
+    public static boolean isLeafNodeType(AstNode node) {
+        return node != null
+                && node.getType() == AstNode.LEAF_NODE_TYPE_ID;
+    }
+
+
+    public static boolean isStringNode(AstNode node) {
+        return isLeafNodeType(node)
+                && isString(node.getValue());
     }
 
     public static boolean isString(Object obj) {

@@ -10,6 +10,7 @@ import java.util.UUID;
  * Created by alexey.nevinsky on 24.12.2015.
  */
 public class AstNode implements Serializable {
+    public static final int LEAF_NODE_TYPE_ID = Integer.MIN_VALUE;
     protected final UUID id = UUID.randomUUID();
     protected final int type;
     protected List<AstNode> nodes = new ArrayList<>();
@@ -29,7 +30,7 @@ public class AstNode implements Serializable {
     }
 
     public static AstNode forValue(Object object) {
-        AstNode node = new AstNode(Integer.MIN_VALUE);
+        AstNode node = new AstNode(LEAF_NODE_TYPE_ID);
         node.setValue(object);
         return node;
     }

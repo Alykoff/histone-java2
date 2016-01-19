@@ -17,7 +17,9 @@ public class ParserUtils {
             sb.append("\"").append(node.getValue()).append("\"");
         } else {
             sb.append("[").append(node.getType());
-            sb.append(",\"").append(node.getValue()).append("\"");
+            if (node.getValue() != null) {
+                sb.append(",\"").append(node.getValue()).append("\"");
+            }
             if (node.getNodes().size() > 0) {
                 for (AstNode child : node.getNodes()) {
                     sb.append(",");

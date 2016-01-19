@@ -14,20 +14,22 @@ public class ParserUtils {
     }
 
     private static void nodeToString(StringBuffer sb, AstNode<?> node) {
-        if (node.getType() != Integer.MIN_VALUE) {
-            sb.append("[");
-            sb.append(node.getType());
-            for (AstNode child : node.getNodes()) {
-                sb.append(",");
-                nodeToString(sb, child);
+        if (node.getType() == Integer.MIN_VALUE) {
+            sb.append("\"").append(node.getValues().get(0)).append("\"");
+        } else {
+            sb.append("[").append(node.getType());
+            if (node.getValues().size() > 0) {
+                sb.append(",\"");
+                sb.append(StringUtils.join(node.getValues(), "\", \""));
+                sb.append("\"");
+            }
+            if (node.getNodes().size() > 0) {
+                for (AstNode child : node.getNodes()) {
+                    sb.append(",");
+                    nodeToString(sb, child);
+                }
             }
             sb.append("]");
-        } else {
-            sb.append("\"")
-                .append(node.getValues().size() > 0
-                        ? node.getValues().get(0)
-                        : ""
-                ).append("\"");
         }
     }
 

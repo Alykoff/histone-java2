@@ -1,6 +1,7 @@
 package ru.histone.v2.evaluator;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.AstNode;
@@ -27,7 +28,9 @@ public class Evaluator {
         Context.NodeContext root = createRootContext();
         for (AstNode currentNode : node.getNodes()) {
             EvalNode evalNode = evaluateNode(currentNode, context, root);
-            if (evalNode.getValue() != null) {
+            if (evalNode instanceof NullEvalNode) {
+                sb.append("null");
+            } else if (evalNode.getValue() != null) {
                 sb.append(evalNode.getValue());
             }
         }
@@ -41,7 +44,7 @@ public class Evaluator {
 
     private EvalNode evaluateNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         if (node == null) {
-            return new NullEvalNode();
+            return new EmptyEvalNode();
         }
 
         if (node.getType() == Integer.MIN_VALUE) {
@@ -138,7 +141,11 @@ public class Evaluator {
 
     private EvalNode processVarNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         EvalNode valueNode = evaluateNode(node.getNode(0), context, currentContext);
-        currentContext.getVars().putIfAbsent(node.getValue() + "", valueNode.getValue());
+        if (valueNode.getValue() != null) {
+            currentContext.getVars().putIfAbsent(node.getValue() + "", valueNode.getValue());
+        } else {
+            currentContext.getVars().putIfAbsent(node.getValue() + "", ObjectUtils.NULL);
+        }
         return new StringEvalNode("");
     }
 
@@ -178,7 +185,7 @@ public class Evaluator {
 
     private EvalNode<? extends Serializable> getValueNode(AstNode node) {
         if (node.getValue() == null) {
-            return new StringEvalNode("");
+            return new NullEvalNode();
         }
 
         Object val = node.getValue();
@@ -197,7 +204,7 @@ public class Evaluator {
         if (value != null) {
             return EvalUtils.createEvalNode(value);
         } else {
-            return new NullEvalNode();
+            return new EmptyEvalNode();
         }
     }
 

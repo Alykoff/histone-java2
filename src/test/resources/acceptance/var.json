@@ -69,6 +69,98 @@
         "input": "a {{var extended}} b {{/var}} c {{extended}} d",
         "expectedAST": "[31,\"a\",\" \",[25,\"extended\",[30,\" \",\"b\",\" \"]],\" \",\"c\",\" \",[21,\"extended\"],\" \",\"d\"]",
         "expectedResult": "a  c  b  d"
+      },
+      {
+        "input": "{{var x = 10}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x = sadfdasf}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x = null}}{{x}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{var x = true}}{{x}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x = false}}{{x}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var x = 10}}{{x}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{var x = \"string\"}}{{x}}",
+        "expectedResult": "string"
+      },
+      {
+        "input": "{{var x = [1, 2, 3]}}{{x}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{var x = [foo:\"bar\"]}}{{x}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x = [foo: undefined]}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x = [foo:\"bar\"]}}{{x}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x = [foo:\"bar\", other: undefined]}}{{x}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x}}{{/var}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x}}{{/var}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x}}something{{/var}}{{x}}",
+        "expectedResult": "something"
+      },
+      {
+        "input": "{{var x}}{{safsdaf}}{{/var}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x}}{{null}}{{/var}}{{x}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{var x}}{{true}}{{/var}}{{x}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{false}}{{/var}}{{x}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var x}}{{12}}{{/var}}{{x}}",
+        "expectedResult": "12"
+      },
+      {
+        "input": "{{var x}}{{'string'}}{{/var}}{{x}}",
+        "expectedResult": "string"
+      },
+      {
+        "input": "{{var x}}{{[1, 2, 3]}}{{/var}}{{x}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{var x}}{{[foo:\"bar\"]}}{{/var}}{{x}}",
+        "expectedResult": "bar"
       }
     ]
   }

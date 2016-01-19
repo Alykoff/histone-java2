@@ -18,8 +18,8 @@ public class ConcreteTest {
     @Test
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("a  b 10 c");
-        doTest("a {{var simple = 10}} b {{simple}} c", testCase);
+        testCase.setExpectedResult("");
+        doTest("a {{if dfds}} true {{/if}} b", testCase);
     }
 
     private void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {

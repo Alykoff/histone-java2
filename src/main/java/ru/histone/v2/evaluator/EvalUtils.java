@@ -15,6 +15,8 @@ public class EvalUtils {
     public static boolean nodeAsBoolean(EvalNode node) {
         if (node instanceof NullEvalNode) {
             return false;
+        } else if (node instanceof EmptyEvalNode) {
+            return false;
         } else if (node instanceof BooleanEvalNode) {
             return (Boolean) node.getValue();
         } else if (node instanceof IntEvalNode) {
@@ -27,6 +29,9 @@ public class EvalUtils {
 
     public static EvalNode<?> createEvalNode(Object object) {
         if (object == null) {
+            throw new NullPointerException();
+        }
+        if (object.equals(ObjectUtils.NULL)) {
             return new NullEvalNode();
         }
         if (object instanceof Boolean) {

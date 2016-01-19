@@ -13,8 +13,16 @@ public class HistoneTestCase {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<Case> getCases() {
         return cases;
+    }
+
+    public void setCases(List<Case> cases) {
+        this.cases = cases;
     }
 
     public static class Case {
@@ -27,16 +35,32 @@ public class HistoneTestCase {
             return input;
         }
 
+        public void setInput(String input) {
+            this.input = input;
+        }
+
         public String getExpectedResult() {
             return expectedResult;
+        }
+
+        public void setExpectedResult(String expectedResult) {
+            this.expectedResult = expectedResult;
         }
 
         public ExpectedException getExpectedException() {
             return expectedException;
         }
 
+        public void setExpectedException(ExpectedException expectedException) {
+            this.expectedException = expectedException;
+        }
+
         public String getExpectedAST() {
             return expectedAST;
+        }
+
+        public void setExpectedAST(String expectedAST) {
+            this.expectedAST = expectedAST;
         }
     }
 
@@ -57,6 +81,4 @@ public class HistoneTestCase {
             return found;
         }
     }
-
-
 }

@@ -21,8 +21,8 @@ public class EvalUtils {
             return false;
         } else if (node instanceof BooleanEvalNode) {
             return (Boolean) node.getValue();
-        } else if (node instanceof IntEvalNode) {
-            return ((int) node.getValue()) != 0;
+        } else if (node instanceof LongEvalNode) {
+            return ((Long) node.getValue()) != 0;
         } else if (node instanceof StringEvalNode) {
             return !node.getValue().equals("");
         }
@@ -39,7 +39,7 @@ public class EvalUtils {
 //    }
 
     public static boolean isNumberNode(EvalNode node) {
-        return node instanceof IntEvalNode || node instanceof FloatEvalNode;
+        return node instanceof LongEvalNode || node instanceof FloatEvalNode;
     }
 
     public static EvalNode<?> createEvalNode(Object object) {
@@ -52,11 +52,11 @@ public class EvalUtils {
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);
         }
-        if (object instanceof Double) {
+        if (object instanceof Float) {
             return new FloatEvalNode((Float) object);
         }
-        if (object instanceof Integer) {
-            return new IntEvalNode((Integer) object);
+        if (object instanceof Long) {
+            return new LongEvalNode((Long) object);
         }
         if (object instanceof String) {
             return new StringEvalNode((String) object);

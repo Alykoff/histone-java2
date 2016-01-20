@@ -138,7 +138,7 @@ public class Evaluator {
             if (EvalUtils.isNumberNode(left) && EvalUtils.isNumberNode(right)) {
                 Float res = getValue(left) + getValue(right);
                 if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
-                    return new IntEvalNode(res.intValue());
+                    return new LongEvalNode(res.longValue());
                 } else {
                     return new FloatEvalNode(res);
                 }
@@ -176,7 +176,7 @@ public class Evaluator {
                 res = leftValue % rightValue;
             }
             if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
-                return new IntEvalNode(res.intValue());
+                return new LongEvalNode(res.longValue());
             } else {
                 return new FloatEvalNode(res);
             }
@@ -248,9 +248,9 @@ public class Evaluator {
 
     private EvalNode processUnaryMinus(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         EvalNode res = evaluateNode(node.getNode(0), context, currentContext);
-        if (res instanceof IntEvalNode) {
-            Integer value = (Integer) res.getValue();
-            return new IntEvalNode(-value);
+        if (res instanceof LongEvalNode) {
+            Long value = ((LongEvalNode) res).getValue();
+            return new LongEvalNode(-value);
         } else {
             throw new NotImplementedException();
         }
@@ -271,8 +271,8 @@ public class Evaluator {
             return new NullEvalNode();
         } else if (val instanceof Boolean) {
             return new BooleanEvalNode((Boolean) val);
-        } else if (val instanceof Integer) {
-            return new IntEvalNode((Integer) val);
+        } else if (val instanceof Long) {
+            return new LongEvalNode((Long) val);
         }
         return new StringEvalNode(val + "");
     }

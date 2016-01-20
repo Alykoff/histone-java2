@@ -20,7 +20,7 @@ public class ConcreteTest {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("33");
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("{{var x = ( 10 + 2 * 3 ) + 4 * 3  -  ( 16 / 2 - 1  ) * 5 - 150 / 5 }}{{x}}", testCase);
+        doTest("a {{if -10}} true {{/if}} b", testCase);
     }
 
     private void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {

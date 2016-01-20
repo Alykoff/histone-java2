@@ -67,5 +67,11 @@ public class Context {
         public void setVars(ConcurrentMap<String, Object> vars) {
             this.vars = vars;
         }
+
+        public NodeContext createNew() {
+            NodeContext ctx = new NodeContext();
+            ctx.setParent(this);
+            return ctx;
+        }
     }
 }

@@ -280,14 +280,14 @@ public class Parser {
             if (!next(wrapper, Tokens.T_BLOCK_END)) {
                 UnexpectedToken(wrapper, "}}");
             }
-            node.add(getNodeList(wrapper), condition);
+            node.add(getNodesStatement(wrapper, false), condition);
         } while (next(wrapper, Tokens.T_ELSEIF));
 
         if (next(wrapper, Tokens.T_ELSE)) {
             if (!next(wrapper, Tokens.T_BLOCK_END)) {
                 UnexpectedToken(wrapper, "}}");
             }
-            node.add(getNodeList(wrapper));
+            node.add(getNodesStatement(wrapper, false));
         }
         if (!next(wrapper, Tokens.T_SLASH, Tokens.T_IF, Tokens.T_BLOCK_END)) {
             UnexpectedToken(wrapper, "{{/if}}");

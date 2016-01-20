@@ -36,14 +36,12 @@ public class ParserUtils {
     }
 
     public static boolean isLeafNodeType(AstNode node) {
-        return node != null
-                && node.getType() == AstNode.LEAF_NODE_TYPE_ID;
+        return node != null && node.getType() == AstNode.LEAF_NODE_TYPE_ID;
     }
 
 
     public static boolean isStringLeafNode(AstNode node) {
-        return isLeafNodeType(node)
-                && isString(node.getValue());
+        return isLeafNodeType(node) && isString(node.getValue());
     }
 
     public static boolean isString(Object obj) {

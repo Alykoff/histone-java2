@@ -119,8 +119,7 @@ public class Evaluator {
             case AST_RETURN:
                 break;
             case AST_NODES:
-                //todo maybe here we need create a new context?
-                return processNodeList(node, context, currentContext);
+                return processNodeList(node, context, currentContext.createNew());
             case AST_NODELIST:
                 return processNodeList(node, context, currentContext);
             case AST_BOR:
@@ -276,8 +275,7 @@ public class Evaluator {
     }
 
     private EvalNode processIfNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        Context.NodeContext current = new Context.NodeContext();
-        current.setParent(currentContext);
+        Context.NodeContext current = currentContext.createNew();
         EvalNode conditionNode = evaluateNode(node.getNode(1), context, currentContext);
         EvalNode result;
         if (EvalUtils.nodeAsBoolean(conditionNode)) {

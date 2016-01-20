@@ -4,6 +4,7 @@ import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.parser.Parser;
+import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -34,7 +35,7 @@ public class HistoneV2StandardFromJs {
         try {
             final Context context = new Context();
             final Evaluator evaluator = new Evaluator();
-            final ExpAstNode root = new Parser().process(tpl, baseURI);
+            final AstNode root = new Parser().process(tpl, baseURI);
             System.out.println(ParserUtils.astToString(root));
             final String result = evaluator.process(baseURI, root, context);
             System.out.println(result);

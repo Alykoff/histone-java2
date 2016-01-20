@@ -24,21 +24,43 @@ public class Marker {
         final ExpAstNode node = (ExpAstNode) rawNode;
         final AstType type = node.getType();
         switch (type) {
-            case AST_REF:
-                String nameOfVar = ((StringAstNode) node.getNode(0)).getValue();
+            case AST_REF: {
+                final String nameOfVar = ((StringAstNode) node.getNode(0)).getValue();
                 final ExpAstNode refNode = getReference(nameOfVar, scopeChain);
                 node.rewriteNodes(Collections.singletonList(refNode));
-                break;
-            case AST_VAR:
-                markReferences(node.getNode(0), scopeChain);
-                nameOfVar = ParserUtils.getValueFromStringNode(node.getNode(1));
+
+            }
+            case AST_VAR: {
+                final AstNode expNode = node.getNode(0);
+                final AstNode nameNode = node.getNode(1);
+                markReferences(expNode, scopeChain);
+                final String nameOfVar = ParserUtils.getValueFromStringNode(nameNode);
                 final Long nameIndex = setReference(nameOfVar, scopeChain);
                 node.setNode(1, new LongAstNode(nameIndex));
                 break;
-            case AST_IF: break;
+            }
+            case AST_IF: {
+//                int nodesSize = node.getNodes().size();
+//                for (int i = 0; i < nodesSize; i += 2) {
+//                    // process condition if it's present
+//                    if (!Utils_isUndefined(node[c + 1]))
+//                        markReferences(node[c + 1], scopeChain);
+//                    // process body
+//                    scopeChain.push(new HashMap<>());
+//                    markReferences(node[c], scopeChain);
+//                    scopeChain.pop();
+//                }
+                break;
+            }
             case AST_FOR: break;
             case AST_MACRO: break;
-            case AST_NODES: break;
+            case AST_NODES:
+//                scopeChain.push(new HashMap<>());
+//                for (int i = 1; i < node.length; ++i)
+//                    markReferences(node[c], scopeChain);
+//                scopeChain.pop();
+                break;
+                break;
             default: break;
         }
     }

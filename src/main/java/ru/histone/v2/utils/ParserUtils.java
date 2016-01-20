@@ -3,32 +3,33 @@ package ru.histone.v2.utils;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.parser.node.StringAstNode;
+import ru.histone.v2.parser.node.ValueNode;
+
+import java.util.List;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class ParserUtils {
-    public static String astToString(ExpAstNode node) {
+    public static String astToString(AstNode node) {
         StringBuffer sb = new StringBuffer();
         nodeToString(sb, node);
         return sb.toString();
     }
 
-    private static void nodeToString(StringBuffer sb, ExpAstNode node) {
-        Object nodeValue = node.getValue();
-        if (node.getType() == ExpAstNode.LEAF_NODE_TYPE_ID) {
-            if (node.getValue() instanceof Number) {
-                sb.append(node.getValue());
+    private static void nodeToString(StringBuffer sb, AstNode node) {
+        if (node.hasValue()) {
+            Object nodeValue = ((ValueNode) node).getValue();
+            if (nodeValue instanceof Number || nodeValue instanceof Boolean) {
+                sb.append(nodeValue);
             } else {
-                sb.append("\"").append(node.getValue()).append("\"");
+                sb.append("\"").append(nodeValue).append("\"");
             }
         } else {
+            List<AstNode> nodes = ((ExpAstNode) node).getNodes();
             sb.append("[").append(node.getType());
-            if (nodeValue != null) {
-                sb.append(",\"").append(nodeValue).append("\"");
-            }
-            if (node.getNodes().size() > 0) {
-                for (ExpAstNode child : node.getNodes()) {
+            if (nodes.size() > 0) {
+                for (AstNode child : nodes) {
                     sb.append(",");
                     nodeToString(sb, child);
                 }

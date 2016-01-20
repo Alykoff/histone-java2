@@ -30,10 +30,10 @@ public class Parser {
 
     private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
 
-    public ExpAstNode process(String template, String baseURI) throws HistoneException {
+    public AstNode process(String template, String baseURI) throws HistoneException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
-        ExpAstNode result = getNodeList(wrapper);
+        AstNode result = getNodeList(wrapper);
         if (!wrapper.next(BaseTokens.T_EOF.getId()).isFound())
             UnexpectedToken(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();

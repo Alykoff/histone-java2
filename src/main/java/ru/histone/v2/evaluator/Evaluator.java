@@ -3,6 +3,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.collections.CollectionUtils;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.exceptions.UnknownAstTypeException;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstType;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -46,13 +47,14 @@ public class Evaluator {
             return new EmptyEvalNode();
         }
 
-        if (node.getType() == Integer.MIN_VALUE) {
+        final int nodeType = node.getType();
+        if (nodeType == Integer.MIN_VALUE) {
             return getValueNode(node);
         }
 
-        AstType type = AstType.fromId(node.getType());
+        AstType type = AstType.fromId(nodeType);
         if (type == null) {
-            throw new HistoneException("WTF!?!?!?");
+            throw new UnknownAstTypeException(nodeType);
         }
 
         switch (type) {

@@ -2,9 +2,11 @@ package ru.histone.v2.parser;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
+import ru.histone.HistoneException;
 import ru.histone.tokenizer.BaseTokens;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
+import ru.histone.v2.exceptions.UnknownAstTypeException;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstRegexType;
 import ru.histone.v2.parser.node.AstType;
@@ -20,6 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static ru.histone.v2.parser.node.AstType.AST_REF;
+
 /**
  * Created by alexey.nevinsky on 24.12.2015.
  */
@@ -31,7 +35,7 @@ public class Parser {
 
     private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
 
-    public AstNode process(String template, String baseURI) throws ParserException {
+    public AstNode process(String template, String baseURI) throws HistoneException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
         AstNode result = getNodeList(wrapper);
@@ -39,8 +43,27 @@ public class Parser {
             UnexpectedToken(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();
         result = optimizer.mergeStrings(result);
-//        markReferences(template);
+//        markReferences(result);
         return result;
+    }
+
+    // TODO
+    private void markReferences(AstNode astNode) throws HistoneException {
+        final int astNodeType = astNode.getType();
+        final AstType type = AstType.fromId(astNodeType);
+        if (type == null) {
+            throw new UnknownAstTypeException(astNodeType);
+        }
+        switch (type) {
+            case AST_REF: break;
+            case AST_VAR: break;
+            case AST_IF: break;
+            case AST_FOR: break;
+            case AST_MACRO: break;
+            case AST_NODES: break;
+            default: break;
+        }
+
     }
 
     private AstNode getNodeList(TokenizerWrapper wrapper) throws ParserException {
@@ -542,7 +565,7 @@ public class Parser {
         } else if (test(wrapper, Tokens.T_FLOAT)) {
             return AstNode.forValue(Float.parseFloat(wrapper.next().first().getValue()));
         } else if (test(wrapper, Tokens.T_REF)) {
-            AstNode node = new AstNode(AstType.AST_REF);
+            AstNode node = new AstNode(AST_REF);
             node.setValue(wrapper.next().first().getValue());
             return node;
         } else if (next(wrapper, Tokens.T_LPAREN)) {

@@ -154,45 +154,45 @@ public class Parser {
     }
 
     private ExpAstNode getVarStatement(TokenizerWrapper wrapper) throws ParserException {
-//        TokenizerResult name;
-//        ExpAstNode result;
-//        if (!test(wrapper, Tokens.T_ID, Tokens.T_EQ)) {
-//            name = wrapper.next(Tokens.T_ID.getId());
-//            if (!name.isFound()) {
-//                UnexpectedToken(wrapper, "IDENTIFIER");
-//            }
-//            if (!next(wrapper, Tokens.T_BLOCK_END)) {
-//                UnexpectedToken(wrapper, "}}");
-//            }
-//            result = new ExpAstNode(AstType.AST_VAR);
-//            result.add(getNodesStatement(wrapper, false));
-//            result.setValue(name.firstValue());
-//            if (!next(wrapper, Tokens.T_SLASH, Tokens.T_VAR)) {
-//                UnexpectedToken(wrapper, "{{/var}}");
-//            }
-//        } else {
-//            result = new ExpAstNode(AstType.AST_ARRAY);
-//            do {
-//                name = wrapper.next(Tokens.T_ID.getId());
-//                if (!name.isFound()) {
-//                    UnexpectedToken(wrapper, "IDENTIFIER");
-//                }
-//                if (!next(wrapper, Tokens.T_EQ)) {
-//                    UnexpectedToken(wrapper, "=");
-//                }
-//                ExpAstNode varNode = new ExpAstNode(AstType.AST_VAR).add(getExpression(wrapper));
-//                varNode.setValue(name.firstValue());
-//                result.add(varNode);
-//                if (!next(wrapper, Tokens.T_COMMA)) {
-//                    break;
-//                }
-//            } while (!wrapper.test(BaseTokens.T_EOF.getId()).isFound());
-//        }
-//        if (!next(wrapper, Tokens.T_BLOCK_END)) {
-//            UnexpectedToken(wrapper, "}}");
-//        }
-//        return result;
-        throw new NotImplementedException();
+        TokenizerResult name;
+        ExpAstNode result;
+        if (!test(wrapper, Tokens.T_ID, Tokens.T_EQ)) {
+            name = wrapper.next(Tokens.T_ID.getId());
+            if (!name.isFound()) {
+                UnexpectedToken(wrapper, "IDENTIFIER");
+            }
+            if (!next(wrapper, Tokens.T_BLOCK_END)) {
+                UnexpectedToken(wrapper, "}}");
+            }
+            result = new ExpAstNode(AstType.AST_VAR);
+            result.add(new StringAstNode(name.firstValue()));
+            result.add(getNodesStatement(wrapper, false));
+            if (!next(wrapper, Tokens.T_SLASH, Tokens.T_VAR)) {
+                UnexpectedToken(wrapper, "{{/var}}");
+            }
+        } else {
+            result = new ExpAstNode(AstType.AST_ARRAY);
+            do {
+                name = wrapper.next(Tokens.T_ID.getId());
+                if (!name.isFound()) {
+                    UnexpectedToken(wrapper, "IDENTIFIER");
+                }
+                if (!next(wrapper, Tokens.T_EQ)) {
+                    UnexpectedToken(wrapper, "=");
+                }
+                ExpAstNode varNode = new ExpAstNode(AstType.AST_VAR)
+                        .add(new StringAstNode(name.firstValue()))
+                        .add(getExpression(wrapper));
+                result.add(varNode);
+                if (!next(wrapper, Tokens.T_COMMA)) {
+                    break;
+                }
+            } while (!wrapper.test(BaseTokens.T_EOF.getId()).isFound());
+        }
+        if (!next(wrapper, Tokens.T_BLOCK_END)) {
+            UnexpectedToken(wrapper, "}}");
+        }
+        return result;
     }
 
     private ExpAstNode getNodesStatement(TokenizerWrapper wrapper, boolean nested) throws ParserException {

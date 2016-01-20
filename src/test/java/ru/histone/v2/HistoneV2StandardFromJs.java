@@ -35,7 +35,7 @@ public class HistoneV2StandardFromJs {
         try {
             final Context context = new Context();
             final Evaluator evaluator = new Evaluator();
-            final AstNode root = new Parser().process(tpl, baseURI);
+            final ExpAstNode root = new Parser().process(tpl, baseURI);
             System.out.println(ParserUtils.astToString(root));
             final String result = evaluator.process(baseURI, root, context);
             System.out.println(result);

@@ -104,7 +104,7 @@ public class Evaluator {
             case AST_IF:
                 return processIfNode(expNode, context, currentContext);
             case AST_FOR:
-                break;
+                return processForNode(expNode, context, currentContext);
             case AST_MACRO:
                 break;
             case AST_RETURN:
@@ -128,6 +128,18 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private EvalNode processForNode(ExpAstNode expNode, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode keyVarName = evaluateNode(expNode.getNode(0), context, currentContext);
+        EvalNode valueVarName = evaluateNode(expNode.getNode(1), context, currentContext);
+        EvalNode objToIterate = evaluateNode(expNode.getNode(3), context, currentContext);
+        if (objToIterate.equals(EmptyEvalNode.INSTANCE)) {
+            return EmptyEvalNode.INSTANCE;
+        }
+
+
+        return null;
     }
 
     private EvalNode processAddNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {

@@ -225,23 +225,25 @@ public class Parser {
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
         final ExpAstNode node = new ExpAstNode(AstType.AST_FOR);
-        final TokenizerResult exp1 = wrapper.next(Tokens.T_ID.getId());
-        if (exp1.isFound()) {
+        final TokenizerResult id = wrapper.next(Tokens.T_ID.getId());
+        if (id.isFound()) {
             if (next(wrapper, Tokens.T_COLON)) {
-                node.add(new StringAstNode(exp1.firstValue()));
-                final TokenizerResult exp2 = wrapper.next(Tokens.T_ID.getId());
-                if (exp2.isFound()) {
-                    node.add(new StringAstNode(exp2.firstValue()));
+                node.add(new StringAstNode(id.firstValue())); //add key name
+                final TokenizerResult valueName = wrapper.next(Tokens.T_ID.getId());
+                if (valueName.isFound()) {
+                    node.add(new StringAstNode(valueName.firstValue())); //add value name
                 } else {
                     UnexpectedToken(wrapper, "IDENTIFIER");
                 }
             } else {
-                node.add(new StringAstNode(null))
-                        .add(new StringAstNode(exp1.firstValue()));
+                node
+                        .add(new StringAstNode(null)) //add null as key name
+                        .add(new StringAstNode(id.firstValue())); //add value name
             }
         } else {
-            node.add(new StringAstNode(null))
-                    .add(new StringAstNode(null));
+            node
+                    .add(new StringAstNode(null)) //add 'null' as key name
+                    .add(new StringAstNode(null));//add 'null' as value name
         }
 
         if (!next(wrapper, Tokens.T_IN)) {

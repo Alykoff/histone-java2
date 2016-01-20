@@ -18,9 +18,9 @@ public class ConcreteTest {
     @Test
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("33");
+        testCase.setExpectedResult("a  b");
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("a {{if -10}} true {{/if}} b", testCase);
+        doTest("a {{for x in sfgsag}}{{x}}{{/for}} b", testCase);
     }
 
     private void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {

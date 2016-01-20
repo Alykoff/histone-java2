@@ -35,6 +35,14 @@ public class ParserUtils {
         }
     }
 
+    public static AstNode buildStringNode(String value) {
+        return new AstNode(AstNode.LEAF_NODE_TYPE_ID).setValue(value);
+    }
+
+    public static String getValueFromStringNode(AstNode node) {
+        return (String) node.getValue();
+    }
+
     public static boolean isLeafNodeType(AstNode node) {
         return node != null && node.getType() == AstNode.LEAF_NODE_TYPE_ID;
     }

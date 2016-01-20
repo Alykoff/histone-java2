@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ *
  * Created by alexey.nevinsky on 24.12.2015.
  */
 public class AstNode implements Serializable {
@@ -24,9 +25,9 @@ public class AstNode implements Serializable {
         this(type.getId());
     }
 
-    public AstNode(AstType type, AstNode res) {
+    public AstNode(AstType type, AstNode... res) {
         this(type.getId());
-        add(res);
+        nodes.addAll(Arrays.asList(res));
     }
 
     public static AstNode forValue(Object object) {
@@ -40,17 +41,17 @@ public class AstNode implements Serializable {
         return this;
     }
 
+    public AstNode add(AstNode... nodes) {
+        this.nodes.addAll(Arrays.asList(nodes));
+        return this;
+    }
+
     public Object getValue() {
         return value;
     }
 
     public AstNode setValue(Object value) {
         this.value = value;
-        return this;
-    }
-
-    public AstNode add(AstNode... nodes) {
-        this.nodes.addAll(Arrays.asList(nodes));
         return this;
     }
 
@@ -63,7 +64,8 @@ public class AstNode implements Serializable {
     }
 
     public void setNodes(List<AstNode> nodes) {
-        this.nodes = nodes;
+        this.nodes.clear();
+        this.nodes.addAll(nodes);
     }
 
     @Override

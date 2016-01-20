@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
+ *
  * Created by gali.alykoff on 20/01/16.
  */
 public abstract class AstNode implements Serializable {
@@ -19,7 +20,7 @@ public abstract class AstNode implements Serializable {
 //    ExpAstNode add(ExpAstNode node);
 //    ExpAstNode add(ExpAstNode... nodes);
 //    List<ExpAstNode> getNodes();
-//    void setNodes(List<ExpAstNode> nodes);
+//    void rewriteNodes(List<ExpAstNode> nodes);
 //    ExpAstNode getNode(int index);
 //    ExpAstNode escaped();
 

@@ -1,7 +1,6 @@
 package ru.histone.v2.parser;
 
 import ru.histone.v2.parser.node.*;
-import ru.histone.v2.utils.ParserUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ public class Optimizer {
         final List<AstNode> innerNodes = node.getNodes();
         if (node.getType() == AstType.AST_NODELIST || node.getType() == AstType.AST_NODES) {
             final List<AstNode> newInnerNodes = getNewNodes(innerNodes);
-            node.setNodes(newInnerNodes);
+            node.rewriteNodes(newInnerNodes);
         } else {
             innerNodes.forEach(this::mergeStrings);
         }

@@ -13,7 +13,7 @@ import java.util.*;
 public class Marker {
     // TODO
     public void markReferences(
-            AstNode rawNode, Deque<Map<String, Integer>> scopeChain
+            AstNode rawNode, Deque<Map<String, Long>> scopeChain
     ) throws HistoneException {
         if (rawNode.hasValue()) {
             return;
@@ -21,19 +21,19 @@ public class Marker {
         if (scopeChain == null) {
             scopeChain = new LinkedList<>();
         }
-        final ExpAstNode astNode = (ExpAstNode) rawNode;
-        final AstType type = astNode.getType();
+        final ExpAstNode node = (ExpAstNode) rawNode;
+        final AstType type = node.getType();
         switch (type) {
             case AST_REF:
-                String nameOfVar = ((StringAstNode) astNode.getNode(0)).getValue();
+                String nameOfVar = ((StringAstNode) node.getNode(0)).getValue();
                 final ExpAstNode refNode = getReference(nameOfVar, scopeChain);
-                astNode.setNodes(Collections.singletonList(refNode));
+                node.rewriteNodes(Collections.singletonList(refNode));
                 break;
             case AST_VAR:
-                markReferences(astNode.getNode(0), scopeChain);
-                nameOfVar = ParserUtils.getValueFromStringNode(astNode.getNode(1));
-//                final String name = setReference(nameOfVar, scopeChain);
-
+                markReferences(node.getNode(0), scopeChain);
+                nameOfVar = ParserUtils.getValueFromStringNode(node.getNode(1));
+                final Long nameIndex = setReference(nameOfVar, scopeChain);
+                node.setNode(1, new LongAstNode(nameIndex));
                 break;
             case AST_IF: break;
             case AST_FOR: break;
@@ -43,14 +43,14 @@ public class Marker {
         }
     }
 
-    private ExpAstNode getReference(String name, Deque<Map<String, Integer>> scopeChain) {
+    private ExpAstNode getReference(String name, Deque<Map<String, Long>> scopeChain) {
         int scopeIndex = scopeChain.size();
         final int currentScope = scopeIndex - 1;
-        final Iterator<Map<String, Integer>> iterator = scopeChain.descendingIterator();
+        final Iterator<Map<String, Long>> iterator = scopeChain.descendingIterator();
         while (iterator.hasNext()) {
             scopeIndex--;
-            final Map<String, Integer> scope = iterator.next();
-            final Integer variableIndex = scope.get(name);
+            final Map<String, Long> scope = iterator.next();
+            final Long variableIndex = scope.get(name);
             if (variableIndex != null) {
                 final int scopeDeep = currentScope - scopeIndex;;
                 final AstNode deepOfVarDefinitionNode = new LongAstNode(scopeDeep);
@@ -68,10 +68,10 @@ public class Marker {
                 .add(nameOfGlobalVarNode);
     }
 
-    private Integer setReference(String name, Deque<Map<String, Integer>> scopeChain) {
-        final Map<String, Integer> lastScope = scopeChain.getLast();
+    private Long setReference(String name, Deque<Map<String, Long>> scopeChain) {
+        final Map<String, Long> lastScope = scopeChain.getLast();
         if (!lastScope.containsKey(name)) {
-            lastScope.put(name, lastScope.keySet().size());
+            lastScope.put(name, (long) lastScope.keySet().size());
         }
         return lastScope.get(name);
     }

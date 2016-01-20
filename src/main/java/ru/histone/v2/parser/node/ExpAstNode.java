@@ -40,10 +40,16 @@ public class ExpAstNode extends AstNode implements Serializable {
         return nodes;
     }
 
-    public void setNodes(List<AstNode> nodes) {
+    public void rewriteNodes(List<AstNode> nodes) {
         this.nodes.clear();
         this.nodes.addAll(nodes);
     }
+
+    public ExpAstNode setNode(int index, AstNode node) {
+        this.nodes.set(index, node);
+        return this;
+    }
+
 
     @Override
     public String toString() {

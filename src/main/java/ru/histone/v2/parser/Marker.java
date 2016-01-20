@@ -35,7 +35,7 @@ public class Marker {
             case AST_VAR:
                 markReferences(astNode.getNode(0), scopeChain);
                 nameOfVar = ParserUtils.getValueFromStringNode(astNode.getNode(1));
-                final String name = setReference(nameOfVar, scopeChain);
+//                final String name = setReference(nameOfVar, scopeChain);
 
                 break;
             case AST_IF: break;

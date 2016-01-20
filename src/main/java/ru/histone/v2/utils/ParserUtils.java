@@ -27,7 +27,7 @@ public class ParserUtils {
             }
         } else {
             List<AstNode> nodes = ((ExpAstNode) node).getNodes();
-            sb.append("[").append(node.getType());
+            sb.append("[").append(node.getType().getId());
             if (nodes.size() > 0) {
                 for (AstNode child : nodes) {
                     sb.append(",");

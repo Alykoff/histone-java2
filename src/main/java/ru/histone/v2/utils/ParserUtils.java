@@ -20,7 +20,7 @@ public class ParserUtils {
     private static void nodeToString(StringBuffer sb, AstNode node) {
         if (node.hasValue()) {
             Object nodeValue = ((ValueNode) node).getValue();
-            if (nodeValue instanceof Number || nodeValue instanceof Boolean) {
+            if (nodeValue instanceof Number || nodeValue instanceof Boolean || nodeValue == null) {
                 sb.append(nodeValue);
             } else {
                 sb.append("\"").append(nodeValue).append("\"");

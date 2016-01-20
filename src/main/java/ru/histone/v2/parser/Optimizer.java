@@ -10,10 +10,6 @@ import java.util.List;
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class Optimizer {
-    private static ExpAstNode buildStringLeafNode(StringBuilder value) {
-        return ExpAstNode.forValue(value.toString());
-    }
-
     public AstNode mergeStrings(AstNode rawNode) {
         if (rawNode.hasValue()) {
             return rawNode;
@@ -32,7 +28,7 @@ public class Optimizer {
 
     private List<AstNode> getNewNodes(List<AstNode> innerNodes) {
         final StringBuilder accStringNode = new StringBuilder();
-        final List<ExpAstNode> res = new ArrayList<>(innerNodes.size());
+        final List<AstNode> res = new ArrayList<>(innerNodes.size());
 
         for (int i = 0; i < innerNodes.size(); i++) {
             AstNode current = innerNodes.get(i);
@@ -48,7 +44,7 @@ public class Optimizer {
             }
 
             if (i == innerNodes.size() - 1 && accStringNode.length() > 0) {
-                res.add(buildStringLeafNode(accStringNode));
+                res.add(new StringAstNode(accStringNode.toString()));
             }
 
             if (!isStringLeaf) {

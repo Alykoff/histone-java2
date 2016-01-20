@@ -1,5 +1,12 @@
 package ru.histone.v2;
 
+import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.parser.Parser;
+import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.utils.ParserUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +25,22 @@ public class HistoneV2StandardFromJs {
     private static final String PATH_TO_HISTONE2_JS_RUNNER = getRunnerJsAbsolutePath(RESOURCE_PATH_TO_RUNNER, RELATIVE_RESOURCE_PATH_TO_RUNNER);
 
     public static void main(String[] args) throws IOException {
-        System.out.println(getNodes("sdjhfsdjkbfdsksd {{if 1 = 1 && '2' != 'fdsds4'}}1231231{{else}}aaa{{/if}}sdklbjfsdlkfdsbfsdksfd"));
-        System.out.println(getTpl("sdjhfsdjkbfdsksd {{if 1 = 1 && '2' != 'fdsds4'}}1231231{{else}}aaa{{/if}}sdklbjfsdlkfdsbfsdksfd"));
+        final String baseURI = "";
+        final String tpl = "abs {{for x in 'xyz'}}{{x}}{{/for}} b";
+        System.out.println(getNodes(tpl));
+        System.out.println(getTpl(tpl));
+        System.out.println("--------");
+
+        try {
+            final Context context = new Context();
+            final Evaluator evaluator = new Evaluator();
+            final ExpAstNode root = new Parser().process(tpl, baseURI);
+            System.out.println(ParserUtils.astToString(root));
+            final String result = evaluator.process(baseURI, root, context);
+            System.out.println(result);
+        } catch (HistoneException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getNodes(String tpl) throws IOException {

@@ -1,6 +1,6 @@
 package ru.histone.v2.evaluator;
 
-import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.parser.node.ExpAstNode;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,15 +18,15 @@ public class Context {
         this.baseUri = baseUri;
     }
 
-    public void createContext(AstNode node) {
+    public void createContext(ExpAstNode node) {
         variables.put(node.getId(), new ConcurrentHashMap<>());
     }
 
-    public void deleteContext(AstNode node) {
+    public void deleteContext(ExpAstNode node) {
         variables.remove(node.getId());
     }
 
-    public void put(AstNode node, String varName, Object value) {
+    public void put(ExpAstNode node, String varName, Object value) {
         ConcurrentMap<String, Object> vars = getNodeContext(node);
 
         if (vars.containsKey(varName)) {
@@ -36,7 +36,7 @@ public class Context {
         vars.put(varName, value);
     }
 
-    private ConcurrentMap<String, Object> getNodeContext(AstNode node) {
+    private ConcurrentMap<String, Object> getNodeContext(ExpAstNode node) {
         ConcurrentMap<String, Object> vars = variables.get(node.getId());
         if (vars == null) {
             throw new IllegalStateException("context with id '" + node.getId() + "' doesn't exist");
@@ -44,7 +44,7 @@ public class Context {
         return vars;
     }
 
-    public Object get(AstNode node, String name) {
+    public Object get(ExpAstNode node, String name) {
         return getNodeContext(node).get(name);
     }
 

@@ -1,6 +1,7 @@
 package ru.histone.v2.parser.node;
 
 /**
+ *
  * Created by alexey.nevinsky on 24.12.2015.
  */
 public enum AstType {
@@ -43,7 +44,12 @@ public enum AstType {
 
     AST_SUPRESS(35),
     AST_LISTEN(36),
-    AST_TRIGGER(37);
+    AST_TRIGGER(37),
+
+    AST_T_NOP(-1),
+    AST_T_BREAK(-2),
+    AST_T_ARRAY(-3),
+    AST_VALUE_NODE(Integer.MIN_VALUE);
 
     private final int id;
 

@@ -7,7 +7,7 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.ParserException;
-import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.test.dto.HistoneTestCase;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -28,7 +28,7 @@ public class ConcreteTest {
         Context context = new Context();
         Evaluator evaluator = new Evaluator();
         try {
-            AstNode root = parser.process(input, "");
+            ExpAstNode root = parser.process(input, "");
             if (testCase.getExpectedAST() != null) {
                 Assert.assertEquals(ParserUtils.astToString(root), testCase.getExpectedAST());
             } else {

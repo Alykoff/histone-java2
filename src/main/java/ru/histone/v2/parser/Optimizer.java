@@ -1,7 +1,6 @@
 package ru.histone.v2.parser;
 
-import ru.histone.v2.parser.node.AstNode;
-import ru.histone.v2.parser.node.AstType;
+import ru.histone.v2.parser.node.*;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.util.ArrayList;
@@ -11,14 +10,17 @@ import java.util.List;
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class Optimizer {
-    private static AstNode buildStringLeafNode(StringBuilder value) {
-        return AstNode.forValue(value.toString());
+    private static ExpAstNode buildStringLeafNode(StringBuilder value) {
+        return ExpAstNode.forValue(value.toString());
     }
 
-    public AstNode mergeStrings(AstNode node) {
-
+    public AstNode mergeStrings(AstNode rawNode) {
+        if (rawNode.hasValue()) {
+            return rawNode;
+        }
+        final ExpAstNode node = (ExpAstNode) rawNode;
         final List<AstNode> innerNodes = node.getNodes();
-        if (node.getType() == AstType.AST_NODELIST.getId() || node.getType() == AstType.AST_NODES.getId()) {
+        if (node.getType() == AstType.AST_NODELIST || node.getType() == AstType.AST_NODES) {
             final List<AstNode> newInnerNodes = getNewNodes(innerNodes);
             node.setNodes(newInnerNodes);
         } else {
@@ -30,18 +32,18 @@ public class Optimizer {
 
     private List<AstNode> getNewNodes(List<AstNode> innerNodes) {
         final StringBuilder accStringNode = new StringBuilder();
-        final List<AstNode> res = new ArrayList<>(innerNodes.size());
+        final List<ExpAstNode> res = new ArrayList<>(innerNodes.size());
 
         for (int i = 0; i < innerNodes.size(); i++) {
             AstNode current = innerNodes.get(i);
-            boolean isStringLeaf = ParserUtils.isStringLeafNode(current);
+            boolean isStringLeaf = current.hasValue();
 
             if (isStringLeaf) {
-                accStringNode.append(current.getValue());
+                accStringNode.append(((ValueNode) current).getValue());
             }
 
             if (!isStringLeaf && accStringNode.length() > 0) {
-                res.add(buildStringLeafNode(accStringNode));
+                res.add(new StringAstNode(accStringNode.toString()));
                 accStringNode.setLength(0);
             }
 

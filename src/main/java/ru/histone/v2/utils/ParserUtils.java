@@ -1,20 +1,20 @@
 package ru.histone.v2.utils;
 
-import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.parser.node.ExpAstNode;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class ParserUtils {
-    public static String astToString(AstNode node) {
+    public static String astToString(ExpAstNode node) {
         StringBuffer sb = new StringBuffer();
         nodeToString(sb, node);
         return sb.toString();
     }
 
-    private static void nodeToString(StringBuffer sb, AstNode node) {
+    private static void nodeToString(StringBuffer sb, ExpAstNode node) {
         Object nodeValue = node.getValue();
-        if (node.getType() == AstNode.LEAF_NODE_TYPE_ID) {
+        if (node.getType() == ExpAstNode.LEAF_NODE_TYPE_ID) {
             if (node.getValue() instanceof Number) {
                 sb.append(node.getValue());
             } else {
@@ -26,7 +26,7 @@ public class ParserUtils {
                 sb.append(",\"").append(nodeValue).append("\"");
             }
             if (node.getNodes().size() > 0) {
-                for (AstNode child : node.getNodes()) {
+                for (ExpAstNode child : node.getNodes()) {
                     sb.append(",");
                     nodeToString(sb, child);
                 }
@@ -35,20 +35,20 @@ public class ParserUtils {
         }
     }
 
-    public static AstNode buildStringNode(String value) {
-        return new AstNode(AstNode.LEAF_NODE_TYPE_ID).setValue(value);
+    public static ExpAstNode buildStringNode(String value) {
+        return new ExpAstNode(ExpAstNode.LEAF_NODE_TYPE_ID).setValue(value);
     }
 
-    public static String getValueFromStringNode(AstNode node) {
+    public static String getValueFromStringNode(ExpAstNode node) {
         return (String) node.getValue();
     }
 
-    public static boolean isLeafNodeType(AstNode node) {
-        return node != null && node.getType() == AstNode.LEAF_NODE_TYPE_ID;
+    public static boolean isLeafNodeType(ExpAstNode node) {
+        return node != null && node.getType() == ExpAstNode.LEAF_NODE_TYPE_ID;
     }
 
 
-    public static boolean isStringLeafNode(AstNode node) {
+    public static boolean isStringLeafNode(ExpAstNode node) {
         return isLeafNodeType(node) && isString(node.getValue());
     }
 

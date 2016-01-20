@@ -2,7 +2,7 @@ package ru.histone.v2.parser;
 
 import ru.histone.HistoneException;
 import ru.histone.v2.exceptions.UnknownAstTypeException;
-import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.parser.node.AstType;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -16,7 +16,7 @@ public class Marker {
 
     // TODO
     public void markReferences(
-            AstNode astNode, Deque<Map<String, Integer>> scopeChain
+            ExpAstNode astNode, Deque<Map<String, Integer>> scopeChain
     ) throws HistoneException {
         if (scopeChain == null) {
             scopeChain = new LinkedList<>();
@@ -29,7 +29,7 @@ public class Marker {
         switch (type) {
             case AST_REF:
                 String nameOfVar = ParserUtils.getValueFromStringNode(astNode.getNode(0));
-                final AstNode refNode = getReference(nameOfVar, scopeChain);
+                final ExpAstNode refNode = getReference(nameOfVar, scopeChain);
                 astNode.setNodes(Collections.singletonList(refNode));
                 break;
             case AST_VAR:
@@ -47,7 +47,7 @@ public class Marker {
 
     }
 
-    private AstNode getReference(String name, Deque<Map<String, Integer>> scopeChain) {
+    private ExpAstNode getReference(String name, Deque<Map<String, Integer>> scopeChain) {
         int scopeIndex = scopeChain.size();
         final int currentScope = scopeIndex - 1;
         final Iterator<Map<String, Integer>> iterator = scopeChain.descendingIterator();
@@ -57,20 +57,20 @@ public class Marker {
             final Integer variableIndex = scope.get(name);
             if (variableIndex != null) {
                 final int scopeDeep = currentScope - scopeIndex;;
-                final AstNode deepOfVarDefinitionNode = new AstNode(AstNode.LEAF_NODE_TYPE_ID)
+                final ExpAstNode deepOfVarDefinitionNode = new ExpAstNode(ExpAstNode.LEAF_NODE_TYPE_ID)
                         .setValue(scopeDeep);
-                final AstNode varIndexNode = new AstNode(AstNode.LEAF_NODE_TYPE_ID)
+                final ExpAstNode varIndexNode = new ExpAstNode(ExpAstNode.LEAF_NODE_TYPE_ID)
                         .setValue(variableIndex);
-                return new AstNode(AstType.AST_REF)
+                return new ExpAstNode(AstType.AST_REF)
                         .add(deepOfVarDefinitionNode)
                         .add(varIndexNode);
             }
         }
 
-        final AstNode globalNode = new AstNode(AstType.AST_GLOBAL);
-        final AstNode nameOfGlobalVarNode = new AstNode(AstNode.LEAF_NODE_TYPE_ID)
+        final ExpAstNode globalNode = new ExpAstNode(AstType.AST_GLOBAL);
+        final ExpAstNode nameOfGlobalVarNode = new ExpAstNode(ExpAstNode.LEAF_NODE_TYPE_ID)
                 .setValue(name);
-        return new AstNode(AstType.AST_METHOD)
+        return new ExpAstNode(AstType.AST_METHOD)
                 .add(globalNode)
                 .add(nameOfGlobalVarNode);
     }

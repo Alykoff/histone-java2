@@ -6,7 +6,7 @@ import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.parser.Parser;
-import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.parser.node.ExpAstNode;
 
 /**
  * Created by inv3r on 13/01/16.
@@ -19,7 +19,7 @@ public class OldEvaluatorTest {
         String baseUri = "";
 
         Parser parser = new Parser();
-        AstNode ifNode = parser.process(ifStatement, "");
+        ExpAstNode ifNode = parser.process(ifStatement, "");
         Context context = new Context();
         Evaluator evaluator = new Evaluator();
         String result = evaluator.process(baseUri, ifNode, context);
@@ -33,7 +33,7 @@ public class OldEvaluatorTest {
         String baseUri = "";
 
         Parser parser = new Parser();
-        AstNode ifNode = parser.process(ifStatement, "");
+        ExpAstNode ifNode = parser.process(ifStatement, "");
         Context context = new Context();
         Evaluator evaluator = new Evaluator();
         String result = evaluator.process(baseUri, ifNode, context);

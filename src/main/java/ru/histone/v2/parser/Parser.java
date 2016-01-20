@@ -55,13 +55,20 @@ public class Parser {
             throw new UnknownAstTypeException(astNodeType);
         }
         switch (type) {
-            case AST_REF: break;
-            case AST_VAR: break;
-            case AST_IF: break;
-            case AST_FOR: break;
-            case AST_MACRO: break;
-            case AST_NODES: break;
-            default: break;
+            case AST_REF:
+                break;
+            case AST_VAR:
+                break;
+            case AST_IF:
+                break;
+            case AST_FOR:
+                break;
+            case AST_MACRO:
+                break;
+            case AST_NODES:
+                break;
+            default:
+                break;
         }
 
     }
@@ -415,7 +422,7 @@ public class Parser {
             if (next(wrapper, Tokens.T_EQ)) {
                 node = new AstNode(AstType.AST_EQ);
             } else {
-                next(wrapper, Tokens.T_NEQ);// we needed to read next token for right work
+                next(wrapper, Tokens.T_NEQ);// we needed to read next token from buffer for right work
                 node = new AstNode(AstType.AST_NEQ);
             }
             res = node.add(res);
@@ -426,10 +433,10 @@ public class Parser {
 
     private AstNode getRelationalExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getAdditiveExpression(wrapper);
-        while (next(wrapper, Tokens.T_LE)
-                || next(wrapper, Tokens.T_GE)
-                || next(wrapper, Tokens.T_LT)
-                || next(wrapper, Tokens.T_GT)
+        while (test(wrapper, Tokens.T_LE)
+                || test(wrapper, Tokens.T_GE)
+                || test(wrapper, Tokens.T_LT)
+                || test(wrapper, Tokens.T_GT)
                 ) {
             AstNode node;
             if (next(wrapper, Tokens.T_LE)) {
@@ -439,6 +446,7 @@ public class Parser {
             } else if (next(wrapper, Tokens.T_LT)) {
                 node = new AstNode(AstType.AST_LT);
             } else {
+                next(wrapper, Tokens.T_LT);// we needed to read next token from buffer for right work
                 node = new AstNode(AstType.AST_GT);
             }
             res = node.add(res);
@@ -449,11 +457,12 @@ public class Parser {
 
     private AstNode getAdditiveExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getMultiplicativeExpression(wrapper);
-        while (next(wrapper, Tokens.T_PLUS) || next(wrapper, Tokens.T_MINUS)) {
+        while (test(wrapper, Tokens.T_PLUS) || test(wrapper, Tokens.T_MINUS)) {
             AstNode node;
             if (next(wrapper, Tokens.T_PLUS)) {
                 node = new AstNode(AstType.AST_ADD);
             } else {
+                next(wrapper, Tokens.T_MINUS);// we needed to read next token from buffer for right work
                 node = new AstNode(AstType.AST_SUB);
             }
             res = node.add(res);
@@ -464,16 +473,14 @@ public class Parser {
 
     private AstNode getMultiplicativeExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getUnaryExpression(wrapper);
-        while (next(wrapper, Tokens.T_STAR)
-                || next(wrapper, Tokens.T_SLASH)
-                || next(wrapper, Tokens.T_MOD)
-                ) {
+        while (test(wrapper, Tokens.T_STAR) || test(wrapper, Tokens.T_SLASH) || test(wrapper, Tokens.T_MOD)) {
             AstNode node;
             if (next(wrapper, Tokens.T_STAR)) {
                 node = new AstNode(AstType.AST_MUL);
             } else if (next(wrapper, Tokens.T_SLASH)) {
                 node = new AstNode(AstType.AST_DIV);
             } else {
+                next(wrapper, Tokens.T_MOD);// we needed to read next token from buffer for right work
                 node = new AstNode(AstType.AST_MOD);
             }
             res = node.add(res);

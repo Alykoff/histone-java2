@@ -18,9 +18,9 @@ public class ConcreteTest {
     @Test
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("bar");
+        testCase.setExpectedResult("33");
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("{{var x}}{{[foo:\"bar\"]}}{{/var}}{{x}}", testCase);
+        doTest("{{var x = ( 16 / 2 - 1)}}{{x}}", testCase);
     }
 
     private void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {

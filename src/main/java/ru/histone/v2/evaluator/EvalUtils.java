@@ -29,6 +29,7 @@ public class EvalUtils {
         return true;
     }
 
+
 //    public static boolean greaterThan(EvalNode left, EvalNode right) {
 //        if (isNumberNode(left) && isNumberNode(right)) {
 //            Float a = 1f;
@@ -52,7 +53,7 @@ public class EvalUtils {
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);
         }
-        if (object instanceof Float) {
+        if (object instanceof Double) {
             return new FloatEvalNode((Float) object);
         }
         if (object instanceof Integer) {

@@ -6,6 +6,7 @@ import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.UnknownAstTypeException;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.AstType;
+import ru.histone.v2.utils.ParserUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
@@ -79,13 +80,10 @@ public class Evaluator {
             case AST_ADD:
                 break;
             case AST_SUB:
-                break;
             case AST_MUL:
-                break;
             case AST_DIV:
-                break;
             case AST_MOD:
-                break;
+                return processArithmetical(node, context, currentContext);
             case AST_USUB:
                 return processUnaryMinus(node, context, currentContext);
             case AST_LT:
@@ -137,6 +135,29 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + type);
 
+    }
+
+    private EvalNode processArithmetical(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
+
+        if (ParserUtils.isNumber(left.getValue()) && ParserUtils.isNumber(right.getValue())) {
+
+            Float leftValue = Float.valueOf(left.getValue() + "");
+            Float rightValue = Float.valueOf(right.getValue() + "");
+
+            AstType type = AstType.fromId(node.getType());
+            if (type == AstType.AST_SUB) {
+                return new FloatEvalNode(leftValue - rightValue);
+            } else if (type == AstType.AST_MUL) {
+                return new FloatEvalNode(leftValue * rightValue);
+            } else if (type == AstType.AST_DIV) {
+                return new FloatEvalNode(leftValue / rightValue);
+            } else {
+                return new FloatEvalNode(leftValue % rightValue);
+            }
+        }
+        return new EmptyEvalNode();
     }
 
     private EvalNode processGreaterThan(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {

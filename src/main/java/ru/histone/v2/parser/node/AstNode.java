@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
- *
  * Created by gali.alykoff on 20/01/16.
  */
 public abstract class AstNode implements Serializable {

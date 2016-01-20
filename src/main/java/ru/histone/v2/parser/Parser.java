@@ -6,7 +6,6 @@ import ru.histone.HistoneException;
 import ru.histone.tokenizer.BaseTokens;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
-import ru.histone.v2.exceptions.UnknownAstTypeException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.parser.tokenizer.ExpressionList;
 import ru.histone.v2.parser.tokenizer.Tokenizer;
@@ -30,14 +29,14 @@ public class Parser {
 
     private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
 
-    public AstNode process(String template, String baseURI) throws HistoneException {
+    public ExpAstNode process(String template, String baseURI) throws HistoneException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
-        AstNode result = getNodeList(wrapper);
+        ExpAstNode result = getNodeList(wrapper);
         if (!wrapper.next(BaseTokens.T_EOF.getId()).isFound())
             UnexpectedToken(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();
-        result = optimizer.mergeStrings(result);
+        result = (ExpAstNode) optimizer.mergeStrings(result);
 //        markReferences(result);
         return result;
     }
@@ -562,7 +561,7 @@ public class Parser {
         } else if (test(wrapper, Tokens.T_HEX)) {
             return new LongAstNode(Integer.parseInt(wrapper.next().first().getValue().substring(2), 16));
         } else if (test(wrapper, Tokens.T_FLOAT)) {
-            return new DoubleAstNode(Double.parseDouble(wrapper.next().first().getValue()));
+            return new FloatAstNode(Float.parseFloat(wrapper.next().first().getValue()));
         } else if (test(wrapper, Tokens.T_REF)) {
             return new ExpAstNode(AST_REF)
                     .add(new StringAstNode(wrapper.next().first().getValue()));
@@ -608,12 +607,12 @@ public class Parser {
                         if (ParserUtils.isString(val) && ParserUtils.isInt((String) val)) {
                             mapKey = Integer.valueOf((String) val); //todo check this
                         }
-                        if (ParserUtils.isDouble((String) val)) {
-                            Double d = Double.parseDouble((String) val);
-                            if (d.intValue() < counter) {
-                                mapKey = d.intValue() + "";
+                        Float f = ParserUtils.isFloat((String) val);
+                        if (f != null) {
+                            if (f.intValue() < counter) {
+                                mapKey = f.intValue() + "";
                             } else {
-                                counter = d.intValue();
+                                counter = f.intValue();
                                 mapKey = (counter++) + "";
                             }
                         }
@@ -623,34 +622,6 @@ public class Parser {
                     }
                 }
             }
-
-
-//            if (t != null) {
-//                key = t.getValue();
-//                value = getExpression(wrapper);
-//            } else if ((Utils_isString(key = Expression(ctx)) || Utils_isNumber(key)) && ctx.next(Tokens.T_COLON)) {
-//                value = getExpression(wrapper);
-//                if (Utils_isString(key) && validInteger.test(key)) {
-//                    key = parseInt(key, 10);
-//                }
-//                if (Utils_isNumber(key)) {
-//                    key = Math.floor(key);
-//                    if (key < counter) {
-//                        key = String(key);
-//                    } else {
-//                        counter = key, key = String(counter++);
-//                    }
-//                }
-//            } else {
-//                value = key;
-//                key = String(counter++);
-//            }
-//            if (values.hasOwnProperty(key)) {
-//                result[values[key]] = value;
-//            } else {
-//                values[key] = result.length;
-//                result.push(value, key);
-//            }
         } while (next(wrapper, Tokens.T_COMMA));
 
         if (!next(wrapper, Tokens.T_RBRACKET)) {
@@ -688,7 +659,7 @@ public class Parser {
                 break;
             } else if (StringUtils.equals(fragment.first().getValue(), "\\")) {
                 builder.append("\\")
-                    .append(wrapper.next().first().getValue());
+                        .append(wrapper.next().first().getValue());
             } else {
                 builder.append(fragment.first().getValue());
             }

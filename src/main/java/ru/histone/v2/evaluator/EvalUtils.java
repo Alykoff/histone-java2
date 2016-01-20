@@ -29,7 +29,6 @@ public class EvalUtils {
         return true;
     }
 
-
 //    public static boolean greaterThan(EvalNode left, EvalNode right) {
 //        if (isNumberNode(left) && isNumberNode(right)) {
 //            Float a = 1f;

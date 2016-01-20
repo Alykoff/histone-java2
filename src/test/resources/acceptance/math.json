@@ -11,8 +11,24 @@
         "expectedResult": "true"
       },
       {
-        "input": "{{var x = ( 10 + 2 * 3 ) + 4 * 3  –  ( 16 / 2  – 1 ) * 5 – 150 / 5 }}{{x}}",
-        "expectedResult": "343"
+        "input": "{{var x = ( 10 + 2 * 3 ) + 4 * 3  -  ( 16 / 2 - 1  ) * 5 - 150 / 5 }}{{x}}",
+        "expectedResult": "-37"
+      },
+      {
+        "input": "{{var x = ( 16 / 2 - 1)}}{{x}}",
+        "expectedResult": "7"
+      },
+      {
+        "input": "{{var x = (18   / 2 -2 * 3 + 12 /3)}}{{x}}",
+        "expectedResult": "7"
+      },
+      {
+        "input": "{{var x = (0 + 6 * (13 -   9    ))}}{{x}}",
+        "expectedResult": "24"
+      },
+      {
+        "input": "{{var x = 6  / 2 * (1   + 2)}}{{x}}",
+        "expectedResult": "9"
       }
     ]
   }

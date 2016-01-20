@@ -3,9 +3,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.collections.CollectionUtils;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.*;
-import ru.histone.v2.exceptions.UnknownAstTypeException;
-import ru.histone.v2.parser.node.ExpAstNode;
-import ru.histone.v2.parser.node.AstType;
+import ru.histone.v2.parser.node.*;
 import ru.histone.v2.utils.ParserUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -27,7 +25,7 @@ public class Evaluator {
     private String processInternal(ExpAstNode node, Context context) throws HistoneException {
         StringBuilder sb = new StringBuilder();
         Context.NodeContext root = createRootContext();
-        for (ExpAstNode currentNode : node.getNodes()) {
+        for (AstNode currentNode : node.getNodes()) {
             EvalNode evalNode = evaluateNode(currentNode, context, root);
             if (evalNode instanceof NullEvalNode) {
                 sb.append("null");
@@ -43,26 +41,21 @@ public class Evaluator {
         return root;
     }
 
-    private EvalNode evaluateNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode evaluateNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         if (node == null) {
-            return new EmptyEvalNode();
+            return EmptyEvalNode.INSTANCE;
         }
 
-        final int nodeType = node.getType();
-        if (nodeType == Integer.MIN_VALUE) {
+        if (node.hasValue()) {
             return getValueNode(node);
         }
 
-        AstType type = AstType.fromId(nodeType);
-        if (type == null) {
-            throw new UnknownAstTypeException(nodeType);
-        }
-
-        switch (type) {
+        ExpAstNode expNode = (ExpAstNode) node;
+        switch (node.getType()) {
             case AST_NOP:
                 break;
             case AST_ARRAY:
-                return processArrayNode(node, context, currentContext);
+                return processArrayNode(expNode, context, currentContext);
             case AST_REGEXP:
                 break;
             case AST_THIS:
@@ -72,34 +65,34 @@ public class Evaluator {
             case AST_NOT:
                 break;
             case AST_AND:
-                return processAndNode(node, context, currentContext);
+                return processAndNode(expNode, context, currentContext);
             case AST_OR:
-                return processOrNode(node, context, currentContext);
+                return processOrNode(expNode, context, currentContext);
             case AST_TERNARY:
                 break;
             case AST_ADD:
-                break;
+                return processAddNode(expNode, context, currentContext);
             case AST_SUB:
             case AST_MUL:
             case AST_DIV:
             case AST_MOD:
-                return processArithmetical(node, context, currentContext);
+                return processArithmetical(expNode, context, currentContext);
             case AST_USUB:
-                return processUnaryMinus(node, context, currentContext);
+                return processUnaryMinus(expNode, context, currentContext);
             case AST_LT:
                 break;
             case AST_GT:
-                return processGreaterThan(node, context, currentContext);
+                return processGreaterThan(expNode, context, currentContext);
             case AST_LE:
-                return processLessOrEquals(node, context, currentContext);
+                return processLessOrEquals(expNode, context, currentContext);
             case AST_GE:
                 break;
             case AST_EQ:
-                return processEqNode(node, context, currentContext);
+                return processEqNode(expNode, context, currentContext);
             case AST_NEQ:
-                return processEqNode(node, context, currentContext).neg();
+                return processEqNode(expNode, context, currentContext).neg();
             case AST_REF:
-                return processReferenceNode(node, context, currentContext);
+                return processReferenceNode(expNode, context, currentContext);
             case AST_METHOD:
                 break;
             case AST_PROP:
@@ -107,9 +100,9 @@ public class Evaluator {
             case AST_CALL:
                 break;
             case AST_VAR:
-                return processVarNode(node, context, currentContext);
+                return processVarNode(expNode, context, currentContext);
             case AST_IF:
-                return processIfNode(node, context, currentContext);
+                return processIfNode(expNode, context, currentContext);
             case AST_FOR:
                 break;
             case AST_MACRO:
@@ -117,15 +110,15 @@ public class Evaluator {
             case AST_RETURN:
                 break;
             case AST_NODES:
-                return processNodeList(node, context, currentContext.createNew());
+                return processNodeList(expNode, context, currentContext.createNew());
             case AST_NODELIST:
-                return processNodeList(node, context, currentContext);
+                return processNodeList(expNode, context, currentContext);
             case AST_BOR:
-                return processBorNode(node, context, currentContext);
+                return processBorNode(expNode, context, currentContext);
             case AST_BXOR:
-                return processBxorNode(node, context, currentContext);
+                return processBxorNode(expNode, context, currentContext);
             case AST_BAND:
-                return processBandNode(node, context, currentContext);
+                return processBandNode(expNode, context, currentContext);
             case AST_SUPRESS:
                 break;
             case AST_LISTEN:
@@ -133,31 +126,70 @@ public class Evaluator {
             case AST_TRIGGER:
                 break;
         }
-        throw new HistoneException("WTF!?!?!? " + type);
+        throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private EvalNode processAddNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
+
+        if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
+            if (EvalUtils.isNumberNode(left) && EvalUtils.isNumberNode(right)) {
+                Float res = getValue(left) + getValue(right);
+                if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
+                    return new IntEvalNode(res.intValue());
+                } else {
+                    return new FloatEvalNode(res);
+                }
+            }
+
+            if (left instanceof MapEvalNode && right instanceof MapEvalNode) {
+
+            }
+        }
+
+        return new StringEvalNode(left.asString() + right.asString());
     }
 
     private EvalNode processArithmetical(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
         EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
 
-        if (ParserUtils.isNumber(left.getValue()) && ParserUtils.isNumber(right.getValue())) {
+        if ((EvalUtils.isNumberNode(left) || left instanceof StringEvalNode) &&
+                (EvalUtils.isNumberNode(right) || right instanceof StringEvalNode)) {
+            Float leftValue = getValue(left);
+            Float rightValue = getValue(right);
+            if (leftValue == null || rightValue == null) {
+                return EmptyEvalNode.INSTANCE;
+            }
 
-            Float leftValue = Float.valueOf(left.getValue() + "");
-            Float rightValue = Float.valueOf(right.getValue() + "");
-
-            AstType type = AstType.fromId(node.getType());
+            Float res;
+            AstType type = node.getType();
             if (type == AstType.AST_SUB) {
-                return new FloatEvalNode(leftValue - rightValue);
+                res = leftValue - rightValue;
             } else if (type == AstType.AST_MUL) {
-                return new FloatEvalNode(leftValue * rightValue);
+                res = leftValue * rightValue;
             } else if (type == AstType.AST_DIV) {
-                return new FloatEvalNode(leftValue / rightValue);
+                res = leftValue / rightValue;
             } else {
-                return new FloatEvalNode(leftValue % rightValue);
+                res = leftValue % rightValue;
+            }
+            if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
+                return new IntEvalNode(res.intValue());
+            } else {
+                return new FloatEvalNode(res);
             }
         }
-        return new EmptyEvalNode();
+        return EmptyEvalNode.INSTANCE;
+    }
+
+    private Float getValue(EvalNode node) {
+        if (node instanceof StringEvalNode) {
+            return ParserUtils.isFloat(((StringEvalNode) node).getValue());
+        } else {
+            return Float.valueOf(node.getValue() + "");
+        }
     }
 
     private EvalNode processGreaterThan(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
@@ -186,22 +218,23 @@ public class Evaluator {
     }
 
     private EvalNode processVarNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode valueNode = evaluateNode(node.getNode(0), context, currentContext);
+        EvalNode valueNode = evaluateNode(node.getNode(1), context, currentContext);
+        EvalNode valueName = evaluateNode(node.getNode(0), context, currentContext);
         if (valueNode.getValue() != null) {
-            currentContext.getVars().putIfAbsent(node.getValue() + "", valueNode.getValue());
+            currentContext.getVars().putIfAbsent(valueName.getValue() + "", valueNode.getValue());
         }
-        return new EmptyEvalNode();
+        return EmptyEvalNode.INSTANCE;
     }
 
     private EvalNode processArrayNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         if (CollectionUtils.isEmpty(node.getNodes())) {
             return new ObjectEvalNode(Collections.emptyMap());
         }
-        if (node.getNode(0).getType() == AstType.AST_VAR.getId()) {
-            for (ExpAstNode astNode : node.getNodes()) {
+        if (node.getNode(0).getType() == AstType.AST_VAR) {
+            for (AstNode astNode : node.getNodes()) {
                 evaluateNode(astNode, context, currentContext);
             }
-            return new EmptyEvalNode();
+            return EmptyEvalNode.INSTANCE;
         } else {
             Map<String, Object> map = new LinkedHashMap<>();
             for (int i = 0; i < node.getNodes().size() / 2; i++) {
@@ -227,12 +260,13 @@ public class Evaluator {
         throw new NotImplementedException();
     }
 
-    private EvalNode<? extends Serializable> getValueNode(ExpAstNode node) {
-        if (node.getValue() == null) {
+    private EvalNode<? extends Serializable> getValueNode(AstNode node) {
+        ValueNode valueNode = (ValueNode) node;
+        if (valueNode.getValue() == null) {
             return new NullEvalNode();
         }
 
-        Object val = node.getValue();
+        Object val = valueNode.getValue();
         if (val == null) {
             return new NullEvalNode();
         } else if (val instanceof Boolean) {
@@ -244,11 +278,12 @@ public class Evaluator {
     }
 
     private EvalNode processReferenceNode(ExpAstNode node, Context context, Context.NodeContext currentContext) {
-        Object value = getValueFromParentContext(currentContext, (String) node.getValue());
+        StringAstNode valueNode = node.getNode(0);
+        Object value = getValueFromParentContext(currentContext, valueNode.getValue());
         if (value != null) {
             return EvalUtils.createEvalNode(value);
         } else {
-            return new EmptyEvalNode();
+            return EmptyEvalNode.INSTANCE;
         }
     }
 
@@ -277,11 +312,11 @@ public class Evaluator {
     private EvalNode processNodeList(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
         //todo rework this method, add rtti and other cool features
         if (node.getNodes().size() == 1) {
-            ExpAstNode node1 = node.getNode(0);
+            AstNode node1 = node.getNode(0);
             return evaluateNode(node1, context, currentContext);
         } else {
             StringBuilder sb = new StringBuilder();
-            for (ExpAstNode currNode : node.getNodes()) {
+            for (AstNode currNode : node.getNodes()) {
                 EvalNode processed = evaluateNode(currNode, context, currentContext);
                 sb.append(processed.getValue());
             }

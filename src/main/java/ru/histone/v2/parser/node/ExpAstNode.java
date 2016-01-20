@@ -53,9 +53,9 @@ public class ExpAstNode extends AstNode implements Serializable {
                 "\"nodes\": [" + nodes + "]}";
     }
 
-    public AstNode getNode(int index) {
+    public <X extends AstNode> X getNode(int index) {
         return nodes.size() >= index + 1
-                ? nodes.get(index)
+                ? (X) nodes.get(index)
                 : null;
     }
 

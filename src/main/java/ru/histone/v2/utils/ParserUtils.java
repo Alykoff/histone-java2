@@ -39,7 +39,7 @@ public class ParserUtils {
     }
 
     public static String getValueFromStringNode(AstNode node) {
-        return ((StringAstNode)node).getValue();
+        return ((StringAstNode) node).getValue();
     }
 
     public static boolean isLeafNodeType(AstNode node) {
@@ -83,12 +83,11 @@ public class ParserUtils {
         }
     }
 
-    public static boolean isDouble(String val) {
+    public static Float isFloat(String val) {
         try {
-            Double.parseDouble(val);
-            return true;
+            return Float.parseFloat(val);
         } catch (Exception ignore) {
-            return false;
+            return null;
         }
     }
 }

@@ -307,7 +307,7 @@ public class Parser {
                 UnexpectedToken(wrapper, ")");
             }
         }
-        
+
         if (!next(wrapper, Tokens.T_ARROW)) {
             UnexpectedToken(wrapper, "=>");
         }
@@ -316,16 +316,15 @@ public class Parser {
             varNodes.add(new LongAstNode(varNodes.size()));
         }
 
+        return createMacroNode(wrapper, varNodes);
+    }
+
+    private ExpAstNode createMacroNode(
+            TokenizerWrapper wrapper, List<AstNode> varNodes
+    ) throws ParserException {
         final ExpAstNode returnNode = new ExpAstNode(AST_RETURN).add(getExpression(wrapper));
         final ExpAstNode listNode = new ExpAstNode(AST_NODELIST).add(returnNode);
         return new ExpAstNode(AST_MACRO).add(listNode).addAll(varNodes);
-    }
-
-    private ExpAstNode createMacroNode(TokenizerWrapper wrapper) throws ParserException {
-        ExpAstNode returnNode = new ExpAstNode(AstType.AST_RETURN).add(getExpression(wrapper));
-        ExpAstNode nodeList = new ExpAstNode(AstType.AST_NODELIST).add(returnNode);
-        ExpAstNode node = new ExpAstNode(AstType.AST_MACRO).add(nodeList);
-        return node;
     }
 
     private AstNode getTernaryExpression(TokenizerWrapper wrapper) throws ParserException {

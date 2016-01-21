@@ -40,6 +40,11 @@ public class ParserUtils {
         return new ExpAstNode(AstType.AST_NOP).add(nameNode);
     }
 
+    public static ExpAstNode createNopNode(String name, AstNode node) {
+        final StringAstNode nameNode = new StringAstNode(name);
+        return new ExpAstNode(AstType.AST_NOP).add(nameNode).add(node);
+    }
+
     public static String getValueFromStringNode(AstNode node) {
         return ((StringAstNode) node).getValue();
     }

@@ -289,7 +289,49 @@ public class Parser {
     }
 
     private ExpAstNode getMacroStatement(TokenizerWrapper wrapper) throws ParserException {
-        throw new NotImplementedException();
+        final ExpAstNode result = new ExpAstNode(AST_MACRO);
+        final TokenizerResult nameTokenResult = wrapper.next(T_ID);
+        final List<AstNode> inputVars = new ArrayList<>();
+        if (!nameTokenResult.isFound()) {
+            throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
+        }
+
+        final String macroName = nameTokenResult.firstValue();
+        if (next(wrapper, T_LPAREN) && !next(wrapper, T_RPAREN)) {
+            do {
+                final TokenizerResult nameOfVarToken = wrapper.next(T_ID);
+                if (!nameOfVarToken.isFound()) {
+                    throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
+                }
+                final String nameOfVar = nameOfVarToken.firstValue();
+                final ExpAstNode nopNode;
+                if (next(wrapper, T_EQ)) {
+                    nopNode = ParserUtils.createNopNode(nameOfVar, getStatement(wrapper));
+                } else {
+                    nopNode = ParserUtils.createNopNode(nameOfVar);
+                }
+                inputVars.add(nopNode);
+            } while (next(wrapper, T_COMMA));
+
+            if (!next(wrapper, T_RPAREN)) {
+                throw buildUnexpectedTokenException(wrapper, ")");
+            }
+        }
+
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
+        }
+
+        result.add(getNodeList(wrapper));
+
+        if (next(wrapper, T_SLASH, T_MACRO, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "{{/macro}}");
+        }
+
+        if (!inputVars.isEmpty()) {
+            result.add(new LongAstNode(inputVars.size())).addAll(inputVars);
+        }
+        return new ExpAstNode(AST_VAR).add(result).add(new StringAstNode(macroName));
     }
 
     private AstNode getExpression(TokenizerWrapper wrapper) throws ParserException {

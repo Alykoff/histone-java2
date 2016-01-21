@@ -3,10 +3,8 @@ package ru.histone.v2.parser.tokenizer;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by inv3r on 15/01/16.
@@ -56,8 +54,6 @@ public class TokenizerWrapper {
     public TokenizerResult test(Tokens token) {
         return test(token.getId());
     }
-
-
 
     public int getLineNumber(long index) {
         return tokenizer.getLineNumber(index);

@@ -128,8 +128,10 @@ public class Parser {
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) {
         final ExpAstNode result = new ExpAstNode(AST_RETURN);
-        TokenizerResult blockEnd = wrapper.next(T_BLOCK_END);
-
+        final TokenizerResult blockEnd = wrapper.next(T_BLOCK_END);
+//        if (next(wrapper, T_BLOCK_END)) {
+//            result.add(getNodesStatement(wrapper));
+//        }
 
         throw new NotImplementedException();
     }
@@ -185,15 +187,16 @@ public class Parser {
                 break;
             }
             node = getStatement(wrapper);
-            if (node.getType() == AST_T_BREAK) {
+            final AstType type = node.getType();
+            if (type == AST_T_BREAK) {
                 break;
             }
-            if (node.getType() != AST_T_NOP) {
-                if (node.getType() != AST_T_ARRAY) {
+            if (type != AST_T_NOP) {
+                if (type != AST_T_ARRAY) {
                     res.add(node);
-                } else {
-                    throw new NotImplementedException();
-                    //                else Array.prototype.push.apply(result, node.slice(1));
+                } else if (!node.hasValue()) {
+                    final ExpAstNode expNode = (ExpAstNode) node;
+                    res.addAll(expNode.getNodes());
                 }
             }
         }
@@ -201,7 +204,6 @@ public class Parser {
             UnexpectedToken(wrapper, "}}");
         }
         return res;
-
     }
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {

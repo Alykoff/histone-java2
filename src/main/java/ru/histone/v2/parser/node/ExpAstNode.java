@@ -36,6 +36,11 @@ public class ExpAstNode extends AstNode implements Serializable {
         return this;
     }
 
+    public ExpAstNode addAll(List<AstNode> nodes) {
+        this.nodes.addAll(nodes);
+        return this;
+    }
+
     public List<AstNode> getNodes() {
         return nodes;
     }

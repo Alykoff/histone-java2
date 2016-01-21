@@ -1,9 +1,6 @@
 package ru.histone.v2.utils;
 
-import ru.histone.v2.parser.node.AstNode;
-import ru.histone.v2.parser.node.ExpAstNode;
-import ru.histone.v2.parser.node.StringAstNode;
-import ru.histone.v2.parser.node.ValueNode;
+import ru.histone.v2.parser.node.*;
 
 import java.util.List;
 
@@ -38,12 +35,13 @@ public class ParserUtils {
         }
     }
 
-    public static String getValueFromStringNode(AstNode node) {
-        return ((StringAstNode) node).getValue();
+    public static ExpAstNode createNopNode(String name) {
+        final StringAstNode nameNode = new StringAstNode(name);
+        return new ExpAstNode(AstType.AST_NOP).add(nameNode);
     }
 
-    public static boolean isLeafNodeType(AstNode node) {
-        return node != null && node.hasValue();
+    public static String getValueFromStringNode(AstNode node) {
+        return ((StringAstNode) node).getValue();
     }
 
     public static boolean isString(Object obj) {

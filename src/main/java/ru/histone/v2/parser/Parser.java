@@ -13,13 +13,10 @@ import ru.histone.v2.parser.tokenizer.TokenizerResult;
 import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
 import ru.histone.v2.utils.ParserUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import static ru.histone.v2.parser.node.AstType.AST_REF;
+import static ru.histone.v2.parser.node.AstType.*;
 
 /**
  * Created by alexey.nevinsky on 24.12.2015.
@@ -290,18 +287,17 @@ public class Parser {
     }
 
     private ExpAstNode getMacroExpression(TokenizerWrapper wrapper) throws ParserException {
-        /*
-        ExpAstNode result = new ExpAstNode(AstType.AST_NODELIST);
+        final List<AstNode> varNodes = new ArrayList<>();
 
         TokenizerResult name = wrapper.next(Tokens.T_ID.getId());
         if (name.isFound()) {
-            result.add(new ExpAstNode(AstType.AST_NOP).setValue(name.first().getValue()));
+            varNodes.add(ParserUtils.createNopNode(name.firstValue()));
         } else if (next(wrapper, Tokens.T_LPAREN)) {
             if (!test(wrapper, Tokens.T_RPAREN)) {
                 do {
                     name = wrapper.next(Tokens.T_ID.getId());
                     if (name.isFound()) {
-                        result.add(new ExpAstNode(AstType.AST_NOP).setValue(name.first().getValue()));
+                        varNodes.add(ParserUtils.createNopNode(name.firstValue()));
                     } else {
                         UnexpectedToken(wrapper, IDENTIFIER);
                     }
@@ -311,16 +307,18 @@ public class Parser {
                 UnexpectedToken(wrapper, ")");
             }
         }
+        
         if (!next(wrapper, Tokens.T_ARROW)) {
             UnexpectedToken(wrapper, "=>");
         }
-        if (result.getNodes().size() > 0) {
-            //todo
-//            result.unshift(result.length);
+
+        if (varNodes.size() > 0) {
+            varNodes.add(new LongAstNode(varNodes.size()));
         }
-*/
-//        return createMacroNode(wrapper).add(result);
-        throw new NotImplementedException();
+
+        final ExpAstNode returnNode = new ExpAstNode(AST_RETURN).add(getExpression(wrapper));
+        final ExpAstNode listNode = new ExpAstNode(AST_NODELIST).add(returnNode);
+        return new ExpAstNode(AST_MACRO).add(listNode).addAll(varNodes);
     }
 
     private ExpAstNode createMacroNode(TokenizerWrapper wrapper) throws ParserException {

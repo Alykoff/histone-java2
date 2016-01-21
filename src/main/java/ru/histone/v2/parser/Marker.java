@@ -13,7 +13,6 @@ import java.util.*;
 public class Marker {
     public static final String SELF_SCOPE_ID = "self";
 
-    // TODO
     public void markReferences(
             AstNode rawNode, Deque<Map<String, Long>> scopeChain
     ) throws HistoneException {

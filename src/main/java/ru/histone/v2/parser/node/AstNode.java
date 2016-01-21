@@ -17,12 +17,6 @@ public abstract class AstNode implements Serializable {
         }
         this.type = type;
     }
-//    ExpAstNode add(ExpAstNode node);
-//    ExpAstNode add(ExpAstNode... nodes);
-//    List<ExpAstNode> getNodes();
-//    void rewriteNodes(List<ExpAstNode> nodes);
-//    ExpAstNode getNode(int index);
-//    ExpAstNode escaped();
 
     public AstType getType() {
         return type;

@@ -25,8 +25,6 @@ import static ru.histone.v2.parser.node.AstType.AST_REF;
  * Created by alexey.nevinsky on 24.12.2015.
  */
 public class Parser {
-
-
     private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
 
     public ExpAstNode process(String template, String baseURI) throws HistoneException {
@@ -37,28 +35,9 @@ public class Parser {
             UnexpectedToken(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
-//        markReferences(result);
+        final Marker marker = new Marker();
+//        marker.markReferences(result);
         return result;
-    }
-
-    // TODO
-    private void markReferences(ExpAstNode astNode) throws HistoneException {
-        switch (astNode.getType()) {
-            case AST_REF:
-                break;
-            case AST_VAR:
-                break;
-            case AST_IF:
-                break;
-            case AST_FOR:
-                break;
-            case AST_MACRO:
-                break;
-            case AST_NODES:
-                break;
-            default:
-                break;
-        }
     }
 
     private ExpAstNode getNodeList(TokenizerWrapper wrapper) throws ParserException {

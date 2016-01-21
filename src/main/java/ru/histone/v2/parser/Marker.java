@@ -28,7 +28,7 @@ public class Marker {
                 final String nameOfVar = ((StringAstNode) node.getNode(0)).getValue();
                 final ExpAstNode refNode = getReference(nameOfVar, scopeChain);
                 node.rewriteNodes(Collections.singletonList(refNode));
-
+                break;
             }
             case AST_VAR: {
                 final AstNode expNode = node.getNode(0);
@@ -52,16 +52,23 @@ public class Marker {
 //                }
                 break;
             }
-            case AST_FOR: break;
-            case AST_MACRO: break;
-            case AST_NODES:
+            case AST_FOR: {
+                break;
+            }
+            case AST_MACRO: {
+                break;
+            }
+            case AST_NODES: {
+
 //                scopeChain.push(new HashMap<>());
 //                for (int i = 1; i < node.length; ++i)
 //                    markReferences(node[c], scopeChain);
 //                scopeChain.pop();
                 break;
+            }
+            default: {
                 break;
-            default: break;
+            }
         }
     }
 

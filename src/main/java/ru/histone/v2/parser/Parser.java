@@ -18,8 +18,6 @@ import ru.histone.v2.utils.ParserUtils;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static ru.histone.v2.parser.node.*;
-
 /**
  * Created by alexey.nevinsky on 24.12.2015.
  */
@@ -31,7 +29,7 @@ public class Parser {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
         ExpAstNode result = getNodeList(wrapper);
-        if (!wrapper.next(T_EOF.getId()).isFound())
+        if (!wrapper.next(T_EOF).isFound())
             UnexpectedToken(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
@@ -130,7 +128,8 @@ public class Parser {
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) {
         final ExpAstNode result = new ExpAstNode(AST_RETURN);
-//        TokenizerResult blockEnd = wrapper.next(T_BLOCK_END);
+        TokenizerResult blockEnd = wrapper.next(T_BLOCK_END);
+
 
         throw new NotImplementedException();
     }
@@ -139,7 +138,7 @@ public class Parser {
         TokenizerResult name;
         ExpAstNode result;
         if (!test(wrapper, T_ID, T_EQ)) {
-            name = wrapper.next(T_ID.getId());
+            name = wrapper.next(T_ID);
             if (!name.isFound()) {
                 UnexpectedToken(wrapper, IDENTIFIER);
             }
@@ -155,7 +154,7 @@ public class Parser {
         } else {
             result = new ExpAstNode(AST_ARRAY);
             do {
-                name = wrapper.next(T_ID.getId());
+                name = wrapper.next(T_ID);
                 if (!name.isFound()) {
                     UnexpectedToken(wrapper, IDENTIFIER);
                 }
@@ -207,11 +206,11 @@ public class Parser {
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
         final ExpAstNode node = new ExpAstNode(AST_FOR);
-        final TokenizerResult id = wrapper.next(T_ID.getId());
+        final TokenizerResult id = wrapper.next(T_ID);
         if (id.isFound()) {
             if (next(wrapper, T_COLON)) {
                 node.add(new StringAstNode(id.firstValue())); //add key name
-                final TokenizerResult valueName = wrapper.next(T_ID.getId());
+                final TokenizerResult valueName = wrapper.next(T_ID);
                 if (valueName.isFound()) {
                     node.add(new StringAstNode(valueName.firstValue())); //add value name
                 } else {
@@ -294,13 +293,13 @@ public class Parser {
     private ExpAstNode getMacroExpression(TokenizerWrapper wrapper) throws ParserException {
         final List<AstNode> varNodes = new ArrayList<>();
 
-        TokenizerResult name = wrapper.next(T_ID.getId());
+        TokenizerResult name = wrapper.next(T_ID);
         if (name.isFound()) {
             varNodes.add(ParserUtils.createNopNode(name.firstValue()));
         } else if (next(wrapper, T_LPAREN)) {
             if (!test(wrapper, T_RPAREN)) {
                 do {
-                    name = wrapper.next(T_ID.getId());
+                    name = wrapper.next(T_ID);
                     if (name.isFound()) {
                         varNodes.add(ParserUtils.createNopNode(name.firstValue()));
                     } else {
@@ -499,7 +498,7 @@ public class Parser {
                 }
             } else if (next(wrapper, T_LPAREN)) {
                 res = new ExpAstNode(AST_CALL, res);
-                if (wrapper.next(T_RPAREN.getId()) != null) {
+                if (wrapper.next(T_RPAREN) != null) {
                     continue;
                 }
                 do {
@@ -706,7 +705,7 @@ public class Parser {
         }
 
         int flagNum = 0;
-        Token flagToken = wrapper.next(T_PROP.getId()).first();
+        Token flagToken = wrapper.next(T_PROP).first();
         if (flagToken != null) {
             String flagStr = flagToken.getValue();
 

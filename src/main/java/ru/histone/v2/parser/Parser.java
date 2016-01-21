@@ -3,7 +3,6 @@ package ru.histone.v2.parser;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import ru.histone.HistoneException;
-import ru.histone.tokenizer.BaseTokens;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
 import ru.histone.v2.parser.node.*;
@@ -17,6 +16,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static ru.histone.v2.parser.node.AstType.*;
+import static ru.histone.tokenizer.Tokens.*;
 
 /**
  * Created by alexey.nevinsky on 24.12.2015.
@@ -29,7 +29,7 @@ public class Parser {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
         ExpAstNode result = getNodeList(wrapper);
-        if (!wrapper.next(BaseTokens.T_EOF.getId()).isFound())
+        if (!wrapper.next(T_EOF.getId()).isFound())
             UnexpectedToken(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
@@ -68,8 +68,8 @@ public class Parser {
         if (next(wrapper, Tokens.T_CMT_START)) {
             return getCommentStatement(wrapper);
         }
-        if (!wrapper.test(BaseTokens.T_EOF.getId()).isFound()) {
-            return new StringAstNode(wrapper.next().first().getValue());
+        if (!wrapper.test(T_EOF.getId()).isFound()) {
+            return new StringAstNode(wrapper.next().firstValue());
         }
         return new ExpAstNode(AstType.AST_T_BREAK);
     }
@@ -127,6 +127,9 @@ public class Parser {
     }
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) {
+        final ExpAstNode result = new ExpAstNode(AST_RETURN);
+//        TokenizerResult blockEnd = wrapper.next(Tokens.T_BLOCK_END);
+
         throw new NotImplementedException();
     }
 
@@ -164,7 +167,7 @@ public class Parser {
                 if (!next(wrapper, Tokens.T_COMMA)) {
                     break;
                 }
-            } while (!wrapper.test(BaseTokens.T_EOF.getId()).isFound());
+            } while (!wrapper.test(T_EOF.getId()).isFound());
         }
         if (!next(wrapper, Tokens.T_BLOCK_END)) {
             UnexpectedToken(wrapper, "}}");
@@ -631,7 +634,7 @@ public class Parser {
         TokenizerResult fragment;
         final StringBuilder builder = new StringBuilder();
         while ((fragment = wrapper.next()).isFound()) {
-            if (fragment.first().getTypes().contains(BaseTokens.T_EOF.getId())) {
+            if (fragment.first().getTypes().contains(T_EOF.getId())) {
                 SyntaxError(wrapper, "unterminated string literal");
             }
             if (StringUtils.equals(fragment.first().getValue(), start)) {
@@ -649,7 +652,7 @@ public class Parser {
     private StringAstNode getLiteralStatement(TokenizerWrapper wrapper) throws ParserException {
         wrapper = new TokenizerWrapper(wrapper);
         final StringBuilder builder = new StringBuilder("");
-        while (wrapper.test(BaseTokens.T_EOF.getId(), Tokens.T_LITERAL_END.getId()) == null) {
+        while (wrapper.test(T_EOF.getId(), Tokens.T_LITERAL_END.getId()) == null) {
             builder.append(wrapper.next().first().getValue());
         }
         if (!next(wrapper, Tokens.T_LITERAL_END)) {
@@ -671,7 +674,7 @@ public class Parser {
         boolean inCharSet = false;
 
         for (; ; ) {
-            if (wrapper.test(BaseTokens.T_EOF.getId()).isFound()) {
+            if (wrapper.test(T_EOF.getId()).isFound()) {
                 break;
             }
             if (test(wrapper, Tokens.T_EOL)) {
@@ -741,10 +744,12 @@ public class Parser {
         return ids;
     }
 
-    private void UnexpectedToken(TokenizerWrapper wrapper, String expected) throws ParserException {
+    private void UnexpectedToken(
+            TokenizerWrapper wrapper, String expected
+    ) throws ParserException {
         Token token = wrapper.next().first();
         int line = wrapper.getLineNumber(token.getIndex());
-        String value = token.getTypes().contains(BaseTokens.T_EOF.getId()) ? "EOF" : token.getValue();
+        String value = token.getTypes().contains(T_EOF.getId()) ? "EOF" : token.getValue();
         String message = "unexpected '" + value + "', expected '" + expected + "'";
         throw new ParserException(message, wrapper.getBaseURI(), line);
     }

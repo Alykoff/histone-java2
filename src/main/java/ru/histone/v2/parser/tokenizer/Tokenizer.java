@@ -2,8 +2,9 @@ package ru.histone.v2.parser.tokenizer;
 
 import org.apache.commons.lang.ArrayUtils;
 import ru.histone.expression.Expression;
-import ru.histone.tokenizer.BaseTokens;
 import ru.histone.tokenizer.Token;
+import static ru.histone.tokenizer.Tokens.T_ERROR;
+import static ru.histone.tokenizer.Tokens.T_EOF;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -48,13 +49,13 @@ public class Tokenizer {
 
         if (lastIndex >= checkIndex) {
             // return T_EOF if we reached end of file
-            buffer.add(new Token(BaseTokens.T_EOF.getId(), checkIndex));
+            buffer.add(new Token(T_EOF.getId(), checkIndex));
             return;
         }
 
         if (matcher.find(lastIndex)) {
             if (matcher.start() > lastIndex) {
-                buffer.add(new Token(input.substring(lastIndex, matcher.start()), BaseTokens.T_ERROR.getId(), lastIndex));
+                buffer.add(new Token(input.substring(lastIndex, matcher.start()), T_ERROR.getId(), lastIndex));
             }
 
             int i = 1;
@@ -66,7 +67,7 @@ public class Tokenizer {
             lastIndex = matcher.end();
         } else {
             // return T_ERROR token in case if we couldn't match anything
-            buffer.add(new Token(input.substring(lastIndex), BaseTokens.T_ERROR.getId(), lastIndex));
+            buffer.add(new Token(input.substring(lastIndex), T_ERROR.getId(), lastIndex));
             lastIndex = checkIndex;
         }
     }

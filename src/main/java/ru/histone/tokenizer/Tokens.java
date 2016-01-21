@@ -65,7 +65,11 @@ public enum Tokens {
     T_SUPRESS(59),
     T_LISTEN(60),
     T_TRIGGER(61),
-    T_ARROW(62);
+    T_ARROW(62),
+
+    T_EOF(-1),
+    T_ERROR(-2),
+    T_TOKEN(-3);
 
     private int id;
 

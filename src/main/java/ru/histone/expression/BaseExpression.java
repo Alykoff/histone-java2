@@ -1,6 +1,6 @@
 package ru.histone.expression;
 
-import ru.histone.tokenizer.BaseTokens;
+import static ru.histone.tokenizer.Tokens.T_TOKEN;
 import ru.histone.tokenizer.Tokens;
 import ru.histone.utils.Assert;
 
@@ -20,7 +20,7 @@ public class BaseExpression implements Expression {
         if (ids != null && ids.length > 0) {
             this.ids = Arrays.asList(ids);
         } else {
-            this.ids = Arrays.asList(BaseTokens.T_TOKEN.getId());
+            this.ids = Arrays.asList(T_TOKEN.getId());
         }
         Assert.notNull(expression);
         this.expression = expression;

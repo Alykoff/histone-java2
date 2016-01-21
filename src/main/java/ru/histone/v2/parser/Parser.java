@@ -290,6 +290,7 @@ public class Parser {
     }
 
     private ExpAstNode getMacroExpression(TokenizerWrapper wrapper) throws ParserException {
+        /*
         ExpAstNode result = new ExpAstNode(AstType.AST_NODELIST);
 
         TokenizerResult name = wrapper.next(Tokens.T_ID.getId());
@@ -317,7 +318,7 @@ public class Parser {
             //todo
 //            result.unshift(result.length);
         }
-
+*/
 //        return createMacroNode(wrapper).add(result);
         throw new NotImplementedException();
     }

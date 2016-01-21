@@ -136,9 +136,15 @@ public class Parser {
             if (!next(wrapper, T_SLASH, T_RETURN)) {
                 throw buildUnexpectedTokenException(wrapper, "{{/return}}");
             }
+        } else {
+            result.add(getExpression(wrapper));
         }
 
-        throw new NotImplementedException();
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
+        }
+
+        return result;
     }
 
     private ExpAstNode getVarStatement(TokenizerWrapper wrapper) throws ParserException {

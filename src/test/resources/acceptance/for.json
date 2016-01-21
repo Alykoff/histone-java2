@@ -11,52 +11,52 @@
         "context": {
           "items": null
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",
         "context": {
           "items": true
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",
         "context": {
           "items": false
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",
         "context": {
           "items": -10
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",
         "context": {
           "items": 0
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",
         "context": {
           "items": 10
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",
         "context": {
           "items": "string"
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
-        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "input": "a {{for x in items}}{{x}}{{/for}} b1",
         "context": {
           "items": [
             1,
@@ -64,7 +64,7 @@
             3
           ]
         },
-        "expectedResult": "a 123 b"
+        "expectedResult": "a 123 b1"
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",
@@ -79,56 +79,56 @@
       },
       {
         "input": "a {{for key:x in sfgsag}}{{key}}:{{x}}{{/for}} b",
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
         "context": {
           "items": null
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
         "context": {
           "items": true
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
         "context": {
           "items": false
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
         "context": {
           "items": -10
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
         "context": {
           "items": 0
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
         "context": {
           "items": 10
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
         "context": {
           "items": "string"
         },
-        "expectedResult": "a b"
+        "expectedResult": "a  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
@@ -142,7 +142,7 @@
         "expectedResult": "a 0:11:22:3 b"
       },
       {
-        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b2",
         "context": {
           "items": {
             "foo": 1,
@@ -150,7 +150,7 @@
             "x": 3
           }
         },
-        "expectedResult": "a foo:1bar:2x:3 b"
+        "expectedResult": "a foo:1bar:2x:3 b2"
       },
       {
         "input": "a {{for x in sfgsag}}{{x}}{{else}}#{{/for}} b",
@@ -164,11 +164,11 @@
         "expectedResult": "a # b"
       },
       {
-        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b1",
         "context": {
           "items": true
         },
-        "expectedResult": "a # b"
+        "expectedResult": "a # b1"
       },
       {
         "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
@@ -289,7 +289,7 @@
             3
           ]
         },
-        "expectedResult": "a 0:1 1:2 2:3 b"
+        "expectedResult": "a 0:1 1:2 2:3  b"
       },
       {
         "input": "a {{for k1:v1 in items}}{{k1}}:{{v1}} {{for k2:v2 in items}}({{k2}}:{{v2}}){{/for}} {{/for}}b",
@@ -315,7 +315,7 @@
             "x": 3
           }
         },
-        "expectedResult": "a foo:1 bar:2 x:3 b"
+        "expectedResult": "a foo:1 bar:2 x:3  b"
       }
     ]
   }

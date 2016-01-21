@@ -47,7 +47,7 @@ public class EvalUtils {
             throw new NullPointerException();
         }
         if (object.equals(ObjectUtils.NULL)) {
-            return new NullEvalNode();
+            return NullEvalNode.INSTANCE;
         }
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);

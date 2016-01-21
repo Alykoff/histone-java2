@@ -1,48 +1,35 @@
 package ru.histone.v2;
 
-import org.junit.Assert;
 import org.junit.Test;
 import ru.histone.HistoneException;
-import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.parser.Parser;
-import ru.histone.v2.parser.ParserException;
-import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.test.dto.HistoneTestCase;
-import ru.histone.v2.utils.ParserUtils;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by inv3r on 19/01/16.
  */
-public class ConcreteTest {
+public class ConcreteTest extends BaseTest {
     @Test
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("a  b");
+        testCase.setExpectedResult("a # b");
+//        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("a {{for x in sfgsag}}{{x}}{{/for}} b", testCase);
+        doTest("a {{for x in items}}{{x}}{{elseif 1 = 4}}#{{elseif 2=3}}232{{else}}dddd{{/for}} b", testCase);
     }
 
-    private void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {
-        Parser parser = new Parser();
-        Context context = new Context();
-        Evaluator evaluator = new Evaluator();
-        try {
-            ExpAstNode root = parser.process(input, "");
-            if (testCase.getExpectedAST() != null) {
-                Assert.assertEquals(ParserUtils.astToString(root), testCase.getExpectedAST());
-            } else {
-                String result = evaluator.process("", root, context);
-                Assert.assertEquals(testCase.getExpectedResult(), result);
-            }
-        } catch (ParserException ex) {
-            if (testCase.getExpectedException() != null) {
-                HistoneTestCase.ExpectedException e = testCase.getExpectedException();
-                Assert.assertEquals(ex.getLine(), e.getLine());
-                Assert.assertEquals(ex.getMessage(), "unexpected '" + e.getFound() + "', expected '" + e.getExpected() + "'");
-            } else {
-                throw new RuntimeException(ex);
-            }
-        }
+    private Map<String, Object> getMap() {
+        Map<String, Object> res = new HashMap<>();
+
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("foo", 1L);
+        values.put("bar", 2L);
+        values.put("x", 3L);
+
+        res.put("items", values);
+        return res;
     }
 }

@@ -1,18 +1,11 @@
 package ru.histone.v2;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.histone.HistoneException;
-import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.parser.Parser;
-import ru.histone.v2.parser.ParserException;
-import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.test.TestRunner;
 import ru.histone.v2.test.dto.HistoneTestCase;
-import ru.histone.v2.utils.ParserUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,7 +17,7 @@ import java.util.List;
  * Created by alexey.nevinsky on 25.12.2015.
  */
 @RunWith(Parameterized.class)
-public class EvaluatorTest {
+public class EvaluatorTest extends BaseTest {
 
     private String input;
     private HistoneTestCase.Case expected;
@@ -56,29 +49,5 @@ public class EvaluatorTest {
     @Test
     public void test() throws HistoneException {
         doTest(input, expected);
-    }
-
-    private void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {
-        Parser parser = new Parser();
-        Context context = new Context();
-        Evaluator evaluator = new Evaluator();
-        try {
-            ExpAstNode root = parser.process(input, "");
-            if (testCase.getExpectedAST() != null) {
-                Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
-            }
-            if (testCase.getExpectedResult() != null) {
-                String result = evaluator.process("", root, context);
-                Assert.assertEquals(testCase.getExpectedResult(), result);
-            }
-        } catch (ParserException ex) {
-            if (testCase.getExpectedException() != null) {
-                HistoneTestCase.ExpectedException e = testCase.getExpectedException();
-                Assert.assertEquals(e.getLine(), ex.getLine());
-                Assert.assertEquals("unexpected '" + e.getFound() + "', expected '" + e.getExpected() + "'", ex.getMessage());
-            } else {
-                throw new RuntimeException(ex);
-            }
-        }
     }
 }

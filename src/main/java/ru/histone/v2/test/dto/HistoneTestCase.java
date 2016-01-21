@@ -1,6 +1,7 @@
 package ru.histone.v2.test.dto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by inv3r on 15/01/16.
@@ -30,6 +31,7 @@ public class HistoneTestCase {
         private String expectedResult;
         private ExpectedException expectedException;
         private String expectedAST;
+        private Map<String, Object> context;
 
         public String getInput() {
             return input;
@@ -61,6 +63,14 @@ public class HistoneTestCase {
 
         public void setExpectedAST(String expectedAST) {
             this.expectedAST = expectedAST;
+        }
+
+        public Map<String, Object> getContext() {
+            return context;
+        }
+
+        public void setContext(Map<String, Object> context) {
+            this.context = context;
         }
     }
 

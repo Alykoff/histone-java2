@@ -6,7 +6,7 @@ package ru.histone.v2.evaluator.node;
 public class EmptyEvalNode extends EvalNode<String> {
     public static final EmptyEvalNode INSTANCE = new EmptyEvalNode();
 
-    public EmptyEvalNode() {
+    private EmptyEvalNode() {
         super(null);
     }
 

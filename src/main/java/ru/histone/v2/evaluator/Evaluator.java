@@ -24,9 +24,8 @@ public class Evaluator {
 
     private String processInternal(ExpAstNode node, Context context) throws HistoneException {
         StringBuilder sb = new StringBuilder();
-        Context.NodeContext root = createRootContext();
         for (AstNode currentNode : node.getNodes()) {
-            EvalNode evalNode = evaluateNode(currentNode, context, root);
+            EvalNode evalNode = evaluateNode(currentNode, context);
             if (evalNode instanceof NullEvalNode) {
                 sb.append("null");
             } else if (evalNode.getValue() != null) {
@@ -36,12 +35,7 @@ public class Evaluator {
         return sb.toString();
     }
 
-    private Context.NodeContext createRootContext() {
-        Context.NodeContext root = new Context.NodeContext();
-        return root;
-    }
-
-    private EvalNode evaluateNode(AstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode evaluateNode(AstNode node, Context context) throws HistoneException {
         if (node == null) {
             return EmptyEvalNode.INSTANCE;
         }
@@ -55,7 +49,7 @@ public class Evaluator {
             case AST_NOP:
                 break;
             case AST_ARRAY:
-                return processArrayNode(expNode, context, currentContext);
+                return processArrayNode(expNode, context);
             case AST_REGEXP:
                 break;
             case AST_THIS:
@@ -65,34 +59,34 @@ public class Evaluator {
             case AST_NOT:
                 break;
             case AST_AND:
-                return processAndNode(expNode, context, currentContext);
+                return processAndNode(expNode, context);
             case AST_OR:
-                return processOrNode(expNode, context, currentContext);
+                return processOrNode(expNode, context);
             case AST_TERNARY:
                 break;
             case AST_ADD:
-                return processAddNode(expNode, context, currentContext);
+                return processAddNode(expNode, context);
             case AST_SUB:
             case AST_MUL:
             case AST_DIV:
             case AST_MOD:
-                return processArithmetical(expNode, context, currentContext);
+                return processArithmetical(expNode, context);
             case AST_USUB:
-                return processUnaryMinus(expNode, context, currentContext);
+                return processUnaryMinus(expNode, context);
             case AST_LT:
                 break;
             case AST_GT:
-                return processGreaterThan(expNode, context, currentContext);
+                return processGreaterThan(expNode, context);
             case AST_LE:
-                return processLessOrEquals(expNode, context, currentContext);
+                return processLessOrEquals(expNode, context);
             case AST_GE:
                 break;
             case AST_EQ:
-                return processEqNode(expNode, context, currentContext);
+                return processEqNode(expNode, context);
             case AST_NEQ:
-                return processEqNode(expNode, context, currentContext).neg();
+                return processEqNode(expNode, context).neg();
             case AST_REF:
-                return processReferenceNode(expNode, context, currentContext);
+                return processReferenceNode(expNode, context);
             case AST_METHOD:
                 break;
             case AST_PROP:
@@ -100,25 +94,25 @@ public class Evaluator {
             case AST_CALL:
                 break;
             case AST_VAR:
-                return processVarNode(expNode, context, currentContext);
+                return processVarNode(expNode, context);
             case AST_IF:
-                return processIfNode(expNode, context, currentContext);
+                return processIfNode(expNode, context);
             case AST_FOR:
-                return processForNode(expNode, context, currentContext);
+                return processForNode(expNode, context);
             case AST_MACRO:
                 break;
             case AST_RETURN:
                 break;
             case AST_NODES:
-                return processNodeList(expNode, context, currentContext.createNew());
+                return processNodeList(expNode, context.createNew());
             case AST_NODELIST:
-                return processNodeList(expNode, context, currentContext);
+                return processNodeList(expNode, context);
             case AST_BOR:
-                return processBorNode(expNode, context, currentContext);
+                return processBorNode(expNode, context);
             case AST_BXOR:
-                return processBxorNode(expNode, context, currentContext);
+                return processBxorNode(expNode, context);
             case AST_BAND:
-                return processBandNode(expNode, context, currentContext);
+                return processBandNode(expNode, context);
             case AST_SUPRESS:
                 break;
             case AST_LISTEN:
@@ -130,21 +124,54 @@ public class Evaluator {
 
     }
 
-    private EvalNode processForNode(ExpAstNode expNode, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode keyVarName = evaluateNode(expNode.getNode(0), context, currentContext);
-        EvalNode valueVarName = evaluateNode(expNode.getNode(1), context, currentContext);
-        EvalNode objToIterate = evaluateNode(expNode.getNode(3), context, currentContext);
-        if (objToIterate.equals(EmptyEvalNode.INSTANCE)) {
+    private EvalNode processForNode(ExpAstNode expNode, Context context) throws HistoneException {
+        EvalNode objToIterate = evaluateNode(expNode.getNode(2), context);
+        if (!(objToIterate instanceof MapEvalNode)) {
+            if (expNode.size() == 4) {
+                return EmptyEvalNode.INSTANCE;
+            }
+            int i = 0;
+            ExpAstNode expressionNode = expNode.getNode(i + 4);
+            ExpAstNode bodyNode = expNode.getNode(i + 5);
+            while (bodyNode != null) {
+                EvalNode conditionNode = evaluateNode(expressionNode, context);
+                if (EvalUtils.nodeAsBoolean(conditionNode)) {
+                    String res = processInternal(bodyNode, context);
+                    return new StringEvalNode(res);
+                }
+                i++;
+                expressionNode = expNode.getNode(i + 4);
+                bodyNode = expNode.getNode(i + 5);
+            }
+            if (expressionNode != null) {
+                String res = processInternal(expressionNode, context);
+                return new StringEvalNode(res);
+            }
+
             return EmptyEvalNode.INSTANCE;
         }
 
+        EvalNode keyVarName = evaluateNode(expNode.getNode(0), context);
+        EvalNode valueVarName = evaluateNode(expNode.getNode(1), context);
 
-        return null;
+        Context iterableContext;
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> entry : ((MapEvalNode) objToIterate).getValue().entrySet()) {
+            iterableContext = context.createNew();
+            iterableContext.getVars().putIfAbsent((String) valueVarName.getValue(), entry.getValue());
+            if (keyVarName != NullEvalNode.INSTANCE) {
+                iterableContext.getVars().putIfAbsent((String) keyVarName.getValue(), entry.getKey());
+            }
+            String res = processInternal(expNode.getNode(3), iterableContext);
+            sb.append(res);
+        }
+
+        return new StringEvalNode(sb.toString());
     }
 
-    private EvalNode processAddNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processAddNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context);
+        EvalNode right = evaluateNode(node.getNode(1), context);
 
         if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
             if (EvalUtils.isNumberNode(left) && EvalUtils.isNumberNode(right)) {
@@ -157,16 +184,16 @@ public class Evaluator {
             }
 
             if (left instanceof MapEvalNode && right instanceof MapEvalNode) {
-
+                throw new org.apache.commons.lang.NotImplementedException();
             }
         }
 
         return new StringEvalNode(left.asString() + right.asString());
     }
 
-    private EvalNode processArithmetical(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processArithmetical(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context);
+        EvalNode right = evaluateNode(node.getNode(1), context);
 
         if ((EvalUtils.isNumberNode(left) || left instanceof StringEvalNode) &&
                 (EvalUtils.isNumberNode(right) || right instanceof StringEvalNode)) {
@@ -204,62 +231,62 @@ public class Evaluator {
         }
     }
 
-    private EvalNode processGreaterThan(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processGreaterThan(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context);
+        EvalNode right = evaluateNode(node.getNode(1), context);
 
         return null;
     }
 
-    private EvalNode processBorNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processBorNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
         return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) | EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
-    private EvalNode processBxorNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processBxorNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
         return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) ^ EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
-    private EvalNode processBandNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processBandNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
         return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) & EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
-    private EvalNode processVarNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode valueNode = evaluateNode(node.getNode(1), context, currentContext);
-        EvalNode valueName = evaluateNode(node.getNode(0), context, currentContext);
+    private EvalNode processVarNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode valueNode = evaluateNode(node.getNode(1), context);
+        EvalNode valueName = evaluateNode(node.getNode(0), context);
         if (valueNode.getValue() != null) {
-            currentContext.getVars().putIfAbsent(valueName.getValue() + "", valueNode.getValue());
+            context.getVars().putIfAbsent(valueName.getValue() + "", valueNode.getValue());
         }
         return EmptyEvalNode.INSTANCE;
     }
 
-    private EvalNode processArrayNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode processArrayNode(ExpAstNode node, Context context) throws HistoneException {
         if (CollectionUtils.isEmpty(node.getNodes())) {
             return new ObjectEvalNode(Collections.emptyMap());
         }
         if (node.getNode(0).getType() == AstType.AST_VAR) {
             for (AstNode astNode : node.getNodes()) {
-                evaluateNode(astNode, context, currentContext);
+                evaluateNode(astNode, context);
             }
             return EmptyEvalNode.INSTANCE;
         } else {
             Map<String, Object> map = new LinkedHashMap<>();
             for (int i = 0; i < node.getNodes().size() / 2; i++) {
-                EvalNode key = evaluateNode(node.getNodes().get(i * 2), context, currentContext);
-                EvalNode value = evaluateNode(node.getNodes().get(i * 2 + 1), context, currentContext);
+                EvalNode key = evaluateNode(node.getNodes().get(i * 2), context);
+                EvalNode value = evaluateNode(node.getNodes().get(i * 2 + 1), context);
                 map.put(key.getValue() + "", value.getValue());
             }
             return new ObjectEvalNode(map);
         }
     }
 
-    private EvalNode processUnaryMinus(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode res = evaluateNode(node.getNode(0), context, currentContext);
+    private EvalNode processUnaryMinus(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode res = evaluateNode(node.getNode(0), context);
         if (res instanceof LongEvalNode) {
             Long value = ((LongEvalNode) res).getValue();
             return new LongEvalNode(-value);
@@ -268,19 +295,19 @@ public class Evaluator {
         }
     }
 
-    private EvalNode processLessOrEquals(ExpAstNode node, Context context, Context.NodeContext currentContext) {
+    private EvalNode processLessOrEquals(ExpAstNode node, Context context) {
         throw new NotImplementedException();
     }
 
     private EvalNode<? extends Serializable> getValueNode(AstNode node) {
         ValueNode valueNode = (ValueNode) node;
         if (valueNode.getValue() == null) {
-            return new NullEvalNode();
+            return NullEvalNode.INSTANCE;
         }
 
         Object val = valueNode.getValue();
         if (val == null) {
-            return new NullEvalNode();
+            return NullEvalNode.INSTANCE;
         } else if (val instanceof Boolean) {
             return new BooleanEvalNode((Boolean) val);
         } else if (val instanceof Long) {
@@ -289,9 +316,9 @@ public class Evaluator {
         return new StringEvalNode(val + "");
     }
 
-    private EvalNode processReferenceNode(ExpAstNode node, Context context, Context.NodeContext currentContext) {
+    private EvalNode processReferenceNode(ExpAstNode node, Context context) {
         StringAstNode valueNode = node.getNode(0);
-        Object value = getValueFromParentContext(currentContext, valueNode.getValue());
+        Object value = getValueFromParentContext(context, valueNode.getValue());
         if (value != null) {
             return EvalUtils.createEvalNode(value);
         } else {
@@ -299,7 +326,7 @@ public class Evaluator {
         }
     }
 
-    private Object getValueFromParentContext(Context.NodeContext context, String valueName) {
+    private Object getValueFromParentContext(Context context, String valueName) {
         while (context != null) {
             if (context.getVars().containsKey(valueName)) {
                 return context.getVars().get(valueName);
@@ -309,47 +336,47 @@ public class Evaluator {
         return null;
     }
 
-    private EvalNode processOrNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processOrNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
         return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) || EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
-    private EvalNode processAndNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processAndNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
+        EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
         return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) && EvalUtils.nodeAsBoolean(conditionNode2));
     }
 
-    private EvalNode processNodeList(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
+    private EvalNode processNodeList(ExpAstNode node, Context context) throws HistoneException {
         //todo rework this method, add rtti and other cool features
         if (node.getNodes().size() == 1) {
             AstNode node1 = node.getNode(0);
-            return evaluateNode(node1, context, currentContext);
+            return evaluateNode(node1, context);
         } else {
             StringBuilder sb = new StringBuilder();
             for (AstNode currNode : node.getNodes()) {
-                EvalNode processed = evaluateNode(currNode, context, currentContext);
+                EvalNode processed = evaluateNode(currNode, context);
                 sb.append(processed.getValue());
             }
             return new StringEvalNode(sb.toString());
         }
     }
 
-    private BooleanEvalNode processEqNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        EvalNode left = evaluateNode(node.getNode(0), context, currentContext);
-        EvalNode right = evaluateNode(node.getNode(1), context, currentContext);
+    private BooleanEvalNode processEqNode(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context);
+        EvalNode right = evaluateNode(node.getNode(1), context);
         return new BooleanEvalNode(EvalUtils.equalityNode(left, right));
     }
 
-    private EvalNode processIfNode(ExpAstNode node, Context context, Context.NodeContext currentContext) throws HistoneException {
-        Context.NodeContext current = currentContext.createNew();
-        EvalNode conditionNode = evaluateNode(node.getNode(1), context, currentContext);
+    private EvalNode processIfNode(ExpAstNode node, Context context) throws HistoneException {
+        Context current = context.createNew();
+        EvalNode conditionNode = evaluateNode(node.getNode(1), context);
         EvalNode result;
         if (EvalUtils.nodeAsBoolean(conditionNode)) {
-            result = evaluateNode(node.getNode(0), context, current);
+            result = evaluateNode(node.getNode(0), current);
         } else {
-            result = evaluateNode(node.getNode(2), context, current);
+            result = evaluateNode(node.getNode(2), current);
         }
         current.setParent(null);
         return result;

@@ -4,9 +4,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import ru.histone.HistoneException;
 import ru.histone.tokenizer.Token;
-import static ru.histone.tokenizer.Tokens.*;
-import static ru.histone.v2.parser.node.AstType.*;
-
 import ru.histone.tokenizer.Tokens;
 import ru.histone.v2.exceptions.SyntaxErrorException;
 import ru.histone.v2.exceptions.UnexpectedTokenException;
@@ -20,12 +17,15 @@ import ru.histone.v2.utils.ParserUtils;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static ru.histone.tokenizer.Tokens.*;
+import static ru.histone.v2.parser.node.AstType.*;
+
 /**
  * Created by alexey.nevinsky on 24.12.2015.
  */
 public class Parser {
-    private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
     public static final String IDENTIFIER = "IDENTIFIER";
+    private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
 
     public ExpAstNode process(String template, String baseURI) throws HistoneException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
@@ -249,7 +249,7 @@ public class Parser {
             if (!next(wrapper, T_BLOCK_END)) {
                 throw buildUnexpectedTokenException(wrapper, "}}");
             }
-            node.add(getNodeList(wrapper), node2);
+            node.add(node2, getNodeList(wrapper));
         } while (next(wrapper, T_ELSEIF));
 
         if (next(wrapper, T_ELSE)) {

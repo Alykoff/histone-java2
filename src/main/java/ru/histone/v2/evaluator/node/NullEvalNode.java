@@ -6,7 +6,10 @@ import org.apache.commons.lang.ObjectUtils;
  * Created by inv3r on 15/01/16.
  */
 public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
-    public NullEvalNode() {
+
+    public static final NullEvalNode INSTANCE = new NullEvalNode();
+
+    private NullEvalNode() {
         super(ObjectUtils.NULL);
     }
 

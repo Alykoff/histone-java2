@@ -26,6 +26,7 @@ import static ru.histone.v2.parser.node.AstType.AST_REF;
  */
 public class Parser {
     private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
+    public static final String IDENTIFIER = "IDENTIFIER";
 
     public ExpAstNode process(String template, String baseURI) throws HistoneException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
@@ -138,7 +139,7 @@ public class Parser {
         if (!test(wrapper, Tokens.T_ID, Tokens.T_EQ)) {
             name = wrapper.next(Tokens.T_ID.getId());
             if (!name.isFound()) {
-                UnexpectedToken(wrapper, "IDENTIFIER");
+                UnexpectedToken(wrapper, IDENTIFIER);
             }
             if (!next(wrapper, Tokens.T_BLOCK_END)) {
                 UnexpectedToken(wrapper, "}}");
@@ -154,7 +155,7 @@ public class Parser {
             do {
                 name = wrapper.next(Tokens.T_ID.getId());
                 if (!name.isFound()) {
-                    UnexpectedToken(wrapper, "IDENTIFIER");
+                    UnexpectedToken(wrapper, IDENTIFIER);
                 }
                 if (!next(wrapper, Tokens.T_EQ)) {
                     UnexpectedToken(wrapper, "=");
@@ -212,7 +213,7 @@ public class Parser {
                 if (valueName.isFound()) {
                     node.add(new StringAstNode(valueName.firstValue())); //add value name
                 } else {
-                    UnexpectedToken(wrapper, "IDENTIFIER");
+                    UnexpectedToken(wrapper, IDENTIFIER);
                 }
             } else {
                 node
@@ -297,7 +298,7 @@ public class Parser {
 //                    if (name.isFound()) {
 //                        result.add(new ExpAstNode(AstType.AST_NOP).setValue(name.first().getValue()));
 //                    } else {
-//                        UnexpectedToken(wrapper, "IDENTIFIER");
+//                        UnexpectedToken(wrapper, IDENTIFIER);
 //                    }
 //                } while (next(wrapper, Tokens.T_COMMA));
 //            }
@@ -471,14 +472,14 @@ public class Parser {
             if (next(wrapper, Tokens.T_DOT)) {
                 res = new ExpAstNode(AstType.AST_PROP, res);
                 if (wrapper.test(Tokens.T_PROP.getId()) != null) {
-                    UnexpectedToken(wrapper, "IDENTIFIER");
+                    UnexpectedToken(wrapper, IDENTIFIER);
                 }
                 //todo
 //                res.(wrapper.next().first().getValue());
             } else if (next(wrapper, Tokens.T_METHOD)) {
                 res = new ExpAstNode(AstType.AST_METHOD, res);
                 if (wrapper.test(Tokens.T_PROP.getId()) != null) {
-                    UnexpectedToken(wrapper, "IDENTIFIER");
+                    UnexpectedToken(wrapper, IDENTIFIER);
                 }
                 //todo
 //                res.setValue(wrapper.next().first().getValue());

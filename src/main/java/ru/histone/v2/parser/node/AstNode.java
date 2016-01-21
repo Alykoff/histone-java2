@@ -42,4 +42,6 @@ public abstract class AstNode implements Serializable {
     }
 
     public abstract boolean hasValue();
+
+    public abstract int size();
 }

@@ -74,4 +74,9 @@ public class ExpAstNode extends AstNode implements Serializable {
     public boolean hasValue() {
         return false;
     }
+
+    public int size() {
+        if (this.nodes == null) return 0;
+        return this.nodes.size();
+    }
 }

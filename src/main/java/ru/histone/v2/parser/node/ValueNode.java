@@ -30,4 +30,8 @@ public abstract class ValueNode<T> extends AstNode implements Serializable {
         this.value = value;
         return this;
     }
+
+    public int size() {
+        return 0;
+    }
 }

@@ -11,11 +11,13 @@ import java.util.*;
  * Created by gali.alykoff on 20/01/16.
  */
 public class Marker {
+    public static final String SELF_SCOPE_ID = "self";
+
     // TODO
     public void markReferences(
             AstNode rawNode, Deque<Map<String, Long>> scopeChain
     ) throws HistoneException {
-        if (rawNode.hasValue()) {
+        if (rawNode == null || rawNode.hasValue()) {
             return;
         }
         if (scopeChain == null) {
@@ -25,50 +27,143 @@ public class Marker {
         final AstType type = node.getType();
         switch (type) {
             case AST_REF: {
-                final String nameOfVar = ((StringAstNode) node.getNode(0)).getValue();
-                final ExpAstNode refNode = getReference(nameOfVar, scopeChain);
-                node.rewriteNodes(Collections.singletonList(refNode));
+                markRef(node, scopeChain);
                 break;
             }
             case AST_VAR: {
-                final AstNode expNode = node.getNode(0);
-                final AstNode nameNode = node.getNode(1);
-                markReferences(expNode, scopeChain);
-                final String nameOfVar = ParserUtils.getValueFromStringNode(nameNode);
-                final Long nameIndex = setReference(nameOfVar, scopeChain);
-                node.setNode(1, new LongAstNode(nameIndex));
+                markVar(node, scopeChain);
                 break;
             }
             case AST_IF: {
-//                int nodesSize = node.getNodes().size();
-//                for (int i = 0; i < nodesSize; i += 2) {
-//                    // process condition if it's present
-//                    if (!Utils_isUndefined(node[c + 1]))
-//                        markReferences(node[c + 1], scopeChain);
-//                    // process body
-//                    scopeChain.push(new HashMap<>());
-//                    markReferences(node[c], scopeChain);
-//                    scopeChain.pop();
-//                }
+                final int startSearchElsePosition = 0;
+                markReferenceForElseStatement(startSearchElsePosition, node, scopeChain);
                 break;
             }
             case AST_FOR: {
+                markFor(node, scopeChain);
                 break;
             }
             case AST_MACRO: {
+                markMacro(node, scopeChain);
                 break;
             }
             case AST_NODES: {
-
-//                scopeChain.push(new HashMap<>());
-//                for (int i = 1; i < node.length; ++i)
-//                    markReferences(node[c], scopeChain);
-//                scopeChain.pop();
+                markNodes(node, scopeChain);
                 break;
             }
             default: {
+                for (int i = 0; i < node.size(); i++) {
+                    markReferences(node.getNode(i), scopeChain);
+                }
                 break;
             }
+        }
+    }
+
+    private void markRef(
+            ExpAstNode node, Deque<Map<String, Long>> scopeChain
+    ) throws HistoneException {
+        final String nameOfVar = ((StringAstNode) node.getNode(0)).getValue();
+        final ExpAstNode refNode = getReference(nameOfVar, scopeChain);
+        node.rewriteNodes(Collections.singletonList(refNode));
+    }
+
+    private void markVar(
+            ExpAstNode node, Deque<Map<String, Long>> scopeChain
+    ) throws HistoneException {
+        final AstNode expNode = node.getNode(0);
+        final AstNode nameNode = node.getNode(1);
+        markReferences(expNode, scopeChain);
+        final String nameOfVar = ParserUtils.getValueFromStringNode(nameNode);
+        node.setNode(1, setReference(nameOfVar, scopeChain));
+    }
+
+    private void markNodes(
+            ExpAstNode node, Deque<Map<String, Long>> scopeChain
+    ) throws HistoneException {
+        scopeChain.push(new HashMap<>());
+        final int size = node.size();
+        for (int i = 0; i < size; i++) {
+            markReferences(node.getNode(i), scopeChain);
+        }
+        scopeChain.pop();
+    }
+
+    private void markFor(
+            ExpAstNode node, Deque<Map<String, Long>> scopeChain
+    ) throws HistoneException {
+        scopeChain.push(new HashMap<>());
+        setReference(SELF_SCOPE_ID, scopeChain);
+        final int[] varIndexes = new int[] {0, 1};
+        for (int i : varIndexes) {
+            final StringAstNode keyVarNode = node.getNode(i);
+            final String keyVar = keyVarNode.getValue();
+            if (keyVar != null) {
+                node.setNode(i, setReference(keyVar, scopeChain));
+            }
+        }
+        final int outputIndex = 2;
+        final ExpAstNode outputNode = node.getNode(outputIndex);
+        markReferences(outputNode, scopeChain);
+        scopeChain.pop();
+
+        final int collectionIndex = 3;
+        final AstNode collectionNode = node.getNode(collectionIndex);
+        markReferences(collectionNode, scopeChain);
+
+        final int startElseStatement = 4;
+        markReferenceForElseStatement(startElseStatement, node, scopeChain);
+    }
+
+    private void markMacro(
+            ExpAstNode node, Deque<Map<String, Long>> scopeChain
+    ) throws HistoneException {
+        final int startVarIndex = 2;
+        final int nodeSize = node.size();
+        for (int i = startVarIndex; i < nodeSize; i++) {
+            final ExpAstNode child = node.getNode(i);
+            final int expressionIndex = 2;
+            final int childSize = child.size();
+            if (childSize > expressionIndex) {
+                markReferences((child).getNode(expressionIndex), scopeChain);
+            }
+        }
+        scopeChain.push(new HashMap<>());
+        setReference(SELF_SCOPE_ID, scopeChain);
+
+        final List<AstNode> param = new ArrayList<>();
+        for (int i = startVarIndex; i < nodeSize; i++) {
+            final ExpAstNode paramNode = node.getNode(i);
+            final StringAstNode varNameNode = paramNode.getNode(1);
+            setReference(varNameNode.getValue(), scopeChain);
+            if (paramNode.size() > 2) {
+                final ExpAstNode expAstNode = paramNode.getNode(2);
+                param.add(new LongAstNode(i - startVarIndex));
+                param.add(expAstNode);
+            }
+        }
+        if (!param.isEmpty()) {
+            final List<AstNode> newNodes = node.getNodes().subList(0, startVarIndex);
+            newNodes.addAll(param);
+            node.rewriteNodes(newNodes);
+        }
+        markReferences(node.getNode(0), scopeChain);
+        scopeChain.pop();
+    }
+
+    private void markReferenceForElseStatement(
+                int startIndex, ExpAstNode node, Deque<Map<String, Long>> scopeChain
+    ) throws HistoneException {
+        final int nodesSize = node.size();
+        for (int i = startIndex; i < nodesSize; i += 2) {
+            final int conditionIndex = i + 1;
+            // process condition if it's present
+            if (conditionIndex < nodesSize) {
+                markReferences(node.getNode(conditionIndex), scopeChain);
+            }
+            scopeChain.push(new HashMap<>());
+            markReferences(node.getNode(i), scopeChain);
+            scopeChain.pop();
         }
     }
 
@@ -97,11 +192,11 @@ public class Marker {
                 .add(nameOfGlobalVarNode);
     }
 
-    private Long setReference(String name, Deque<Map<String, Long>> scopeChain) {
+    private LongAstNode setReference(String name, Deque<Map<String, Long>> scopeChain) {
         final Map<String, Long> lastScope = scopeChain.getLast();
         if (!lastScope.containsKey(name)) {
             lastScope.put(name, (long) lastScope.keySet().size());
         }
-        return lastScope.get(name);
+        return new LongAstNode(lastScope.get(name));
     }
 }

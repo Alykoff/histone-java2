@@ -91,7 +91,7 @@ public class Parser {
         } else if (next(wrapper, Tokens.T_VAR)) {
             result = getVarStatement(wrapper);
         } else if (next(wrapper, Tokens.T_MACRO)) {
-            result = getMacroExpression(wrapper);
+            result = getMacroStatement(wrapper);
         } else if (next(wrapper, Tokens.T_RETURN)) {
             result = getReturnStatement(wrapper);
         } else if (next(wrapper, Tokens.T_SUPRESS)) {
@@ -274,6 +274,10 @@ public class Parser {
         return node;
     }
 
+    private ExpAstNode getMacroStatement(TokenizerWrapper wrapper) throws ParserException {
+        throw new NotImplementedException();
+    }
+
     private AstNode getExpression(TokenizerWrapper wrapper) throws ParserException {
         if (test(wrapper, Tokens.T_ARROW) ||
                 test(wrapper, Tokens.T_ID, Tokens.T_ARROW) ||
@@ -286,33 +290,33 @@ public class Parser {
     }
 
     private ExpAstNode getMacroExpression(TokenizerWrapper wrapper) throws ParserException {
-//        ExpAstNode result = new ExpAstNode(AstType.AST_NODELIST);
-//
-//        TokenizerResult name = wrapper.next(Tokens.T_ID.getId());
-//        if (name.isFound()) {
-//            result.add(new ExpAstNode(AstType.AST_NOP).setValue(name.first().getValue()));
-//        } else if (next(wrapper, Tokens.T_LPAREN)) {
-//            if (!test(wrapper, Tokens.T_RPAREN)) {
-//                do {
-//                    name = wrapper.next(Tokens.T_ID.getId());
-//                    if (name.isFound()) {
-//                        result.add(new ExpAstNode(AstType.AST_NOP).setValue(name.first().getValue()));
-//                    } else {
-//                        UnexpectedToken(wrapper, IDENTIFIER);
-//                    }
-//                } while (next(wrapper, Tokens.T_COMMA));
-//            }
-//            if (!next(wrapper, Tokens.T_RPAREN)) {
-//                UnexpectedToken(wrapper, ")");
-//            }
-//        }
-//        if (!next(wrapper, Tokens.T_ARROW)) {
-//            UnexpectedToken(wrapper, "=>");
-//        }
-//        if (result.getNodes().size() > 0) {
-//            //todo
-////            result.unshift(result.length);
-//        }
+        ExpAstNode result = new ExpAstNode(AstType.AST_NODELIST);
+
+        TokenizerResult name = wrapper.next(Tokens.T_ID.getId());
+        if (name.isFound()) {
+            result.add(new ExpAstNode(AstType.AST_NOP).setValue(name.first().getValue()));
+        } else if (next(wrapper, Tokens.T_LPAREN)) {
+            if (!test(wrapper, Tokens.T_RPAREN)) {
+                do {
+                    name = wrapper.next(Tokens.T_ID.getId());
+                    if (name.isFound()) {
+                        result.add(new ExpAstNode(AstType.AST_NOP).setValue(name.first().getValue()));
+                    } else {
+                        UnexpectedToken(wrapper, IDENTIFIER);
+                    }
+                } while (next(wrapper, Tokens.T_COMMA));
+            }
+            if (!next(wrapper, Tokens.T_RPAREN)) {
+                UnexpectedToken(wrapper, ")");
+            }
+        }
+        if (!next(wrapper, Tokens.T_ARROW)) {
+            UnexpectedToken(wrapper, "=>");
+        }
+        if (result.getNodes().size() > 0) {
+            //todo
+//            result.unshift(result.length);
+        }
 
 //        return createMacroNode(wrapper).add(result);
         throw new NotImplementedException();

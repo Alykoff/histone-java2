@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import ru.histone.HistoneException;
 import ru.histone.tokenizer.Token;
 import static ru.histone.tokenizer.Tokens.*;
+import static ru.histone.v2.parser.node.AstType.*;
 
 import ru.histone.tokenizer.Tokens;
 import ru.histone.v2.parser.node.*;
@@ -17,7 +18,7 @@ import ru.histone.v2.utils.ParserUtils;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static ru.histone.v2.parser.node.AstType.*;
+import static ru.histone.v2.parser.node.*;
 
 /**
  * Created by alexey.nevinsky on 24.12.2015.
@@ -40,16 +41,16 @@ public class Parser {
     }
 
     private ExpAstNode getNodeList(TokenizerWrapper wrapper) throws ParserException {
-        ExpAstNode result = new ExpAstNode(AstType.AST_NODELIST);
+        ExpAstNode result = new ExpAstNode(AST_NODELIST);
         AstNode node;
         wrapper = new TokenizerWrapper(wrapper);
         for (; ; ) {
             node = getStatement(wrapper);
-            if (node.getType() == AstType.AST_T_BREAK) {
+            if (node.getType() == AST_T_BREAK) {
                 break;
-            } else if (node.getType() != AstType.AST_T_NOP) {
+            } else if (node.getType() != AST_T_NOP) {
                 //todo check this
-                if (node.getType() != AstType.AST_T_ARRAY) {
+                if (node.getType() != AST_T_ARRAY) {
                     result.add(node);
                 } else {
                     result.add(node);
@@ -72,7 +73,7 @@ public class Parser {
         if (!wrapper.test(T_EOF.getId()).isFound()) {
             return new StringAstNode(wrapper.next().firstValue());
         }
-        return new ExpAstNode(AstType.AST_T_BREAK);
+        return new ExpAstNode(AST_T_BREAK);
     }
 
     private ExpAstNode getCommentStatement(TokenizerWrapper wrapper) {
@@ -95,13 +96,13 @@ public class Parser {
         } else if (next(wrapper, T_SUPRESS)) {
             result = getSupressStatement(wrapper);
         } else if (next(wrapper, T_LISTEN)) {
-            result = getListenStatement(wrapper, AstType.AST_LISTEN);
+            result = getListenStatement(wrapper, AST_LISTEN);
         } else if (next(wrapper, T_TRIGGER)) {
-            result = getListenStatement(wrapper, AstType.AST_TRIGGER);
+            result = getListenStatement(wrapper, AST_TRIGGER);
         } else if (test(wrapper, T_SLASH, T_STATEMENT, T_BLOCK_END)) {
-            result = new ExpAstNode(AstType.AST_T_BREAK);
+            result = new ExpAstNode(AST_T_BREAK);
         } else if (test(wrapper, T_STATEMENT)) {
-            result = new ExpAstNode(AstType.AST_T_BREAK);
+            result = new ExpAstNode(AST_T_BREAK);
         } else {
             result = getExpressionStatement(wrapper);
         }
@@ -110,7 +111,7 @@ public class Parser {
 
     private AstNode getExpressionStatement(TokenizerWrapper wrapper) throws ParserException {
         if (next(wrapper, T_BLOCK_END)) {
-            return new ExpAstNode(AstType.AST_T_NOP);
+            return new ExpAstNode(AST_T_NOP);
         }
         AstNode expression = getExpression(wrapper);
         if (!next(wrapper, T_BLOCK_END)) {
@@ -145,14 +146,14 @@ public class Parser {
             if (!next(wrapper, T_BLOCK_END)) {
                 UnexpectedToken(wrapper, "}}");
             }
-            result = new ExpAstNode(AstType.AST_VAR);
+            result = new ExpAstNode(AST_VAR);
             result.add(new StringAstNode(name.firstValue()));
             result.add(getNodesStatement(wrapper, false));
             if (!next(wrapper, T_SLASH, T_VAR)) {
                 UnexpectedToken(wrapper, "{{/var}}");
             }
         } else {
-            result = new ExpAstNode(AstType.AST_ARRAY);
+            result = new ExpAstNode(AST_ARRAY);
             do {
                 name = wrapper.next(T_ID.getId());
                 if (!name.isFound()) {
@@ -161,7 +162,7 @@ public class Parser {
                 if (!next(wrapper, T_EQ)) {
                     UnexpectedToken(wrapper, "=");
                 }
-                ExpAstNode varNode = new ExpAstNode(AstType.AST_VAR)
+                ExpAstNode varNode = new ExpAstNode(AST_VAR)
                         .add(new StringAstNode(name.firstValue()))
                         .add(getExpression(wrapper));
                 result.add(varNode);
@@ -177,7 +178,7 @@ public class Parser {
     }
 
     private ExpAstNode getNodesStatement(TokenizerWrapper wrapper, boolean nested) throws ParserException {
-        ExpAstNode res = new ExpAstNode(AstType.AST_NODES);
+        ExpAstNode res = new ExpAstNode(AST_NODES);
         wrapper = new TokenizerWrapper(wrapper);
         AstNode node;
         for (; ; ) {
@@ -185,11 +186,11 @@ public class Parser {
                 break;
             }
             node = getStatement(wrapper);
-            if (node.getType() == AstType.AST_T_BREAK) {
+            if (node.getType() == AST_T_BREAK) {
                 break;
             }
-            if (node.getType() != AstType.AST_T_NOP) {
-                if (node.getType() != AstType.AST_T_ARRAY) {
+            if (node.getType() != AST_T_NOP) {
+                if (node.getType() != AST_T_ARRAY) {
                     res.add(node);
                 } else {
                     throw new NotImplementedException();
@@ -205,7 +206,7 @@ public class Parser {
     }
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
-        final ExpAstNode node = new ExpAstNode(AstType.AST_FOR);
+        final ExpAstNode node = new ExpAstNode(AST_FOR);
         final TokenizerResult id = wrapper.next(T_ID.getId());
         if (id.isFound()) {
             if (next(wrapper, T_COLON)) {
@@ -253,7 +254,7 @@ public class Parser {
     }
 
     private ExpAstNode getIfStatement(TokenizerWrapper wrapper) throws ParserException {
-        ExpAstNode node = new ExpAstNode(AstType.AST_IF);
+        ExpAstNode node = new ExpAstNode(AST_IF);
         do {
             AstNode condition = getExpression(wrapper);
             if (!next(wrapper, T_BLOCK_END)) {
@@ -334,7 +335,7 @@ public class Parser {
     private AstNode getTernaryExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getLogicalOrExpression(wrapper);
         while (next(wrapper, T_QUERY)) {
-            ExpAstNode node = new ExpAstNode(AstType.AST_TERNARY);
+            ExpAstNode node = new ExpAstNode(AST_TERNARY);
             node.add(res, getExpression(wrapper));
             if (next(wrapper, T_COLON)) {
                 node.add(getExpression(wrapper));
@@ -347,7 +348,7 @@ public class Parser {
     private AstNode getLogicalOrExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getLogicalAndExpression(wrapper);
         while (next(wrapper, T_OR)) {
-            ExpAstNode node = new ExpAstNode(AstType.AST_OR);
+            ExpAstNode node = new ExpAstNode(AST_OR);
             res = node.add(res).add(getLogicalAndExpression(wrapper));
         }
         return res;
@@ -356,7 +357,7 @@ public class Parser {
     private AstNode getLogicalAndExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getBitwiseOrExpression(wrapper);
         while (next(wrapper, T_AND)) {
-            ExpAstNode node = new ExpAstNode(AstType.AST_AND);
+            ExpAstNode node = new ExpAstNode(AST_AND);
             res = node.add(res).add(getBitwiseOrExpression(wrapper));
         }
         return res;
@@ -365,7 +366,7 @@ public class Parser {
     private AstNode getBitwiseOrExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getBitwiseXorExpression(wrapper);
         while (next(wrapper, T_BOR)) {
-            ExpAstNode node = new ExpAstNode(AstType.AST_BOR);
+            ExpAstNode node = new ExpAstNode(AST_BOR);
             res = node.add(res).add(getBitwiseXorExpression(wrapper));
         }
         return res;
@@ -374,7 +375,7 @@ public class Parser {
     private AstNode getBitwiseXorExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getBitwiseAndExpression(wrapper);
         while (next(wrapper, T_BXOR)) {
-            ExpAstNode node = new ExpAstNode(AstType.AST_BXOR);
+            ExpAstNode node = new ExpAstNode(AST_BXOR);
             res = node.add(res).add(getBitwiseAndExpression(wrapper));
         }
         return res;
@@ -383,7 +384,7 @@ public class Parser {
     private AstNode getBitwiseAndExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getEqualityExpression(wrapper);
         while (next(wrapper, T_BAND)) {
-            ExpAstNode node = new ExpAstNode(AstType.AST_BAND);
+            ExpAstNode node = new ExpAstNode(AST_BAND);
             res = node.add(res).add(getEqualityExpression(wrapper));
         }
         return res;
@@ -394,10 +395,10 @@ public class Parser {
         while (test(wrapper, T_EQ) || test(wrapper, T_NEQ)) {
             ExpAstNode node;
             if (next(wrapper, T_EQ)) {
-                node = new ExpAstNode(AstType.AST_EQ);
+                node = new ExpAstNode(AST_EQ);
             } else {
                 next(wrapper, T_NEQ);// we needed to read next token from buffer for right work
-                node = new ExpAstNode(AstType.AST_NEQ);
+                node = new ExpAstNode(AST_NEQ);
             }
             res = node.add(res).add(getRelationalExpression(wrapper));
         }
@@ -413,14 +414,14 @@ public class Parser {
                 ) {
             ExpAstNode node;
             if (next(wrapper, T_LE)) {
-                node = new ExpAstNode(AstType.AST_LE);
+                node = new ExpAstNode(AST_LE);
             } else if (next(wrapper, T_GE)) {
-                node = new ExpAstNode(AstType.AST_GE);
+                node = new ExpAstNode(AST_GE);
             } else if (next(wrapper, T_LT)) {
-                node = new ExpAstNode(AstType.AST_LT);
+                node = new ExpAstNode(AST_LT);
             } else {
                 next(wrapper, T_LT);// we needed to read next token from buffer for right work
-                node = new ExpAstNode(AstType.AST_GT);
+                node = new ExpAstNode(AST_GT);
             }
             res = node.add(res).add(getAdditiveExpression(wrapper));
         }
@@ -432,10 +433,10 @@ public class Parser {
         while (test(wrapper, T_PLUS) || test(wrapper, T_MINUS)) {
             ExpAstNode node;
             if (next(wrapper, T_PLUS)) {
-                node = new ExpAstNode(AstType.AST_ADD);
+                node = new ExpAstNode(AST_ADD);
             } else {
                 next(wrapper, T_MINUS);// we needed to read next token from buffer for right work
-                node = new ExpAstNode(AstType.AST_SUB);
+                node = new ExpAstNode(AST_SUB);
             }
             res = node.add(res).add(getMultiplicativeExpression(wrapper));
         }
@@ -447,12 +448,12 @@ public class Parser {
         while (test(wrapper, T_STAR) || test(wrapper, T_SLASH) || test(wrapper, T_MOD)) {
             ExpAstNode node;
             if (next(wrapper, T_STAR)) {
-                node = new ExpAstNode(AstType.AST_MUL);
+                node = new ExpAstNode(AST_MUL);
             } else if (next(wrapper, T_SLASH)) {
-                node = new ExpAstNode(AstType.AST_DIV);
+                node = new ExpAstNode(AST_DIV);
             } else {
                 next(wrapper, T_MOD);// we needed to read next token from buffer for right work
-                node = new ExpAstNode(AstType.AST_MOD);
+                node = new ExpAstNode(AST_MOD);
             }
             res = node.add(res).add(getUnaryExpression(wrapper));
         }
@@ -462,10 +463,10 @@ public class Parser {
     private AstNode getUnaryExpression(TokenizerWrapper wrapper) throws ParserException {
         if (next(wrapper, T_NOT)) {
             AstNode node = getUnaryExpression(wrapper);
-            return new ExpAstNode(AstType.AST_NOT).add(node);
+            return new ExpAstNode(AST_NOT).add(node);
         } else if (next(wrapper, T_MINUS)) {
             AstNode node = getUnaryExpression(wrapper);
-            return new ExpAstNode(AstType.AST_USUB).add(node);
+            return new ExpAstNode(AST_USUB).add(node);
         } else {
             return getMemberExpression(wrapper);
         }
@@ -476,28 +477,28 @@ public class Parser {
 
         while (true) {
             if (next(wrapper, T_DOT)) {
-                res = new ExpAstNode(AstType.AST_PROP, res);
+                res = new ExpAstNode(AST_PROP, res);
                 if (wrapper.test(T_PROP.getId()) != null) {
                     UnexpectedToken(wrapper, IDENTIFIER);
                 }
                 //todo
 //                res.(wrapper.next().first().getValue());
             } else if (next(wrapper, T_METHOD)) {
-                res = new ExpAstNode(AstType.AST_METHOD, res);
+                res = new ExpAstNode(AST_METHOD, res);
                 if (wrapper.test(T_PROP.getId()) != null) {
                     UnexpectedToken(wrapper, IDENTIFIER);
                 }
                 //todo
 //                res.setValue(wrapper.next().first().getValue());
             } else if (next(wrapper, T_LBRACKET)) {
-                res = new ExpAstNode(AstType.AST_PROP, res);
+                res = new ExpAstNode(AST_PROP, res);
                 //todo
 //                res.add(getExpression(wrapper));
                 if (wrapper.test(T_RBRACKET.getId()) != null) {
                     UnexpectedToken(wrapper, "]");
                 }
             } else if (next(wrapper, T_LPAREN)) {
-                res = new ExpAstNode(AstType.AST_CALL, res);
+                res = new ExpAstNode(AST_CALL, res);
                 if (wrapper.next(T_RPAREN.getId()) != null) {
                     continue;
                 }
@@ -534,9 +535,9 @@ public class Parser {
         } else if (next(wrapper, T_BLOCK_START)) {
             return getNodesStatement(wrapper, true);
         } else if (next(wrapper, T_THIS)) {
-            return new ExpAstNode(AstType.AST_THIS);
+            return new ExpAstNode(AST_THIS);
         } else if (next(wrapper, T_GLOBAL)) {
-            return new ExpAstNode(AstType.AST_GLOBAL);
+            return new ExpAstNode(AST_GLOBAL);
         } else if (test(wrapper, T_INT)) {
             return new LongAstNode(Integer.parseInt(wrapper.next().first().getValue(), 10));
         } else if (test(wrapper, T_BIN)) {
@@ -564,7 +565,7 @@ public class Parser {
 
 //        Token key, value;
 
-        ExpAstNode result = new ExpAstNode(AstType.AST_ARRAY);
+        ExpAstNode result = new ExpAstNode(AST_ARRAY);
 //        String key;
 //        ExpAstNode value;
         AstNode key;
@@ -724,7 +725,7 @@ public class Parser {
             }
         }
 
-        return new ExpAstNode(AstType.AST_REGEXP)
+        return new ExpAstNode(AST_REGEXP)
                 .add(new StringAstNode(result.toString()))
                 .add(new LongAstNode(flagNum));
     }

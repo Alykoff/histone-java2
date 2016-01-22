@@ -59,7 +59,7 @@ public class Evaluator {
             case AST_OR:
                 return processOrNode(expNode, context);
             case AST_TERNARY:
-                break;
+                return processTernary(expNode, context);
             case AST_ADD:
                 return processAddNode(expNode, context);
             case AST_SUB:
@@ -117,6 +117,16 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private EvalNode processTernary(ExpAstNode expNode, Context context) throws HistoneException {
+        EvalNode condition = evaluateNode(expNode.getNode(0), context);
+        if (EvalUtils.nodeAsBoolean(condition)) {
+            return evaluateNode(expNode.getNode(1), context);
+        } else if (expNode.getNode(2) != null) {
+            return evaluateNode(expNode.getNode(2), context);
+        }
+        return EmptyEvalNode.INSTANCE;
     }
 
     private EvalNode processPropertyNode(ExpAstNode expNode, Context context) throws HistoneException {

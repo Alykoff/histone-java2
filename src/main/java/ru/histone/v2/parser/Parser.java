@@ -542,9 +542,10 @@ public class Parser {
         while (true) {
             if (next(wrapper, T_DOT)) {
                 res = new ExpAstNode(AST_PROP, res);
-                if (wrapper.test(T_PROP.getId()) != null) {
+                if (test(wrapper, T_PROP)) {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
+                throw new NotImplementedException();
                 //todo
 //                res.(wrapper.next().first().getValue());
             } else if (next(wrapper, T_METHOD)) {
@@ -552,26 +553,24 @@ public class Parser {
                 if (wrapper.test(T_PROP.getId()) != null) {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
+                throw new NotImplementedException();
                 //todo
 //                res.setValue(wrapper.next().first().getValue());
             } else if (next(wrapper, T_LBRACKET)) {
-                res = new ExpAstNode(AST_PROP, res);
-                //todo
-//                res.add(getExpression(wrapper));
-                if (wrapper.test(T_RBRACKET.getId()) != null) {
+                res = new ExpAstNode(AST_PROP, res).add(getExpression(wrapper));
+                if (test(wrapper, T_RBRACKET)) {
                     throw buildUnexpectedTokenException(wrapper, "]");
                 }
             } else if (next(wrapper, T_LPAREN)) {
                 res = new ExpAstNode(AST_CALL, res);
-                if (wrapper.next(T_RPAREN) != null) {
+                if (next(wrapper, T_RPAREN)) {
                     continue;
                 }
                 do {
-                    //todo
-//                    res.add(getExpression(wrapper));
+                    ((ExpAstNode) res).add(getExpression(wrapper));
                 } while (next(wrapper, T_COMMA));
-                if (wrapper.test(T_RPAREN.getId()) != null) {
-                    throw buildUnexpectedTokenException(wrapper, "]");
+                if (!next(wrapper, T_RPAREN)) {
+                    throw buildUnexpectedTokenException(wrapper, ")");
                 }
             } else {
                 return res;
@@ -679,18 +678,6 @@ public class Parser {
         }
 
         return result;
-    }
-
-    private boolean isStringOrNumber(AstNode node) {
-        if (node instanceof ValueNode) {
-            Object value = ((ValueNode) node).getValue();
-            if (value instanceof String
-                    || value instanceof Double
-                    || value instanceof Long) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private StringAstNode getStringLiteral(TokenizerWrapper wrapper) throws ParserException {

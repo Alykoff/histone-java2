@@ -6,5 +6,8 @@ package ru.histone.v2.evaluator.node;
 public class FloatEvalNode extends EvalNode<Float> {
     public FloatEvalNode(Float val) {
         super(val);
+        if (val == null) {
+            throw new NullPointerException();
+        }
     }
 }

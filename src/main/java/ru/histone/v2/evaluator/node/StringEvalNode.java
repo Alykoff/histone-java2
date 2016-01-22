@@ -6,5 +6,8 @@ package ru.histone.v2.evaluator.node;
 public class StringEvalNode extends EvalNode<String> {
     public StringEvalNode(String value) {
         super(value);
+        if (value == null) {
+            throw new NullPointerException();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package ru.histone.v2.evaluator;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.node.*;
 
@@ -33,14 +34,20 @@ public class EvalUtils {
         return Float.parseFloat(value);
     }
 
-//    public static boolean greaterThan(EvalNode left, EvalNode right) {
-//        if (isNumberNode(left) && isNumberNode(right)) {
-//            Float a = 1f;
-//            Integer b = 9;
-//
-//            return right.getValue()
-//        }
-//    }
+    public static Number getNumberValue(EvalNode node) {
+        if (!isNumberNode(node)) {
+            throw new RuntimeException();
+        }
+        if (node instanceof FloatEvalNode) {
+            return ((FloatEvalNode) node).getValue();
+        } else if (node instanceof LongEvalNode) {
+            return ((LongEvalNode) node).getValue();
+        } else if (node instanceof StringEvalNode) {
+            return Float.parseFloat(((StringEvalNode) node).getValue());
+        } else {
+            throw new NotImplementedException();
+        }
+    }
 
     public static boolean isNumberNode(EvalNode node) {
         return node instanceof LongEvalNode || node instanceof FloatEvalNode;

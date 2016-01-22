@@ -7,5 +7,8 @@ public class LongEvalNode extends EvalNode<Long> {
 
     public LongEvalNode(Long value) {
         super(value);
+        if (value == null) {
+            throw new NullPointerException();
+        }
     }
 }

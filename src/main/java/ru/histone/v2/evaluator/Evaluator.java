@@ -3,6 +3,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.utils.ParserUtils;
@@ -10,11 +11,14 @@ import ru.histone.v2.utils.ParserUtils;
 import java.io.Serializable;
 import java.util.*;
 
+import static ru.histone.v2.evaluator.EvalUtils.*;
+
 /**
+ *
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class Evaluator {
-
+    private final static Comparator<Number> NUMBER_COMPORATOR = new NumberComparator();
     public String process(String baseUri, ExpAstNode node, Context context) throws HistoneException {
         context.setBaseUri(baseUri);
         return processInternal(node, context);
@@ -136,7 +140,7 @@ public class Evaluator {
 
     private EvalNode processTernary(ExpAstNode expNode, Context context) throws HistoneException {
         EvalNode condition = evaluateNode(expNode.getNode(0), context);
-        if (EvalUtils.nodeAsBoolean(condition)) {
+        if (nodeAsBoolean(condition)) {
             return evaluateNode(expNode.getNode(1), context);
         } else if (expNode.getNode(2) != null) {
             return evaluateNode(expNode.getNode(2), context);
@@ -149,7 +153,7 @@ public class Evaluator {
         EvalNode propertyName = evaluateNode(expNode.getNode(1), context);
 
         Object obj = ((MapEvalNode) value).getProperty((String) propertyName.getValue());
-        return EvalUtils.createEvalNode(obj);
+        return createEvalNode(obj);
     }
 
     private EvalNode processCall(ExpAstNode expNode, Context context) throws HistoneException {
@@ -180,7 +184,7 @@ public class Evaluator {
             ExpAstNode bodyNode = expNode.getNode(i + 5);
             while (bodyNode != null) {
                 EvalNode conditionNode = evaluateNode(expressionNode, context);
-                if (EvalUtils.nodeAsBoolean(conditionNode)) {
+                if (nodeAsBoolean(conditionNode)) {
                     String res = processInternal(bodyNode, context);
                     return new StringEvalNode(res);
                 }
@@ -241,7 +245,7 @@ public class Evaluator {
         EvalNode right = evaluateNode(node.getNode(1), context);
 
         if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
-            if (EvalUtils.isNumberNode(left) && EvalUtils.isNumberNode(right)) {
+            if (isNumberNode(left) && isNumberNode(right)) {
                 Float res = getValue(left) + getValue(right);
                 if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
                     return new LongEvalNode(res.longValue());
@@ -262,8 +266,8 @@ public class Evaluator {
         EvalNode left = evaluateNode(node.getNode(0), context);
         EvalNode right = evaluateNode(node.getNode(1), context);
 
-        if ((EvalUtils.isNumberNode(left) || left instanceof StringEvalNode) &&
-                (EvalUtils.isNumberNode(right) || right instanceof StringEvalNode)) {
+        if ((isNumberNode(left) || left instanceof StringEvalNode) &&
+                (isNumberNode(right) || right instanceof StringEvalNode)) {
             Float leftValue = getValue(left);
             Float rightValue = getValue(right);
             if (leftValue == null || rightValue == null) {
@@ -300,15 +304,49 @@ public class Evaluator {
 
     private EvalNode processRelation(ExpAstNode node, Context context) throws HistoneException {
         EvalNode left = evaluateNode(node.getNode(0), context);
-        final EvalNode right = evaluateNode(node.getNode(1), context);
-        if (left instanceof StringEvalNode && EvalUtils.isNumberNode(right)) {
+        EvalNode right = evaluateNode(node.getNode(1), context);
+        Integer compareResult = null;
+        if (left instanceof StringEvalNode && isNumberNode(right)) {
+            final Number rightValue = getNumberValue(right);
             final StringEvalNode stringLeft = (StringEvalNode) left;
-            if (EvalUtils.isNumeric(stringLeft)) {
-                left = new FloatEvalNode(EvalUtils.parseFloat(stringLeft.getValue()));
+            if (isNumeric(stringLeft)) {
+                final Number leftValue = getNumberValue(stringLeft);
+                compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
             } else {
-                throw new NotImplementedException();
+                throw new NotImplementedException(); // TODO call RTTI toString
             }
+        } else if (isNumberNode(left) && right instanceof StringEvalNode) {
+            final StringEvalNode stringRight = (StringEvalNode) right;
+            if (isNumeric(stringRight)) {
+                final Number rightValue = getNumberValue(right);
+                final Number leftValue = getNumberValue(left);
+                compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
+            } else {
+                throw new NotImplementedException(); // TODO call RTTI toString
+            }
+        }
 
+        if (!(isNumberNode(left) && isNumberNode(right))) {
+            if (left instanceof StringEvalNode && right instanceof StringEvalNode) {
+                final StringEvalNode stringRight = (StringEvalNode) right;
+                final StringEvalNode stringLeft = (StringEvalNode) left;
+                final long leftLength = stringLeft.getValue().length();
+                final long rightLength = stringRight.getValue().length();
+                compareResult = Long.valueOf(leftLength).compareTo(rightLength);
+            } else {
+                throw new NotImplementedException(); // TODO call RTTI toBoolean for both nodes
+            }
+        } else {
+            final Number rightValue = getNumberValue(right);
+            final Number leftValue = getNumberValue(left);
+            compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
+        }
+
+        switch (node.getType()) {
+            case AST_LT: return new BooleanEvalNode(compareResult < 0);
+            case AST_GT: return new BooleanEvalNode(compareResult > 0);
+            case AST_LE: return new BooleanEvalNode(compareResult <= 0);
+            case AST_GE: return new BooleanEvalNode(compareResult >= 0);
         }
         throw new NotImplementedException();
     }
@@ -323,19 +361,19 @@ public class Evaluator {
     private EvalNode processBorNode(ExpAstNode node, Context context) throws HistoneException {
         EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
         EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
-        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) | EvalUtils.nodeAsBoolean(conditionNode2));
+        return new BooleanEvalNode(nodeAsBoolean(conditionNode1) | nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processBxorNode(ExpAstNode node, Context context) throws HistoneException {
         EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
         EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
-        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) ^ EvalUtils.nodeAsBoolean(conditionNode2));
+        return new BooleanEvalNode(nodeAsBoolean(conditionNode1) ^ nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processBandNode(ExpAstNode node, Context context) throws HistoneException {
         EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
         EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
-        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) & EvalUtils.nodeAsBoolean(conditionNode2));
+        return new BooleanEvalNode(nodeAsBoolean(conditionNode1) & nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processVarNode(ExpAstNode node, Context context) throws HistoneException {
@@ -402,7 +440,7 @@ public class Evaluator {
         StringAstNode valueNode = node.getNode(0);
         Object value = getValueFromParentContext(context, valueNode.getValue());
         if (value != null) {
-            return EvalUtils.createEvalNode(value);
+            return createEvalNode(value);
         } else {
             return EmptyEvalNode.INSTANCE;
         }
@@ -421,13 +459,13 @@ public class Evaluator {
     private EvalNode processOrNode(ExpAstNode node, Context context) throws HistoneException {
         EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
         EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
-        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) || EvalUtils.nodeAsBoolean(conditionNode2));
+        return new BooleanEvalNode(nodeAsBoolean(conditionNode1) || nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processAndNode(ExpAstNode node, Context context) throws HistoneException {
         EvalNode conditionNode1 = evaluateNode(node.getNode(0), context);
         EvalNode conditionNode2 = evaluateNode(node.getNode(1), context);
-        return new BooleanEvalNode(EvalUtils.nodeAsBoolean(conditionNode1) && EvalUtils.nodeAsBoolean(conditionNode2));
+        return new BooleanEvalNode(nodeAsBoolean(conditionNode1) && nodeAsBoolean(conditionNode2));
     }
 
     private EvalNode processNodeList(ExpAstNode node, Context context) throws HistoneException {
@@ -448,14 +486,14 @@ public class Evaluator {
     private BooleanEvalNode processEqNode(ExpAstNode node, Context context) throws HistoneException {
         EvalNode left = evaluateNode(node.getNode(0), context);
         EvalNode right = evaluateNode(node.getNode(1), context);
-        return new BooleanEvalNode(EvalUtils.equalityNode(left, right));
+        return new BooleanEvalNode(equalityNode(left, right));
     }
 
     private EvalNode processIfNode(ExpAstNode node, Context context) throws HistoneException {
         Context current = context.createNew();
         EvalNode conditionNode = evaluateNode(node.getNode(1), context);
         EvalNode result;
-        if (EvalUtils.nodeAsBoolean(conditionNode)) {
+        if (nodeAsBoolean(conditionNode)) {
             result = evaluateNode(node.getNode(0), current);
         } else {
             result = evaluateNode(node.getNode(2), current);

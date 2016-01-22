@@ -545,24 +545,21 @@ public class Parser {
 
         while (true) {
             if (next(wrapper, T_DOT)) {
-                res = new ExpAstNode(AST_PROP, res);
                 if (!test(wrapper, T_PROP)) {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
-                throw new NotImplementedException();
-                //todo
-//                res.(wrapper.next().first().getValue());
+                final StringAstNode propNode = new StringAstNode(wrapper.next().firstValue());
+                res = new ExpAstNode(AST_PROP, res, propNode);
             } else if (next(wrapper, T_METHOD)) {
-                res = new ExpAstNode(AST_METHOD, res);
-                if (wrapper.test(T_PROP) != null) {
+                if (!test(wrapper, T_PROP)) {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
-                throw new NotImplementedException();
-                //todo
-//                res.setValue(wrapper.next().first().getValue());
+                final StringAstNode methodName = new StringAstNode(wrapper.next().firstValue());
+                res = new ExpAstNode(AST_METHOD, res, methodName);
             } else if (next(wrapper, T_LBRACKET)) {
-                res = new ExpAstNode(AST_PROP, res).add(getExpression(wrapper));
-                if (test(wrapper, T_RBRACKET)) {
+                res = new ExpAstNode(AST_PROP, res)
+                        .add(getExpression(wrapper));
+                if (!next(wrapper, T_RBRACKET)) {
                     throw buildUnexpectedTokenException(wrapper, "]");
                 }
             } else if (next(wrapper, T_LPAREN)) {
@@ -570,9 +567,11 @@ public class Parser {
                 if (next(wrapper, T_RPAREN)) {
                     continue;
                 }
+
                 do {
                     ((ExpAstNode) res).add(getExpression(wrapper));
                 } while (next(wrapper, T_COMMA));
+
                 if (!next(wrapper, T_RPAREN)) {
                     throw buildUnexpectedTokenException(wrapper, ")");
                 }

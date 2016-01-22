@@ -141,7 +141,7 @@ public class Evaluator {
         String functionName = ((StringAstNode) ((ExpAstNode) expNode.getNode(0)).getNode(0)).getValue();
         List<AstNode> values = expNode.getNodes().subList(1, expNode.getNodes().size());
 
-        GlobalFunction globalFunction = context.getGlobalFunctions().get(functionName);
+        Function globalFunction = context.getGlobalFunctions().get(functionName);
         if (globalFunction == null) {
             throw new HistoneException("wrong global function " + functionName);
         }

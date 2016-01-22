@@ -1,6 +1,6 @@
 package ru.histone.v2.evaluator.global;
 
-import ru.histone.v2.evaluator.GlobalFunction;
+import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.GlobalFunctionExecutionException;
@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by inv3r on 22/01/16.
  */
-public class Range implements GlobalFunction {
+public class Range implements Function {
 
     public static final String NAME = "range";
 

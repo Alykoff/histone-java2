@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Use this interface when you need to implement your own global function
  */
-public interface GlobalFunction {
+public interface Function {
 
     /**
      * Return function name

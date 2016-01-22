@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Context {
     private String baseUri;
-    private Map<String, GlobalFunction> globalFunctions = new HashMap<>();
+    private Map<String, Function> globalFunctions = new HashMap<>();
 
     private Context parent;
     private ConcurrentMap<String, Object> vars = new ConcurrentHashMap<>();
@@ -50,15 +50,15 @@ public class Context {
         this.baseUri = baseUri;
     }
 
-    public Map<String, GlobalFunction> getGlobalFunctions() {
+    public Map<String, Function> getGlobalFunctions() {
         return globalFunctions;
     }
 
-    public void setGlobalFunctions(Map<String, GlobalFunction> globalFunctions) {
+    public void setGlobalFunctions(Map<String, Function> globalFunctions) {
         this.globalFunctions = globalFunctions;
     }
 
-    public void registerGlobal(String name, GlobalFunction range) {
+    public void registerGlobal(String name, Function range) {
         this.globalFunctions.put(name, range);
     }
 }

@@ -38,86 +38,86 @@ public class AstNode extends Node {
 
     @Override
     public BooleanHistoneNode getAsBoolean() {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public NumberHistoneNode getAsNumber() {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public StringHistoneNode getAsString() {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public ObjectHistoneNode getAsObject() {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public JsonNode getAsJsonNode() {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_add(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_mul(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_div(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_mod(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_negate() {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_sub(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_not() {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_equal(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_greaterThan(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_greaterOrEqual(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_lessThan(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 
     @Override
     public Node oper_lessOrEqual(Node right) {
-        throw new UnsupportedOperationException("ExpAstNode doesn't support this method");
+        throw new UnsupportedOperationException("AstNode doesn't support this method");
     }
 }

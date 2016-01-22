@@ -76,8 +76,14 @@ public class Parser {
         return new ExpAstNode(AST_T_BREAK);
     }
 
-    private ExpAstNode getCommentStatement(TokenizerWrapper wrapper) {
-        throw new NotImplementedException();
+    private ExpAstNode getCommentStatement(TokenizerWrapper wrapper) throws ParserException {
+        while (!test(wrapper, T_CMT_END) && !test(wrapper, T_EOF)) {
+            wrapper.next();
+        }
+        if (!next(wrapper, T_CMT_END)) {
+            throw buildUnexpectedTokenException(wrapper, "*}}");
+        }
+        return new ExpAstNode(AST_NOP);
     }
 
     private AstNode getTemplateStatement(TokenizerWrapper wrapper) throws ParserException {

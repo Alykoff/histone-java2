@@ -46,8 +46,6 @@ public class Evaluator {
 
         ExpAstNode expNode = (ExpAstNode) node;
         switch (node.getType()) {
-            case AST_NOP:
-                break;
             case AST_ARRAY:
                 return processArrayNode(expNode, context);
             case AST_REGEXP:

@@ -28,6 +28,7 @@ public class HistoneTestCase {
 
     public static class Case {
         private String input;
+        private String inputFile;
         private String expectedResult;
         private ExpectedException expectedException;
         private String expectedAST;
@@ -71,6 +72,14 @@ public class HistoneTestCase {
 
         public void setContext(Map<String, Object> context) {
             this.context = context;
+        }
+
+        public String getInputFile() {
+            return inputFile;
+        }
+
+        public void setInputFile(String inputFile) {
+            this.inputFile = inputFile;
         }
     }
 

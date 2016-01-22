@@ -31,6 +31,9 @@ public class Optimizer {
 
         for (int i = 0; i < innerNodes.size(); i++) {
             AstNode current = innerNodes.get(i);
+            if (current.getType() == AstType.AST_NOP) {
+                continue;
+            }
             boolean isStringLeaf = current.hasValue();
 
             if (isStringLeaf) {

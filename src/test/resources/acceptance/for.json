@@ -316,6 +316,13 @@
           }
         },
         "expectedResult": "a foo:1 bar:2 x:3  b"
+      },
+      {
+        "inputFile": "for.tpl",
+        "context": {
+          "some_condition": true
+        },
+        "expectedResult": "    collection is empty and some_condition"
       }
     ]
   }

@@ -18,7 +18,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("a # b");
 //        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("a {{for x in items}}{{x}}{{elseif 1 = 4}}#{{elseif 2=3}}232{{else}}dddd{{/for}} b", testCase);
+        doTest("{{* for loop with {{elseif}} and {{else}} blocks *}}{{var collection = null}}{{for key:value in collection}}    {{value}}{{elseif some_condition}}    collection is empty and some_condition{{else}}    collection is empty{{/for}}", testCase);
     }
 
     private Map<String, Object> getMap() {

@@ -12,7 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,14 +29,28 @@ public class TestRunner {
         Type listType = new TypeToken<List<HistoneTestCase>>() {}.getType();
 
         List<HistoneTestCase> cases = new ArrayList<>();
+        Map<String, Path> tplMap = new HashMap<>();
         for (Path path : stream) {
             List<Path> paths = getFiles(path);
             for (Path p : paths) {
-                Stream<String> stringStream = Files.lines(p);
-                List<HistoneTestCase> histoneCases = gson.fromJson(stringStream.collect(Collectors.joining()), listType);
-                cases.addAll(histoneCases);
+                if (p.toString().endsWith(".json")) {
+                    Stream<String> stringStream = Files.lines(p);
+                    List<HistoneTestCase> histoneCases = gson.fromJson(stringStream.collect(Collectors.joining()), listType);
+                    cases.addAll(histoneCases);
+                } else {
+                    tplMap.put(p.getFileName().toString(), p);
+                }
+
             }
         }
+        for (HistoneTestCase test : cases) {
+            for (HistoneTestCase.Case testCase : test.getCases()) {
+                if (testCase.getInputFile() != null) {
+                    testCase.setInput(Files.lines(tplMap.get(testCase.getInputFile())).collect(Collectors.joining()));
+                }
+            }
+        }
+
         return cases;
     }
 

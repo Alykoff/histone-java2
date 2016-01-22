@@ -2,7 +2,7 @@ package ru.histone.v2.rtti;
 
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Function;
-import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.*;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -40,21 +40,29 @@ public class RunTimeTypeInfo implements Serializable {
         if (node == null) {
             throw new NullPointerException();
         }
-
-        final Object value = node.getValue();
-        if (value == null) {
+        if (node instanceof NullEvalNode) {
             return T_NULL;
-        } else if (value instanceof Boolean) {
-            return T_BOOLEAN;
-        } else if (value instanceof String) {
-            return T_STRING;
-        } else if (value instanceof Void) {
-            return T_UNDEFINED;
-        } else if (value instanceof Long) {
+        } else if (node instanceof FloatEvalNode) {
+            final Float valueFloat = ((FloatEvalNode) node).getValue();
+            if (valueFloat == null || Float.isNaN(valueFloat) || !Float.isFinite(valueFloat)) {
+                return T_UNDEFINED;
+            }
             return T_NUMBER;
+        } else if (node instanceof LongEvalNode) {
+            return T_NUMBER;
+        } else if (node instanceof MapEvalNode) {
+            return T_ARRAY;
+        } else if (node instanceof BooleanEvalNode) {
+            return T_BOOLEAN;
+        } else if (node instanceof StringEvalNode) {
+            return T_STRING;
+        } else if (node instanceof EmptyEvalNode) {
+            return T_UNDEFINED;
         }
+        // T_MACRO, T_GLOBAL, T_REGEXP
         throw new NotImplementedException();
     }
+
 
 
 

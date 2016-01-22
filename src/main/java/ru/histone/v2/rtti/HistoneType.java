@@ -9,6 +9,7 @@ public enum HistoneType {
     T_UNDEFINED(1),
     T_NULL(2),
     T_BOOLEAN(3),
+    T_NUMBER(4),
     T_STRING(5),
     T_REGEXP(6),
     T_MACRO(7),

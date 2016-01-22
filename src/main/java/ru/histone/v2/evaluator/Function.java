@@ -17,7 +17,6 @@ package ru.histone.v2.evaluator;
 
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.GlobalFunctionExecutionException;
-import ru.histone.v2.parser.node.AstNode;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ public interface Function {
      * @return result as one of Histone types
      * @throws GlobalFunctionExecutionException if your function stops with error and you need to put details into log, then you should use this exception
      */
-    EvalNode execute(List<AstNode> args) throws GlobalFunctionExecutionException;
+    EvalNode execute(List<EvalNode> args) throws GlobalFunctionExecutionException;
 
     /**
      * @return

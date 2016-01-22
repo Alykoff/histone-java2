@@ -83,7 +83,7 @@ public class Evaluator {
             case AST_REF:
                 return processReferenceNode(expNode, context);
             case AST_METHOD:
-                break;
+                return processMethod(expNode, context);
             case AST_PROP:
                 return processPropertyNode(expNode, context);
             case AST_CALL:
@@ -119,6 +119,21 @@ public class Evaluator {
 
     }
 
+    private EvalNode processMethod(ExpAstNode expNode, Context context) throws HistoneException {
+        EvalNode valueNode = evaluateNode(expNode.getNode(0), context);
+        EvalNode methodNode = evaluateNode(expNode.getNode(1), context);
+
+        int size = expNode.getNodes().size();
+        List<EvalNode> args = new ArrayList<>();
+        for (AstNode node : expNode.getNodes().subList(2, size)) {
+            args.add(evaluateNode(node, context));
+        }
+        args.add(0, valueNode);
+
+        Function f = context.getFunction(valueNode, methodNode.asString());
+        return f.execute(args);
+    }
+
     private EvalNode processTernary(ExpAstNode expNode, Context context) throws HistoneException {
         EvalNode condition = evaluateNode(expNode.getNode(0), context);
         if (EvalUtils.nodeAsBoolean(condition)) {
@@ -138,15 +153,19 @@ public class Evaluator {
     }
 
     private EvalNode processCall(ExpAstNode expNode, Context context) throws HistoneException {
-        String functionName = ((StringAstNode) ((ExpAstNode) expNode.getNode(0)).getNode(0)).getValue();
-        List<AstNode> values = expNode.getNodes().subList(1, expNode.getNodes().size());
+        EvalNode functionNameNode = evaluateNode(((ExpAstNode) expNode.getNode(0)).getNode(0), context);
+        List<EvalNode> nodes = toEvalNodes(expNode.getNodes().subList(1, expNode.getNodes().size()), context);
 
-        Function globalFunction = context.getGlobalFunctions().get(functionName);
-        if (globalFunction == null) {
-            throw new HistoneException("wrong global function " + functionName);
+        Function function = context.getFunction((String) functionNameNode.getValue());
+        EvalNode res = function.execute(nodes);
+        return res;
+    }
+
+    private List<EvalNode> toEvalNodes(List<AstNode> astNodes, Context context) throws HistoneException {
+        List<EvalNode> res = new ArrayList<>();
+        for (AstNode node : astNodes) {
+            res.add(evaluateNode(node, context));
         }
-        EvalNode res = globalFunction.execute(values);
-
         return res;
     }
 

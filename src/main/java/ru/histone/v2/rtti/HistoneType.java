@@ -1,7 +1,6 @@
 package ru.histone.v2.rtti;
 
 /**
- *
  * Created by gali.alykoff on 22/01/16.
  */
 public enum HistoneType {

@@ -1,24 +1,46 @@
 package ru.histone.v2.evaluator;
 
-import java.util.HashMap;
-import java.util.Map;
+import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * Evaluation context of histone
+ * <p>
  * Created by inv3r on 13/01/16.
  */
 public class Context {
     private String baseUri;
-    private Map<String, Function> globalFunctions = new HashMap<>();
+
+    private RunTimeTypeInfo rttiInfo;
 
     private Context parent;
     private ConcurrentMap<String, Object> vars = new ConcurrentHashMap<>();
 
+    /**
+     * This constructor user for creating a child context
+     */
+    private Context() {
+    }
+
+    /**
+     * This constructor used for create a root node
+     *
+     * @param baseUri of context
+     */
+    public Context(String baseUri) {
+        this.baseUri = baseUri;
+        this.rttiInfo = new RunTimeTypeInfo();
+    }
+
     public Context createNew() {
         Context ctx = new Context();
         ctx.setParent(this);
-        ctx.setGlobalFunctions(globalFunctions);
+        ctx.setRttiInfo(rttiInfo); //for fast access to rtti functions
         return ctx;
     }
 
@@ -50,15 +72,32 @@ public class Context {
         this.baseUri = baseUri;
     }
 
-    public Map<String, Function> getGlobalFunctions() {
-        return globalFunctions;
+    public RunTimeTypeInfo getRttiInfo() {
+        return rttiInfo;
     }
 
-    public void setGlobalFunctions(Map<String, Function> globalFunctions) {
-        this.globalFunctions = globalFunctions;
+    public void setRttiInfo(RunTimeTypeInfo rttiInfo) {
+        this.rttiInfo = rttiInfo;
     }
 
-    public void registerGlobal(String name, Function range) {
-        this.globalFunctions.put(name, range);
+    public void registerUserFunction(HistoneType type, Function function) {
+        this.rttiInfo.register(type, function.getName(), function);
+    }
+
+    public Function getFunction(HistoneType type, String name) throws HistoneException {
+        Function function = rttiInfo.getFunc(type, name);
+        if (function == null) {
+            throw new HistoneException("Wrong function " + name);
+        }
+        return function;
+    }
+
+    public Function getFunction(EvalNode node, String name) throws HistoneException {
+        HistoneType type = rttiInfo.getType(node);
+        return getFunction(type, name);
+    }
+
+    public Function getFunction(String name) throws HistoneException {
+        return getFunction(HistoneType.T_GLOBAL, name);
     }
 }

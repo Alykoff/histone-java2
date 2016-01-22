@@ -3,6 +3,8 @@ package ru.histone.v2.rtti;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Function;
+import ru.histone.v2.evaluator.function.any.ToJSON;
+import ru.histone.v2.evaluator.function.global.Range;
 import ru.histone.v2.evaluator.node.*;
 
 import java.io.Serializable;
@@ -21,20 +23,12 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     private Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 
     public RunTimeTypeInfo() {
-        typeMembers.put(T_UNDEFINED, new HashMap<>());
-        typeMembers.put(T_NULL, new HashMap<>());
-        typeMembers.put(T_BOOLEAN, new HashMap<>());
-        typeMembers.put(T_NUMBER, new HashMap<>());
-        typeMembers.put(T_STRING, new HashMap<>());
-        typeMembers.put(T_REGEXP, new HashMap<>());
-        typeMembers.put(T_MACRO, new HashMap<>());
-        typeMembers.put(T_ARRAY, new HashMap<>());
-        typeMembers.put(T_GLOBAL, new HashMap<>());
-    }
+        for (HistoneType type : HistoneType.values()) {
+            typeMembers.put(type, new HashMap<>());
+            userTypes.put(type, new HashMap<>());
+        }
 
-    public RunTimeTypeInfo(Map<HistoneType, Map<String, Function>> userTypes) {
-        this();
-        this.userTypes.putAll(userTypes);
+        registerCommonFuctions();
     }
 
     public HistoneType getType(EvalNode node) {
@@ -64,12 +58,32 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         throw new NotImplementedException();
     }
 
+    private void registerCommonFuctions() {
+        registerForAlltypes(new ToJSON());
+
+        registerCommon(T_GLOBAL, new Range());
+    }
+
+    private void registerForAlltypes(Function function) {
+        for (HistoneType type : HistoneType.values()) {
+            registerCommon(type, function);
+        }
+    }
+
+    private void registerCommon(HistoneType type, Function function) {
+        typeMembers.get(type).put(function.getName(), function);
+    }
+
     public void callSync(EvalNode node, String funcName, Context context, Object... args) {
         throw new NotImplementedException();
     }
 
     public Function getFunc(HistoneType type, String funcName) {
-        throw new NotImplementedException();
+        Function f = userTypes.get(type).get(funcName);
+        if (f == null) {
+            return typeMembers.get(type).get(funcName);
+        }
+        return f;
     }
 
     public void register(HistoneType type, String funcName, Function func) {

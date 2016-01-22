@@ -1,6 +1,8 @@
 package ru.histone.v2.rtti;
 
+import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Function;
+import ru.histone.v2.evaluator.node.EvalNode;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -32,6 +34,26 @@ public class RunTimeTypeInfo implements Serializable {
     public RunTimeTypeInfo(Map<HistoneType, Map<String, Function>> userTypes) {
         this();
         this.userTypes.putAll(userTypes);
+    }
+
+    public HistoneType getType(EvalNode node) {
+        if (node == null) {
+            throw new NullPointerException();
+        }
+
+        final Object value = node.getValue();
+        if (value == null) {
+            return T_NULL;
+        } else if (value instanceof Boolean) {
+            return T_BOOLEAN;
+        } else if (value instanceof String) {
+            return T_STRING;
+        } else if (value instanceof Void) {
+            return T_UNDEFINED;
+        } else if (value instanceof Long) {
+            return T_NUMBER;
+        }
+        throw new NotImplementedException();
     }
 
 

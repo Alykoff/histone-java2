@@ -5,6 +5,7 @@ import org.junit.Assert;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.global.Range;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.ParserException;
 import ru.histone.v2.parser.node.ExpAstNode;
@@ -32,6 +33,7 @@ public class BaseTest {
             }
             if (testCase.getExpectedResult() != null) {
                 Context context = new Context();
+                context.registerGlobal(Range.NAME, new Range());
                 if (testCase.getContext() != null) {
                     context.getVars().putAll(convertContext(testCase));
                 }

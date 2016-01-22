@@ -1,5 +1,7 @@
 package ru.histone.v2.evaluator;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -8,6 +10,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Context {
     private String baseUri;
+    private Map<String, GlobalFunction> globalFunctions = new HashMap<>();
 
     private Context parent;
     private ConcurrentMap<String, Object> vars = new ConcurrentHashMap<>();
@@ -15,6 +18,7 @@ public class Context {
     public Context createNew() {
         Context ctx = new Context();
         ctx.setParent(this);
+        ctx.setGlobalFunctions(globalFunctions);
         return ctx;
     }
 
@@ -40,5 +44,17 @@ public class Context {
 
     public void setBaseUri(String baseUri) {
         this.baseUri = baseUri;
+    }
+
+    public Map<String, GlobalFunction> getGlobalFunctions() {
+        return globalFunctions;
+    }
+
+    public void setGlobalFunctions(Map<String, GlobalFunction> globalFunctions) {
+        this.globalFunctions = globalFunctions;
+    }
+
+    public void registerGlobal(String name, GlobalFunction range) {
+        this.globalFunctions.put(name, range);
     }
 }

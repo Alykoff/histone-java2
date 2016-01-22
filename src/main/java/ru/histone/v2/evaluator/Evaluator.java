@@ -10,6 +10,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -90,7 +91,7 @@ public class Evaluator {
             case AST_PROP:
                 break;
             case AST_CALL:
-                break;
+                return processCall(expNode, context);
             case AST_VAR:
                 return processVarNode(expNode, context);
             case AST_IF:
@@ -120,6 +121,19 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private EvalNode processCall(ExpAstNode expNode, Context context) throws HistoneException {
+        String functionName = ((StringAstNode) ((ExpAstNode) expNode.getNode(0)).getNode(0)).getValue();
+        List<AstNode> values = expNode.getNodes().subList(1, expNode.getNodes().size());
+
+        GlobalFunction globalFunction = context.getGlobalFunctions().get(functionName);
+        if (globalFunction == null) {
+            throw new HistoneException("wrong global function " + functionName);
+        }
+        EvalNode res = globalFunction.execute(values);
+
+        return res;
     }
 
     private EvalNode processForNode(ExpAstNode expNode, Context context) throws HistoneException {

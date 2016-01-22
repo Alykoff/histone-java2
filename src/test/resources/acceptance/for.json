@@ -303,8 +303,8 @@
         "expectedResult": "a 0:1 (0:1)(1:2)(2:3) 1:2 (0:1)(1:2)(2:3) 2:3 (0:1)(1:2)(2:3) b"
       },
       {
-        "input": "a {{var x = 10}}{{for r in range(1, 10)}}{{var x = x + 10}}{{x}} {{/for}} b",
-        "expectedResult": "a 20 20 20 20 20 20 20 20 20 20 b"
+        "input": "a {{var x = 10}}{{for r in range(1, 10)}}{{var x = r + 10}}{{x}} {{/for}} b",
+        "expectedResult": "a 11 12 13 14 15 16 17 18 19 20  b"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}} {{else}}#{{/for}} b",

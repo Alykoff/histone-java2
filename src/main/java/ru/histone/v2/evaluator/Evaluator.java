@@ -336,7 +336,9 @@ public class Evaluator {
             } else {
                 throw new NotImplementedException(); // TODO call RTTI toBoolean for both nodes
             }
-        } else {
+        }
+
+        if (compareResult == null) {
             final Number rightValue = getNumberValue(right);
             final Number leftValue = getNumberValue(left);
             compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);

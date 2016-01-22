@@ -1,6 +1,7 @@
 package ru.histone.v2.rtti;
 
 import org.apache.commons.lang.NotImplementedException;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.*;
 
@@ -15,7 +16,7 @@ import static ru.histone.v2.rtti.HistoneType.*;
  * RTTI
  * Created by gali.alykoff on 22/01/16.
  */
-public class RunTimeTypeInfo implements Serializable {
+public class RunTimeTypeInfo implements Irtti, Serializable {
     private Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
     private Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 
@@ -63,7 +64,19 @@ public class RunTimeTypeInfo implements Serializable {
         throw new NotImplementedException();
     }
 
+    public void callSync(EvalNode node, String funcName, Context context, Object... args) {
+        throw new NotImplementedException();
+    }
 
+    public Function getFunc(HistoneType type, String funcName) {
+        throw new NotImplementedException();
+    }
 
+    public void register(HistoneType type, String funcName, Function func) {
+        throw new NotImplementedException();
+    }
 
+    public void unregistered(HistoneType type, String funcName) {
+        throw new NotImplementedException();
+    }
 }

@@ -494,30 +494,34 @@ public class Parser {
 
     private AstNode getAdditiveExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getMultiplicativeExpression(wrapper);
-        while (test(wrapper, T_PLUS) || test(wrapper, T_MINUS)) {
+        while (true) {
             ExpAstNode node;
             if (next(wrapper, T_PLUS)) {
                 node = new ExpAstNode(AST_ADD);
-            } else {
-                next(wrapper, T_MINUS);// we needed to read next token from buffer for right work
+            } else if (next(wrapper, T_MINUS)) {
                 node = new ExpAstNode(AST_SUB);
+            } else {
+                break;
             }
-            res = node.add(res).add(getMultiplicativeExpression(wrapper));
+            res = node.add(res)
+                    .add(getMultiplicativeExpression(wrapper));
         }
         return res;
     }
 
     private AstNode getMultiplicativeExpression(TokenizerWrapper wrapper) throws ParserException {
         AstNode res = getUnaryExpression(wrapper);
-        while (test(wrapper, T_STAR) || test(wrapper, T_SLASH) || test(wrapper, T_MOD)) {
+        while (true) {
             ExpAstNode node;
             if (next(wrapper, T_STAR)) {
                 node = new ExpAstNode(AST_MUL);
             } else if (next(wrapper, T_SLASH)) {
                 node = new ExpAstNode(AST_DIV);
-            } else {
-                next(wrapper, T_MOD);// we needed to read next token from buffer for right work
+            } else if (next(wrapper, T_MOD)) {
+                ;// we needed to read next token from buffer for right work
                 node = new ExpAstNode(AST_MOD);
+            } else {
+                break;
             }
             res = node.add(res).add(getUnaryExpression(wrapper));
         }
@@ -526,10 +530,10 @@ public class Parser {
 
     private AstNode getUnaryExpression(TokenizerWrapper wrapper) throws ParserException {
         if (next(wrapper, T_NOT)) {
-            AstNode node = getUnaryExpression(wrapper);
+            final AstNode node = getUnaryExpression(wrapper);
             return new ExpAstNode(AST_NOT).add(node);
         } else if (next(wrapper, T_MINUS)) {
-            AstNode node = getUnaryExpression(wrapper);
+            final AstNode node = getUnaryExpression(wrapper);
             return new ExpAstNode(AST_USUB).add(node);
         } else {
             return getMemberExpression(wrapper);
@@ -542,7 +546,7 @@ public class Parser {
         while (true) {
             if (next(wrapper, T_DOT)) {
                 res = new ExpAstNode(AST_PROP, res);
-                if (test(wrapper, T_PROP)) {
+                if (!test(wrapper, T_PROP)) {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
                 throw new NotImplementedException();
@@ -550,7 +554,7 @@ public class Parser {
 //                res.(wrapper.next().first().getValue());
             } else if (next(wrapper, T_METHOD)) {
                 res = new ExpAstNode(AST_METHOD, res);
-                if (wrapper.test(T_PROP.getId()) != null) {
+                if (wrapper.test(T_PROP) != null) {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
                 throw new NotImplementedException();

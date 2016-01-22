@@ -325,6 +325,13 @@
         "expectedResult": "    collection is empty and some_condition"
       },
       {
+        "inputFile": "for1.tpl",
+        "context": {
+          "some_condition": false
+        },
+        "expectedResult": "    collection is empty"
+      },
+      {
         "inputFile": "for2.tpl",
         "context": {
           "collection": {
@@ -338,6 +345,10 @@
       {
         "inputFile": "for3.tpl",
         "expectedResult": "    << 0, 3 >>    << 1, 3 >>    << 2, 3 >>    << 3, 3 >>"
+      },
+      {
+        "inputFile": "for4.tpl",
+        "expectedResult": "    <div>0 = 1</div>    <div>1 = 2</div>    <div>2 = 3</div>"
       }
     ]
   }

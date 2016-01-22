@@ -8,10 +8,7 @@ import ru.histone.v2.utils.ParserUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -89,7 +86,7 @@ public class Evaluator {
             case AST_METHOD:
                 break;
             case AST_PROP:
-                break;
+                return processPropertyNode(expNode, context);
             case AST_CALL:
                 return processCall(expNode, context);
             case AST_VAR:
@@ -121,6 +118,14 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private EvalNode processPropertyNode(ExpAstNode expNode, Context context) throws HistoneException {
+        EvalNode value = evaluateNode(expNode.getNode(0), context);
+        EvalNode propertyName = evaluateNode(expNode.getNode(1), context);
+
+        Object obj = ((MapEvalNode) value).getProperty((String) propertyName.getValue());
+        return EvalUtils.createEvalNode(obj);
     }
 
     private EvalNode processCall(ExpAstNode expNode, Context context) throws HistoneException {
@@ -168,17 +173,27 @@ public class Evaluator {
 
         Context iterableContext;
         StringBuilder sb = new StringBuilder();
+        int i = 0;
         for (Map.Entry<String, Object> entry : ((MapEvalNode) objToIterate).getValue().entrySet()) {
             iterableContext = context.createNew();
-            iterableContext.getVars().putIfAbsent((String) valueVarName.getValue(), entry.getValue());
+            iterableContext.put((String) valueVarName.getValue(), entry.getValue());
             if (keyVarName != NullEvalNode.INSTANCE) {
                 iterableContext.getVars().putIfAbsent((String) keyVarName.getValue(), entry.getKey());
             }
+            iterableContext.put("self", constructSelfValue(i, ((MapEvalNode) objToIterate).getValue().entrySet().size() - 1));
             String res = processInternal(expNode.getNode(3), iterableContext);
             sb.append(res);
+            i++;
         }
 
         return new StringEvalNode(sb.toString());
+    }
+
+    private Map<String, Integer> constructSelfValue(int currentIndex, int lastIndex) {
+        Map<String, Integer> res = new HashMap<>();
+        res.put("index", currentIndex);
+        res.put("last", lastIndex);
+        return res;
     }
 
     private EvalNode processAddNode(ExpAstNode node, Context context) throws HistoneException {

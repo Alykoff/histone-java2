@@ -22,6 +22,10 @@ public class Context {
         return ctx;
     }
 
+    public void put(String key, Object value) {
+        vars.putIfAbsent(key, value);
+    }
+
     public Context getParent() {
         return parent;
     }

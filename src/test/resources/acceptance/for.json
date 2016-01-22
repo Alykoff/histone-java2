@@ -318,11 +318,26 @@
         "expectedResult": "a foo:1 bar:2 x:3  b"
       },
       {
-        "inputFile": "for.tpl",
+        "inputFile": "for1.tpl",
         "context": {
           "some_condition": true
         },
         "expectedResult": "    collection is empty and some_condition"
+      },
+      {
+        "inputFile": "for2.tpl",
+        "context": {
+          "collection": {
+            "foo": 1,
+            "bar": 2,
+            "x": 3
+          }
+        },
+        "expectedResult": "    1    2    3    foo = 1    bar = 2    x = 3"
+      },
+      {
+        "inputFile": "for3.tpl",
+        "expectedResult": "    << 0, 3 >>    << 1, 3 >>    << 2, 3 >>    << 3, 3 >>"
       }
     ]
   }

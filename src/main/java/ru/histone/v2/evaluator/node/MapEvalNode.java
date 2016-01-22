@@ -1,6 +1,7 @@
 package ru.histone.v2.evaluator.node;
 
 import org.apache.commons.lang.StringUtils;
+import ru.histone.HistoneException;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -54,4 +55,21 @@ public class MapEvalNode extends EvalNode<Map<String, Object>> {
             return null;
         }
     }
+
+    public Object getProperty(String propertyName) throws HistoneException {
+        String[] propArray = propertyName.split("\\.");
+
+        Object v = value;
+        Object curr = null;
+        for (String str : propArray) {
+            if (v instanceof Map) {
+                curr = ((Map<String, Object>) v).get(str);
+            } else {
+                throw new HistoneException("Unable to find property '" + str + "'");
+            }
+        }
+
+        return curr;
+    }
+
 }

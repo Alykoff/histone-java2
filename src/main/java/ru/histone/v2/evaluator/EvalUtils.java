@@ -29,6 +29,10 @@ public class EvalUtils {
         return true;
     }
 
+    public static Float parseFloat(String value) throws NumberFormatException {
+        return Float.parseFloat(value);
+    }
+
 //    public static boolean greaterThan(EvalNode left, EvalNode right) {
 //        if (isNumberNode(left) && isNumberNode(right)) {
 //            Float a = 1f;
@@ -40,6 +44,15 @@ public class EvalUtils {
 
     public static boolean isNumberNode(EvalNode node) {
         return node instanceof LongEvalNode || node instanceof FloatEvalNode;
+    }
+
+    public static boolean isNumeric(StringEvalNode evalNode) {
+        try {
+            final Float value = parseFloat(evalNode.getValue());
+            return !Float.isNaN(value) && Float.isFinite(value);
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public static EvalNode<?> createEvalNode(Object object) {

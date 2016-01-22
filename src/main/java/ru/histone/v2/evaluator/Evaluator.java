@@ -1,11 +1,11 @@
 package ru.histone.v2.evaluator;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.utils.ParserUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
 import java.util.*;
@@ -70,13 +70,12 @@ public class Evaluator {
             case AST_USUB:
                 return processUnaryMinus(expNode, context);
             case AST_LT:
-                break;
             case AST_GT:
-                return processGreaterThan(expNode, context);
             case AST_LE:
-                return processLessOrEquals(expNode, context);
             case AST_GE:
-                break;
+//                return processGreaterThan(expNode, context);
+//                return processLessOrEquals(expNode, context);
+                return processRelation(expNode, context);
             case AST_EQ:
                 return processEqNode(expNode, context);
             case AST_NEQ:
@@ -268,6 +267,21 @@ public class Evaluator {
         } else {
             return Float.valueOf(node.getValue() + "");
         }
+    }
+
+    private EvalNode processRelation(ExpAstNode node, Context context) throws HistoneException {
+        EvalNode left = evaluateNode(node.getNode(0), context);
+        final EvalNode right = evaluateNode(node.getNode(1), context);
+        if (left instanceof StringEvalNode && EvalUtils.isNumberNode(right)) {
+            final StringEvalNode stringLeft = (StringEvalNode) left;
+            if (EvalUtils.isNumeric(stringLeft)) {
+                left = new FloatEvalNode(EvalUtils.parseFloat(stringLeft.getValue()));
+            } else {
+                throw new NotImplementedException();
+            }
+
+        }
+        throw new NotImplementedException();
     }
 
     private EvalNode processGreaterThan(ExpAstNode node, Context context) throws HistoneException {

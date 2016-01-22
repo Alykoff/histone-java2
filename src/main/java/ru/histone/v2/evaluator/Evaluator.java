@@ -326,7 +326,7 @@ public class Evaluator {
             }
         }
 
-        if (!(isNumberNode(left) && isNumberNode(right))) {
+        if (compareResult == null && !(isNumberNode(left) && isNumberNode(right))) {
             if (left instanceof StringEvalNode && right instanceof StringEvalNode) {
                 final StringEvalNode stringRight = (StringEvalNode) right;
                 final StringEvalNode stringLeft = (StringEvalNode) left;
@@ -342,9 +342,14 @@ public class Evaluator {
             final Number rightValue = getNumberValue(right);
             final Number leftValue = getNumberValue(left);
             compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
+            return processRelationHelper(node.getType(), compareResult);
         }
+        return processRelationHelper(node.getType(), compareResult);
+//        throw new NotImplementedException();
+    }
 
-        switch (node.getType()) {
+    private EvalNode processRelationHelper(AstType astType, int compareResult) { //TODO
+        switch (astType) {
             case AST_LT: return new BooleanEvalNode(compareResult < 0);
             case AST_GT: return new BooleanEvalNode(compareResult > 0);
             case AST_LE: return new BooleanEvalNode(compareResult <= 0);

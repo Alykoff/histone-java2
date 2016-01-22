@@ -35,7 +35,7 @@ public class EvalUtils {
     }
 
     public static Number getNumberValue(EvalNode node) {
-        if (!isNumberNode(node)) {
+        if (!(isNumberNode(node) || node instanceof StringEvalNode)) {
             throw new RuntimeException();
         }
         if (node instanceof FloatEvalNode) {

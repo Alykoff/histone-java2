@@ -24,8 +24,7 @@ public class TestRunner {
         DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(TestRunner.class.getResource("/acceptance").toURI()));
 
         Gson gson = new Gson();
-        Type listType = new TypeToken<List<HistoneTestCase>>() {
-        }.getType();
+        Type listType = new TypeToken<List<HistoneTestCase>>() {}.getType();
 
         List<HistoneTestCase> cases = new ArrayList<>();
         for (Path path : stream) {

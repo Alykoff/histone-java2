@@ -305,7 +305,8 @@ public class Evaluator {
     private EvalNode processRelation(ExpAstNode node, Context context) throws HistoneException {
         EvalNode left = evaluateNode(node.getNode(0), context);
         EvalNode right = evaluateNode(node.getNode(1), context);
-        Integer compareResult = null;
+
+        final Integer compareResult;
         if (left instanceof StringEvalNode && isNumberNode(right)) {
             final Number rightValue = getNumberValue(right);
             final StringEvalNode stringLeft = (StringEvalNode) left;
@@ -313,7 +314,7 @@ public class Evaluator {
                 final Number leftValue = getNumberValue(stringLeft);
                 compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
             } else {
-                throw new NotImplementedException(); // TODO call RTTI toString
+                throw new NotImplementedException(); // TODO call RTTI toString right
             }
         } else if (isNumberNode(left) && right instanceof StringEvalNode) {
             final StringEvalNode stringRight = (StringEvalNode) right;
@@ -322,11 +323,9 @@ public class Evaluator {
                 final Number leftValue = getNumberValue(left);
                 compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
             } else {
-                throw new NotImplementedException(); // TODO call RTTI toString
+                throw new NotImplementedException(); // TODO call RTTI toString left
             }
-        }
-
-        if (compareResult == null && !(isNumberNode(left) && isNumberNode(right))) {
+        } else if (!isNumberNode(left) || !isNumberNode(right)) {
             if (left instanceof StringEvalNode && right instanceof StringEvalNode) {
                 final StringEvalNode stringRight = (StringEvalNode) right;
                 final StringEvalNode stringLeft = (StringEvalNode) left;
@@ -336,19 +335,16 @@ public class Evaluator {
             } else {
                 throw new NotImplementedException(); // TODO call RTTI toBoolean for both nodes
             }
-        }
-
-        if (compareResult == null) {
+        } else {
             final Number rightValue = getNumberValue(right);
             final Number leftValue = getNumberValue(left);
             compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
-            return processRelationHelper(node.getType(), compareResult);
         }
+
         return processRelationHelper(node.getType(), compareResult);
-//        throw new NotImplementedException();
     }
 
-    private EvalNode processRelationHelper(AstType astType, int compareResult) { //TODO
+    private EvalNode processRelationHelper(AstType astType, int compareResult) {
         switch (astType) {
             case AST_LT: return new BooleanEvalNode(compareResult < 0);
             case AST_GT: return new BooleanEvalNode(compareResult > 0);

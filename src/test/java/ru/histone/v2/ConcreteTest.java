@@ -18,7 +18,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("a # b");
 //        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("a {{var x = 10}}{{for r in range(1, 10)}}{{var x = r + 10}}{{x}} {{/for}} b", testCase);
+        doTest("<div>{{0.42->toJSON}} = 0.42</div>", testCase);
     }
 
     private Map<String, Object> getMap() {

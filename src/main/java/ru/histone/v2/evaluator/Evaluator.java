@@ -14,11 +14,11 @@ import java.util.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
 
 /**
- *
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class Evaluator {
     private final static Comparator<Number> NUMBER_COMPORATOR = new NumberComparator();
+
     public String process(String baseUri, ExpAstNode node, Context context) throws HistoneException {
         context.setBaseUri(baseUri);
         return processInternal(node, context);
@@ -346,10 +346,14 @@ public class Evaluator {
 
     private EvalNode processRelationHelper(AstType astType, int compareResult) {
         switch (astType) {
-            case AST_LT: return new BooleanEvalNode(compareResult < 0);
-            case AST_GT: return new BooleanEvalNode(compareResult > 0);
-            case AST_LE: return new BooleanEvalNode(compareResult <= 0);
-            case AST_GE: return new BooleanEvalNode(compareResult >= 0);
+            case AST_LT:
+                return new BooleanEvalNode(compareResult < 0);
+            case AST_GT:
+                return new BooleanEvalNode(compareResult > 0);
+            case AST_LE:
+                return new BooleanEvalNode(compareResult <= 0);
+            case AST_GE:
+                return new BooleanEvalNode(compareResult >= 0);
         }
         throw new NotImplementedException();
     }
@@ -435,6 +439,8 @@ public class Evaluator {
             return new BooleanEvalNode((Boolean) val);
         } else if (val instanceof Long) {
             return new LongEvalNode((Long) val);
+        } else if (val instanceof Float) {
+            return new FloatEvalNode((Float) val);
         }
         return new StringEvalNode(val + "");
     }

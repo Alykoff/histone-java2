@@ -79,8 +79,6 @@ public class Evaluator {
             case AST_GT:
             case AST_LE:
             case AST_GE:
-//                return processGreaterThan(expNode, context);
-//                return processLessOrEquals(expNode, context);
                 return processRelation(expNode, context);
             case AST_EQ:
                 return processEqNode(expNode, context);

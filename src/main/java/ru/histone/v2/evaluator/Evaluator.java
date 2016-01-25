@@ -51,7 +51,7 @@ public class Evaluator {
             case AST_ARRAY:
                 return processArrayNode(expNode, context);
             case AST_REGEXP:
-                break;
+                return processRegExp(expNode, context);
             case AST_THIS:
                 break;
             case AST_GLOBAL:
@@ -303,8 +303,8 @@ public class Evaluator {
     }
 
     private EvalNode processRelation(ExpAstNode node, Context context) throws HistoneException {
-        EvalNode left = evaluateNode(node.getNode(0), context);
-        EvalNode right = evaluateNode(node.getNode(1), context);
+        final EvalNode left = evaluateNode(node.getNode(0), context);
+        final EvalNode right = evaluateNode(node.getNode(1), context);
 
         final Integer compareResult;
         if (left instanceof StringEvalNode && isNumberNode(right)) {
@@ -355,14 +355,7 @@ public class Evaluator {
             case AST_GE:
                 return new BooleanEvalNode(compareResult >= 0);
         }
-        throw new NotImplementedException();
-    }
-
-    private EvalNode processGreaterThan(ExpAstNode node, Context context) throws HistoneException {
-        EvalNode left = evaluateNode(node.getNode(0), context);
-        EvalNode right = evaluateNode(node.getNode(1), context);
-
-        return null;
+        throw new RuntimeException("Unknown type for this case");
     }
 
     private EvalNode processBorNode(ExpAstNode node, Context context) throws HistoneException {
@@ -420,10 +413,6 @@ public class Evaluator {
         } else {
             throw new NotImplementedException();
         }
-    }
-
-    private EvalNode processLessOrEquals(ExpAstNode node, Context context) {
-        throw new NotImplementedException();
     }
 
     private EvalNode<? extends Serializable> getValueNode(AstNode node) {
@@ -509,6 +498,16 @@ public class Evaluator {
         }
         current.setParent(null);
         return result;
+    }
+
+    private EvalNode processRegExp(ExpAstNode node, Context context) {
+        final LongAstNode flagsNumNode = node.getNode(1);
+        final long flagsNum = flagsNumNode.getValue();
+        String flagsStr = "";
+        if ((flagsNum & AstRegexType.RE_GLOBAL.getId()) != 0) {
+            flagsStr += "g";
+        }
+        throw new NotImplementedException();
     }
 
 }

@@ -758,9 +758,9 @@ public class Parser {
         }
 
         int flagNum = 0;
-        Token flagToken = wrapper.next(T_PROP).first();
-        if (flagToken != null) {
-            String flagStr = flagToken.getValue();
+        final TokenizerResult flagsTokenizerResult = wrapper.next(T_PROP);
+        if (flagsTokenizerResult.isFound()) {
+            String flagStr = flagsTokenizerResult.firstValue();
 
             if (!regexpFlagsPattern.matcher(flagStr).find()) {
                 final String msg = "invalid flags supplied to regular expression '" + flagStr + "'";

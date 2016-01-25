@@ -45,7 +45,7 @@ public final class ExpressionList {
         new BaseExpression("->", Tokens.T_METHOD),
         new BaseExpression("=>", Tokens.T_ARROW),
         new BaseExpression("!=", Tokens.T_NEQ),
-        new BaseExpression("^", Tokens.T_BXOR),
+            new BaseExpression("\\^", Tokens.T_BXOR),
         new BaseExpression("\\|\\|", Tokens.T_OR),
         new BaseExpression("\\|", Tokens.T_BOR),
         new BaseExpression("\\&&", Tokens.T_AND),

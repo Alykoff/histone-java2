@@ -3,7 +3,9 @@ package ru.histone.v2.rtti;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Function;
-import ru.histone.v2.evaluator.function.any.ToJSON;
+import ru.histone.v2.evaluator.function.any.ToJson;
+import ru.histone.v2.evaluator.function.array.Keys;
+import ru.histone.v2.evaluator.function.array.Size;
 import ru.histone.v2.evaluator.function.global.Range;
 import ru.histone.v2.evaluator.node.*;
 
@@ -59,7 +61,10 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     }
 
     private void registerCommonFuctions() {
-        registerForAlltypes(new ToJSON());
+        registerForAlltypes(new ToJson());
+
+        registerCommon(T_ARRAY, new Size());
+        registerCommon(T_ARRAY, new Keys());
 
         registerCommon(T_GLOBAL, new Range());
     }

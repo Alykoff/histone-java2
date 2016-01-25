@@ -87,7 +87,7 @@ public class Context {
     public Function getFunction(HistoneType type, String name) throws HistoneException {
         Function function = rttiInfo.getFunc(type, name);
         if (function == null) {
-            throw new HistoneException("Wrong function " + name);
+            throw new HistoneException(String.format("Wrong function '%s' for type '%s'", name, type));
         }
         return function;
     }

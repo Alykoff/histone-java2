@@ -482,7 +482,7 @@ public class Parser {
                 node = new ExpAstNode(AST_GE);
             } else if (next(wrapper, T_LT)) {
                 node = new ExpAstNode(AST_LT);
-            } else if (next(wrapper, T_GT)){
+            } else if (next(wrapper, T_GT)) {
                 node = new ExpAstNode(AST_GT);
             } else {
                 break;
@@ -605,11 +605,11 @@ public class Parser {
         } else if (next(wrapper, T_GLOBAL)) {
             return new ExpAstNode(AST_GLOBAL);
         } else if (test(wrapper, T_INT)) {
-            return new LongAstNode(Integer.parseInt(wrapper.next().first().getValue(), 10));
+            return new LongAstNode(Long.parseLong(wrapper.next().first().getValue(), 10));
         } else if (test(wrapper, T_BIN)) {
-            return new LongAstNode(Integer.parseInt(wrapper.next().first().getValue().substring(2), 2));
+            return new LongAstNode(Long.parseLong(wrapper.next().first().getValue().substring(2), 2));
         } else if (test(wrapper, T_HEX)) {
-            return new LongAstNode(Integer.parseInt(wrapper.next().first().getValue().substring(2), 16));
+            return new LongAstNode(Long.parseLong(wrapper.next().first().getValue().substring(2), 16));
         } else if (test(wrapper, T_FLOAT)) {
             return new FloatAstNode(Float.parseFloat(wrapper.next().first().getValue()));
         } else if (test(wrapper, T_REF)) {
@@ -625,15 +625,8 @@ public class Parser {
     private ExpAstNode getArrayExpression(TokenizerWrapper wrapper) throws ParserException {
         int counter = 0;
 
-        Map<String, Object> values = new HashMap<>();
-
-//        Token key, value;
-
         ExpAstNode result = new ExpAstNode(AST_ARRAY);
-//        String key;
-//        ExpAstNode value;
-        AstNode key;
-        AstNode value;
+        AstNode key, value;
         Map<String, AstNode> map = new LinkedHashMap<>();
 
 

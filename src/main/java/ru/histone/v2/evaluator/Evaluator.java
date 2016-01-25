@@ -232,7 +232,7 @@ public class Evaluator {
 
 
     private Map<String, Object> constructSelfValue(String key, Object value, int currentIndex, int lastIndex) {
-        Map<String, Object> res = new HashMap<>();
+        Map<String, Object> res = new LinkedHashMap<>();
         res.put("index", currentIndex);
         res.put("last", lastIndex);
         res.put("key", key);

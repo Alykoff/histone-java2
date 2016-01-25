@@ -6,30 +6,37 @@ import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.GlobalFunctionExecutionException;
 import ru.histone.v2.utils.ParserUtils;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by inv3r on 25/01/16.
  */
 public class Keys implements Function {
+
+    private boolean isKeys;
+
+    public Keys(boolean isKeys) {
+        this.isKeys = isKeys;
+    }
+
     @Override
     public String getName() {
-        return "keys";
+        return isKeys ? "keys" : "values";
     }
 
     @Override
     public EvalNode execute(List<EvalNode> args) throws GlobalFunctionExecutionException {
         Map<String, Object> map = (Map<String, Object>) args.get(0).getValue();
-        Set<String> keys = map.keySet();
+        Collection set = isKeys ? map.keySet() : map.values();
 
-        Map<String, Object> res = new LinkedHashMap<>(keys.size());
+        Map<String, Object> res = new LinkedHashMap<>(set.size());
         int i = 0;
-        for (String key : keys) {
-            if (ParserUtils.isInt(key)) {
-                res.put(i + "", Integer.valueOf(key));
+        for (Object key : set) {
+            if (ParserUtils.isInt(key.toString())) {
+                res.put(i + "", Integer.valueOf(key.toString()));
             } else {
                 res.put(i + "", key);
             }

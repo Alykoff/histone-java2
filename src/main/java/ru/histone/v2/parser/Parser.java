@@ -752,7 +752,7 @@ public class Parser {
         }
 
         try {
-            Pattern.compile(result.toString());// TODO why result is ignored
+            Pattern.compile(result.toString());// validate regex
         } catch (Exception e) {
             throw buildSyntaxErrorException(wrapper, e.getMessage());
         }

@@ -19,7 +19,7 @@ import static ru.histone.v2.evaluator.EvalUtils.*;
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class Evaluator {
-    private final static Comparator<Number> NUMBER_COMPORATOR = new NumberComparator();
+    private final static Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
 
     public String process(String baseUri, ExpAstNode node, Context context) throws HistoneException {
         context.setBaseUri(baseUri);
@@ -314,7 +314,7 @@ public class Evaluator {
             final StringEvalNode stringLeft = (StringEvalNode) left;
             if (isNumeric(stringLeft)) {
                 final Number leftValue = getNumberValue(stringLeft);
-                compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
+                compareResult = NUMBER_COMPARATOR.compare(leftValue, rightValue);
             } else {
                 throw new NotImplementedException(); // TODO call RTTI toString right
             }
@@ -323,7 +323,7 @@ public class Evaluator {
             if (isNumeric(stringRight)) {
                 final Number rightValue = getNumberValue(right);
                 final Number leftValue = getNumberValue(left);
-                compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
+                compareResult = NUMBER_COMPARATOR.compare(leftValue, rightValue);
             } else {
                 throw new NotImplementedException(); // TODO call RTTI toString left
             }
@@ -340,7 +340,7 @@ public class Evaluator {
         } else {
             final Number rightValue = getNumberValue(right);
             final Number leftValue = getNumberValue(left);
-            compareResult = NUMBER_COMPORATOR.compare(leftValue, rightValue);
+            compareResult = NUMBER_COMPARATOR.compare(leftValue, rightValue);
         }
 
         return processRelationHelper(node.getType(), compareResult);

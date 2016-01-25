@@ -1,0 +1,20 @@
+[
+  {
+    "name": "math",
+    "cases": [
+      {
+        "input": "{{var re = /ab+c/}}{{re->test('ac')}}",
+        "expectedResult": "true"
+      }
+    ]
+  },
+  {
+    "name": "math",
+    "cases": [
+      {
+        "input": "{{var re = /ab+c/ig}}{{re->test('abc')}}",
+        "expectedResult": "true"
+      }
+    ]
+  }
+]

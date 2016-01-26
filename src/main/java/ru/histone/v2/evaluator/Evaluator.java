@@ -3,7 +3,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
-import ru.histone.v2.evaluator.data.RegexPattern;
+import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.*;
@@ -99,7 +99,7 @@ public class Evaluator {
             case AST_FOR:
                 return processForNode(expNode, context);
             case AST_MACRO:
-                break;
+                return processMacroNode(expNode, context);
             case AST_RETURN:
                 break;
             case AST_NODES:
@@ -121,6 +121,17 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private EvalNode processMacroNode(ExpAstNode node, Context context) {
+        final long param;
+        if (node.size() >= 1) {
+            final LongAstNode paramNode = node.getNode(1);
+            param = paramNode.getValue();
+        } else {
+            param = 0;
+        }
+        throw new NotImplementedException();
     }
 
     private EvalNode processMethod(ExpAstNode expNode, Context context) throws HistoneException {
@@ -517,7 +528,7 @@ public class Evaluator {
         final String exp = expNode.getValue();
         final Pattern pattern = Pattern.compile(exp, flags);
 
-        return new RegexEvalNode(new RegexPattern(isGlobal, pattern));
+        return new RegexEvalNode(new HistoneRegex(isGlobal, pattern));
     }
 
 }

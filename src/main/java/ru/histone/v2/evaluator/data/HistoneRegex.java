@@ -8,11 +8,11 @@ import java.util.regex.Pattern;
  *
  * Created by gali.alykoff on 25/01/16.
  */
-public class RegexPattern implements Serializable {
+public class HistoneRegex implements Serializable {
     private final boolean isGlobal;
     private final Pattern pattern;
 
-    public RegexPattern(boolean isGlobal, Pattern pattern) {
+    public HistoneRegex(boolean isGlobal, Pattern pattern) {
         this.isGlobal = isGlobal;
         this.pattern = pattern;
     }
@@ -21,7 +21,7 @@ public class RegexPattern implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RegexPattern that = (RegexPattern) o;
+        HistoneRegex that = (HistoneRegex) o;
         return isGlobal == that.isGlobal &&
                 Objects.equals(pattern, that.pattern);
     }
@@ -33,7 +33,7 @@ public class RegexPattern implements Serializable {
 
     @Override
     public String toString() {
-        return "RegexPattern{" +
+        return "HistoneRegex{" +
                 "isGlobal=" + isGlobal +
                 ", pattern=" + pattern +
                 '}';

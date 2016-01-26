@@ -60,7 +60,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
             return T_REGEXP;
         }
         // T_MACRO, T_GLOBAL
-        throw new NotImplementedException();
+        throw new NotImplementedException(node.toString());
     }
 
     private void registerCommonFunctions() {

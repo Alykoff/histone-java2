@@ -1,5 +1,6 @@
 package ru.histone.v2.evaluator;
 
+import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
@@ -138,15 +139,29 @@ public class Evaluator {
         EvalNode valueNode = evaluateNode(expNode.getNode(0), context);
         EvalNode methodNode = evaluateNode(expNode.getNode(1), context);
 
-        int size = expNode.getNodes().size();
-        List<EvalNode> args = new ArrayList<>();
+        final int size = expNode.getNodes().size();
+        final List<EvalNode> args = new ArrayList<>();
         for (AstNode node : expNode.getNodes().subList(2, size)) {
             args.add(evaluateNode(node, context));
         }
-        args.add(0, valueNode);
+        final List<EvalNode> allParams = new ArrayList<>();
+        allParams.add(valueNode);
+        allParams.addAll(args);
 
         Function f = context.getFunction(valueNode, methodNode.asString());
-        return f.execute(args);
+        return f.execute(allParams);
+    }
+
+    private EvalNode processMethod(ExpAstNode expNode, Context context, List<EvalNode> args) throws HistoneException {
+        EvalNode valueNode = evaluateNode(expNode.getNode(0), context);
+        EvalNode methodNode = evaluateNode(expNode.getNode(1), context);
+
+        final List<EvalNode> allParams = new ArrayList<>();
+        allParams.add(valueNode);
+        allParams.addAll(args);
+
+        Function f = context.getFunction(valueNode, methodNode.asString());
+        return f.execute(allParams);
     }
 
     private EvalNode processTernary(ExpAstNode expNode, Context context) throws HistoneException {
@@ -168,16 +183,22 @@ public class Evaluator {
     }
 
     private EvalNode processCall(ExpAstNode expNode, Context context) throws HistoneException {
-        final AstNode node = expNode.getNode(0);
-        final EvalNode functionNameNode = evaluateNode(((ExpAstNode) node).getNode(0), context);
+        final ExpAstNode node = expNode.getNode(0);
+        final EvalNode functionNameNode = evaluateNode((node).getNode(0), context);
         final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
         final List<EvalNode> paramsNodes = toEvalNodes(paramsAstNodes, context);
-        if (expNode.getType() == AstType.AST_METHOD) {
+        if (functionNameNode instanceof StringEvalNode) {
             Function function = context.getFunction((String) functionNameNode.getValue());
             return function.execute(paramsNodes);
         } else {
-            throw new NotImplementedException("Need RTTI call"); // TODO
+            return processMethod(node, context, paramsNodes);
         }
+//        if (expNode.getType() == AstType.AST_METHOD) {
+//            Function function = context.getFunction((String) functionNameNode.getValue());
+//            return function.execute(paramsNodes);
+//        } else {
+//            throw new NotImplementedException("Need RTTI call"); // TODO
+//        }
     }
 
     private List<EvalNode> toEvalNodes(List<AstNode> astNodes, Context context) throws HistoneException {

@@ -20,4 +20,12 @@ public class EvalNode<T> {
     public String asString() {
         return String.valueOf(value);
     }
+
+    @Override
+    public String toString() {
+        return "{\"EvalNode\": {" +
+                "\"id\": \"" + id +
+                "\", \"value\": \"" + value +
+                "\"}}";
+    }
 }

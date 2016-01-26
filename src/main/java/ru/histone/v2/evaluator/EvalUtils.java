@@ -2,6 +2,7 @@ package ru.histone.v2.evaluator;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
+import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 
 import java.util.Map;
@@ -83,6 +84,9 @@ public class EvalUtils {
         }
         if (object instanceof Map) {
             return new MapEvalNode((Map<String, Object>) object);
+        }
+        if (object instanceof HistoneRegex) {
+            return new RegexEvalNode((HistoneRegex) object);
         }
         return new ObjectEvalNode(object);
     }

@@ -163,9 +163,11 @@ public class Parser {
             if (!next(wrapper, T_BLOCK_END)) {
                 throw buildUnexpectedTokenException(wrapper, "}}");
             }
-            result = new ExpAstNode(AST_VAR);
-            result.add(new StringAstNode(name.firstValue()));
-            result.add(getNodesStatement(wrapper, false));
+            result = new ExpAstNode(
+                    AST_VAR,
+                    getNodesStatement(wrapper, false),
+                    new StringAstNode(name.firstValue())
+            );
             if (!next(wrapper, T_SLASH, T_VAR)) {
                 throw buildUnexpectedTokenException(wrapper, "{{/var}}");
             }

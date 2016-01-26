@@ -392,8 +392,8 @@ public class Evaluator {
     }
 
     private EvalNode processVarNode(ExpAstNode node, Context context) throws HistoneException {
-        EvalNode valueNode = evaluateNode(node.getNode(1), context);
-        EvalNode valueName = evaluateNode(node.getNode(0), context);
+        EvalNode valueNode = evaluateNode(node.getNode(0), context);
+        EvalNode valueName = evaluateNode(node.getNode(1), context);
         if (valueNode.getValue() != null) {
             context.getVars().putIfAbsent(valueName.getValue() + "", valueNode.getValue());
         }

@@ -330,7 +330,7 @@ public class Parser {
 
         result.add(getNodeList(wrapper));
 
-        if (next(wrapper, T_SLASH, T_MACRO, T_BLOCK_END)) {
+        if (!next(wrapper, T_SLASH, T_MACRO, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "{{/macro}}");
         }
 

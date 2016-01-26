@@ -58,10 +58,10 @@ public class ExpAstNode extends AstNode implements Serializable {
 
     @Override
     public String toString() {
-        return "{\"ExpAstNode\":{" + "\"type\":{" +
-                "\"name\": \"" + type.name() + "\", " +
-                "\"id\": " + type.getId() + "}," +
-                "\"nodes\": [" + nodes + "]}";
+        return "{\"ExpAstNode\":{" +
+                "\"typeName\": \"" + type.name() + "\", " +
+                "\"typeId\": " + type.getId() + "," +
+                "\"nodes\": " + nodes + "}";
     }
 
     public <X extends AstNode> X getNode(int index) {

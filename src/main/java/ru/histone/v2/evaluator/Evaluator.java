@@ -188,17 +188,11 @@ public class Evaluator {
         final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
         final List<EvalNode> paramsNodes = toEvalNodes(paramsAstNodes, context);
         if (functionNameNode instanceof StringEvalNode) {
-            Function function = context.getFunction((String) functionNameNode.getValue());
+            final Function function = context.getFunction((String) functionNameNode.getValue());
             return function.execute(paramsNodes);
         } else {
             return processMethod(node, context, paramsNodes);
         }
-//        if (expNode.getType() == AstType.AST_METHOD) {
-//            Function function = context.getFunction((String) functionNameNode.getValue());
-//            return function.execute(paramsNodes);
-//        } else {
-//            throw new NotImplementedException("Need RTTI call"); // TODO
-//        }
     }
 
     private List<EvalNode> toEvalNodes(List<AstNode> astNodes, Context context) throws HistoneException {

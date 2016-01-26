@@ -18,16 +18,16 @@ package ru.histone.v2.exceptions;
 /**
  * This exception is used to provide detailed error information from custom global function to Histone evaluator
  */
-public class GlobalFunctionExecutionException extends RuntimeException {
-    public GlobalFunctionExecutionException(String message) {
+public class FunctionExecutionException extends RuntimeException {
+    public FunctionExecutionException(String message) {
         super(message);
     }
 
-    public GlobalFunctionExecutionException(String message, Throwable cause) {
+    public FunctionExecutionException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public GlobalFunctionExecutionException(Throwable cause) {
+    public FunctionExecutionException(Throwable cause) {
         super(cause);
     }
 }

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
-import ru.histone.v2.exceptions.GlobalFunctionExecutionException;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class ToJson implements Function {
     }
 
     @Override
-    public EvalNode execute(List<EvalNode> args) throws GlobalFunctionExecutionException {
+    public EvalNode execute(List<EvalNode> args) throws FunctionExecutionException {
         ObjectMapper mapper = new ObjectMapper();
 
         SimpleModule module = new SimpleModule();
@@ -59,7 +59,7 @@ public class ToJson implements Function {
             String res = mapper.writeValueAsString(args.get(0).getValue());
             return new StringEvalNode(res);
         } catch (JsonProcessingException e) {
-            throw new GlobalFunctionExecutionException("Failed to write object to json", e);
+            throw new FunctionExecutionException("Failed to write object to json", e);
         }
     }
 

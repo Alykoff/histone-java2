@@ -3,7 +3,7 @@ package ru.histone.v2.evaluator.function.array;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.exceptions.GlobalFunctionExecutionException;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.util.Collection;
@@ -28,7 +28,7 @@ public class Keys implements Function {
     }
 
     @Override
-    public EvalNode execute(List<EvalNode> args) throws GlobalFunctionExecutionException {
+    public EvalNode execute(List<EvalNode> args) throws FunctionExecutionException {
         Map<String, Object> map = (Map<String, Object>) args.get(0).getValue();
         Collection set = isKeys ? map.keySet() : map.values();
 

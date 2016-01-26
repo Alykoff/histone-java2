@@ -5,7 +5,11 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Created by inv3r on 14/01/16.
@@ -90,4 +94,19 @@ public class EvalUtils {
         }
         return new ObjectEvalNode(object);
     }
+
+    public static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
+        return sequence(futures.toArray(new CompletableFuture[futures.size()]));
+    }
+
+    public static <T> CompletableFuture<List<T>> sequence(CompletableFuture<T>... futures) {
+        CompletableFuture<Void> allDoneFuture =
+                CompletableFuture.allOf(futures);
+
+        return allDoneFuture.thenApply(v -> Arrays.asList(futures).stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.<T>toList())
+        );
+    }
+
 }

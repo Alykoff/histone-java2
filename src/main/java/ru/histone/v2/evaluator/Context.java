@@ -2,11 +2,13 @@ package ru.histone.v2.evaluator;
 
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Evaluation context of histone
@@ -17,6 +19,7 @@ public class Context {
     private String baseUri;
 
     private RunTimeTypeInfo rttiInfo;
+    private ExecutorService executorService;
 
     private Context parent;
     private ConcurrentMap<String, Object> vars = new ConcurrentHashMap<>();
@@ -39,6 +42,7 @@ public class Context {
 
     public Context createNew() {
         Context ctx = new Context();
+        ctx.executorService = this.executorService;
         ctx.setParent(this);
         ctx.setRttiInfo(rttiInfo); //for fast access to rtti functions
         return ctx;
@@ -46,6 +50,14 @@ public class Context {
 
     public void put(String key, Object value) {
         vars.putIfAbsent(key, value);
+    }
+
+    public boolean contains(String key) {
+        return vars.containsKey(key);
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     public Context getParent() {
@@ -87,7 +99,7 @@ public class Context {
     public Function getFunction(HistoneType type, String name) throws HistoneException {
         Function function = rttiInfo.getFunc(type, name);
         if (function == null) {
-            throw new HistoneException(String.format("Wrong function '%s' for type '%s'", name, type));
+            throw new FunctionExecutionException(String.format("Wrong function '%s' for type '%s'", name, type));
         }
         return function;
     }

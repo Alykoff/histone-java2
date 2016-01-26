@@ -49,11 +49,10 @@ public class Parser {
             if (node.getType() == AST_T_BREAK) {
                 break;
             } else if (node.getType() != AST_T_NOP) {
-                //todo check this
                 if (node.getType() != AST_T_ARRAY) {
                     result.add(node);
-                } else {
-                    result.add(node);
+                } else if (!node.hasValue()) {
+                    result.addAll(((ExpAstNode) node).getNodes());
                 }
             }
         }
@@ -171,7 +170,7 @@ public class Parser {
                 throw buildUnexpectedTokenException(wrapper, "{{/var}}");
             }
         } else {
-            result = new ExpAstNode(AST_ARRAY);
+            result = new ExpAstNode(AST_T_ARRAY);
             do {
                 name = wrapper.next(T_ID);
                 if (!name.isFound()) {
@@ -181,8 +180,8 @@ public class Parser {
                     throw buildUnexpectedTokenException(wrapper, "=");
                 }
                 ExpAstNode varNode = new ExpAstNode(AST_VAR)
-                        .add(new StringAstNode(name.firstValue()))
-                        .add(getExpression(wrapper));
+                        .add(getExpression(wrapper))
+                        .add(new StringAstNode(name.firstValue()));
                 result.add(varNode);
                 if (!next(wrapper, T_COMMA)) {
                     break;

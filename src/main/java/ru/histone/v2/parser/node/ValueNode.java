@@ -34,4 +34,9 @@ public abstract class ValueNode<T> extends AstNode implements Serializable {
     public int size() {
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return "{\"ValueNode\": {\"value\": \"" + value + "\"}}";
+    }
 }

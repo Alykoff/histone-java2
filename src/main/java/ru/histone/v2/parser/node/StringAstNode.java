@@ -15,4 +15,10 @@ public class StringAstNode extends ValueNode<String> implements Serializable {
         // TODO
         return this;
     }
+
+
+    @Override
+    public String toString() {
+        return "{\"StringAstNode\": {\"value\": \"" + value + "\"}}";
+    }
 }

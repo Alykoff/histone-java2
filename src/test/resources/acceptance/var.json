@@ -1,6 +1,37 @@
 [
   {
     "name": "variable defenition",
+    "ignore": [
+
+      {
+        "input": "a {{var x = 10}} f",
+        "expectedAST": "[31,\"a \",[1,[25,\"x\",10]],\" f\"]"
+      },
+      {
+        "input": "a {{var x = -10}} f",
+        "expectedAST": "[31,\"a \",[1,[25,\"x\",[14,10]]],\" f\"]"
+      },
+      {
+        "input": "a {{var x}} b {{/var}} c",
+        "expectedAST": "[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]",
+        "expectedResult": "a  c"
+      },
+      {
+        "input": "a {{var simple = 10}} b {{simple}} c",
+        "expectedAST": "[31,\"a \",[1,[25,\"simple\",10]],\" b \",[21,\"simple\"],\" c\"]",
+        "expectedResult": "a  b 10 c"
+      },
+      {
+        "input": "a {{var simple = -10}} b {{simple}} c",
+        "expectedAST": "[31,\"a \",[1,[25,\"simple\",[14,10]]],\" b \",[21,\"simple\"],\" c\"]",
+        "expectedResult": "a  b -10 c"
+      },
+      {
+        "input": "a {{var extended}} b {{/var}} c {{extended}} d",
+        "expectedAST": "[31,\"a \",[25,\"extended\",[30,\" b \"]],\" c \",[21,\"extended\"],\" d\"]",
+        "expectedResult": "a  c  b  d"
+      }
+    ],
     "cases": [
       {
         "input": "{{var name = 10",
@@ -17,14 +48,6 @@
           "expected": "}}",
           "found": "10"
         }
-      },
-      {
-        "input": "a {{var x = 10}} f",
-        "expectedAST": "[31,\"a \",[1,[25,\"x\",10]],\" f\"]"
-      },
-      {
-        "input": "a {{var x = -10}} f",
-        "expectedAST": "[31,\"a \",[1,[25,\"x\",[14,10]]],\" f\"]"
       },
       {
         "input": "a {{var this = 10}} f",
@@ -49,26 +72,6 @@
           "expected": "IDENTIFIER",
           "found": "global"
         }
-      },
-      {
-        "input": "a {{var x}} b {{/var}} c",
-        "expectedAST": "[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]",
-        "expectedResult": "a  c"
-      },
-      {
-        "input": "a {{var simple = 10}} b {{simple}} c",
-        "expectedAST": "[31,\"a \",[1,[25,\"simple\",10]],\" b \",[21,\"simple\"],\" c\"]",
-        "expectedResult": "a  b 10 c"
-      },
-      {
-        "input": "a {{var simple = -10}} b {{simple}} c",
-        "expectedAST": "[31,\"a \",[1,[25,\"simple\",[14,10]]],\" b \",[21,\"simple\"],\" c\"]",
-        "expectedResult": "a  b -10 c"
-      },
-      {
-        "input": "a {{var extended}} b {{/var}} c {{extended}} d",
-        "expectedAST": "[31,\"a \",[25,\"extended\",[30,\" b \"]],\" c \",[21,\"extended\"],\" d\"]",
-        "expectedResult": "a  c  b  d"
       },
       {
         "input": "{{var x = 10}}",

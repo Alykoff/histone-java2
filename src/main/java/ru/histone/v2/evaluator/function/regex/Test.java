@@ -2,8 +2,7 @@ package ru.histone.v2.evaluator.function.regex;
 
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.data.HistoneRegex;
-import ru.histone.v2.evaluator.node.BooleanEvalNode;
-import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.GlobalFunctionExecutionException;
 
 import java.io.Serializable;
@@ -27,7 +26,8 @@ public class Test implements Function, Serializable {
     public EvalNode execute(List<EvalNode> args) throws GlobalFunctionExecutionException {
         try {
             final HistoneRegex regexHistone = (HistoneRegex) args.get(0).getValue();
-            final String exp = (String) args.get(1).getValue();
+            final EvalNode evalNode = args.get(1);
+            final String exp = String.valueOf(evalNode.getValue());
             final Pattern pattern = regexHistone.getPattern();
 //            final boolean isGlobal = regexHistone.isGlobal();
 

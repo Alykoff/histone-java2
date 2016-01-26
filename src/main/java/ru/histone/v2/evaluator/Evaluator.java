@@ -462,8 +462,8 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) throws HistoneException {
-        CompletableFuture<EvalNode> valueNameFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(1), context);
+        CompletableFuture<EvalNode> valueNameFuture = evaluateNode(node.getNode(1), context);
+        CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context);
 
         CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(valueNameFuture);
 
@@ -476,7 +476,7 @@ public class Evaluator {
 
     private CompletableFuture<EvalNode> processArrayNode(ExpAstNode node, Context context) throws HistoneException {
         if (CollectionUtils.isEmpty(node.getNodes())) {
-            CompletableFuture.completedFuture(new MapEvalNode(Collections.emptyMap()));
+            return CompletableFuture.completedFuture(new MapEvalNode(Collections.emptyMap()));
         }
         if (node.getNode(0).getType() == AstType.AST_VAR) {
             return evalNodes(node, context).thenApply(evalNodes -> EmptyEvalNode.INSTANCE);

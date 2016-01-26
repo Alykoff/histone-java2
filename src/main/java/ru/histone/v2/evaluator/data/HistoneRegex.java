@@ -38,4 +38,12 @@ public class HistoneRegex implements Serializable {
                 ", pattern=" + pattern +
                 '}';
     }
+
+    public boolean isGlobal() {
+        return isGlobal;
+    }
+
+    public Pattern getPattern() {
+        return pattern;
+    }
 }

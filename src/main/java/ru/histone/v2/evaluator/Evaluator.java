@@ -168,12 +168,16 @@ public class Evaluator {
     }
 
     private EvalNode processCall(ExpAstNode expNode, Context context) throws HistoneException {
-        EvalNode functionNameNode = evaluateNode(((ExpAstNode) expNode.getNode(0)).getNode(0), context);
-        List<EvalNode> nodes = toEvalNodes(expNode.getNodes().subList(1, expNode.getNodes().size()), context);
-
-        Function function = context.getFunction((String) functionNameNode.getValue());
-        EvalNode res = function.execute(nodes);
-        return res;
+        final AstNode node = expNode.getNode(0);
+        final EvalNode functionNameNode = evaluateNode(((ExpAstNode) node).getNode(0), context);
+        final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
+        final List<EvalNode> paramsNodes = toEvalNodes(paramsAstNodes, context);
+        if (expNode.getType() == AstType.AST_METHOD) {
+            Function function = context.getFunction((String) functionNameNode.getValue());
+            return function.execute(paramsNodes);
+        } else {
+            throw new NotImplementedException("Need RTTI call"); // TODO
+        }
     }
 
     private List<EvalNode> toEvalNodes(List<AstNode> astNodes, Context context) throws HistoneException {

@@ -7,6 +7,7 @@ import ru.histone.v2.evaluator.function.any.ToJson;
 import ru.histone.v2.evaluator.function.array.Keys;
 import ru.histone.v2.evaluator.function.array.Size;
 import ru.histone.v2.evaluator.function.global.Range;
+import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.node.*;
 
 import java.io.Serializable;
@@ -30,7 +31,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
             userTypes.put(type, new HashMap<>());
         }
 
-        registerCommonFuctions();
+        registerCommonFunctions();
     }
 
     public HistoneType getType(EvalNode node) {
@@ -55,12 +56,14 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
             return T_STRING;
         } else if (node instanceof EmptyEvalNode) {
             return T_UNDEFINED;
+        } else if (node instanceof RegexEvalNode) {
+            return T_REGEXP;
         }
-        // T_MACRO, T_GLOBAL, T_REGEXP
+        // T_MACRO, T_GLOBAL
         throw new NotImplementedException();
     }
 
-    private void registerCommonFuctions() {
+    private void registerCommonFunctions() {
         registerForAlltypes(new ToJson());
 
         registerCommon(T_ARRAY, new Size());
@@ -68,6 +71,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new Keys(false));
 
         registerCommon(T_GLOBAL, new Range());
+
+        registerCommon(T_REGEXP, new Test());
     }
 
     private void registerForAlltypes(Function function) {

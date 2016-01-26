@@ -16,7 +16,6 @@ public class StringAstNode extends ValueNode<String> implements Serializable {
         return this;
     }
 
-
     @Override
     public String toString() {
         return "{\"StringAstNode\": {\"value\": \"" + value + "\"}}";

@@ -3,6 +3,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.node.*;
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
@@ -125,15 +127,29 @@ public class Evaluator {
         return nodeFuture.thenApply(n -> new BooleanEvalNode(!nodeAsBoolean(n)));
     }
 
+    /**
+     *  [AST_ID, MACRO_BODY, NUM_OF_VARS, VARS...]
+     */
     private CompletableFuture<EvalNode> processMacroNode(ExpAstNode node, Context context) {
-        final long param;
-        if (node.size() >= 1) {
-            final LongAstNode paramNode = node.getNode(1);
-            param = paramNode.getValue();
+        final int bodyIndex = 0;
+        final int startVarIndex = 2;
+        final CompletableFuture<List<EvalNode>> argsFuture;
+        if (node.size() >= startVarIndex) {
+            argsFuture = sequence(
+                node.getNodes()
+                    .subList(startVarIndex, node.size())
+                    .stream()
+                    .map(x -> evaluateNode(x, context))
+                    .collect(Collectors.toList())
+            );
         } else {
-            param = 0;
+            argsFuture = CompletableFuture.completedFuture(Collections.emptyList());
         }
-        throw new NotImplementedException();
+        
+        return argsFuture.thenApply(args -> {
+            final AstNode body = node.getNode(bodyIndex);
+            return new MacroEvalNode(new HistoneMacro(args, body, context));
+        });
     }
 
     private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context) {

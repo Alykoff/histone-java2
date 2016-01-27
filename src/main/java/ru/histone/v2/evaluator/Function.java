@@ -40,7 +40,7 @@ public interface Function {
      * @return result as one of Histone types
      * @throws FunctionExecutionException if your function stops with error and you need to put details into log, then you should use this exception
      */
-    CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException;
+    CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException;
 
     /**
      * @return

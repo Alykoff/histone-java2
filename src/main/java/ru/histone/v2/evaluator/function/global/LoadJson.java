@@ -26,7 +26,7 @@ public class LoadJson extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
         return CompletableFuture
                 .completedFuture(null)
                 .thenComposeAsync(x -> {

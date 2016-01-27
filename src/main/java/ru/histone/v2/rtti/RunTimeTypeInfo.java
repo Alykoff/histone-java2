@@ -116,18 +116,18 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         throw new NotImplementedException();
     }
 
-    public CompletableFuture<EvalNode> callFunction(HistoneType type, String funcName, List<EvalNode> args) {
+    public CompletableFuture<EvalNode> callFunction(String baseUri, HistoneType type, String funcName, List<EvalNode> args) {
         final Function f = getFunc(type, funcName);
         if (f.isAsync()) {
             return CompletableFuture
                     .completedFuture(null)
-                    .thenComposeAsync((x) -> f.execute(args), executor);
+                    .thenComposeAsync((x) -> f.execute(baseUri, args), executor);
         }
-        return f.execute(args);
+        return f.execute(baseUri, args);
     }
 
-    public CompletableFuture<EvalNode> callFunction(EvalNode node, String funcName, List<EvalNode> args) {
+    public CompletableFuture<EvalNode> callFunction(String baseUri, EvalNode node, String funcName, List<EvalNode> args) {
         HistoneType type = getType(node);
-        return callFunction(type, funcName, args);
+        return callFunction(baseUri, type, funcName, args);
     }
 }

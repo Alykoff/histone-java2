@@ -26,7 +26,7 @@ public class ToJson implements Function {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
         ObjectMapper mapper = new ObjectMapper();
 
         SimpleModule module = new SimpleModule();

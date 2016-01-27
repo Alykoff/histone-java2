@@ -19,7 +19,7 @@ public class Size implements Function {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
         Map<String, Object> map = (Map<String, Object>) args.get(0).getValue();
         return EvalUtils.getValue((long) map.size());
     }

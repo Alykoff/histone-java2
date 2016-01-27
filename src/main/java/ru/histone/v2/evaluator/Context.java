@@ -17,16 +17,14 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Context implements Serializable {
     private String baseUri;
-
     private RunTimeTypeInfo rttiInfo;
-
-    private Context parent;
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
 
-    /**
-     * This constructor user for creating a child context
-     */
-    private Context() {
+    private Context parent;
+
+    private Context(String baseUri, RunTimeTypeInfo rttiInfo) {
+        this.baseUri = baseUri;
+        this.rttiInfo = rttiInfo;
     }
 
     /**
@@ -37,10 +35,7 @@ public class Context implements Serializable {
      * @return created root context
      */
     public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo) {
-        Context context = new Context();
-        context.baseUri = baseUri;
-        context.rttiInfo = rttiInfo;
-        return context;
+        return new Context(baseUri, rttiInfo);
     }
 
     /**
@@ -49,10 +44,13 @@ public class Context implements Serializable {
      * @return child context
      */
     public Context createNew() {
-        Context ctx = new Context();
-        ctx.setParent(this);
-        ctx.setRttiInfo(rttiInfo); //for fast access to rtti functions
+        Context ctx = new Context(baseUri, rttiInfo);
+        ctx.parent = this;
         return ctx;
+    }
+
+    public void release() {
+        parent = null;
     }
 
     public void put(String key, CompletableFuture<EvalNode> value) {
@@ -71,16 +69,8 @@ public class Context implements Serializable {
         return parent;
     }
 
-    public void setParent(Context parent) {
-        this.parent = parent;
-    }
-
     public ConcurrentMap<String, CompletableFuture<EvalNode>> getVars() {
         return vars;
-    }
-
-    public void setVars(ConcurrentMap<String, CompletableFuture<EvalNode>> vars) {
-        this.vars = vars;
     }
 
     public String getBaseUri() {
@@ -91,23 +81,11 @@ public class Context implements Serializable {
         this.baseUri = baseUri;
     }
 
-    public RunTimeTypeInfo getRttiInfo() {
-        return rttiInfo;
-    }
-
-    public void setRttiInfo(RunTimeTypeInfo rttiInfo) {
-        this.rttiInfo = rttiInfo;
-    }
-
-    public void registerUserFunction(HistoneType type, Function function) {
-        this.rttiInfo.register(type, function.getName(), function);
-    }
-
     public CompletableFuture<EvalNode> call(String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(HistoneType.T_GLOBAL, name, args);
+        return rttiInfo.callFunction(baseUri, HistoneType.T_GLOBAL, name, args);
     }
 
     public CompletableFuture<EvalNode> call(EvalNode node, String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(node, name, args);
+        return rttiInfo.callFunction(baseUri, node, name, args);
     }
 }

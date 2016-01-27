@@ -26,12 +26,12 @@ public class Evaluator {
     private static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
     private static final String TO_STRING_FUNC_NAME = "toString";
 
-    public String process(String baseUri, ExpAstNode node, Context context) throws HistoneException {
+    public String process(String baseUri, ExpAstNode node, Context context) {
         context.setBaseUri(baseUri);
         return processInternal(node, context);
     }
 
-    private String processInternal(ExpAstNode node, Context context) throws HistoneException {
+    private String processInternal(ExpAstNode node, Context context) {
         EvalNode res = evaluateNode(node, context).join();
         return ((StringEvalNode) context.call(res, TO_STRING_FUNC_NAME, Collections.singletonList(res)).join()).getValue();
     }
@@ -100,9 +100,9 @@ public class Evaluator {
             case AST_RETURN:
                 break;
             case AST_NODES:
-                return processNodeList(expNode, context.createNew());
+                return processNodeList(expNode, context, true);
             case AST_NODELIST:
-                return processNodeList(expNode, context);
+                return processNodeList(expNode, context, false);
             case AST_BOR:
                 return processBorNode(expNode, context);
             case AST_BXOR:
@@ -131,7 +131,7 @@ public class Evaluator {
         throw new NotImplementedException();
     }
 
-    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context) {
         final int valueIndex = 0;
         final int methodIndex = 1;
         final int startArgsIndex = 2;
@@ -148,7 +148,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context, List<EvalNode> args) throws HistoneException {
+    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context, List<EvalNode> args) {
         final int valueIndex = 0;
         final int methodIndex = 1;
         final CompletableFuture<List<EvalNode>> processNodes = sequence(Arrays.asList(
@@ -166,7 +166,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processTernary(ExpAstNode expNode, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processTernary(ExpAstNode expNode, Context context) {
         CompletableFuture<EvalNode> condition = evaluateNode(expNode.getNode(0), context);
         return condition.thenCompose(conditionNode -> {
             if (nodeAsBoolean(conditionNode)) {
@@ -178,7 +178,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
                     Object obj = ((MapEvalNode) futures.get(0)).getProperty((String) futures.get(1).getValue());
@@ -186,7 +186,7 @@ public class Evaluator {
                 });
     }
 
-    private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) {
         final ExpAstNode node = expNode.getNode(0);
         CompletableFuture<EvalNode> functionNameFuture = evaluateNode(node.getNode(0), context);
         final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
@@ -202,7 +202,7 @@ public class Evaluator {
         }));
     }
 
-    private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) {
         CompletableFuture<EvalNode> objToIterateFuture = evaluateNode(expNode.getNode(2), context);
         return objToIterateFuture.thenCompose(objToIterate -> {
             if (!(objToIterate instanceof MapEvalNode)) {
@@ -255,7 +255,7 @@ public class Evaluator {
     }
 
     private CompletableFuture<List<EvalNode>> iterate(ExpAstNode expNode, Context context, MapEvalNode
-            objToIterate, EvalNode keyVarName, EvalNode valueVarName) throws HistoneException {
+            objToIterate, EvalNode keyVarName, EvalNode valueVarName) {
         Context iterableContext;
         StringBuilder sb = new StringBuilder();
         int i = 0;
@@ -300,7 +300,7 @@ public class Evaluator {
         return res;
     }
 
-    private CompletableFuture<EvalNode> processAddNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processAddNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRight = evalAllNodesOfCurrent(node, context);
         return leftRight.thenApply(lr -> {
             EvalNode left = lr.get(0);
@@ -324,7 +324,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
@@ -371,7 +371,7 @@ public class Evaluator {
         }
     }
 
-    private CompletableFuture<EvalNode> processRelation(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processRelation(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
@@ -434,7 +434,7 @@ public class Evaluator {
         throw new RuntimeException("Unknown type for this case");
     }
 
-    private CompletableFuture<EvalNode> processBorNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processBorNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
@@ -448,7 +448,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processBxorNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processBxorNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
@@ -462,7 +462,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processBandNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processBandNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
@@ -476,7 +476,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> valueNameFuture = evaluateNode(node.getNode(1), context);
         CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context);
 
@@ -489,7 +489,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processArrayNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processArrayNode(ExpAstNode node, Context context) {
         if (CollectionUtils.isEmpty(node.getNodes())) {
             return CompletableFuture.completedFuture(new MapEvalNode(Collections.emptyMap()));
         }
@@ -513,7 +513,7 @@ public class Evaluator {
         }
     }
 
-    private CompletableFuture<EvalNode> processUnaryMinus(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processUnaryMinus(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> res = evaluateNode(node.getNode(0), context);
         return res.thenApply(n -> {
             if (n instanceof LongEvalNode) {
@@ -563,7 +563,7 @@ public class Evaluator {
         return CompletableFuture.completedFuture(null);
     }
 
-    private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
@@ -577,7 +577,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
@@ -591,13 +591,16 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processNodeList(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processNodeList(ExpAstNode node, Context context, boolean createContext) {
+        final Context ctx = createContext ? context.createNew() : context;
         //todo rework this method, add rtti and other cool features
         if (node.getNodes().size() == 1) {
             AstNode node1 = node.getNode(0);
-            return evaluateNode(node1, context);
+            CompletableFuture<EvalNode> res = evaluateNode(node1, ctx);
+            ctx.release();
+            return res;
         } else {
-            CompletableFuture<List<EvalNode>> f = evalAllNodesOfCurrent(node, context);
+            CompletableFuture<List<EvalNode>> f = evalAllNodesOfCurrent(node, ctx);
             return f.thenApply(nodes -> new StringEvalNode(
                     nodes.stream()
                             .map(n -> context.call(n, TO_STRING_FUNC_NAME, Collections.singletonList(n)))
@@ -608,7 +611,7 @@ public class Evaluator {
         }
     }
 
-    private CompletableFuture<List<EvalNode>> evalAllNodesOfCurrent(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<List<EvalNode>> evalAllNodesOfCurrent(ExpAstNode node, Context context) {
         final List<CompletableFuture<EvalNode>> futures = node.getNodes()
                 .stream()
                 .map(currNode -> evaluateNode(currNode, context))
@@ -627,7 +630,7 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processIfNode(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<EvalNode> processIfNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> conditionFuture = evaluateNode(node.getNode(1), context);
 
         return conditionFuture
@@ -639,7 +642,7 @@ public class Evaluator {
                     } else {
                         result = evaluateNode(node.getNode(2), current);
                     }
-                    current.setParent(null);
+                    current.release();
                     return result;
                 });
     }

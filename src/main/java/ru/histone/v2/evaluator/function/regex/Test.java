@@ -24,7 +24,7 @@ public class Test implements Function, Serializable {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
         try {
             final HistoneRegex regexHistone = (HistoneRegex) args.get(0).getValue();
             final EvalNode evalNode = args.get(1);

@@ -23,7 +23,7 @@ public class ToString implements Function {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
         if (node instanceof EmptyEvalNode) {
             return EvalUtils.getValue("");

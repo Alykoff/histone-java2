@@ -6,6 +6,7 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
+import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -15,7 +16,7 @@ import java.util.concurrent.ExecutorService;
  * <p>
  * Created by inv3r on 13/01/16.
  */
-public class Context {
+public class Context implements Serializable {
     private String baseUri;
 
     private RunTimeTypeInfo rttiInfo;
@@ -27,8 +28,7 @@ public class Context {
     /**
      * This constructor user for creating a child context
      */
-    private Context() {
-    }
+    private Context() {}
 
     /**
      * This constructor used for create a root node

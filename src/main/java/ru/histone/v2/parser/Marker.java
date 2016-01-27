@@ -1,6 +1,7 @@
 package ru.histone.v2.parser;
 
 import ru.histone.HistoneException;
+import ru.histone.v2.Constants;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -11,8 +12,6 @@ import java.util.*;
  * Created by gali.alykoff on 20/01/16.
  */
 public class Marker {
-    public static final String SELF_SCOPE_ID = "self";
-
     public void markReferences(
             AstNode rawNode, Deque<Map<String, Long>> scopeChain
     ) throws HistoneException {
@@ -92,7 +91,7 @@ public class Marker {
             ExpAstNode node, Deque<Map<String, Long>> scopeChain
     ) throws HistoneException {
         scopeChain.push(new HashMap<>());
-        setReference(SELF_SCOPE_ID, scopeChain);
+        setReference(Constants.SELF_CONTEXT_NAME, scopeChain);
         final int[] varIndexes = new int[] {0, 1};
         for (int i : varIndexes) {
             final StringAstNode keyVarNode = node.getNode(i);
@@ -128,7 +127,7 @@ public class Marker {
             }
         }
         scopeChain.push(new HashMap<>());
-        setReference(SELF_SCOPE_ID, scopeChain);
+        setReference(Constants.SELF_CONTEXT_NAME, scopeChain);
 
         final List<AstNode> param = new ArrayList<>();
         for (int i = startVarIndex; i < nodeSize; i++) {

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
+import static ru.histone.v2.Constants.*;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -269,8 +270,7 @@ public class Evaluator {
     }
 
     private CompletableFuture<List<EvalNode>> iterate(ExpAstNode expNode, Context context, MapEvalNode
-            objToIterate,
-                                                      EvalNode keyVarName, EvalNode valueVarName) throws HistoneException {
+            objToIterate, EvalNode keyVarName, EvalNode valueVarName) throws HistoneException {
         Context iterableContext;
         StringBuilder sb = new StringBuilder();
         int i = 0;
@@ -300,19 +300,18 @@ public class Evaluator {
         if (keyVarName != NullEvalNode.INSTANCE) {
             iterableContext.put(keyVarName.getValue() + "", EvalUtils.getValue(entry.getKey()));
         }
-        iterableContext.put("self", EvalUtils.getValue(constructSelfValue(
+        iterableContext.put(SELF_CONTEXT_NAME, EvalUtils.getValue(constructSelfValue(
                 entry.getKey(), entry.getValue(), i, objToIterate.getValue().entrySet().size() - 1
         )));
         return iterableContext;
     }
 
-
     private Map<String, Object> constructSelfValue(String key, Object value, int currentIndex, int lastIndex) {
         Map<String, Object> res = new LinkedHashMap<>();
-        res.put("index", currentIndex);
-        res.put("last", lastIndex);
-        res.put("key", key);
-        res.put("value", value);
+        res.put(SELF_CONTEXT_CURRENT_INDEX, currentIndex);
+        res.put(SELF_CONTEXT_LAST_INDEX, lastIndex);
+        res.put(SELF_CONTEXT_KEY, key);
+        res.put(SELF_CONTEXT_VALUE, value);
         return res;
     }
 

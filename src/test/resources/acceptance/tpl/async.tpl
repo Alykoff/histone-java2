@@ -1,4 +1,4 @@
-{{1+1}}
+{{*{{1+1}}
 START async
 {{if loadJson(1000)=1000}}
 1k
@@ -17,4 +17,4 @@ START async
 {{loadJson(200)}}
 {{/if}}
 STOP
-{{45 +2}}dgfdgdgfdgfdgfd
+{{45 +2}}dgfdgdgfdgfdgfd*}}

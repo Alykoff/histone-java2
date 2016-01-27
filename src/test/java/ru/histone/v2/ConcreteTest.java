@@ -16,18 +16,18 @@ public class ConcreteTest extends BaseTest {
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("a # b");
-//        testCase.setContext(getMap());
+        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("a {{var simple = 10}} b {{simple}} c", testCase);
+        doTest("{{var x = [1, 2, 3]}}{{x}}", testCase);
     }
 
     private Map<String, Object> getMap() {
         Map<String, Object> res = new HashMap<>();
 
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("foo", 1L);
-        values.put("bar", 2L);
-        values.put("x", 3L);
+        values.put("0", 1L);
+        values.put("1", 2L);
+        values.put("2", 3L);
 
         res.put("items", values);
         return res;

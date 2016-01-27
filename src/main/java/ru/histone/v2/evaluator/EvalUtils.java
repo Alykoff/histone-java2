@@ -109,4 +109,8 @@ public class EvalUtils {
         );
     }
 
+    public static CompletableFuture<EvalNode> getValue(Object v) {
+        return CompletableFuture.completedFuture(createEvalNode(v));
+    }
+
 }

@@ -4,6 +4,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.junit.Assert;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.ParserException;
@@ -53,23 +54,23 @@ public class BaseTest {
         Map<String, Object> res = new HashMap<>();
         for (Map.Entry<String, Object> entry : testCase.getContext().entrySet()) {
             if (entry.getValue() == null) {
-                res.putIfAbsent(entry.getKey(), ObjectUtils.NULL);
+                res.putIfAbsent(entry.getKey(), EvalUtils.getValue(ObjectUtils.NULL));
             } else if (entry.getValue() instanceof List) {
                 List list = (List) entry.getValue();
                 Map<String, Object> map = new LinkedHashMap<>(list.size());
                 for (int i = 0; i < list.size(); i++) {
                     map.put(i + "", getObjectValue(list.get(i)));
                 }
-                res.putIfAbsent(entry.getKey(), map);
+                res.putIfAbsent(entry.getKey(), EvalUtils.getValue(map));
             } else if (entry.getValue() instanceof Map) {
                 Map<String, Object> m = (Map<String, Object>) entry.getValue();
                 Map<String, Object> map = new LinkedHashMap<>(m.size());
                 for (Map.Entry<String, Object> e : m.entrySet()) {
                     map.put(e.getKey(), getObjectValue(e.getValue()));
                 }
-                res.putIfAbsent(entry.getKey(), map);
+                res.putIfAbsent(entry.getKey(), EvalUtils.getValue(map));
             } else {
-                res.putIfAbsent(entry.getKey(), entry.getValue());
+                res.putIfAbsent(entry.getKey(), EvalUtils.getValue(entry.getValue()));
             }
         }
         return res;

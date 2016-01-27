@@ -12,6 +12,7 @@ import ru.histone.v2.utils.ParserUtils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 import static ru.histone.v2.evaluator.EvalUtils.*;
@@ -30,9 +31,8 @@ public class Evaluator {
     private String processInternal(ExpAstNode node, Context context) throws HistoneException {
         CompletableFuture<EvalNode> res = evaluateNode(node, context);
         return res
-                .thenApply(n -> n.getValue())
-                .getNow("")
-                .toString();
+                .thenApply(n -> n.getValue() != null ? n.getValue().toString() : "")
+                .getNow("");
     }
 
     private CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
@@ -162,23 +162,27 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processTernary(ExpAstNode expNode, Context context) throws HistoneException {
-        throw new NotImplementedException();
-//        EvalNode condition = evaluateNode(expNode.getNode(0), context);
-//        if (nodeAsBoolean(condition)) {
-//            return evaluateNode(expNode.getNode(1), context);
-//        } else if (expNode.getNode(2) != null) {
-//            return evaluateNode(expNode.getNode(2), context);
-//        }
-//        return EmptyEvalNode.INSTANCE;
+        CompletableFuture<EvalNode> condition = evaluateNode(expNode.getNode(0), context);
+        return condition.thenCompose(conditionNode -> {
+            if (nodeAsBoolean(conditionNode)) {
+                return evaluateNode(expNode.getNode(1), context);
+            } else if (expNode.getNode(2) != null) {
+                return evaluateNode(expNode.getNode(2), context);
+            }
+            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+        });
     }
 
     private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) throws HistoneException {
-        throw new NotImplementedException();
-//        EvalNode value = evaluateNode(expNode.getNode(0), context);
-//        EvalNode propertyName = evaluateNode(expNode.getNode(1), context);
-//
-//        Object obj = ((MapEvalNode) value).getProperty((String) propertyName.getValue());
-//        return createEvalNode(obj);
+        CompletableFuture<EvalNode> valueFuture = evaluateNode(expNode.getNode(0), context);
+        CompletableFuture<EvalNode> propertyNameFuture = evaluateNode(expNode.getNode(1), context);
+
+        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(valueFuture, propertyNameFuture);
+
+        return leftRightDone.thenApply(futures -> {
+            Object obj = ((MapEvalNode) futures.get(0)).getProperty((String) futures.get(1).getValue());
+            return createEvalNode(obj);
+        });
     }
 
     private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) throws HistoneException {
@@ -205,77 +209,94 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) throws HistoneException {
-        throw new NotImplementedException();
-//        EvalNode objToIterate = evaluateNode(expNode.getNode(2), context);
-//        if (!(objToIterate instanceof MapEvalNode)) {
-//            if (expNode.size() == 4) {
-//                return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
-//            }
-//            int i = 0;
-//            ExpAstNode expressionNode = expNode.getNode(i + 4);
-//            ExpAstNode bodyNode = expNode.getNode(i + 5);
-//            while (bodyNode != null) {
-//                EvalNode conditionNode = evaluateNode(expressionNode, context);
-//                if (nodeAsBoolean(conditionNode)) {
-//                    String res = processInternal(bodyNode, context);
-//                    return new StringEvalNode(res);
-//                }
-//                i++;
-//                expressionNode = expNode.getNode(i + 4);
-//                bodyNode = expNode.getNode(i + 5);
-//            }
-//            if (expressionNode != null) {
-//                String res = processInternal(expressionNode, context);
-//                return new StringEvalNode(res);
-//            }
-//
-//            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
-//        }
-//
-//        EvalNode keyVarName = evaluateNode(expNode.getNode(0), context);
-//        EvalNode valueVarName = evaluateNode(expNode.getNode(1), context);
-//
-//        CompletableFuture<List<EvalNode>> res = iterate(expNode, context, (MapEvalNode) objToIterate, keyVarName, valueVarName);
-//        res.thenApply(nodes -> new StringEvalNode(
-//                        nodes
-//                                .stream()
-//                                .map(node -> node.getValue().toString())
-//                                .collect(Collectors.joining())
-//                )
-//        );
+        CompletableFuture<EvalNode> objToIterateFuture = evaluateNode(expNode.getNode(2), context);
+        return objToIterateFuture.thenCompose(objToIterate -> {
+            if (!(objToIterate instanceof MapEvalNode)) {
+                return processNonMapValue(expNode, context);
+            } else {
+                return processMapValue(expNode, context, (MapEvalNode) objToIterate);
+            }
+        });
     }
 
-    private CompletableFuture<List<EvalNode>> iterate(ExpAstNode expNode, Context context, MapEvalNode objToIterate,
+    private CompletionStage<EvalNode> processNonMapValue(ExpAstNode expNode, Context context) {
+        if (expNode.size() == 4) {
+            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+        }
+        int i = 0;
+        ExpAstNode expressionNode = expNode.getNode(i + 4);
+        ExpAstNode bodyNode = expNode.getNode(i + 5);
+        while (bodyNode != null) {
+            CompletableFuture<EvalNode> conditionFuture = evaluateNode(expressionNode, context);
+            EvalNode conditionNode = conditionFuture.join();
+            if (nodeAsBoolean(conditionNode)) {
+                return evaluateNode(bodyNode, context);
+            }
+            i++;
+            expressionNode = expNode.getNode(i + 4);
+            bodyNode = expNode.getNode(i + 5);
+        }
+        if (expressionNode != null) {
+            return evaluateNode(expressionNode, context);
+        }
+
+        return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+    }
+
+    private CompletableFuture<EvalNode> processMapValue(ExpAstNode expNode, Context context, MapEvalNode
+            objToIterate) {
+        CompletableFuture<EvalNode> keyVarName = evaluateNode(expNode.getNode(0), context);
+        CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
+
+        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(keyVarName, valueVarName);
+        return leftRightDone.thenCompose(keyValueNames -> {
+            CompletableFuture<List<EvalNode>> res = iterate(expNode, context, objToIterate, keyValueNames.get(0), keyValueNames.get(1));
+            return res.thenApply(nodes ->
+                    new StringEvalNode(nodes
+                            .stream()
+                            .map(node -> node.getValue() + "")
+                            .collect(Collectors.joining())
+                    )
+            );
+        });
+    }
+
+    private CompletableFuture<List<EvalNode>> iterate(ExpAstNode expNode, Context context, MapEvalNode
+            objToIterate,
                                                       EvalNode keyVarName, EvalNode valueVarName) throws HistoneException {
-//        Context iterableContext;
-//        StringBuilder sb = new StringBuilder();
-//        int i = 0;
-//
-//        List<CompletableFuture<EvalNode>> futures = new ArrayList<>(objToIterate.getValue().size());
-//        for (Map.Entry<String, Object> entry : objToIterate.getValue().entrySet()) {
-//            iterableContext = context.createNew();
-//            if (valueVarName != NullEvalNode.INSTANCE) {
-//                iterableContext.put((String) valueVarName.getValue(), entry.getValue());
-//            }
-//            if (keyVarName != NullEvalNode.INSTANCE) {
-//                iterableContext.getVars().putIfAbsent((String) keyVarName.getValue(), entry.getKey());
-//            }
-//            iterableContext.put("self", constructSelfValue(
-//                    entry.getKey(), entry.getValue(), i, objToIterate.getValue().entrySet().size() - 1));
-//            EvalNode node = evaluateNode(expNode.getNode(3), iterableContext);
-//            futures.add(node);
-//
-//            String res = processInternal(expNode.getNode(3), iterableContext);
-//            sb.append(res);
-//            i++;
-//        }
-//        return CompletableFuture
-//                .allOf(futures.toArray(new CompletableFuture[futures.size()]))
-//                .thenApply(v -> futures.stream()
-//                        .map(CompletableFuture::join)
-//                        .collect(Collectors.toList())
-//                );
-        throw new NotImplementedException();
+        Context iterableContext;
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+
+        List<CompletableFuture<EvalNode>> futures = new ArrayList<>(objToIterate.getValue().size());
+        for (Map.Entry<String, Object> entry : objToIterate.getValue().entrySet()) {
+            iterableContext = getIterableContext(context, objToIterate, keyVarName, valueVarName, i, entry);
+            futures.add(evaluateNode(expNode.getNode(3), iterableContext));
+
+            String res = processInternal(expNode.getNode(3), iterableContext);
+            sb.append(res);
+            i++;
+        }
+        return CompletableFuture
+                .allOf(futures.toArray(new CompletableFuture[futures.size()]))
+                .thenApply(v -> futures.stream()
+                        .map(CompletableFuture::join)
+                        .collect(Collectors.toList())
+                );
+    }
+
+    private Context getIterableContext(Context context, MapEvalNode objToIterate, EvalNode keyVarName, EvalNode valueVarName, int i, Map.Entry<String, Object> entry) {
+        Context iterableContext = context.createNew();
+        if (valueVarName != NullEvalNode.INSTANCE) {
+            iterableContext.put(valueVarName.getValue() + "", EvalUtils.getValue(entry.getValue()));
+        }
+        if (keyVarName != NullEvalNode.INSTANCE) {
+            iterableContext.put(keyVarName.getValue() + "", EvalUtils.getValue(entry.getKey()));
+        }
+        iterableContext.put("self", EvalUtils.getValue(constructSelfValue(
+                entry.getKey(), entry.getValue(), i, objToIterate.getValue().entrySet().size() - 1
+        )));
+        return iterableContext;
     }
 
 

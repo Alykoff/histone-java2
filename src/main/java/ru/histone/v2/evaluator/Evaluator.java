@@ -56,7 +56,7 @@ public class Evaluator {
             case AST_GLOBAL:
                 break;
             case AST_NOT:
-                break;
+                return processNotNode(expNode, context);
             case AST_AND:
                 return processAndNode(expNode, context);
             case AST_OR:
@@ -118,6 +118,11 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private CompletableFuture<EvalNode> processNotNode(ExpAstNode expNode, Context context) {
+        CompletableFuture<EvalNode> nodeFuture = evaluateNode(expNode.getNode(0), context);
+        return nodeFuture.thenApply(n -> new BooleanEvalNode(!nodeAsBoolean(n)));
     }
 
     private CompletableFuture<EvalNode> processMacroNode(ExpAstNode node, Context context) {

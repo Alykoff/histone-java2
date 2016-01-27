@@ -77,6 +77,10 @@
       {
         "input": "{{var x = 6  / 2 * (1   + 2)}}{{x}}",
         "expectedResult": "9"
+      },
+      {
+        "input": "{{!false}}",
+        "expectedResult": "true"
       }
     ]
   }

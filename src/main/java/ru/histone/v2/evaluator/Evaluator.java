@@ -135,11 +135,7 @@ public class Evaluator {
         final int valueIndex = 0;
         final int methodIndex = 1;
         final int startArgsIndex = 2;
-        final List<CompletableFuture<EvalNode>> evalNodes = expNode.getNodes()
-                .stream()
-                .map(node -> evaluateNode(node, context))
-                .collect(Collectors.toList());
-        final CompletableFuture<List<EvalNode>> nodesFuture = sequence(evalNodes);
+        final CompletableFuture<List<EvalNode>> nodesFuture = evalAllNodesOfCurrent(expNode, context);
 
         return nodesFuture.thenCompose(nodes -> {
             final EvalNode valueNode = nodes.get(valueIndex);
@@ -152,17 +148,24 @@ public class Evaluator {
         });
     }
 
-    private EvalNode processMethod(ExpAstNode expNode, Context context, List<EvalNode> args) throws HistoneException {
-        throw new NotImplementedException();
-//        EvalNode valueNode = evaluateNode(expNode.getNode(0), context);
-//        EvalNode methodNode = evaluateNode(expNode.getNode(1), context);
-//
-//        final List<EvalNode> allParams = new ArrayList<>();
-//        allParams.add(valueNode);
-//        allParams.addAll(args);
-//
-//        Function f = context.getFunction(valueNode, methodNode.asString());
-//        return f.execute(allParams);
+    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context, CompletableFuture<List<EvalNode>> argsFuture) throws HistoneException {
+        final int valueIndex = 0;
+        final int methodIndex = 1;
+        final CompletableFuture<List<EvalNode>> processNodes = sequence(Arrays.asList(
+                evaluateNode(expNode.getNode(valueIndex), context),
+                evaluateNode(expNode.getNode(methodIndex), context)
+        ));
+        return argsFuture.thenCompose(args ->
+            processNodes.thenCompose(methodNodes -> {
+                final EvalNode valueNode = methodNodes.get(valueIndex);
+                final EvalNode methodNode = methodNodes.get(methodIndex);
+                final List<EvalNode> argsNode = new ArrayList<>();
+                argsNode.add(valueNode);
+                argsNode.addAll(args);
+                final Function f = context.getFunction(valueNode, methodNode.asString());
+                return f.execute(argsNode);
+            })
+        );
     }
 
     private CompletableFuture<EvalNode> processTernary(ExpAstNode expNode, Context context) throws HistoneException {
@@ -625,13 +628,12 @@ public class Evaluator {
     }
 
     private CompletableFuture<List<EvalNode>> evalAllNodesOfCurrent(ExpAstNode node, Context context) throws HistoneException {
-        List<CompletableFuture<EvalNode>> futures = new ArrayList<>(node.size());
-        for (AstNode currNode : node.getNodes()) {
-            futures.add(evaluateNode(currNode, context));
-        }
+        final List<CompletableFuture<EvalNode>> futures = node.getNodes()
+                .stream()
+                .map(currNode -> evaluateNode(currNode, context))
+                .collect(Collectors.toList());
         return sequence(futures);
     }
-
 
     private CompletableFuture<EvalNode> processEqNode(ExpAstNode node, Context context, boolean isEquals) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);

@@ -3,6 +3,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.*;
@@ -10,6 +11,7 @@ import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static ru.histone.v2.evaluator.EvalUtils.*;
@@ -633,24 +635,24 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node, Context context) {
-//        final LongAstNode flagsNumNode = node.getNode(1);
-//        final long flagsNum = flagsNumNode.getValue();
-//
-//        int flags = 0;
-//        if ((flagsNum & AstRegexType.RE_IGNORECASE.getId()) != 0) {
-//            flags |= Pattern.CASE_INSENSITIVE;
-//        }
-//        if ((flagsNum & AstRegexType.RE_MULTILINE.getId()) != 0) {
-//            flags |= Pattern.MULTILINE;
-//        }
-//
-//        final boolean isGlobal = (flagsNum & AstRegexType.RE_GLOBAL.getId()) != 0;
-//        final StringAstNode expNode = node.getNode(0);
-//        final String exp = expNode.getValue();
-//        final Pattern pattern = Pattern.compile(exp, flags);
-//
-//        return new RegexEvalNode(new HistoneRegex(isGlobal, pattern));
-        throw new NotImplementedException();
+        return CompletableFuture.supplyAsync(() -> {
+            final LongAstNode flagsNumNode = node.getNode(1);
+            final long flagsNum = flagsNumNode.getValue();
+
+            int flags = 0;
+            if ((flagsNum & AstRegexType.RE_IGNORECASE.getId()) != 0) {
+                flags |= Pattern.CASE_INSENSITIVE;
+            }
+            if ((flagsNum & AstRegexType.RE_MULTILINE.getId()) != 0) {
+                flags |= Pattern.MULTILINE;
+            }
+
+            final boolean isGlobal = (flagsNum & AstRegexType.RE_GLOBAL.getId()) != 0;
+            final StringAstNode expNode = node.getNode(0);
+            final String exp = expNode.getValue();
+            final Pattern pattern = Pattern.compile(exp, flags);
+            return new RegexEvalNode(new HistoneRegex(isGlobal, pattern));
+        });
     }
 
 }

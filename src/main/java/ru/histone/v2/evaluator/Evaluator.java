@@ -15,9 +15,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
-import static ru.histone.v2.Constants.*;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -31,10 +31,9 @@ public class Evaluator {
     }
 
     private String processInternal(ExpAstNode node, Context context) throws HistoneException {
-        CompletableFuture<EvalNode> res = evaluateNode(node, context);
-        return res
-                .thenApply(n -> n.getValue() != null ? n.getValue().toString() : "")
-                .getNow("");
+        EvalNode res = evaluateNode(node, context).join();
+        Function function = context.getFunction(res, "toString");
+        return ((StringEvalNode) function.execute(Collections.singletonList(res)).join()).getValue();
     }
 
     private CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
@@ -149,24 +148,22 @@ public class Evaluator {
         });
     }
 
-    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context, CompletableFuture<List<EvalNode>> argsFuture) throws HistoneException {
+    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context, List<EvalNode> args) throws HistoneException {
         final int valueIndex = 0;
         final int methodIndex = 1;
         final CompletableFuture<List<EvalNode>> processNodes = sequence(Arrays.asList(
                 evaluateNode(expNode.getNode(valueIndex), context),
                 evaluateNode(expNode.getNode(methodIndex), context)
         ));
-        return argsFuture.thenCompose(args ->
-            processNodes.thenCompose(methodNodes -> {
-                final EvalNode valueNode = methodNodes.get(valueIndex);
-                final EvalNode methodNode = methodNodes.get(methodIndex);
-                final List<EvalNode> argsNode = new ArrayList<>();
-                argsNode.add(valueNode);
-                argsNode.addAll(args);
-                final Function f = context.getFunction(valueNode, methodNode.asString());
-                return f.execute(argsNode);
-            })
-        );
+        return processNodes.thenCompose(methodNodes -> {
+            final EvalNode valueNode = methodNodes.get(valueIndex);
+            final EvalNode methodNode = methodNodes.get(methodIndex);
+            final List<EvalNode> argsNode = new ArrayList<>();
+            argsNode.add(valueNode);
+            argsNode.addAll(args);
+            final Function f = context.getFunction(valueNode, methodNode.asString());
+            return f.execute(argsNode);
+        });
     }
 
     private CompletableFuture<EvalNode> processTernary(ExpAstNode expNode, Context context) throws HistoneException {
@@ -182,38 +179,28 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) throws HistoneException {
-        CompletableFuture<EvalNode> valueFuture = evaluateNode(expNode.getNode(0), context);
-        CompletableFuture<EvalNode> propertyNameFuture = evaluateNode(expNode.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueFuture, propertyNameFuture);
-
-        return leftRightDone.thenApply(futures -> {
-            Object obj = ((MapEvalNode) futures.get(0)).getProperty((String) futures.get(1).getValue());
-            return createEvalNode(obj);
-        });
+        return evalAllNodesOfCurrent(expNode, context)
+                .thenApply(futures -> {
+                    Object obj = ((MapEvalNode) futures.get(0)).getProperty((String) futures.get(1).getValue());
+                    return createEvalNode(obj);
+                });
     }
 
     private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) throws HistoneException {
-        throw new NotImplementedException();
-//        final ExpAstNode node = expNode.getNode(0);
-//        final EvalNode functionNameNode = evaluateNode((node).getNode(0), context);
-//        final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
-//        final List<EvalNode> paramsNodes = toEvalNodes(paramsAstNodes, context);
-//        if (functionNameNode instanceof StringEvalNode) {
-//            final Function function = context.getFunction((String) functionNameNode.getValue());
-//            return function.execute(paramsNodes);
-//        } else {
-//            return processMethod(node, context, paramsNodes);
-//        }
-    }
-
-    private List<EvalNode> toEvalNodes(List<AstNode> astNodes, Context context) throws HistoneException {
-        List<EvalNode> res = new ArrayList<>();
-//        for (AstNode node : astNodes) {
-//            res.add(evaluateNode(node, context));
-//        }
-//        return res;
-        throw new NotImplementedException();
+        final ExpAstNode node = expNode.getNode(0);
+        CompletableFuture<EvalNode> functionNameFuture = evaluateNode(node.getNode(0), context);
+        final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
+        CompletableFuture<List<EvalNode>> argsFuture = sequence(paramsAstNodes.stream()
+                .map(x -> evaluateNode(x, context))
+                .collect(Collectors.toList()));
+        return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
+            if (functionNameNode instanceof StringEvalNode) {
+                final Function function = context.getFunction((String) functionNameNode.getValue());
+                return function.execute(args);
+            } else {
+                return processMethod(node, context, args);
+            }
+        }));
     }
 
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) throws HistoneException {
@@ -251,8 +238,7 @@ public class Evaluator {
         return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
     }
 
-    private CompletableFuture<EvalNode> processMapValue(ExpAstNode expNode, Context context, MapEvalNode
-            objToIterate) {
+    private CompletableFuture<EvalNode> processMapValue(ExpAstNode expNode, Context context, MapEvalNode objToIterate) {
         CompletableFuture<EvalNode> keyVarName = evaluateNode(expNode.getNode(0), context);
         CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
 
@@ -306,12 +292,12 @@ public class Evaluator {
         return iterableContext;
     }
 
-    private Map<String, Object> constructSelfValue(String key, Object value, int currentIndex, int lastIndex) {
+    private Map<String, Object> constructSelfValue(String key, Object value, long currentIndex, long lastIndex) {
         Map<String, Object> res = new LinkedHashMap<>();
-        res.put(SELF_CONTEXT_CURRENT_INDEX, currentIndex);
-        res.put(SELF_CONTEXT_LAST_INDEX, lastIndex);
         res.put(SELF_CONTEXT_KEY, key);
         res.put(SELF_CONTEXT_VALUE, value);
+        res.put(SELF_CONTEXT_CURRENT_INDEX, currentIndex);
+        res.put(SELF_CONTEXT_LAST_INDEX, lastIndex);
         return res;
     }
 

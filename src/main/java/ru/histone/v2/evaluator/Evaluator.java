@@ -23,7 +23,8 @@ import static ru.histone.v2.utils.AsyncUtils.sequence;
  * Created by alexey.nevinsky on 12.01.2016.
  */
 public class Evaluator {
-    private final static Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
+    private static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
+    private static final String TO_STRING_FUNC_NAME = "toString";
 
     public String process(String baseUri, ExpAstNode node, Context context) throws HistoneException {
         context.setBaseUri(baseUri);
@@ -32,8 +33,7 @@ public class Evaluator {
 
     private String processInternal(ExpAstNode node, Context context) throws HistoneException {
         EvalNode res = evaluateNode(node, context).join();
-        Function function = context.getFunction(res, "toString");
-        return ((StringEvalNode) function.execute(Collections.singletonList(res)).join()).getValue();
+        return ((StringEvalNode) context.call(res, TO_STRING_FUNC_NAME, Collections.singletonList(res)).join()).getValue();
     }
 
     private CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
@@ -143,8 +143,8 @@ public class Evaluator {
             final List<EvalNode> argsNode = new ArrayList<>();
             argsNode.add(valueNode);
             argsNode.addAll(nodes.subList(startArgsIndex, nodes.size()));
-            final Function f = context.getFunction(valueNode, methodNode.asString());
-            return f.execute(argsNode);
+
+            return context.call(valueNode, methodNode.asString(), argsNode);
         });
     }
 
@@ -158,11 +158,11 @@ public class Evaluator {
         return processNodes.thenCompose(methodNodes -> {
             final EvalNode valueNode = methodNodes.get(valueIndex);
             final EvalNode methodNode = methodNodes.get(methodIndex);
-            final List<EvalNode> argsNode = new ArrayList<>();
-            argsNode.add(valueNode);
-            argsNode.addAll(args);
-            final Function f = context.getFunction(valueNode, methodNode.asString());
-            return f.execute(argsNode);
+            final List<EvalNode> argsNodes = new ArrayList<>();
+            argsNodes.add(valueNode);
+            argsNodes.addAll(args);
+
+            return context.call(valueNode, methodNode.asString(), argsNodes);
         });
     }
 
@@ -195,8 +195,7 @@ public class Evaluator {
                 .collect(Collectors.toList()));
         return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
             if (functionNameNode instanceof StringEvalNode) {
-                final Function function = context.getFunction((String) functionNameNode.getValue());
-                return function.execute(args);
+                return context.call((String) functionNameNode.getValue(), args);
             } else {
                 return processMethod(node, context, args);
             }
@@ -601,10 +600,7 @@ public class Evaluator {
             CompletableFuture<List<EvalNode>> f = evalAllNodesOfCurrent(node, context);
             return f.thenApply(nodes -> new StringEvalNode(
                     nodes.stream()
-                            .map(n -> {
-                                Function function = context.getFunction(n, "toString");
-                                return function.execute(Collections.singletonList(n));
-                            })
+                            .map(n -> context.call(n, TO_STRING_FUNC_NAME, Collections.singletonList(n)))
                             .map(CompletableFuture::join)
                             .map(n -> n.getValue() + "")
                             .collect(Collectors.joining())

@@ -5,6 +5,7 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.io.BufferedReader;
@@ -14,9 +15,9 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.concurrent.Executors;
 
 /**
- *
  * Created by gali.alykoff on 14/01/16.
  */
 public class HistoneV2StandardFromJs {
@@ -32,7 +33,9 @@ public class HistoneV2StandardFromJs {
         System.out.println("--------");
 
         try {
-            final Context context = new Context("");
+            RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
+
+            final Context context = Context.createRoot("", rtti);
             final Evaluator evaluator = new Evaluator();
             final ExpAstNode root = new Parser().process(tpl, baseURI);
             System.out.println(ParserUtils.astToString(root));

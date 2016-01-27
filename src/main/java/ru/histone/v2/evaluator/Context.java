@@ -1,15 +1,14 @@
 package ru.histone.v2.evaluator;
 
-import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Evaluation context of histone
@@ -20,35 +19,43 @@ public class Context implements Serializable {
     private String baseUri;
 
     private RunTimeTypeInfo rttiInfo;
-    private ExecutorService executorService;
 
     private Context parent;
-    private ConcurrentMap<String, Object> vars = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
 
     /**
      * This constructor user for creating a child context
      */
-    private Context() {}
-
-    /**
-     * This constructor used for create a root node
-     *
-     * @param baseUri of context
-     */
-    public Context(String baseUri) {
-        this.baseUri = baseUri;
-        this.rttiInfo = new RunTimeTypeInfo();
+    private Context() {
     }
 
+    /**
+     * This method used for create a root node
+     *
+     * @param baseUri  of context
+     * @param rttiInfo is global run tipe type info
+     * @return created root context
+     */
+    public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo) {
+        Context context = new Context();
+        context.baseUri = baseUri;
+        context.rttiInfo = rttiInfo;
+        return context;
+    }
+
+    /**
+     * This method used for create a child context
+     *
+     * @return child context
+     */
     public Context createNew() {
         Context ctx = new Context();
-        ctx.executorService = this.executorService;
         ctx.setParent(this);
         ctx.setRttiInfo(rttiInfo); //for fast access to rtti functions
         return ctx;
     }
 
-    public void put(String key, Object value) {
+    public void put(String key, CompletableFuture<EvalNode> value) {
         vars.putIfAbsent(key, value);
     }
 
@@ -56,8 +63,8 @@ public class Context implements Serializable {
         return vars.containsKey(key);
     }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
+    public CompletableFuture<EvalNode> getValue(String key) {
+        return vars.get(key);
     }
 
     public Context getParent() {
@@ -68,11 +75,11 @@ public class Context implements Serializable {
         this.parent = parent;
     }
 
-    public ConcurrentMap<String, Object> getVars() {
+    public ConcurrentMap<String, CompletableFuture<EvalNode>> getVars() {
         return vars;
     }
 
-    public void setVars(ConcurrentMap<String, Object> vars) {
+    public void setVars(ConcurrentMap<String, CompletableFuture<EvalNode>> vars) {
         this.vars = vars;
     }
 
@@ -96,20 +103,11 @@ public class Context implements Serializable {
         this.rttiInfo.register(type, function.getName(), function);
     }
 
-    public Function getFunction(HistoneType type, String name) throws HistoneException {
-        Function function = rttiInfo.getFunc(type, name);
-        if (function == null) {
-            throw new FunctionExecutionException(String.format("Wrong function '%s' for type '%s'", name, type));
-        }
-        return function;
+    public CompletableFuture<EvalNode> call(String name, List<EvalNode> args) {
+        return rttiInfo.callFunction(HistoneType.T_GLOBAL, name, args);
     }
 
-    public Function getFunction(EvalNode node, String name) throws HistoneException {
-        HistoneType type = rttiInfo.getType(node);
-        return getFunction(type, name);
-    }
-
-    public Function getFunction(String name) throws HistoneException {
-        return getFunction(HistoneType.T_GLOBAL, name);
+    public CompletableFuture<EvalNode> call(EvalNode node, String name, List<EvalNode> args) {
+        return rttiInfo.callFunction(node, name, args);
     }
 }

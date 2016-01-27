@@ -6,9 +6,11 @@ import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.ParserException;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.test.dto.HistoneTestCase;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -16,6 +18,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 /**
  * Created by inv3r on 21/01/16.
@@ -26,13 +30,15 @@ public class BaseTest {
         Parser parser = new Parser();
 
         Evaluator evaluator = new Evaluator();
+        RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
+
         try {
             ExpAstNode root = parser.process(input, "");
             if (testCase.getExpectedAST() != null) {
                 Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
             }
             if (testCase.getExpectedResult() != null) {
-                Context context = new Context("");
+                Context context = Context.createRoot("", rtti);
                 if (testCase.getContext() != null) {
                     context.getVars().putAll(convertContext(testCase));
                 }
@@ -50,8 +56,8 @@ public class BaseTest {
         }
     }
 
-    protected Map<String, Object> convertContext(HistoneTestCase.Case testCase) {
-        Map<String, Object> res = new HashMap<>();
+    protected Map<String, CompletableFuture<EvalNode>> convertContext(HistoneTestCase.Case testCase) {
+        Map<String, CompletableFuture<EvalNode>> res = new HashMap<>();
         for (Map.Entry<String, Object> entry : testCase.getContext().entrySet()) {
             if (entry.getValue() == null) {
                 res.putIfAbsent(entry.getKey(), EvalUtils.getValue(ObjectUtils.NULL));

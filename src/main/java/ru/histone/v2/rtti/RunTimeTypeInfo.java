@@ -14,8 +14,11 @@ import ru.histone.v2.evaluator.node.*;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 
 import static ru.histone.v2.rtti.HistoneType.*;
 
@@ -24,10 +27,14 @@ import static ru.histone.v2.rtti.HistoneType.*;
  * Created by gali.alykoff on 22/01/16.
  */
 public class RunTimeTypeInfo implements Irtti, Serializable {
-    private Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
-    private Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
+    private final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
+    private final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 
-    public RunTimeTypeInfo() {
+    private final Executor executor;
+
+    public RunTimeTypeInfo(Executor executor) {
+        this.executor = executor;
+
         for (HistoneType type : HistoneType.values()) {
             typeMembers.put(type, new HashMap<>());
             userTypes.put(type, new HashMap<>());
@@ -74,7 +81,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new Keys(false));
 
         registerCommon(T_GLOBAL, new Range());
-        registerCommon(T_GLOBAL, new LoadJson());
+        registerCommon(T_GLOBAL, new LoadJson(executor));
 
         registerCommon(T_REGEXP, new Test());
     }
@@ -107,5 +114,20 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     public void unregistered(HistoneType type, String funcName) {
         throw new NotImplementedException();
+    }
+
+    public CompletableFuture<EvalNode> callFunction(HistoneType type, String funcName, List<EvalNode> args) {
+        final Function f = getFunc(type, funcName);
+        if (f.isAsync()) {
+            return CompletableFuture
+                    .completedFuture(null)
+                    .thenComposeAsync((x) -> f.execute(args), executor);
+        }
+        return f.execute(args);
+    }
+
+    public CompletableFuture<EvalNode> callFunction(EvalNode node, String funcName, List<EvalNode> args) {
+        HistoneType type = getType(node);
+        return callFunction(type, funcName, args);
     }
 }

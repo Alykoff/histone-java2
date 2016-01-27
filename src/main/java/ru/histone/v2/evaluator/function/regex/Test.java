@@ -1,18 +1,18 @@
 package ru.histone.v2.evaluator.function.regex;
 
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.data.HistoneRegex;
-import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
  * Created by gali.alykoff on 26/01/16.
  */
 public class Test implements Function, Serializable {
@@ -24,7 +24,7 @@ public class Test implements Function, Serializable {
     }
 
     @Override
-    public EvalNode execute(List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException {
         try {
             final HistoneRegex regexHistone = (HistoneRegex) args.get(0).getValue();
             final EvalNode evalNode = args.get(1);
@@ -35,7 +35,7 @@ public class Test implements Function, Serializable {
             final Matcher matcher = pattern.matcher(exp);
             final boolean result = matcher.find();
 
-            return new BooleanEvalNode(result);
+            return EvalUtils.getValue(result);
         } catch (Exception e) {
             throw new FunctionExecutionException(e);
         }

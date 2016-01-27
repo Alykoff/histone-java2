@@ -19,6 +19,7 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Use this interface when you need to implement your own global function
@@ -39,7 +40,7 @@ public interface Function {
      * @return result as one of Histone types
      * @throws FunctionExecutionException if your function stops with error and you need to put details into log, then you should use this exception
      */
-    EvalNode execute(List<EvalNode> args) throws FunctionExecutionException;
+    CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException;
 
     /**
      * @return

@@ -11,8 +11,8 @@ import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static ru.histone.v2.evaluator.EvalUtils.*;
@@ -608,8 +608,12 @@ public class Evaluator {
             CompletableFuture<List<EvalNode>> f = evalNodes(node, context);
             return f.thenApply(nodes -> new StringEvalNode(
                     nodes.stream()
-                            .map(EvalNode::getValue)
-                            .map(x -> x != null ? x + "" : "")
+                            .map(n -> {
+                                Function function = context.getFunction(n, "toString");
+                                return function.execute(Collections.singletonList(n));
+                            })
+                            .map(CompletableFuture::join)
+                            .map(n -> n.getValue() + "")
                             .collect(Collectors.joining())
             ));
         }

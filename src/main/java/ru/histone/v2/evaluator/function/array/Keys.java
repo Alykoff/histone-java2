@@ -1,8 +1,8 @@
 package ru.histone.v2.evaluator.function.array;
 
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by inv3r on 25/01/16.
@@ -28,7 +29,7 @@ public class Keys implements Function {
     }
 
     @Override
-    public EvalNode execute(List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(List<EvalNode> args) throws FunctionExecutionException {
         Map<String, Object> map = (Map<String, Object>) args.get(0).getValue();
         Collection set = isKeys ? map.keySet() : map.values();
 
@@ -43,7 +44,7 @@ public class Keys implements Function {
             i++;
         }
 
-        return new MapEvalNode(res);
+        return EvalUtils.getValue(res);
     }
 
     @Override

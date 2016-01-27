@@ -12,13 +12,11 @@ import ru.histone.v2.utils.ParserUtils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collector;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static ru.histone.v2.evaluator.EvalUtils.*;
-import static ru.histone.v2.utils.AsyncUtils.*;
+import static ru.histone.v2.utils.AsyncUtils.sequence;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -316,7 +314,7 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processAddNode(ExpAstNode node, Context context) throws HistoneException {
-        CompletableFuture<List<EvalNode>> leftRight = evalNodes(node, context);
+        CompletableFuture<List<EvalNode>> leftRight = evalAllNodesOfCurrent(node, context);
         return leftRight.thenApply(lr -> {
             EvalNode left = lr.get(0);
             EvalNode right = lr.get(1);
@@ -509,10 +507,10 @@ public class Evaluator {
             return CompletableFuture.completedFuture(new MapEvalNode(Collections.emptyMap()));
         }
         if (node.getNode(0).getType() == AstType.AST_VAR) {
-            return evalNodes(node, context).thenApply(evalNodes -> EmptyEvalNode.INSTANCE);
+            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EmptyEvalNode.INSTANCE);
         } else {
             if (node.size() > 0) {
-                CompletableFuture<List<EvalNode>> futures = evalNodes(node, context);
+                CompletableFuture<List<EvalNode>> futures = evalAllNodesOfCurrent(node, context);
                 return futures.thenApply(nodes -> {
                     Map<String, Object> map = new LinkedHashMap<>();
                     for (int i = 0; i < nodes.size() / 2; i++) {
@@ -612,7 +610,7 @@ public class Evaluator {
             AstNode node1 = node.getNode(0);
             return evaluateNode(node1, context);
         } else {
-            CompletableFuture<List<EvalNode>> f = evalNodes(node, context);
+            CompletableFuture<List<EvalNode>> f = evalAllNodesOfCurrent(node, context);
             return f.thenApply(nodes -> new StringEvalNode(
                     nodes.stream()
                             .map(n -> {
@@ -626,7 +624,7 @@ public class Evaluator {
         }
     }
 
-    private CompletableFuture<List<EvalNode>> evalNodes(ExpAstNode node, Context context) throws HistoneException {
+    private CompletableFuture<List<EvalNode>> evalAllNodesOfCurrent(ExpAstNode node, Context context) throws HistoneException {
         List<CompletableFuture<EvalNode>> futures = new ArrayList<>(node.size());
         for (AstNode currNode : node.getNodes()) {
             futures.add(evaluateNode(currNode, context));
@@ -636,16 +634,13 @@ public class Evaluator {
 
 
     private CompletableFuture<EvalNode> processEqNode(ExpAstNode node, Context context, boolean isEquals) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
 
         return leftRightDone.thenApply(f -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
+            EvalNode left = f.get(0);
+            EvalNode right = f.get(1);
 
-            return new BooleanEvalNode(equalityNode(left, right) && isEquals);
+            return new BooleanEvalNode(isEquals == equalityNode(left, right));
         });
     }
 

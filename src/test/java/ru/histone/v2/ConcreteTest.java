@@ -18,7 +18,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("a # b");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("{{if 7 != 8}}true{{else}}false{{/if}}", testCase);
+        doTest("<div>{{[1, 2, 3]->size}} = 3</div>", testCase);
     }
 
     private Map<String, Object> getMap() {

@@ -12,10 +12,13 @@ import ru.histone.v2.utils.ParserUtils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collector;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.utils.AsyncUtils.*;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -131,21 +134,24 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context) throws HistoneException {
-        throw new NotImplementedException();
-//        CompletableFuture<EvalNode> valueNode = evaluateNode(expNode.getNode(0), context);
-//        CompletableFuture<EvalNode> methodNode = evaluateNode(expNode.getNode(1), context);
-//
-//        final int size = expNode.getNodes().size();
-//        final List<EvalNode> args = new ArrayList<>();
-//        for (AstNode node : expNode.getNodes().subList(2, size)) {
-//            args.add(evaluateNode(node, context));
-//        }
-//        final List<EvalNode> allParams = new ArrayList<>();
-//        allParams.add(valueNode);
-//        allParams.addAll(args);
-//
-//        Function f = context.getFunction(valueNode, methodNode.asString());
-//        return f.execute(allParams);
+        final int valueIndex = 0;
+        final int methodIndex = 1;
+        final int startArgsIndex = 2;
+        final List<CompletableFuture<EvalNode>> evalNodes = expNode.getNodes()
+                .stream()
+                .map(node -> evaluateNode(node, context))
+                .collect(Collectors.toList());
+        final CompletableFuture<List<EvalNode>> nodesFuture = sequence(evalNodes);
+
+        return nodesFuture.thenCompose(nodes -> {
+            final EvalNode valueNode = nodes.get(valueIndex);
+            final EvalNode methodNode = nodes.get(methodIndex);
+            final List<EvalNode> argsNode = new ArrayList<>();
+            argsNode.add(valueNode);
+            argsNode.addAll(nodes.subList(startArgsIndex, nodes.size()));
+            final Function f = context.getFunction(valueNode, methodNode.asString());
+            return f.execute(argsNode);
+        });
     }
 
     private EvalNode processMethod(ExpAstNode expNode, Context context, List<EvalNode> args) throws HistoneException {
@@ -177,7 +183,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> valueFuture = evaluateNode(expNode.getNode(0), context);
         CompletableFuture<EvalNode> propertyNameFuture = evaluateNode(expNode.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(valueFuture, propertyNameFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueFuture, propertyNameFuture);
 
         return leftRightDone.thenApply(futures -> {
             Object obj = ((MapEvalNode) futures.get(0)).getProperty((String) futures.get(1).getValue());
@@ -248,7 +254,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> keyVarName = evaluateNode(expNode.getNode(0), context);
         CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(keyVarName, valueVarName);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(keyVarName, valueVarName);
         return leftRightDone.thenCompose(keyValueNames -> {
             CompletableFuture<List<EvalNode>> res = iterate(expNode, context, objToIterate, keyValueNames.get(0), keyValueNames.get(1));
             return res.thenApply(nodes ->
@@ -337,7 +343,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(futures -> {
             EvalNode left = leftFuture.getNow(null);
@@ -384,7 +390,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode left = leftFuture.getNow(null);
@@ -447,7 +453,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode left = leftFuture.getNow(null);
@@ -461,7 +467,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode left = leftFuture.getNow(null);
@@ -475,7 +481,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode left = leftFuture.getNow(null);
@@ -489,7 +495,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> valueNameFuture = evaluateNode(node.getNode(1), context);
         CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(valueNameFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueNameFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode valueName = valueNameFuture.getNow(null);
@@ -576,7 +582,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode left = leftFuture.getNow(null);
@@ -590,7 +596,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode left = leftFuture.getNow(null);
@@ -625,7 +631,7 @@ public class Evaluator {
         for (AstNode currNode : node.getNodes()) {
             futures.add(evaluateNode(currNode, context));
         }
-        return EvalUtils.sequence(futures);
+        return sequence(futures);
     }
 
 
@@ -633,7 +639,7 @@ public class Evaluator {
         CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
         CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
 
-        CompletableFuture<List<EvalNode>> leftRightDone = EvalUtils.sequence(leftFuture, rightFuture);
+        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
 
         return leftRightDone.thenApply(f -> {
             EvalNode left = leftFuture.getNow(null);

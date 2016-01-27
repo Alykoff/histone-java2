@@ -5,6 +5,7 @@ import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
+import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
@@ -28,13 +29,15 @@ public class ToString implements Function {
             return EvalUtils.getValue("");
         } else if (node instanceof MapEvalNode) {
             return EvalUtils.getValue(getMapString((MapEvalNode) node));
+        } else if (node instanceof NullEvalNode) {
+            return EvalUtils.getValue("null");
         }
         return EvalUtils.getValue(node.getValue() + "");
     }
 
     private String getMapString(MapEvalNode node) {
         Map<String, Object> map = node.getValue();
-        return map.values().stream().map(x -> x + "").collect(Collectors.joining(" "));
+        return map.values().stream().filter(x -> x != null).map(x -> x + "").collect(Collectors.joining(" "));
     }
 
     @Override

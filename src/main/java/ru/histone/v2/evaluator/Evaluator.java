@@ -310,26 +310,27 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processAddNode(ExpAstNode node, Context context) throws HistoneException {
-        throw new NotImplementedException();
-//        EvalNode left = evaluateNode(node.getNode(0), context);
-//        EvalNode right = evaluateNode(node.getNode(1), context);
-//
-//        if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
-//            if (isNumberNode(left) && isNumberNode(right)) {
-//                Float res = getValue(left) + getValue(right);
-//                if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
-//                    return new LongEvalNode(res.longValue());
-//                } else {
-//                    return new FloatEvalNode(res);
-//                }
-//            }
-//
-//            if (left instanceof MapEvalNode && right instanceof MapEvalNode) {
-//                throw new NotImplementedException();
-//            }
-//        }
-//
-//        return new StringEvalNode(left.asString() + right.asString());
+        CompletableFuture<List<EvalNode>> leftRight = evalNodes(node, context);
+        return leftRight.thenApply(lr -> {
+            EvalNode left = lr.get(0);
+            EvalNode right = lr.get(1);
+            if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
+                if (isNumberNode(left) && isNumberNode(right)) {
+                    Float res = getValue(left) + getValue(right);
+                    if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
+                        return new LongEvalNode(res.longValue());
+                    } else {
+                        return new FloatEvalNode(res);
+                    }
+                }
+
+                if (left instanceof MapEvalNode && right instanceof MapEvalNode) {
+                    throw new NotImplementedException();
+                }
+            }
+
+            return new StringEvalNode(left.asString() + right.asString());
+        });
     }
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) throws HistoneException {

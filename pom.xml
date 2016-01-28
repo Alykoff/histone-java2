@@ -182,34 +182,34 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <header>src/etc/HEADER.txt</header>
-                    <properties>
-                        <year>${project.inceptionYear}</year>
-                    </properties>
-                    <excludes>
-                        <exclude>**/pom.xml</exclude>
-                        <exclude>**/README</exclude>
-                        <exclude>**/NOTICE.txt</exclude>
-                        <exclude>**/LICENSE.txt</exclude>
-                        <exclude>src/test/resources/**</exclude>
-                        <exclude>src/main/resources/**</exclude>
-                        <exclude>src/assembly/**</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+            <!--<groupId>com.mycila</groupId>-->
+            <!--<artifactId>license-maven-plugin</artifactId>-->
+            <!--<version>2.5</version>-->
+            <!--<configuration>-->
+            <!--<header>src/etc/HEADER.txt</header>-->
+            <!--<properties>-->
+            <!--<year>${project.inceptionYear}</year>-->
+            <!--</properties>-->
+            <!--<excludes>-->
+            <!--<exclude>**/pom.xml</exclude>-->
+            <!--<exclude>**/README</exclude>-->
+            <!--<exclude>**/NOTICE.txt</exclude>-->
+            <!--<exclude>**/LICENSE.txt</exclude>-->
+            <!--<exclude>src/test/resources/**</exclude>-->
+            <!--<exclude>src/main/resources/**</exclude>-->
+            <!--<exclude>src/assembly/**</exclude>-->
+            <!--</excludes>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>compile</phase>-->
+            <!--<goals>-->
+            <!--<goal>check</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

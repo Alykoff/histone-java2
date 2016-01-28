@@ -20,10 +20,6 @@ public class AsyncUtils {
         );
     }
 
-//    public static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
-//        return sequence(futures.toArray(new CompletableFuture[futures.size()]));
-//    }
-//
     public static <T> CompletableFuture<List<T>> sequence(CompletableFuture<T>... futures) {
         CompletableFuture<Void> allDoneFuture =
                 CompletableFuture.allOf(futures);

@@ -9,6 +9,10 @@
       {
         "input": "a{{}}b",
         "expectedResult": "ab"
+      },
+      {
+        "input": "a{{'a' + 'b'}}b",
+        "expectedResult": "aabb"
       }
     ]
   }

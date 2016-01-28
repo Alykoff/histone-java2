@@ -61,18 +61,8 @@ public class ParserUtils {
         }
 
         String v = (String) value;
-        try {
-            Integer.parseInt(v);
+        if (isInt(v) || tryFloat(v) != null) {
             return true;
-        } catch (Exception ignore) {
-
-        }
-
-        try {
-            Double.parseDouble(v);
-            return true;
-        } catch (Exception ignore) {
-
         }
         return false;
     }

@@ -11,9 +11,4 @@ public class BooleanEvalNode extends EvalNode<Boolean> {
     public BooleanEvalNode(Boolean res) {
         super(res);
     }
-
-    public BooleanEvalNode neg() {
-        this.value = !value;
-        return this;
-    }
 }

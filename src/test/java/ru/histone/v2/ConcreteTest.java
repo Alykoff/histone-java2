@@ -18,7 +18,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("a # b");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("<div>{{'STRING_VALUE'->toNumber(42)}} = 42</div>", testCase);
+        doTest("<div>{{4.3->toCeil}} = 5</div>", testCase);
     }
 
     private Map<String, Object> getMap() {

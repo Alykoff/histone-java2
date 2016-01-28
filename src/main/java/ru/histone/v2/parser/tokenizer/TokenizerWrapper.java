@@ -42,10 +42,6 @@ public class TokenizerWrapper {
         return tokenizer.test(ignored, selector);
     }
 
-    public TokenizerResult test(Tokens token) {
-        return test(token.getId());
-    }
-
     public int getLineNumber(long index) {
         return tokenizer.getLineNumber(index);
     }

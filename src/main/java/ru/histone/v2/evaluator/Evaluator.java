@@ -159,12 +159,12 @@ public class Evaluator {
 
         return nodesFuture.thenCompose(nodes -> {
             final EvalNode valueNode = nodes.get(valueIndex);
-            final EvalNode methodNode = nodes.get(methodIndex);
+            final StringEvalNode methodNode = (StringEvalNode) nodes.get(methodIndex);
             final List<EvalNode> argsNode = new ArrayList<>();
             argsNode.add(valueNode);
             argsNode.addAll(nodes.subList(startArgsIndex, nodes.size()));
 
-            return context.call(valueNode, methodNode.asString(), argsNode);
+            return context.call(valueNode, methodNode.getValue(), argsNode);
         });
     }
 
@@ -177,12 +177,12 @@ public class Evaluator {
         ));
         return processNodes.thenCompose(methodNodes -> {
             final EvalNode valueNode = methodNodes.get(valueIndex);
-            final EvalNode methodNode = methodNodes.get(methodIndex);
+            final StringEvalNode methodNode = (StringEvalNode) methodNodes.get(methodIndex);
             final List<EvalNode> argsNodes = new ArrayList<>();
             argsNodes.add(valueNode);
             argsNodes.addAll(args);
 
-            return context.call(valueNode, methodNode.asString(), argsNodes);
+            return context.call(valueNode, methodNode.getValue(), argsNodes);
         });
     }
 
@@ -324,16 +324,16 @@ public class Evaluator {
 
     private CompletableFuture<EvalNode> processAddNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRight = evalAllNodesOfCurrent(node, context);
-        return leftRight.thenApply(lr -> {
+        return leftRight.thenCompose(lr -> {
             EvalNode left = lr.get(0);
             EvalNode right = lr.get(1);
             if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
                 if (isNumberNode(left) && isNumberNode(right)) {
                     Float res = getValue(left) + getValue(right);
                     if (res % 1 == 0 && res <= Long.MAX_VALUE) {
-                        return new LongEvalNode(res.longValue());
+                        return EvalUtils.getValue(res.longValue());
                     } else {
-                        return new FloatEvalNode(res);
+                        return EvalUtils.getValue(res);
                     }
                 }
 
@@ -342,7 +342,15 @@ public class Evaluator {
                 }
             }
 
-            return new StringEvalNode(left.asString() + right.asString());
+            CompletableFuture<List<EvalNode>> lrFutures = sequence(
+                    context.call(TO_STRING_FUNC_NAME, Collections.singletonList(left)),
+                    context.call(TO_STRING_FUNC_NAME, Collections.singletonList(right))
+            );
+            return lrFutures.thenCompose(futures -> {
+                StringEvalNode l = (StringEvalNode) futures.get(0);
+                StringEvalNode r = (StringEvalNode) futures.get(1);
+                return EvalUtils.getValue(l.getValue() + r.getValue());
+            });
         });
     }
 

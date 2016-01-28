@@ -9,7 +9,7 @@ import ru.histone.v2.evaluator.function.array.Size;
 import ru.histone.v2.evaluator.function.global.LoadJson;
 import ru.histone.v2.evaluator.function.global.Range;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
-import ru.histone.v2.evaluator.function.number.ToAbs;
+import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -89,6 +89,11 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new ToNumber());
 
         registerCommon(T_NUMBER, new ToAbs());
+        registerCommon(T_NUMBER, new ToCeil());
+        registerCommon(T_NUMBER, new ToChar());
+        registerCommon(T_NUMBER, new ToFloor());
+        registerCommon(T_NUMBER, new ToRound());
+        registerCommon(T_NUMBER, new ToFixed());
 
         registerCommon(T_ARRAY, new Size());
         registerCommon(T_ARRAY, new Keys(true));

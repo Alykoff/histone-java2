@@ -10,8 +10,4 @@ public class EmptyEvalNode extends EvalNode<Void> {
         super(null);
     }
 
-    @Override
-    public String asString() {
-        return "";
-    }
 }

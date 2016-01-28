@@ -383,7 +383,7 @@ public class Evaluator {
 
     private Float getValue(EvalNode node) {
         if (node instanceof StringEvalNode) {
-            return ParserUtils.isFloat(((StringEvalNode) node).getValue());
+            return ParserUtils.tryFloat(((StringEvalNode) node).getValue());
         } else {
             return Float.valueOf(node.getValue() + "");
         }

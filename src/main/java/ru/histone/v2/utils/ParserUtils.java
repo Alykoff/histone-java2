@@ -86,7 +86,7 @@ public class ParserUtils {
         }
     }
 
-    public static Float isFloat(String val) {
+    public static Float tryFloat(String val) {
         try {
             return Float.parseFloat(val);
         } catch (Exception ignore) {

@@ -18,7 +18,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("a # b");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("{{for in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}}<div style=\"color: {{self.index != self.last ? (self.index % 2 ? \"red\" : \"black\") : \"blue\"}}\">{{self->toJSON}}</div>{{/for}}", testCase);
+        doTest("{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([1, 2, 3, 4])}}", testCase);
     }
 
     private Map<String, Object> getMap() {

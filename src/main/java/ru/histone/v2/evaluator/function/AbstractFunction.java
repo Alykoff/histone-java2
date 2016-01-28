@@ -10,7 +10,21 @@ import java.util.concurrent.Executor;
 public abstract class AbstractFunction implements Function {
     protected final Executor executor;
 
+    public AbstractFunction() {
+        executor = null;
+    }
+
     public AbstractFunction(Executor executor) {
         this.executor = executor;
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
+    @Override
+    public boolean isClear() {
+        return false;
     }
 }

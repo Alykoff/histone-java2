@@ -31,10 +31,6 @@ public class TokenizerResult {
         this.found = found;
     }
 
-    public List<Token> getTokens() {
-        return tokens;
-    }
-
     public boolean isFound() {
         return found;
     }

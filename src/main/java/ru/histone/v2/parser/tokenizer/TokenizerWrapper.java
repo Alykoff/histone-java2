@@ -1,6 +1,5 @@
 package ru.histone.v2.parser.tokenizer;
 
-import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
 
 import java.util.Collections;
@@ -29,14 +28,6 @@ public class TokenizerWrapper {
 
     public String getBaseURI() {
         return tokenizer.getBaseURI();
-    }
-
-    public void readTokenToBuffer() {
-        tokenizer.readTokenToBuffer();
-    }
-
-    public Token getTokenFromBuffer(int offset) {
-        return tokenizer.getTokenFromBuffer(offset, ignored);
     }
 
     public TokenizerResult next(Integer... selector) {

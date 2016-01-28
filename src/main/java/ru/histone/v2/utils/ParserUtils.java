@@ -66,35 +66,51 @@ public class ParserUtils {
         return ((StringAstNode) node).getValue();
     }
 
-    public static boolean isString(Object obj) {
+    public static boolean isStrongString(Object obj) {
         return obj instanceof String;
+    }
+
+    public static boolean isStrongNumber(Object obj) {
+        return obj instanceof Integer || obj instanceof Long;
     }
 
     public static boolean isNumber(Object value) {
         if (value instanceof Number) {
             return true;
-        } else if (!isString(value)) {
+        } else if (!isStrongString(value)) {
             return false;
         }
 
         String v = (String) value;
-        return isInt(v) || tryFloat(v).isPresent();
+        return tryInt(v).isPresent() || tryFloat(v).isPresent();
     }
 
     public static boolean isInt(String value) {
-        try {
-            Integer.parseInt(value);
-            return true;
-        } catch (Exception ignore) {
-            return false;
-        }
+        return tryInt(value).isPresent();
     }
 
-    public static Optional<Float> tryFloat(String val) {
+    public static Optional<Integer> tryInt(String value) {
         try {
-            return Optional.of(Float.parseFloat(val));
+            return Optional.of(Integer.parseInt(value));
         } catch (Exception ignore) {
             return Optional.empty();
         }
+    }
+
+    public static Optional<Float> tryFloat(Object value) {
+        if (value instanceof Integer) {
+            return Optional.of(new Float((Integer) value));
+        }
+        if (value instanceof Float) {
+            return Optional.of((Float) value);
+        }
+        if (value instanceof String) {
+            try {
+                return Optional.of(Float.parseFloat((String) value));
+            } catch (Exception ignore) {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 }

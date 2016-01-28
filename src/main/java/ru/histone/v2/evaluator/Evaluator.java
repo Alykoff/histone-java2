@@ -347,14 +347,10 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
-
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(futures -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
+            EvalNode left = futures.get(0);
+            EvalNode right = futures.get(1);
 
             if ((isNumberNode(left) || left instanceof StringEvalNode) &&
                     (isNumberNode(right) || right instanceof StringEvalNode)) {
@@ -394,14 +390,10 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processRelation(ExpAstNode node, Context context) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
-
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(f -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
+            EvalNode left = f.get(0);
+            EvalNode right = f.get(1);
 
             final Integer compareResult;
             if (left instanceof StringEvalNode && isNumberNode(right)) {
@@ -457,45 +449,18 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processBorNode(ExpAstNode node, Context context) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
-
-        return leftRightDone.thenApply(f -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
-
-            return new BooleanEvalNode(nodeAsBoolean(left) | nodeAsBoolean(right));
-        });
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
+        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) | nodeAsBoolean(f.get(1))));
     }
 
     private CompletableFuture<EvalNode> processBxorNode(ExpAstNode node, Context context) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
-
-        return leftRightDone.thenApply(f -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
-
-            return new BooleanEvalNode(nodeAsBoolean(left) ^ nodeAsBoolean(right));
-        });
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
+        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) ^ nodeAsBoolean(f.get(1))));
     }
 
     private CompletableFuture<EvalNode> processBandNode(ExpAstNode node, Context context) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
-
-        return leftRightDone.thenApply(f -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
-
-            return new BooleanEvalNode(nodeAsBoolean(left) & nodeAsBoolean(right));
-        });
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
+        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) & nodeAsBoolean(f.get(1))));
     }
 
     private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) {
@@ -503,10 +468,8 @@ public class Evaluator {
         CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context);
 
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueNameFuture);
-
         return leftRightDone.thenApply(f -> {
-            EvalNode valueName = valueNameFuture.getNow(null);
-            context.put(valueName.getValue() + "", valueNodeFuture);
+            context.put(f.get(0).getValue() + "", valueNodeFuture);
             return EmptyEvalNode.INSTANCE;
         });
     }
@@ -589,31 +552,13 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
-
-        return leftRightDone.thenApply(f -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
-
-            return new BooleanEvalNode(nodeAsBoolean(left) || nodeAsBoolean(right));
-        });
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
+        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) || nodeAsBoolean(f.get(1))));
     }
 
     private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
-        CompletableFuture<EvalNode> leftFuture = evaluateNode(node.getNode(0), context);
-        CompletableFuture<EvalNode> rightFuture = evaluateNode(node.getNode(1), context);
-
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(leftFuture, rightFuture);
-
-        return leftRightDone.thenApply(f -> {
-            EvalNode left = leftFuture.getNow(null);
-            EvalNode right = rightFuture.getNow(null);
-
-            return new BooleanEvalNode(nodeAsBoolean(left) && nodeAsBoolean(right));
-        });
+        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
+        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) && nodeAsBoolean(f.get(1))));
     }
 
     private CompletableFuture<EvalNode> processNodeList(ExpAstNode node, Context context, boolean createContext) {

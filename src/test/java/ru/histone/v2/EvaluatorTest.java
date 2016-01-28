@@ -23,24 +23,24 @@ public class EvaluatorTest extends BaseTest {
     private HistoneTestCase.Case expected;
     private Integer index;
 
-    public EvaluatorTest(Integer index, String input, HistoneTestCase.Case expected) {
+    public EvaluatorTest(Integer index, Integer testIndex, String testCaseName, String input, HistoneTestCase.Case expected) {
         this.index = index;
         this.input = input;
         this.expected = expected;
     }
 
-    @Parameterized.Parameters(name = "{index}: `{1}`")
+    @Parameterized.Parameters(name = " {0}: {2}[{1}] `{3}` ")
     public static Collection<Object[]> data() throws IOException, URISyntaxException {
         final List<Object[]> result = new ArrayList<>();
         final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCases();
-        int i = 0;
+        int i = 1;
         for (HistoneTestCase histoneTestCase : histoneTestCases) {
             System.out.println("Run test '" + histoneTestCase.getName() + "'");
+            int j = 1;
             for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
                 System.out.println("Expression: " + testCase.getInput());
-                result.add(new Object[]{
-                        i++, testCase.getInput(), testCase
-                });
+                String testName = histoneTestCase.getName();
+                result.add(new Object[]{i++, j++, testName, testCase.getInput(), testCase});
             }
         }
         return result;

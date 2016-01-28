@@ -9,8 +9,10 @@ import ru.histone.v2.evaluator.function.array.Size;
 import ru.histone.v2.evaluator.function.global.LoadJson;
 import ru.histone.v2.evaluator.function.global.Range;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
+import ru.histone.v2.evaluator.function.number.ToAbs;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -82,6 +84,11 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new IsNull());
         registerForAlltypes(new IsBoolean());
         registerForAlltypes(new IsNumber());
+        registerForAlltypes(new IsInt());
+        registerForAlltypes(new IsFloat());
+        registerForAlltypes(new ToNumber());
+
+        registerCommon(T_NUMBER, new ToAbs());
 
         registerCommon(T_ARRAY, new Size());
         registerCommon(T_ARRAY, new Keys(true));
@@ -112,7 +119,10 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     public Function getFunc(HistoneType type, String funcName) {
         Function f = userTypes.get(type).get(funcName);
         if (f == null) {
-            return typeMembers.get(type).get(funcName);
+            f = typeMembers.get(type).get(funcName);
+            if (f == null) {
+                throw new FunctionExecutionException("Couldn't find function '" + funcName + "' for type " + type);
+            }
         }
         return f;
     }

@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
@@ -128,23 +127,23 @@ public class Evaluator {
     }
 
     /**
-     *  [AST_ID, MACRO_BODY, NUM_OF_VARS, VARS...]
+     * [AST_ID, MACRO_BODY, NUM_OF_VARS, VARS...]
      */
     private CompletableFuture<EvalNode> processMacroNode(ExpAstNode node, Context context) {
         final int bodyIndex = 0;
         final int startVarIndex = 2;
         final CompletableFuture<List<AstNode>> astArgsFuture = CompletableFuture.completedFuture(
-            node.size() < startVarIndex
-                ? Collections.<AstNode>emptyList()
-                : node.getNodes().subList(startVarIndex, node.size())
+                node.size() < startVarIndex
+                        ? Collections.<AstNode>emptyList()
+                        : node.getNodes().subList(startVarIndex, node.size())
         );
         final CompletableFuture<List<String>> argsFuture = astArgsFuture.thenApply(astNodes ->
-            astNodes.stream()
-                    .map(x -> {
-                        final StringAstNode nameNode = ((ExpAstNode) x).getNode(0);
-                        return nameNode.getValue();
-                    })
-                    .collect(Collectors.toList())
+                astNodes.stream()
+                        .map(x -> {
+                            final StringAstNode nameNode = ((ExpAstNode) x).getNode(0);
+                            return nameNode.getValue();
+                        })
+                        .collect(Collectors.toList())
         );
         return argsFuture.thenApply(args -> {
             final AstNode body = node.getNode(bodyIndex);
@@ -209,13 +208,15 @@ public class Evaluator {
 
     private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) {
         final ExpAstNode node = expNode.getNode(0);
-        CompletableFuture<EvalNode> functionNameFuture = evaluateNode(node.getNode(0), context);
+        final boolean valueNodeExists = node.size() > 1;
         final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
+
+        final CompletableFuture<EvalNode> functionNameFuture = evaluateNode(node.getNode(valueNodeExists ? 1 : 0), context);
         CompletableFuture<List<EvalNode>> argsFuture = sequence(paramsAstNodes.stream()
                 .map(x -> evaluateNode(x, context))
                 .collect(Collectors.toList()));
         return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
-            if (functionNameNode instanceof StringEvalNode) {
+            if (functionNameNode instanceof StringEvalNode && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);
             } else {
                 return processMethod(node, context, args);
@@ -329,7 +330,7 @@ public class Evaluator {
             if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
                 if (isNumberNode(left) && isNumberNode(right)) {
                     Float res = getValue(left) + getValue(right);
-                    if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
+                    if (res % 1 == 0 && res <= Long.MAX_VALUE) {
                         return new LongEvalNode(res.longValue());
                     } else {
                         return new FloatEvalNode(res);
@@ -374,7 +375,7 @@ public class Evaluator {
                 } else {
                     res = leftValue % rightValue;
                 }
-                if (res % 1 == 0 && res <= Integer.MAX_VALUE) {
+                if (res % 1 == 0 && res <= Long.MAX_VALUE) {
                     return new LongEvalNode(res.longValue());
                 } else {
                     return new FloatEvalNode(res);
@@ -540,6 +541,9 @@ public class Evaluator {
             if (n instanceof LongEvalNode) {
                 Long value = ((LongEvalNode) n).getValue();
                 return new LongEvalNode(-value);
+            } else if (n instanceof FloatEvalNode) {
+                Float value = ((FloatEvalNode) n).getValue();
+                return new FloatEvalNode(-value);
             }
             throw new NotImplementedException();
         });

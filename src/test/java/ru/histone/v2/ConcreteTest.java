@@ -17,8 +17,8 @@ public class ConcreteTest extends BaseTest {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("a # b");
         testCase.setContext(getMap());
-//        testCase.setExpectedAST("[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]");
-        doTest("{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([1, 2, 3, 4])}}", testCase);
+//        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
+        doTest("<div>{{'STRING_VALUE'->toNumber(42)}} = 42</div>", testCase);
     }
 
     private Map<String, Object> getMap() {

@@ -1,0 +1,11 @@
+[
+  {
+    "name": "global",
+    "cases": [
+      {
+        "input": "{{global->getBaseURI()}}",
+        "expectedResult": ""
+      }
+    ]
+  }
+]

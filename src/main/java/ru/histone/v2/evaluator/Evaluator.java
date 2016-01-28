@@ -51,7 +51,7 @@ public class Evaluator {
             case AST_ARRAY:
                 return processArrayNode(expNode, context);
             case AST_REGEXP:
-                return processRegExp(expNode, context);
+                return processRegExp(expNode);
             case AST_THIS:
                 break;
             case AST_GLOBAL:
@@ -99,7 +99,7 @@ public class Evaluator {
             case AST_MACRO:
                 return processMacroNode(expNode, context);
             case AST_RETURN:
-                break;
+                return processReturnNode(expNode, context);
             case AST_NODES:
                 return processNodeList(expNode, context, true);
             case AST_NODELIST:
@@ -119,6 +119,13 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private CompletableFuture<EvalNode> processReturnNode(ExpAstNode expNode, Context context) {
+        return evaluateNode(expNode.getNode(0), context).thenApply(r -> {
+            r.setIsReturn();
+            return r;
+        });
     }
 
     private CompletableFuture<EvalNode> processGlobalNode(ExpAstNode expNode, Context context) {
@@ -270,29 +277,39 @@ public class Evaluator {
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(keyVarName, valueVarName);
         return leftRightDone.thenCompose(keyValueNames -> {
             CompletableFuture<List<EvalNode>> res = iterate(expNode, context, objToIterate, keyValueNames.get(0), keyValueNames.get(1));
-            return res.thenApply(nodes ->
-                    new StringEvalNode(nodes
-                            .stream()
-                            .map(node -> node.getValue() + "")
+            return getEvaluatedString(context, res);
+        });
+    }
+
+    private CompletableFuture<EvalNode> getEvaluatedString(Context context, CompletableFuture<List<EvalNode>> res) {
+        return res.thenApply(nodes -> {
+            Optional<EvalNode> rNode = nodes.stream().filter(EvalNode::isReturn).findFirst();
+            List<EvalNode> nodesToProcess = nodes;
+            if (rNode.isPresent()) {
+                nodesToProcess = Collections.singletonList(rNode.get());
+            }
+            EvalNode result = new StringEvalNode(
+                    nodesToProcess.stream()
+                            .map(n -> context.call(n, TO_STRING_FUNC_NAME, Collections.singletonList(n)))
+                            .map(CompletableFuture::join)
+                            .map(n -> n.getValue() + "")
                             .collect(Collectors.joining())
-                    )
             );
+            if (rNode.isPresent()) {
+                result.setIsReturn();
+            }
+            return result;
+
         });
     }
 
     private CompletableFuture<List<EvalNode>> iterate(ExpAstNode expNode, Context context, MapEvalNode
             objToIterate, EvalNode keyVarName, EvalNode valueVarName) {
-        Context iterableContext;
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-
         List<CompletableFuture<EvalNode>> futures = new ArrayList<>(objToIterate.getValue().size());
+        int i = 0;
         for (Map.Entry<String, Object> entry : objToIterate.getValue().entrySet()) {
-            iterableContext = getIterableContext(context, objToIterate, keyVarName, valueVarName, i, entry);
+            Context iterableContext = getIterableContext(context, objToIterate, keyVarName, valueVarName, i, entry);
             futures.add(evaluateNode(expNode.getNode(3), iterableContext));
-
-            String res = processInternal(expNode.getNode(3), iterableContext);
-            sb.append(res);
             i++;
         }
         return CompletableFuture
@@ -556,7 +573,7 @@ public class Evaluator {
     private CompletableFuture<EvalNode> getValueFromParentContext(Context context, String valueName) {
         while (context != null) {
             if (context.contains(valueName)) {
-                return (CompletableFuture<EvalNode>) context.getVars().get(valueName);
+                return context.getVars().get(valueName);
             }
             context = context.getParent();
         }
@@ -575,7 +592,6 @@ public class Evaluator {
 
     private CompletableFuture<EvalNode> processNodeList(ExpAstNode node, Context context, boolean createContext) {
         final Context ctx = createContext ? context.createNew() : context;
-        //todo rework this method, add rtti and other cool features
         if (node.getNodes().size() == 1) {
             AstNode node1 = node.getNode(0);
             CompletableFuture<EvalNode> res = evaluateNode(node1, ctx);
@@ -583,13 +599,7 @@ public class Evaluator {
             return res;
         } else {
             CompletableFuture<List<EvalNode>> f = evalAllNodesOfCurrent(node, ctx);
-            return f.thenApply(nodes -> new StringEvalNode(
-                    nodes.stream()
-                            .map(n -> context.call(n, TO_STRING_FUNC_NAME, Collections.singletonList(n)))
-                            .map(CompletableFuture::join)
-                            .map(n -> n.getValue() + "")
-                            .collect(Collectors.joining())
-            ));
+            return getEvaluatedString(context, f);
         }
     }
 
@@ -629,7 +639,7 @@ public class Evaluator {
                 });
     }
 
-    private CompletableFuture<EvalNode> processRegExp(ExpAstNode node, Context context) {
+    private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {
         return CompletableFuture.supplyAsync(() -> {
             final LongAstNode flagsNumNode = node.getNode(1);
             final long flagsNum = flagsNumNode.getValue();

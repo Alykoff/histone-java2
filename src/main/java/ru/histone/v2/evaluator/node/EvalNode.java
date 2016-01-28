@@ -5,6 +5,7 @@ package ru.histone.v2.evaluator.node;
  */
 public class EvalNode<T> {
     protected T value;
+    protected boolean isReturn = false;
 
     public EvalNode(T value) {
         this.value = value;
@@ -12,6 +13,14 @@ public class EvalNode<T> {
 
     public T getValue() {
         return value;
+    }
+
+    public void setIsReturn() {
+        isReturn = true;
+    }
+
+    public boolean isReturn() {
+        return isReturn;
     }
 
     @Override

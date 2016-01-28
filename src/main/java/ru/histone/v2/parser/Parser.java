@@ -135,7 +135,6 @@ public class Parser {
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) throws ParserException {
         final ExpAstNode result = new ExpAstNode(AST_RETURN);
-        final TokenizerResult blockEnd = wrapper.next(T_BLOCK_END);
         if (next(wrapper, T_BLOCK_END)) {
             result.add(getNodesStatement(wrapper, false));
             if (!next(wrapper, T_SLASH, T_RETURN)) {

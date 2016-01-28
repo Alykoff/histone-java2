@@ -333,7 +333,7 @@ public class Evaluator {
             EvalNode right = lr.get(1);
             if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
                 if (isNumberNode(left) && isNumberNode(right)) {
-                    Float res = getValue(left) + getValue(right);
+                    Float res = getValue(left).orElse(null) + getValue(right).orElse(null);
                     if (res % 1 == 0 && res <= Long.MAX_VALUE) {
                         return EvalUtils.getValue(res.longValue());
                     } else {
@@ -366,8 +366,8 @@ public class Evaluator {
 
             if ((isNumberNode(left) || left instanceof StringEvalNode) &&
                     (isNumberNode(right) || right instanceof StringEvalNode)) {
-                Float leftValue = getValue(left);
-                Float rightValue = getValue(right);
+                Float leftValue = getValue(left).orElse(null);
+                Float rightValue = getValue(right).orElse(null);
                 if (leftValue == null || rightValue == null) {
                     return EmptyEvalNode.INSTANCE;
                 }
@@ -393,11 +393,11 @@ public class Evaluator {
         });
     }
 
-    private Float getValue(EvalNode node) {
+    private Optional<Float> getValue(EvalNode node) {
         if (node instanceof StringEvalNode) {
             return ParserUtils.tryFloat(((StringEvalNode) node).getValue());
         } else {
-            return Float.valueOf(node.getValue() + "");
+            return Optional.of(Float.valueOf(node.getValue() + ""));
         }
     }
 

@@ -3,6 +3,7 @@ package ru.histone.v2.utils;
 import ru.histone.v2.parser.node.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by alexey.nevinsky on 12.01.2016.
@@ -61,10 +62,7 @@ public class ParserUtils {
         }
 
         String v = (String) value;
-        if (isInt(v) || tryFloat(v) != null) {
-            return true;
-        }
-        return false;
+        return isInt(v) || tryFloat(v).isPresent();
     }
 
     public static boolean isInt(String value) {
@@ -76,11 +74,11 @@ public class ParserUtils {
         }
     }
 
-    public static Float tryFloat(String val) {
+    public static Optional<Float> tryFloat(String val) {
         try {
-            return Float.parseFloat(val);
+            return Optional.of(Float.parseFloat(val));
         } catch (Exception ignore) {
-            return null;
+            return Optional.empty();
         }
     }
 }

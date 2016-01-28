@@ -653,12 +653,13 @@ public class Parser {
                     if (ParserUtils.isString(val) && ParserUtils.isInt((String) val)) {
                         mapKey = Integer.valueOf((String) val); //todo check this
                     }
-                    Float f = ParserUtils.tryFloat((String) val);
-                    if (f != null) {
-                        if (f.intValue() < counter) {
-                            mapKey = f.intValue() + "";
+                    Optional<Float> floatVal = ParserUtils.tryFloat((String) val);
+                    if (floatVal.isPresent()) {
+                        int intValue = floatVal.get().intValue();
+                        if (intValue < counter) {
+                            mapKey = intValue + "";
                         } else {
-                            counter = f.intValue();
+                            counter = intValue;
                             mapKey = (counter++) + "";
                         }
                     }

@@ -12,6 +12,10 @@ import java.util.*;
  * Created by gali.alykoff on 20/01/16.
  */
 public class Marker {
+    public void markReferences(AstNode rawNode) throws HistoneException {
+        markReferences(rawNode, null);
+    }
+
     public void markReferences(
             AstNode rawNode, Deque<Map<String, Long>> scopeChain
     ) throws HistoneException {
@@ -20,6 +24,7 @@ public class Marker {
         }
         if (scopeChain == null) {
             scopeChain = new LinkedList<>();
+            scopeChain.push(new HashMap<>());
         }
         final ExpAstNode node = (ExpAstNode) rawNode;
         final AstType type = node.getType();

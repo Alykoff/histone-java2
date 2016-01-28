@@ -40,7 +40,13 @@ public class BaseTest {
             if (testCase.getExpectedResult() != null) {
                 Context context = Context.createRoot("", rtti);
                 if (testCase.getContext() != null) {
-                    context.getVars().putAll(convertContext(testCase));
+                    for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
+                        if (entry.getKey().equals("this")) {
+                            context.getThisVars().put("this", entry.getValue());
+                        } else {
+                            context.getVars().put(entry.getKey(), entry.getValue());
+                        }
+                    }
                 }
                 String result = evaluator.process("", root, context);
                 Assert.assertEquals(testCase.getExpectedResult(), result);

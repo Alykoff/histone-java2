@@ -1,5 +1,7 @@
 package ru.histone.v2.evaluator;
 
+import ru.histone.v2.Constants;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -19,6 +21,7 @@ public class Context implements Serializable {
     private String baseUri;
     private RunTimeTypeInfo rttiInfo;
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = new ConcurrentHashMap<>();
 
     private Context parent;
 
@@ -46,6 +49,7 @@ public class Context implements Serializable {
     public Context createNew() {
         Context ctx = new Context(baseUri, rttiInfo);
         ctx.parent = this;
+        ctx.thisVars = thisVars;
         return ctx;
     }
 
@@ -62,6 +66,12 @@ public class Context implements Serializable {
     }
 
     public CompletableFuture<EvalNode> getValue(String key) {
+        if (key.equals(Constants.THIS_CONTEXT_VALUE)) {
+            if (thisVars.containsKey(key)) {
+                return thisVars.get(key);
+            }
+            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+        }
         return vars.get(key);
     }
 
@@ -71,6 +81,10 @@ public class Context implements Serializable {
 
     public ConcurrentMap<String, CompletableFuture<EvalNode>> getVars() {
         return vars;
+    }
+
+    public ConcurrentMap<String, CompletableFuture<EvalNode>> getThisVars() {
+        return thisVars;
     }
 
     public String getBaseUri() {

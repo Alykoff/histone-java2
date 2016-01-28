@@ -3,6 +3,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
+import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.global.NumberComparator;
@@ -53,7 +54,7 @@ public class Evaluator {
             case AST_REGEXP:
                 return processRegExp(expNode);
             case AST_THIS:
-                break;
+                return processThisNode(expNode, context);
             case AST_GLOBAL:
                 return processGlobalNode(expNode, context);
             case AST_NOT:
@@ -119,6 +120,10 @@ public class Evaluator {
         }
         throw new HistoneException("WTF!?!?!? " + node.getType());
 
+    }
+
+    private CompletableFuture<EvalNode> processThisNode(ExpAstNode expNode, Context context) {
+        return context.getValue(Constants.THIS_CONTEXT_VALUE);
     }
 
     private CompletableFuture<EvalNode> processReturnNode(ExpAstNode expNode, Context context) {
@@ -213,7 +218,10 @@ public class Evaluator {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
                     Object obj = ((MapEvalNode) futures.get(0)).getProperty((String) futures.get(1).getValue());
-                    return createEvalNode(obj);
+                    if (obj != null) {
+                        return createEvalNode(obj);
+                    }
+                    return EmptyEvalNode.INSTANCE;
                 });
     }
 
@@ -573,11 +581,11 @@ public class Evaluator {
     private CompletableFuture<EvalNode> getValueFromParentContext(Context context, String valueName) {
         while (context != null) {
             if (context.contains(valueName)) {
-                return context.getVars().get(valueName);
+                return context.getValue(valueName);
             }
             context = context.getParent();
         }
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
     }
 
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {

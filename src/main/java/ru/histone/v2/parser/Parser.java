@@ -642,11 +642,11 @@ public class Parser {
                         .filter(AstNode::hasValue)
                         .map(node -> ((ValueNode) node).getValue());
 
-                final boolean isStringValue = valueObject.isPresent()
+                final boolean isStringOrNumberValue = valueObject.isPresent()
                         && (ParserUtils.isString(valueObject.get()) || ParserUtils.isNumber(valueObject.get()))
                         && next(wrapper, T_COLON);
 
-                if (isStringValue) {
+                if (isStringOrNumberValue) {
                     final Object val = valueObject.get();
                     AstNode value = getExpression(wrapper);
                     Object mapKey = val;

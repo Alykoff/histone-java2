@@ -38,7 +38,7 @@ public class Evaluator {
         return ((StringEvalNode) context.call(res, TO_STRING_FUNC_NAME, Collections.singletonList(res)).join()).getValue();
     }
 
-    private CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
+    public CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
         if (node == null) {
             return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
         }
@@ -148,7 +148,7 @@ public class Evaluator {
         );
         return argsFuture.thenApply(args -> {
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(args, body, context));
+            return new MacroEvalNode(new HistoneMacro(args, body, context, Evaluator.this));
         });
     }
 

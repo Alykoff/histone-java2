@@ -8,6 +8,7 @@ import ru.histone.v2.evaluator.function.array.Keys;
 import ru.histone.v2.evaluator.function.array.Size;
 import ru.histone.v2.evaluator.function.global.LoadJson;
 import ru.histone.v2.evaluator.function.global.Range;
+import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.node.*;
 
@@ -66,8 +67,10 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
             return T_UNDEFINED;
         } else if (node instanceof RegexEvalNode) {
             return T_REGEXP;
+        } else if (node instanceof MacroEvalNode) {
+            return T_MACRO;
         }
-        // T_MACRO, T_GLOBAL
+        // T_GLOBAL
         throw new NotImplementedException(node.toString());
     }
 
@@ -88,6 +91,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new LoadJson(executor));
 
         registerCommon(T_REGEXP, new Test());
+
+        registerCommon(T_MACRO, new MacroCall());
     }
 
     private void registerForAlltypes(Function function) {

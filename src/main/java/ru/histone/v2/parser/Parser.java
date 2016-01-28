@@ -625,43 +625,46 @@ public class Parser {
 
     private ExpAstNode getArrayExpression(TokenizerWrapper wrapper) throws ParserException {
         int counter = 0;
-
         ExpAstNode result = new ExpAstNode(AST_ARRAY);
-        AstNode key, value;
         Map<String, AstNode> map = new LinkedHashMap<>();
 
-
         do {
-            while (next(wrapper, T_COMMA)) ;
+            while (next(wrapper, T_COMMA));
             if (next(wrapper, T_RBRACKET)) {
                 return result;
             }
-            TokenizerResult tokenRes = wrapper.next(T_PROP.getId(), T_COLON.getId());
+            final TokenizerResult tokenRes = wrapper.next(T_PROP.getId(), T_COLON.getId());
             if (tokenRes.isFound()) {
                 map.put(tokenRes.firstValue(), getExpression(wrapper));
             } else {
-                key = getExpression(wrapper);
-                if (key.hasValue()) {
-                    Object val = ((ValueNode) key).getValue();
-                    if ((ParserUtils.isString(val) || ParserUtils.isNumber(val)) && next(wrapper, T_COLON)) {
-                        value = getExpression(wrapper);
-                        Object mapKey = val;
-                        if (ParserUtils.isString(val) && ParserUtils.isInt((String) val)) {
-                            mapKey = Integer.valueOf((String) val); //todo check this
-                        }
-                        Float f = ParserUtils.isFloat((String) val);
-                        if (f != null) {
-                            if (f.intValue() < counter) {
-                                mapKey = f.intValue() + "";
-                            } else {
-                                counter = f.intValue();
-                                mapKey = (counter++) + "";
-                            }
-                        }
-                        map.put(mapKey + "", value);
-                    } else {
-                        map.put((counter++) + "", key);
+                AstNode key = getExpression(wrapper);
+                final Optional<Object> valueObject = Optional.of(key)
+                        .filter(AstNode::hasValue)
+                        .map(node -> ((ValueNode) node).getValue());
+
+                final boolean isStringValue = valueObject.isPresent()
+                        && (ParserUtils.isString(valueObject.get()) || ParserUtils.isNumber(valueObject.get()))
+                        && next(wrapper, T_COLON);
+
+                if (isStringValue) {
+                    final Object val = valueObject.get();
+                    AstNode value = getExpression(wrapper);
+                    Object mapKey = val;
+                    if (ParserUtils.isString(val) && ParserUtils.isInt((String) val)) {
+                        mapKey = Integer.valueOf((String) val); //todo check this
                     }
+                    Float f = ParserUtils.isFloat((String) val);
+                    if (f != null) {
+                        if (f.intValue() < counter) {
+                            mapKey = f.intValue() + "";
+                        } else {
+                            counter = f.intValue();
+                            mapKey = (counter++) + "";
+                        }
+                    }
+                    map.put(mapKey + "", value);
+                } else {
+                    map.put((counter++) + "", key);
                 }
             }
         } while (next(wrapper, T_COMMA));

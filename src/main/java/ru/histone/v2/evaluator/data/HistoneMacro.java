@@ -15,9 +15,9 @@ import java.util.List;
 public class HistoneMacro implements Serializable, Cloneable {
     private AstNode body;
     private Context context;
-    private List<EvalNode> args = new ArrayList<>();
+    private List<String> args = new ArrayList<>();
 
-    public HistoneMacro(List<EvalNode> args, AstNode body, Context context) {
+    public HistoneMacro(List<String> args, AstNode body, Context context) {
         this.args.addAll(args);
         this.body = body;
         this.context = context;
@@ -39,11 +39,11 @@ public class HistoneMacro implements Serializable, Cloneable {
         this.context = context;
     }
 
-    public List<EvalNode> getArgs() {
+    public List<String> getArgs() {
         return args;
     }
 
-    public void setArgs(List<EvalNode> args) {
+    public void setArgs(List<String> args) {
         this.args = args;
     }
 }

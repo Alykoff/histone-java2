@@ -133,19 +133,19 @@ public class Evaluator {
     private CompletableFuture<EvalNode> processMacroNode(ExpAstNode node, Context context) {
         final int bodyIndex = 0;
         final int startVarIndex = 2;
-        final CompletableFuture<List<EvalNode>> argsFuture;
-        if (node.size() >= startVarIndex) {
-            argsFuture = sequence(
-                node.getNodes()
-                    .subList(startVarIndex, node.size())
-                    .stream()
-                    .map(x -> evaluateNode(x, context))
+        final CompletableFuture<List<AstNode>> astArgsFuture = CompletableFuture.completedFuture(
+            node.size() < startVarIndex
+                ? Collections.<AstNode>emptyList()
+                : node.getNodes().subList(startVarIndex, node.size())
+        );
+        final CompletableFuture<List<String>> argsFuture = astArgsFuture.thenApply(astNodes ->
+            astNodes.stream()
+                    .map(x -> {
+                        final StringAstNode nameNode = ((ExpAstNode) x).getNode(0);
+                        return nameNode.getValue();
+                    })
                     .collect(Collectors.toList())
-            );
-        } else {
-            argsFuture = CompletableFuture.completedFuture(Collections.emptyList());
-        }
-        
+        );
         return argsFuture.thenApply(args -> {
             final AstNode body = node.getNode(bodyIndex);
             return new MacroEvalNode(new HistoneMacro(args, body, context));

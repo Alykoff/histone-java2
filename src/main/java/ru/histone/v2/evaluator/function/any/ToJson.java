@@ -70,6 +70,9 @@ public class ToJson implements Function {
                 if (isArray) {
                     JsonSerializer<Object> serializer = provider.findValueSerializer(Collection.class, null);
                     serializer.serialize(value.values(), jgen, provider);
+                } else if (value.isEmpty()) {
+                    JsonSerializer<Object> serializer = provider.findValueSerializer(Collection.class, null);
+                    serializer.serialize(Collections.emptyList(), jgen, provider);
                 } else {
                     JsonSerializer<Object> serializer = provider.findValueSerializer(Map.class, null);
                     serializer.serialize(value, jgen, provider);

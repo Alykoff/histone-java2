@@ -233,7 +233,7 @@ public class Evaluator {
     private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
-                    Object obj = ((MapEvalNode) futures.get(0)).getProperty((String) futures.get(1).getValue());
+                    Object obj = ((MapEvalNode) futures.get(0)).getProperty(futures.get(1).getValue());
                     if (obj != null) {
                         return createEvalNode(obj);
                     }
@@ -529,7 +529,7 @@ public class Evaluator {
 
     private CompletableFuture<EvalNode> processArrayNode(ExpAstNode node, Context context) {
         if (CollectionUtils.isEmpty(node.getNodes())) {
-            return CompletableFuture.completedFuture(new MapEvalNode(Collections.emptyMap()));
+            return CompletableFuture.completedFuture(new MapEvalNode(new LinkedHashMap<>(0)));
         }
         if (node.getNode(0).getType() == AstType.AST_VAR) {
             return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EmptyEvalNode.INSTANCE);
@@ -606,12 +606,58 @@ public class Evaluator {
 
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) || nodeAsBoolean(f.get(1))));
+        return leftRightDone.thenApply(f -> {
+            if (f.get(0) instanceof EmptyEvalNode || f.get(0) instanceof NullEvalNode) {
+                return f.get(1);
+            } else if (f.get(1) instanceof EmptyEvalNode || f.get(1) instanceof NullEvalNode) {
+                if (nodeAsBoolean(f.get(0))) {
+                    return f.get(0);
+                }
+                return f.get(1);
+            } else if (f.get(0) instanceof BooleanEvalNode && !(f.get(1) instanceof BooleanEvalNode)) {
+                if (nodeAsBoolean(f.get(0))) {
+                    return f.get(0);
+                }
+                return f.get(1);
+            } else if (!(f.get(0) instanceof BooleanEvalNode) && f.get(1) instanceof BooleanEvalNode) {
+                if (nodeAsBoolean(f.get(0))) {
+                    return f.get(0);
+                }
+                return f.get(1);
+            } else if (nodeAsBoolean(f.get(0))) {
+                return f.get(0);
+            } else {
+                return f.get(1);
+            }
+        });
     }
 
     private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) && nodeAsBoolean(f.get(1))));
+        return leftRightDone.thenApply(f -> {
+            if (f.get(0) instanceof EmptyEvalNode || f.get(0) instanceof NullEvalNode) {
+                return f.get(0);
+            } else if (f.get(1) instanceof EmptyEvalNode || f.get(1) instanceof NullEvalNode) {
+                if (!nodeAsBoolean(f.get(0))) {
+                    return f.get(0);
+                }
+                return f.get(1);
+            } else if (f.get(0) instanceof BooleanEvalNode && !(f.get(1) instanceof BooleanEvalNode)) {
+                if (nodeAsBoolean(f.get(0))) {
+                    return f.get(1);
+                }
+                return f.get(0);
+            } else if (!(f.get(0) instanceof BooleanEvalNode) && f.get(1) instanceof BooleanEvalNode) {
+                if (!nodeAsBoolean(f.get(0))) {
+                    return f.get(0);
+                }
+                return f.get(1);
+            } else if (nodeAsBoolean(f.get(0))) {
+                return f.get(1);
+            } else {
+                return f.get(0);
+            }
+        });
     }
 
     private CompletableFuture<EvalNode> processNodeList(ExpAstNode node, Context context, boolean createContext) {

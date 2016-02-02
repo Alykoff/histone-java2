@@ -74,7 +74,7 @@ public class Context implements Serializable {
     }
 
     public void put(String key, CompletableFuture<EvalNode> value) {
-        vars.putIfAbsent(key, value);
+        vars.put(key, value);
     }
 
     public boolean contains(String key) {

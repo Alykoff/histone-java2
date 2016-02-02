@@ -58,20 +58,25 @@ public class MapEvalNode extends EvalNode<Map<String, Object>> {
         }
     }
 
-    public Object getProperty(String propertyName) throws HistoneException {
-        String[] propArray = propertyName.split("\\.");
+    public Object getProperty(Object propertyName) throws HistoneException {
+        if (propertyName instanceof String) {
 
-        Object v = value;
-        Object curr = null;
-        for (String str : propArray) {
-            if (v instanceof Map) {
-                curr = ((Map<String, Object>) v).get(str);
-            } else {
-                throw new HistoneException("Unable to find property '" + str + "'");
+            String[] propArray = ((String) propertyName).split("\\.");
+
+            Object v = value;
+            Object curr = null;
+            for (String str : propArray) {
+                if (v instanceof Map) {
+                    curr = ((Map<String, Object>) v).get(str);
+                } else {
+                    throw new HistoneException("Unable to find property '" + str + "'");
+                }
             }
-        }
 
-        return curr;
+            return curr;
+        } else {
+            return ((Map) value).get(propertyName + "");
+        }
     }
 
 }

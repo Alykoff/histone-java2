@@ -82,7 +82,7 @@ public class EvalUtils {
 
     public static EvalNode<?> createEvalNode(Object object) {
         if (object == null) {
-            throw new NullPointerException();
+            return EmptyEvalNode.INSTANCE;
         }
         if (object.equals(ObjectUtils.NULL)) {
             return NullEvalNode.INSTANCE;

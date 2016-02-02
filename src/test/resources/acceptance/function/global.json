@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Global.GetUniqueId",
+    "cases": [
+      {
+        "input": "",
+        "expectedResult": ""
+      }
+    ]
+  }
+]

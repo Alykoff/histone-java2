@@ -24,6 +24,7 @@ import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +54,22 @@ public class ToString implements Function {
 
     private String getMapString(MapEvalNode node) {
         Map<String, Object> map = node.getValue();
-        return map.values().stream().filter(x -> x != null).map(x -> x + "").collect(Collectors.joining(" "));
+
+        return recurseFlattening(map).stream().map(x -> x + "").collect(Collectors.joining(" "));
+    }
+
+    private List<Object> recurseFlattening(Map<String, Object> map) {
+        List<Object> res = new ArrayList<>();
+        for (Object v : map.values()) {
+            if (v != null) {
+                if (v instanceof Map) {
+                    res.addAll(recurseFlattening((Map<String, Object>) v));
+                } else {
+                    res.add(v);
+                }
+            }
+        }
+        return res;
     }
 
     @Override

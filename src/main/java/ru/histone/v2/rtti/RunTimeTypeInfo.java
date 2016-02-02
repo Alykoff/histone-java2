@@ -28,6 +28,8 @@ import ru.histone.v2.evaluator.function.global.Range;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
+import ru.histone.v2.evaluator.function.string.Case;
+import ru.histone.v2.evaluator.function.string.StringSize;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
@@ -124,6 +126,10 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetBaseUri());
 
         registerCommon(T_REGEXP, new Test());
+
+        registerCommon(T_STRING, new StringSize());
+        registerCommon(T_STRING, new Case(false));
+        registerCommon(T_STRING, new Case(true));
 
         registerCommon(T_MACRO, new MacroCall());
     }

@@ -644,7 +644,7 @@ public class Parser {
         Map<String, AstNode> map = new LinkedHashMap<>();
 
         do {
-            while (next(wrapper, T_COMMA));
+            while (next(wrapper, T_COMMA)) ;
             if (next(wrapper, T_RBRACKET)) {
                 return result;
             }
@@ -658,17 +658,17 @@ public class Parser {
                         .map(node -> ((ValueNode) node).getValue());
 
                 final boolean isStringOrNumberValue = valueObject.isPresent()
-                        && (ParserUtils.isString(valueObject.get()) || ParserUtils.isNumber(valueObject.get()))
+                        && (ParserUtils.isStrongString(valueObject.get()) || ParserUtils.isNumber(valueObject.get()))
                         && next(wrapper, T_COLON);
 
                 if (isStringOrNumberValue) {
                     final Object val = valueObject.get();
                     AstNode value = getExpression(wrapper);
                     Object mapKey = val;
-                    if (ParserUtils.isString(val) && ParserUtils.isInt((String) val)) {
+                    if (ParserUtils.isStrongString(val) && ParserUtils.isInt((String) val)) {
                         mapKey = Integer.valueOf((String) val); //todo check this
                     }
-                    Optional<Float> floatVal = ParserUtils.tryFloat((String) val);
+                    Optional<Float> floatVal = ParserUtils.tryFloat(val);
                     if (floatVal.isPresent()) {
                         int intValue = floatVal.get().intValue();
                         if (intValue < counter) {

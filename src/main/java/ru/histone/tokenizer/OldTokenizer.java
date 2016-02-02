@@ -28,22 +28,18 @@ import static java.util.Collections.unmodifiableMap;
 
 /**
  * Histone template tokenizer<br/>
- * Tokenizer is based on regular expressions and returns tokens one by one. All tokens are configured in {@link ru.histone.HistoneTokensHolder}
+ * OldTokenizer is based on regular expressions and returns tokens one by one. All tokens are configured in {@link ru.histone.HistoneTokensHolder}
  */
-public class Tokenizer {
-    private static final Logger log = LoggerFactory.getLogger(Tokenizer.class);
-
-    private CharSequence input;
-
-    private int inputOffset = 0;
-
-    private TokenContext currentContext = TokenContext.NONE;
-    private Token currentToken = null;
-    private Token tokenBuffer = null;
-    private TokenDef tokenDefBuffer = null;
-
+public class OldTokenizer {
+    private static final Logger log = LoggerFactory.getLogger(OldTokenizer.class);
     private final Map<TokenContext, List<TokenDef>> tokens;
     private final Map<TokenContext, StringBuilder> regexpList;
+    private CharSequence input;
+    private int inputOffset = 0;
+    private TokenContext currentContext = TokenContext.NONE;
+    private OldToken currentToken = null;
+    private OldToken tokenBuffer = null;
+    private TokenDef tokenDefBuffer = null;
     private Map<TokenContext, Matcher> matchers = new HashMap<TokenContext, Matcher>();
     private TokenTransitionCallback.NestedLevelHolder nestLevel = new TokenTransitionCallback.NestedLevelHolder();
 
@@ -54,7 +50,7 @@ public class Tokenizer {
      * @param tokens  map of tokens, separated by their token context
      * @param regexps map of tokens regexps, separaed by their token context
      */
-    public Tokenizer(Map<TokenContext, List<TokenDef>> tokens, Map<TokenContext, StringBuilder> regexps) {
+    public OldTokenizer(Map<TokenContext, List<TokenDef>> tokens, Map<TokenContext, StringBuilder> regexps) {
         this.tokens = unmodifiableMap(tokens == null ? new HashMap<TokenContext, List<TokenDef>>() : tokens);
         this.regexpList = unmodifiableMap(regexps == null ? new HashMap<TokenContext, StringBuilder>() : regexps);
     }
@@ -66,7 +62,7 @@ public class Tokenizer {
      * @param startContext current active token context
      * @return current object instance
      */
-    public Tokenizer tokenize(CharSequence input, TokenContext startContext) {
+    public OldTokenizer tokenize(CharSequence input, TokenContext startContext) {
         log.debug("tokenize(): input={}, currentContext={}", new Object[]{input, currentContext});
         this.currentContext = startContext;
         this.input = input;
@@ -112,7 +108,7 @@ public class Tokenizer {
      *
      * @return next token
      */
-    public Token next() {
+    public OldToken next() {
         return next(null);
     }
 
@@ -124,15 +120,15 @@ public class Tokenizer {
      * @param type token type
      * @return token if token type is the same, null in other case
      */
-    public Token next(TokenType type) {
+    public OldToken next(TokenType type) {
         log.trace("next()>>: type={}, currentToken={}", new Object[]{type, currentToken});
-        Token result = null;
+        OldToken result = null;
         if (type == null || isNext(type)) {
             if (currentToken == null) {
                 log.trace("next(): new1 currentToken={}", currentToken);
                 currentToken = getNextToken();
             }
-            result = new Token(currentToken);
+            result = new OldToken(currentToken);
             currentToken = getNextToken();
             log.trace("next(): new2 currentToken={}", currentToken);
         }
@@ -151,8 +147,8 @@ public class Tokenizer {
     }
 
     // Implementation functions
-    private Token getNextToken() {
-        Token result = null;
+    private OldToken getNextToken() {
+        OldToken result = null;
 
         log.trace("getNextToken()>>: tokenBuffer={}, tokenDefBuffer={}, inputOffset={}, input.length={}", new Object[]{tokenBuffer, tokenDefBuffer, inputOffset, input.length()});
 
@@ -169,7 +165,7 @@ public class Tokenizer {
             tokenDefBuffer = null;
         } else if (inputOffset == input.length()) {
             log.trace("getNextToken(): end of file reached");
-            result = Token.EOF_TOKEN;
+            result = OldToken.EOF_TOKEN;
         } else {
             log.trace("getNextToken(): searching for more tokens via regexp");
             Matcher m = getMatcher(getCurrentContext());
@@ -184,14 +180,14 @@ public class Tokenizer {
 
                         if (m.start() - inputOffset > 0) {
                             // fragment
-                            result = new Token(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, m.start()).toString());
-                            tokenBuffer = new Token(def.getType(), m.start() + 1, m.group(0));
+                            result = new OldToken(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, m.start()).toString());
+                            tokenBuffer = new OldToken(def.getType(), m.start() + 1, m.group(0));
                         } else {
 
                             if (def.getKind() == TokenKind.TOKEN) {
-                                result = new Token(def.getType(), m.start() + 1, m.group(0));
+                                result = new OldToken(def.getType(), m.start() + 1, m.group(0));
                             } else if (def.getKind() == TokenKind.LITERAL) {
-                                result = new Token(def.getType(), m.start() + 1, m.group(0));
+                                result = new OldToken(def.getType(), m.start() + 1, m.group(0));
                             } else if (def.getKind() == TokenKind.IGNORE) {
                                 inputOffset = m.end();
                                 result = getNextToken();
@@ -209,7 +205,7 @@ public class Tokenizer {
                     }
                 }
             } else {
-                result = new Token(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, input.length()).toString());
+                result = new OldToken(TokenType.T_FRAGMENT, inputOffset + 1, input.subSequence(inputOffset, input.length()).toString());
                 inputOffset = input.length();
             }
         }

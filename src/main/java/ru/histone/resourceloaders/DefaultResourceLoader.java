@@ -23,16 +23,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpTrace;
+import org.apache.http.client.methods.*;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.AbstractHttpClient;
@@ -48,26 +39,16 @@ import ru.histone.evaluator.functions.node.object.ToQueryString;
 import ru.histone.evaluator.nodes.Node;
 import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.evaluator.nodes.ObjectHistoneNode;
-import ru.histone.parser.Parser;
+import ru.histone.parser.OldParser;
 import ru.histone.parser.ParserException;
 import ru.histone.tokenizer.TokenizerFactory;
 import ru.histone.utils.BOMInputStream;
 import ru.histone.utils.IOUtils;
 import ru.histone.utils.PathUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Histone default resource loader<br/>
@@ -80,7 +61,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 
     private TokenizerFactory tokenizerFactory = new TokenizerFactory(HistoneTokensHolder.getTokens());
     private NodeFactory nodeFactory = new NodeFactory(new ObjectMapper());
-    private Parser parser = new Parser(tokenizerFactory, nodeFactory);
+    private OldParser parser = new OldParser(tokenizerFactory, nodeFactory);
 
     @Override
     public String resolveFullPath(String location, String baseLocation) throws ResourceLoadException {

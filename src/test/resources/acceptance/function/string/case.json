@@ -1,0 +1,28 @@
+[
+  {
+    "name": "String.toLowerCase",
+    "cases": [
+      {
+        "input": "<div>{{'HISTONE'->toLowerCase}} = histone</div>",
+        "expectedResult": "<div>histone = histone</div>"
+      },
+      {
+        "input": "<div>{{'ФУБАР'->toLowerCase}} = фубар</div>",
+        "expectedResult": "<div>фубар = фубар</div>"
+      }
+    ]
+  },
+  {
+    "name": "String.toUpperCase",
+    "cases": [
+      {
+        "input": "<div>{{'histone'->toUpperCase}} = HISTONE</div>",
+        "expectedResult": "<div>HISTONE = HISTONE</div>"
+      },
+      {
+        "input": "<div>{{'фубар'->toUpperCase}} = ФУБАР</div>",
+        "expectedResult": "<div>ФУБАР = ФУБАР</div>"
+      }
+    ]
+  }
+]

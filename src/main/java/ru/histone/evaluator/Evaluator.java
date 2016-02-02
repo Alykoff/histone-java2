@@ -24,72 +24,18 @@ import ru.histone.GlobalProperty;
 import ru.histone.Histone;
 import ru.histone.HistoneException;
 import ru.histone.HistoneStopTheWorldException;
-import ru.histone.evaluator.functions.global.DayOfWeek;
-import ru.histone.evaluator.functions.global.DaysInMonth;
-import ru.histone.evaluator.functions.global.GlobalFunctionExecutionException;
-import ru.histone.evaluator.functions.global.GlobalFunctionStopTheWorldException;
-import ru.histone.evaluator.functions.global.GlobalFunctionsManager;
-import ru.histone.evaluator.functions.global.Max;
-import ru.histone.evaluator.functions.global.Min;
-import ru.histone.evaluator.functions.global.Rand;
-import ru.histone.evaluator.functions.global.Range;
-import ru.histone.evaluator.functions.global.ResolveURI;
-import ru.histone.evaluator.functions.global.UniqueId;
-import ru.histone.evaluator.functions.node.IsBoolean;
-import ru.histone.evaluator.functions.node.IsFloat;
-import ru.histone.evaluator.functions.node.IsInteger;
-import ru.histone.evaluator.functions.node.IsMap;
-import ru.histone.evaluator.functions.node.IsNull;
-import ru.histone.evaluator.functions.node.IsNumber;
-import ru.histone.evaluator.functions.node.IsString;
-import ru.histone.evaluator.functions.node.IsUndefined;
-import ru.histone.evaluator.functions.node.NodeFunctionExecutionException;
-import ru.histone.evaluator.functions.node.NodeFunctionsManager;
-import ru.histone.evaluator.functions.node.ToBoolean;
-import ru.histone.evaluator.functions.node.ToJson;
-import ru.histone.evaluator.functions.node.ToMap;
-import ru.histone.evaluator.functions.node.ToString;
-import ru.histone.evaluator.functions.node.number.Abs;
-import ru.histone.evaluator.functions.node.number.Ceil;
-import ru.histone.evaluator.functions.node.number.Floor;
-import ru.histone.evaluator.functions.node.number.Log;
-import ru.histone.evaluator.functions.node.number.Pow;
-import ru.histone.evaluator.functions.node.number.Round;
-import ru.histone.evaluator.functions.node.number.ToChar;
-import ru.histone.evaluator.functions.node.number.ToFixed;
-import ru.histone.evaluator.functions.node.object.Group;
-import ru.histone.evaluator.functions.node.object.HasKey;
-import ru.histone.evaluator.functions.node.object.Join;
-import ru.histone.evaluator.functions.node.object.Keys;
-import ru.histone.evaluator.functions.node.object.Remove;
+import ru.histone.evaluator.functions.global.*;
+import ru.histone.evaluator.functions.node.*;
+import ru.histone.evaluator.functions.node.number.*;
+import ru.histone.evaluator.functions.node.object.*;
 import ru.histone.evaluator.functions.node.object.Slice;
-import ru.histone.evaluator.functions.node.object.ToQueryString;
-import ru.histone.evaluator.functions.node.object.Values;
-import ru.histone.evaluator.functions.node.string.CharCodeAt;
+import ru.histone.evaluator.functions.node.string.*;
 import ru.histone.evaluator.functions.node.string.Size;
-import ru.histone.evaluator.functions.node.string.Split;
-import ru.histone.evaluator.functions.node.string.Strip;
-import ru.histone.evaluator.functions.node.string.Test;
-import ru.histone.evaluator.functions.node.string.ToLowerCase;
-import ru.histone.evaluator.functions.node.string.ToNumber;
-import ru.histone.evaluator.functions.node.string.ToUpperCase;
-import ru.histone.evaluator.nodes.GlobalObjectNode;
-import ru.histone.evaluator.nodes.NameSpaceNode;
-import ru.histone.evaluator.nodes.Node;
-import ru.histone.evaluator.nodes.NodeFactory;
-import ru.histone.evaluator.nodes.NumberHistoneNode;
-import ru.histone.evaluator.nodes.ObjectHistoneNode;
-import ru.histone.evaluator.nodes.StringHistoneNode;
+import ru.histone.evaluator.nodes.*;
 import ru.histone.parser.AstNodeType;
-import ru.histone.parser.Parser;
+import ru.histone.parser.OldParser;
 import ru.histone.parser.ParserException;
-import ru.histone.resourceloaders.AstResource;
-import ru.histone.resourceloaders.ContentType;
-import ru.histone.resourceloaders.Resource;
-import ru.histone.resourceloaders.ResourceLoadException;
-import ru.histone.resourceloaders.ResourceLoader;
-import ru.histone.resourceloaders.StreamResource;
-import ru.histone.resourceloaders.StringResource;
+import ru.histone.resourceloaders.*;
 import ru.histone.utils.ArrayUtils;
 import ru.histone.utils.IOUtils;
 import ru.histone.utils.StringUtils;
@@ -115,7 +61,7 @@ public class Evaluator {
 
     private static final String UTF8_BOM = "\uFEFF";
 
-    private final Parser parser;
+    private final OldParser parser;
     private final NodeFactory nodeFactory;
     private final ResourceLoader resourceLoader;
     private final GlobalFunctionsManager globalFunctionsManager;
@@ -361,10 +307,10 @@ public class Evaluator {
             case AstNodeType.MAP:
                 return processMap((ArrayNode) astArray.get(1), context);
 //
-//            case AstNodeType.ARRAY:
+//            case AstType.ARRAY:
 //                return processArray(astArray.get(1).getAsArrayNode(), context);
 //
-//            case AstNodeType.OBJECT:
+//            case AstType.OBJECT:
 //                return processObject(astArray.get(1).getAsArrayNode(), context);
 
             case AstNodeType.ADD:

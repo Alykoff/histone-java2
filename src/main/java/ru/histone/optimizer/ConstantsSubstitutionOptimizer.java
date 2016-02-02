@@ -25,11 +25,7 @@ import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.parser.AstNodeType;
 import ru.histone.utils.Assert;
 
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class ConstantsSubstitutionOptimizer extends AbstractASTWalker {
     private Deque<Map<String, Node>> context = new LinkedList<Map<String, Node>>();
@@ -72,7 +68,7 @@ public class ConstantsSubstitutionOptimizer extends AbstractASTWalker {
             return super.processSelector(ast);
         } else {
             return super.node2Ast(node);
-//            return nodeFactory.jsonArray(AstNodeType.STRING, nodeFactory.jsonString(node.getAsString().getValue()));
+//            return nodeFactory.jsonArray(AstType.STRING, nodeFactory.jsonString(node.getAsString().getValue()));
         }
     }
 

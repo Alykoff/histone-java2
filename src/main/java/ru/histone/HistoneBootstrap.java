@@ -17,20 +17,20 @@ package ru.histone;
 
 import ru.histone.evaluator.Evaluator;
 import ru.histone.evaluator.nodes.NodeFactory;
-import ru.histone.parser.Parser;
+import ru.histone.parser.OldParser;
 import ru.histone.resourceloaders.ResourceLoader;
 
 public class HistoneBootstrap {
-    private Parser parser;
+    private OldParser parser;
     private Evaluator evaluator;
     private NodeFactory nodeFactory;
     private ResourceLoader resourceLoader;
 
-    public Parser getParser() {
+    public OldParser getParser() {
         return parser;
     }
 
-    public void setParser(Parser parser) {
+    public void setParser(OldParser parser) {
         this.parser = parser;
     }
 

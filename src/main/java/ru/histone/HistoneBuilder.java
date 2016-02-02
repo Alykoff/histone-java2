@@ -33,7 +33,7 @@ import ru.histone.evaluator.nodes.GlobalObjectNode;
 import ru.histone.evaluator.nodes.Node;
 import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.optimizer.AstImportResolver;
-import ru.histone.parser.Parser;
+import ru.histone.parser.OldParser;
 import ru.histone.resourceloaders.DefaultResourceLoader;
 import ru.histone.resourceloaders.ResourceLoader;
 import ru.histone.tokenizer.TokenizerFactory;
@@ -84,15 +84,6 @@ public class HistoneBuilder {
     public void setJackson(ObjectMapper jackson) {
         log.debug("setJackson({})", jackson);
         this.nodeFactory = new NodeFactory(jackson);
-    }
-
-    /**
-     * Set node factory
-     *
-     * @param nodeFactory
-     */
-    public void setNodeFactory(NodeFactory nodeFactory) {
-        this.nodeFactory = nodeFactory;
     }
 
     /**
@@ -301,7 +292,6 @@ public class HistoneBuilder {
         }
     }
 
-
     /**
      * Builds new Histone engine using current HistoneBuilder settings/resources loaders/etc<br/>
      * This method creates new Histone template engine
@@ -313,7 +303,7 @@ public class HistoneBuilder {
         log.debug("Building new Histone template engine");
 
         TokenizerFactory tokenizerFactory = new TokenizerFactory(HistoneTokensHolder.getTokens());
-        Parser parser = new Parser(tokenizerFactory, nodeFactory);
+        OldParser parser = new OldParser(tokenizerFactory, nodeFactory);
 
         EvaluatorBootstrap evaluatorBootstrap = new EvaluatorBootstrap();
         evaluatorBootstrap.setNodeFactory(nodeFactory);
@@ -370,5 +360,14 @@ public class HistoneBuilder {
 
     public NodeFactory getNodeFactory() {
         return nodeFactory;
+    }
+
+    /**
+     * Set node factory
+     *
+     * @param nodeFactory
+     */
+    public void setNodeFactory(NodeFactory nodeFactory) {
+        this.nodeFactory = nodeFactory;
     }
 }

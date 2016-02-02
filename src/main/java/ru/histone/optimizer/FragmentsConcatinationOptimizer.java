@@ -36,7 +36,7 @@ public class FragmentsConcatinationOptimizer extends AbstractASTWalker {
             if (node.isTextual()) {
                 // if we have fragment here
                 sb.append(node.asText());
-//            } else if (node.isArray() && node.size() == 2 && node.get(0).isInt() && node.get(0).asInt() == AstNodeType.STRING) {
+//            } else if (node.isArray() && node.size() == 2 && node.get(0).isInt() && node.get(0).asInt() == AstType.STRING) {
 //                //if we have text constant here
 //                sb.append(node.get(1).asText());
             } else {

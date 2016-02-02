@@ -26,15 +26,7 @@ import ru.histone.parser.AstNodeType;
 import ru.histone.utils.Assert;
 import ru.histone.utils.StringUtils;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This optimizations unit marks 'safe' AST nodes; 'safe' here means, that AST node is constant, doesn't depend on
@@ -46,12 +38,40 @@ import java.util.Set;
  * @see {@link SafeASTEvaluationOptimizer} evaluates safe AST nodes
  */
 public class SafeASTNodesMarker extends AbstractASTWalker {
-    private Context context = new Context();
     private final Evaluator evaluator;
+    private Context context = new Context();
 
     public SafeASTNodesMarker(NodeFactory nodeFactory, Evaluator evaluator) {
         super(nodeFactory);
         this.evaluator = evaluator;
+    }
+
+    public static boolean safeArray(ArrayNode array) {
+        boolean isSafe = true;
+        for (JsonNode node : array) {
+            if (!safeAstNode(node)) {
+                return false;
+            }
+        }
+        return isSafe;
+    }
+
+    public static boolean safeArray(JsonNode[] array) {
+        boolean isSafe = true;
+        for (JsonNode node : array) {
+            if (!safeAstNode(node)) {
+                return false;
+            }
+        }
+        return isSafe;
+    }
+
+    public static boolean safeAstNode(JsonNode node) {
+        return (node.isArray() && getNodeType((ArrayNode) node) > 0) || node.isTextual();
+    }
+
+    public static boolean unsafeAstNode(JsonNode node) {
+        return node.isArray() && getNodeType((ArrayNode) node) < 0;
     }
 
     /**
@@ -154,7 +174,6 @@ public class SafeASTNodesMarker extends AbstractASTWalker {
         return ast(false, AstNodeType.IMPORT, nodeFactory.jsonString(resource));
     }
 
-
     /**
      * CALL is safe if:
      * 1. It's macro call, not function of type call (so target block is null).
@@ -194,11 +213,11 @@ public class SafeASTNodesMarker extends AbstractASTWalker {
         }
 
 //        if (!target.isNull() || !name.isTextual() || StringUtils.isBlank(name.asText())) {
-//            return ast(false, AstNodeType.CALL, target, name, args);
+//            return ast(false, AstType.CALL, target, name, args);
 //        }
 
   /*      int targetType = target.get(0);
-        if(targetType == AstNodeType.INT){
+        if(targetType == AstType.INT){
             targetCla
         }*/
 
@@ -280,7 +299,7 @@ public class SafeASTNodesMarker extends AbstractASTWalker {
                 nodeFactory.jsonArray(nodeFactory.jsonArray(statementsOut), nodeFactory.jsonArray(elseStatementsOut));
 
         // EXPERIMENTAL fix
-//        return ast(false, AstNodeType.FOR, var, collection, statementsContainer);
+//        return ast(false, AstType.FOR, var, collection, statementsContainer);
 
         return ast(isSafe, AstNodeType.FOR, var, collection, statementsContainer);
     }
@@ -362,34 +381,6 @@ public class SafeASTNodesMarker extends AbstractASTWalker {
             }
         }
         return isSafe;
-    }
-
-    public static boolean safeArray(ArrayNode array) {
-        boolean isSafe = true;
-        for (JsonNode node : array) {
-            if (!safeAstNode(node)) {
-                return false;
-            }
-        }
-        return isSafe;
-    }
-
-    public static boolean safeArray(JsonNode[] array) {
-        boolean isSafe = true;
-        for (JsonNode node : array) {
-            if (!safeAstNode(node)) {
-                return false;
-            }
-        }
-        return isSafe;
-    }
-
-    public static boolean safeAstNode(JsonNode node) {
-        return (node.isArray() && getNodeType((ArrayNode) node) > 0) || node.isTextual();
-    }
-
-    public static boolean unsafeAstNode(JsonNode node) {
-        return node.isArray() && getNodeType((ArrayNode) node) < 0;
     }
 
     protected ArrayNode ast(boolean isSafe, int operationType, JsonNode... arguments) {

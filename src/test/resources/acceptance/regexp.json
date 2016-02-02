@@ -1,0 +1,35 @@
+[
+  {
+    "name": "regexp",
+    "cases": [
+      {
+        "input": "{{var re = /ab+c/}}{{re->test('ac')}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/^[a-z]+$/->test('abc3')}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/[0-9]+/->test('answer is 42')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/^[0-9]+$/->test(42)}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/^[0-9]+$/->test(0.42)}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/^[0-9.]+$/->test(0.42)}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/^[0-9.]+$/->test(0.42)}}",
+        "expectedResult": "true"
+      }
+    ]
+  }
+]

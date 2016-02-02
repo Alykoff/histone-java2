@@ -36,11 +36,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void correctIdentifiers() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{abc ident ad34de ApPp90O forvar varfor varforvar}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -95,11 +95,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void brackets() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{()[]}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -139,11 +139,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void comparators() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{< > <= >= <> isNot != is mod not or and}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -211,11 +211,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void constants() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{null false true}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -247,11 +247,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void stringsSingleQuote() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{'test'}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -275,11 +275,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void stringsDoubleQuote() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{\"test\"}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -303,11 +303,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void operators() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{+-/*.,:=}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();
@@ -359,11 +359,11 @@ public class TokenizerSimpleExpressionsTest  {
 	public void constructions() {
 
 		String input;
-		Token token;
+		OldToken token;
 
 		input = "{{if elseif else for in var macro}}";
 
-		Tokenizer tokenizer = tokenizerFactory.match(input);
+		OldTokenizer tokenizer = tokenizerFactory.match(input);
 
 		MDC.put(MDC_TEST_NAME, "{{");
 		token = tokenizer.next();

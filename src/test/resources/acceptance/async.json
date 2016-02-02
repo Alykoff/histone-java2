@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Async",
+    "cases": [
+      {
+        "inputFile": "async.tpl",
+        "expectedResult": ""
+      }
+    ]
+  }
+]

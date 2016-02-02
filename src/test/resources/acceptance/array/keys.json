@@ -1,0 +1,23 @@
+[
+  {
+    "name": "array methods -> keys",
+    "cases": [
+      {
+        "input": "<div>{{[1, 2, 3]->keys->toJSON}} = [0,1,2]</div>",
+        "expectedResult": "<div>[0,1,2] = [0,1,2]</div>"
+      },
+      {
+        "input": "<div>{{[foo: 'bar', bar: 'foo']->keys->toJSON}} = [\"foo\",\"bar\"]</div>",
+        "expectedResult": "<div>[\"foo\",\"bar\"] = [\"foo\",\"bar\"]</div>"
+      },
+      {
+        "input": "<div>{{[bar: 'foo', foo: 'bar']->keys->toJSON}} = [\"bar\",\"foo\"]</div>",
+        "expectedResult": "<div>[\"bar\",\"foo\"] = [\"bar\",\"foo\"]</div>"
+      },
+      {
+        "input": "<div>{{[]->keys->toJSON}} = []</div>",
+        "expectedResult": "<div>[] = []</div>"
+      }
+    ]
+  }
+]

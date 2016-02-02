@@ -24,19 +24,12 @@ import ru.histone.HistoneException;
 import ru.histone.evaluator.EvaluatorException;
 import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.parser.AstNodeType;
-import ru.histone.parser.Parser;
+import ru.histone.parser.OldParser;
 import ru.histone.parser.ParserException;
-import ru.histone.resourceloaders.AstResource;
-import ru.histone.resourceloaders.ContentType;
-import ru.histone.resourceloaders.Resource;
-import ru.histone.resourceloaders.ResourceLoadException;
-import ru.histone.resourceloaders.ResourceLoader;
-import ru.histone.resourceloaders.StreamResource;
-import ru.histone.resourceloaders.StringResource;
+import ru.histone.resourceloaders.*;
 import ru.histone.utils.IOUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.text.MessageFormat;
 
@@ -48,9 +41,9 @@ public class AstImportResolver {
     private NodeFactory nodeFactory;
 
     private ResourceLoader resourceLoader;
-    private Parser parser;
+    private OldParser parser;
 
-    public AstImportResolver(Parser parser, ResourceLoader resourceLoader, NodeFactory nodeFactory) {
+    public AstImportResolver(OldParser parser, ResourceLoader resourceLoader, NodeFactory nodeFactory) {
         this.parser = parser;
         this.resourceLoader = resourceLoader;
         this.nodeFactory = nodeFactory;
@@ -129,12 +122,12 @@ public class AstImportResolver {
                 if (currentBaseURI == null) {
 //                    if (!resourceLoader.isCacheable(path, null)) {
 //                        String fullPath = resourceLoader.resolveFullPath(path, null);
-//                        return AstNodeFactory.createNode(AstNodeType.IMPORT, fullPath);
+//                        return AstNodeFactory.createNode(AstType.IMPORT, fullPath);
 //                    }
                 } else {
 //                    if (!resourceLoader.isCacheable(currentBaseURI, path)) {
 //                        String fullPath = resourceLoader.resolveFullPath(path, currentBaseURI);
-//                        return AstNodeFactory.createNode(AstNodeType.IMPORT, fullPath);
+//                        return AstNodeFactory.createNode(AstType.IMPORT, fullPath);
 //                    }
                 }
                 resource = resourceLoader.load(path, currentBaseURI, new String[]{ContentType.TEXT});

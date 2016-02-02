@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Number.toFloor",
+    "cases": [
+      {
+        "input": "<div>{{4.3->toFloor}} = 4</div>",
+        "expectedResult": "<div>4 = 4</div>"
+      },
+      {
+        "input": "<div>{{9.999->toFloor}} = 9</div>",
+        "expectedResult": "<div>9 = 9</div>"
+      },
+      {
+        "input": "<div>{{(-3.14)->toFloor}} = -4</div>",
+        "expectedResult": "<div>-4 = -4</div>"
+      }
+    ]
+  }
+]
+
+
+

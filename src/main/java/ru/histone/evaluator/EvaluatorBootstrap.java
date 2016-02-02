@@ -19,25 +19,25 @@ import ru.histone.evaluator.functions.global.GlobalFunctionsManager;
 import ru.histone.evaluator.functions.node.NodeFunctionsManager;
 import ru.histone.evaluator.nodes.GlobalObjectNode;
 import ru.histone.evaluator.nodes.NodeFactory;
-import ru.histone.parser.Parser;
+import ru.histone.parser.OldParser;
 import ru.histone.resourceloaders.ResourceLoader;
 
 /**
  * Bootstrap class for constructing evaluator
  */
 public class EvaluatorBootstrap {
-    private Parser parser;
+    private OldParser parser;
     private NodeFactory nodeFactory;
     private ResourceLoader resourceLoader;
     private GlobalFunctionsManager globalFunctionsManager;
     private NodeFunctionsManager nodeFunctionsManager;
     private GlobalObjectNode global;
 
-    public Parser getParser() {
+    public OldParser getParser() {
         return parser;
     }
 
-    public void setParser(Parser parser) {
+    public void setParser(OldParser parser) {
         this.parser = parser;
     }
 

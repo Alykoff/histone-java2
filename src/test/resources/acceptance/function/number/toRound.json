@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Number.toRound",
+    "cases": [
+      {
+        "input": "<div>{{3.4->toRound}} = 3</div>",
+        "expectedResult": "<div>3 = 3</div>"
+      },
+      {
+        "input": "<div>{{3.5->toRound}} = 4</div>",
+        "expectedResult": "<div>4 = 4</div>"
+      },
+      {
+        "input": "<div>{{3.6->toRound}} = 4</div>",
+        "expectedResult": "<div>4 = 4</div>"
+      }
+    ]
+  }
+]
+
+
+

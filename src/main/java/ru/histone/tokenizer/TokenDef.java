@@ -19,16 +19,16 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * Token definition holder
+ * OldToken definition holder
  */
 public class TokenDef {
     /**
-     * Token type
+     * OldToken type
      */
     private TokenType type;
 
     /**
-     * Token regexp
+     * OldToken regexp
      */
     private String regexp;
 
@@ -38,7 +38,7 @@ public class TokenDef {
     private Collection<TokenContext> contexts = new HashSet<TokenContext>();
 
     /**
-     * Token kind
+     * OldToken kind
      */
     private TokenKind kind;
 

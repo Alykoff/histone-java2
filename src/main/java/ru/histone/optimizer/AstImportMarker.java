@@ -72,7 +72,7 @@ public class AstImportMarker {
     private JsonNode markImport(JsonNode name, ImportResolverContext context) throws HistoneException {
 //        if (!isString(pathElement)) {
 //            Histone.runtime_log_warn("Invalid path to imported template: '{}'", pathElement.toString());
-//            return AstNodeFactory.createNode(AstNodeType.STRING, "");
+//            return AstNodeFactory.createNode(AstType.STRING, "");
 //        }
 //        String path = pathElement.getAsJsonPrimitive().getAsString();
 //        Resource resource = null;
@@ -83,7 +83,7 @@ public class AstImportMarker {
 //
 //            if (context.hasImportedResource(resourceFullPath.toString())) {
 //                Histone.runtime_log_info("Resource already imported.");
-//                return AstNodeFactory.createNode(AstNodeType.STRING, "");
+//                return AstNodeFactory.createNode(AstType.STRING, "");
 //            } else {
 //                resource = currentBaseURI == null ? resourceLoaderManager.load(path, null) : resourceLoaderManager.load(currentBaseURI, path, null);
 //

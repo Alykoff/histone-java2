@@ -607,56 +607,32 @@ public class Evaluator {
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(f -> {
-            if (f.get(0) instanceof EmptyEvalNode || f.get(0) instanceof NullEvalNode) {
-                return f.get(1);
-            } else if (f.get(1) instanceof EmptyEvalNode || f.get(1) instanceof NullEvalNode) {
-                if (nodeAsBoolean(f.get(0))) {
-                    return f.get(0);
-                }
-                return f.get(1);
-            } else if (f.get(0) instanceof BooleanEvalNode && !(f.get(1) instanceof BooleanEvalNode)) {
-                if (nodeAsBoolean(f.get(0))) {
-                    return f.get(0);
-                }
-                return f.get(1);
-            } else if (!(f.get(0) instanceof BooleanEvalNode) && f.get(1) instanceof BooleanEvalNode) {
-                if (nodeAsBoolean(f.get(0))) {
-                    return f.get(0);
-                }
-                return f.get(1);
-            } else if (nodeAsBoolean(f.get(0))) {
-                return f.get(0);
-            } else {
+            if (f.get(0) instanceof EmptyEvalNode
+                    || f.get(0) instanceof NullEvalNode
+                    || !nodeAsBoolean(f.get(0))) {
                 return f.get(1);
             }
+            return f.get(0);
         });
     }
 
     private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(f -> {
-            if (f.get(0) instanceof EmptyEvalNode || f.get(0) instanceof NullEvalNode) {
+            if (f.get(0) instanceof EmptyEvalNode
+                    || f.get(0) instanceof NullEvalNode
+                    || !nodeAsBoolean(f.get(0))) {
                 return f.get(0);
-            } else if (f.get(1) instanceof EmptyEvalNode || f.get(1) instanceof NullEvalNode) {
+            } else if (f.get(1) instanceof EmptyEvalNode
+                    || f.get(1) instanceof NullEvalNode
+                    || (!(f.get(0) instanceof BooleanEvalNode) && f.get(1) instanceof BooleanEvalNode)
+                    ) {
                 if (!nodeAsBoolean(f.get(0))) {
                     return f.get(0);
                 }
                 return f.get(1);
-            } else if (f.get(0) instanceof BooleanEvalNode && !(f.get(1) instanceof BooleanEvalNode)) {
-                if (nodeAsBoolean(f.get(0))) {
-                    return f.get(1);
-                }
-                return f.get(0);
-            } else if (!(f.get(0) instanceof BooleanEvalNode) && f.get(1) instanceof BooleanEvalNode) {
-                if (!nodeAsBoolean(f.get(0))) {
-                    return f.get(0);
-                }
-                return f.get(1);
-            } else if (nodeAsBoolean(f.get(0))) {
-                return f.get(1);
-            } else {
-                return f.get(0);
             }
+            return f.get(1);
         });
     }
 

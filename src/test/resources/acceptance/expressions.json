@@ -57,6 +57,10 @@
           "expected": "}}",
           "found": "EOF"
         }
+      },
+      {
+        "input": "{{ var x = {{%{{5+5}}%}}}}{{x}}",
+        "expectedResult": "{{5+5}}"
       }
     ]
   }

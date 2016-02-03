@@ -26,11 +26,11 @@ import java.util.concurrent.Executor;
 public abstract class AbstractFunction implements Function {
     protected final Executor executor;
 
-    public AbstractFunction() {
+    protected AbstractFunction() {
         executor = null;
     }
 
-    public AbstractFunction(Executor executor) {
+    protected AbstractFunction(Executor executor) {
         this.executor = executor;
     }
 

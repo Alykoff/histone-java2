@@ -37,7 +37,12 @@ import static ru.histone.tokenizer.Tokens.*;
 import static ru.histone.v2.parser.node.AstType.*;
 
 /**
+ * Class used for validate and create AST tree from histone template. It doesn't have a state, so it you can create
+ * only one instance.
+ * Parser using {@link Tokenizer} for getting tokens from input string.
+ *
  * @author alexey.nevinsky
+ * @author gali.alykoff
  */
 public class Parser {
     public static final String IDENTIFIER = "IDENTIFIER";
@@ -534,7 +539,6 @@ public class Parser {
             } else if (next(wrapper, T_SLASH)) {
                 node = new ExpAstNode(AST_DIV);
             } else if (next(wrapper, T_MOD)) {
-                ;// we needed to read next token from buffer for right work
                 node = new ExpAstNode(AST_MOD);
             } else {
                 break;

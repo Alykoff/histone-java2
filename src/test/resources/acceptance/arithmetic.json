@@ -90,6 +90,14 @@
       {
         "input": "{{true + 3.14}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{0b10+0B1}}",
+        "expectedResult": "3"
+      },
+      {
+        "input": "{{0x22+0X33}}",
+        "expectedResult": "85"
       }
     ]
   }

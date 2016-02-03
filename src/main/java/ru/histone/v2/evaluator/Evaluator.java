@@ -32,6 +32,7 @@ import ru.histone.v2.utils.ParserUtils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -40,14 +41,17 @@ import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 
 /**
- * Created by alexey.nevinsky on 12.01.2016.
+ * The main class for evaluating AST tree.
+ *
+ * @author alexey.nevinsky
+ * @author gali.alykoff
  */
 public class Evaluator {
     public static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
     public static final Comparator<StringEvalNode> STRING_EVAL_NODE_COMPARATOR = new StringEvalNodeComparator();
     public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
-    private static final String TO_STRING_FUNC_NAME = "toString";
     public static final String TO_BOOLEAN = "toBoolean";
+    private static final String TO_STRING_FUNC_NAME = "toString";
 
     public String process(String baseUri, ExpAstNode node, Context context) {
         context.setBaseUri(baseUri);
@@ -537,23 +541,35 @@ public class Evaluator {
     }
 
     private CompletableFuture<EvalNode> processBorNode(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) | nodeAsBoolean(f.get(1))));
+        return processBitwiseNode(node, context, (a, b) -> a | b);
     }
 
     private CompletableFuture<EvalNode> processBxorNode(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> {
-            if (f.get(0) instanceof BooleanEvalNode) {
-
-            }
-            return new BooleanEvalNode(nodeAsBoolean(f.get(0)) ^ nodeAsBoolean(f.get(1)));
-        });
+        return processBitwiseNode(node, context, (a, b) -> a ^ b);
     }
 
     private CompletableFuture<EvalNode> processBandNode(ExpAstNode node, Context context) {
+        return processBitwiseNode(node, context, (a, b) -> a & b);
+    }
+
+    private CompletableFuture<EvalNode> processBitwiseNode(ExpAstNode node, Context context,
+                                                           BiFunction<Long, Long, Long> function) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) & nodeAsBoolean(f.get(1))));
+        return leftRightDone.thenApply(f -> {
+            long first = 0;
+            if (f.get(0) instanceof FloatEvalNode || f.get(0) instanceof LongEvalNode) {
+                first = (long) f.get(0).getValue();
+            } else if (f.get(0) instanceof BooleanEvalNode) {
+                first = nodeAsBoolean(f.get(0)) ? 1 : 0;
+            }
+            long second = 0;
+            if (f.get(1) instanceof FloatEvalNode || f.get(1) instanceof LongEvalNode) {
+                second = (long) f.get(1).getValue();
+            } else if (f.get(1) instanceof BooleanEvalNode) {
+                second = nodeAsBoolean(f.get(1)) ? 1 : 0;
+            }
+            return EvalUtils.createEvalNode(function.apply(first, second));
+        });
     }
 
     private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) {

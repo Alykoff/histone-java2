@@ -22,30 +22,57 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by inv3r on 15/01/16.
+ * Class used for wrapping generic tokenizer. If you want to add tokens for ignore - you must to create wrapper base on
+ * tokenizer or wrapper and add tokens.
+ *
+ * @author alexey.nevinsky
  */
 public class TokenizerWrapper {
     private Tokenizer tokenizer;
     private List<Integer> ignored;
 
+    /**
+     * Construct wrapper without tokens for ignoring
+     *
+     * @param tokenizer for wrapping
+     */
     public TokenizerWrapper(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
         this.ignored = Collections.emptyList();
     }
 
+    /**
+     * Construct wrapper based on another wrapper. Ignored tokens list will be empty.
+     *
+     * @param wrapper for wrapping
+     */
     public TokenizerWrapper(TokenizerWrapper wrapper) {
         this(wrapper, Collections.emptyList());
     }
 
+    /**
+     * Construct wrapper based on another wrapper with a list of ignored tokens.
+     *
+     * @param wrapper for wrapping
+     * @param ignored list of ignored tokens ids
+     */
     public TokenizerWrapper(TokenizerWrapper wrapper, List<Integer> ignored) {
         this.tokenizer = wrapper.tokenizer;
         this.ignored = ignored;
     }
 
+    /**
+     * @return base uri from tokenizer
+     */
     public String getBaseURI() {
         return tokenizer.getBaseURI();
     }
 
+    /**
+     *
+     * @param selector
+     * @return
+     */
     public TokenizerResult next(Integer... selector) {
         return tokenizer.next(ignored, selector);
     }

@@ -21,7 +21,7 @@ import ru.histone.HistoneException;
 import java.util.Map;
 
 /**
- * Created by inv3r on 19/01/16.
+ * @author alexey.nevinsky
  */
 public class MapEvalNode extends EvalNode<Map<String, Object>> {
     public MapEvalNode(Map<String, Object> value) {
@@ -63,11 +63,10 @@ public class MapEvalNode extends EvalNode<Map<String, Object>> {
 
             String[] propArray = ((String) propertyName).split("\\.");
 
-            Object v = value;
-            Object curr = null;
+            Object curr = value;
             for (String str : propArray) {
-                if (v instanceof Map) {
-                    curr = ((Map<String, Object>) v).get(str);
+                if (curr instanceof Map) {
+                    curr = ((Map<String, Object>) curr).get(str);
                 } else {
                     throw new HistoneException("Unable to find property '" + str + "'");
                 }

@@ -36,8 +36,4 @@ public enum HistoneType {
     HistoneType(int id) {
         this.id = id;
     }
-
-    public int getId() {
-        return id;
-    }
 }

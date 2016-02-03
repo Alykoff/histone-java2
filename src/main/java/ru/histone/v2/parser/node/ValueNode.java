@@ -42,11 +42,6 @@ public abstract class ValueNode<T> extends AstNode implements Serializable {
        return value;
     }
 
-    public ValueNode<T> setValue(T value) {
-        this.value = value;
-        return this;
-    }
-
     public int size() {
         return 0;
     }

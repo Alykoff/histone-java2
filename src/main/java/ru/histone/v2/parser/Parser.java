@@ -37,7 +37,7 @@ import static ru.histone.tokenizer.Tokens.*;
 import static ru.histone.v2.parser.node.AstType.*;
 
 /**
- * Created by alexey.nevinsky on 24.12.2015.
+ * @author alexey.nevinsky
  */
 public class Parser {
     public static final String IDENTIFIER = "IDENTIFIER";
@@ -47,7 +47,7 @@ public class Parser {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
         ExpAstNode result = getNodeList(wrapper);
-        if (!wrapper.next(T_EOF).isFound())
+        if (!next(wrapper, T_EOF))
             throw buildUnexpectedTokenException(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
@@ -233,7 +233,7 @@ public class Parser {
                 }
             }
         }
-        if (nested && next(wrapper, T_BLOCK_END)) {
+        if (nested && !next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
         return res;
@@ -707,8 +707,7 @@ public class Parser {
             if (StringUtils.equals(fragment.first().getValue(), start)) {
                 break;
             } else if (StringUtils.equals(fragment.first().getValue(), "\\")) {
-                builder.append("\\")
-                        .append(wrapper.next().first().getValue());
+                builder.append("\\").append(wrapper.next().first().getValue());
             } else {
                 builder.append(fragment.first().getValue());
             }
@@ -719,7 +718,7 @@ public class Parser {
     private StringAstNode getLiteralStatement(TokenizerWrapper wrapper) throws ParserException {
         wrapper = new TokenizerWrapper(wrapper);
         final StringBuilder builder = new StringBuilder("");
-        while (wrapper.test(T_EOF.getId(), T_LITERAL_END.getId()) == null) {
+        while (!test(wrapper, T_EOF) && !test(wrapper, T_LITERAL_END)) {
             builder.append(wrapper.next().first().getValue());
         }
         if (!next(wrapper, T_LITERAL_END)) {

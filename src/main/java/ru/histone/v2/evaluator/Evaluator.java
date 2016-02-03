@@ -508,7 +508,12 @@ public class Evaluator {
 
     private CompletableFuture<EvalNode> processBxorNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> new BooleanEvalNode(nodeAsBoolean(f.get(0)) ^ nodeAsBoolean(f.get(1))));
+        return leftRightDone.thenApply(f -> {
+            if (f.get(0) instanceof BooleanEvalNode) {
+
+            }
+            return new BooleanEvalNode(nodeAsBoolean(f.get(0)) ^ nodeAsBoolean(f.get(1)));
+        });
     }
 
     private CompletableFuture<EvalNode> processBandNode(ExpAstNode node, Context context) {

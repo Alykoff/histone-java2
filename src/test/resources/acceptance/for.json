@@ -1,10 +1,50 @@
 [
   {
-    "name": "for statement",
+    "name": "Expression.for",
     "cases": [
       {
         "input": "a {{for x in sfgsag}}{{x}}{{/for}} b",
         "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x: in []}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "in"
+        }
+      },
+      {
+        "input": "a {{for x:y []}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "in",
+          "found": "["
+        }
+      },
+      {
+        "input": "a {{for x:y in []",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{for x:y in []}}{{else",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{for x:y in []}}{{else}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/for}}",
+          "found": "EOF"
+        }
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b",

@@ -103,6 +103,7 @@ public class HistoneTestCase {
         private int line;
         private String expected;
         private String found;
+        private String message;
 
         public int getLine() {
             return line;
@@ -114,6 +115,10 @@ public class HistoneTestCase {
 
         public String getFound() {
             return found;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }

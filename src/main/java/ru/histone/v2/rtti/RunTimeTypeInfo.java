@@ -45,8 +45,10 @@ import java.util.concurrent.Executor;
 import static ru.histone.v2.rtti.HistoneType.*;
 
 /**
- * RTTI
- * Created by gali.alykoff on 22/01/16.
+ * RTTI used to storing {@link Function} for global and default types and user defined functions. Create it ones and
+ * use it as parameter to create a {@link Context}.
+ *
+ * @author gali.alykoff on 22/01/16.
  */
 public class RunTimeTypeInfo implements Irtti, Serializable {
     private final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
@@ -146,10 +148,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         typeMembers.get(type).put(function.getName(), function);
     }
 
-    public void callSync(EvalNode node, String funcName, Context context, Object... args) {
-        throw new NotImplementedException();
-    }
-
+    @Override
     public Function getFunc(HistoneType type, String funcName) {
         Function f = userTypes.get(type).get(funcName);
         if (f == null) {
@@ -161,14 +160,17 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         return f;
     }
 
+    @Override
     public void register(HistoneType type, String funcName, Function func) {
         throw new NotImplementedException();
     }
 
+    @Override
     public void unregistered(HistoneType type, String funcName) {
         throw new NotImplementedException();
     }
 
+    @Override
     public CompletableFuture<EvalNode> callFunction(String baseUri, HistoneType type, String funcName, List<EvalNode> args) {
         final Function f = getFunc(type, funcName);
         if (f.isAsync()) {
@@ -179,6 +181,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         return f.execute(baseUri, args);
     }
 
+    @Override
     public CompletableFuture<EvalNode> callFunction(String baseUri, EvalNode node, String funcName, List<EvalNode> args) {
         HistoneType type = getType(node);
         return callFunction(baseUri, type, funcName, args);

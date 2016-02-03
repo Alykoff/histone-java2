@@ -34,7 +34,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("1 2 3");
 //        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("{{''&&false}}", testCase);
+        doTest("{{5^7}}", testCase);
     }
 
     private Map<String, Object> getMap() {

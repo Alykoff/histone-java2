@@ -8,7 +8,7 @@
       },
       {
         "input": "{{'x10' - 2}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{'10' * 2}}",
@@ -16,7 +16,7 @@
       },
       {
         "input": "{{'x10' * 2}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{'10' / 2}}",
@@ -24,7 +24,7 @@
       },
       {
         "input": "{{'x10' / 2}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{'10' % 3}}",
@@ -32,11 +32,11 @@
       },
       {
         "input": "{{'x10' % 2}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{-'x10'}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       }
     ]
   },
@@ -81,15 +81,15 @@
       },
       {
         "input": "{{10 / 0}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{'string' * [foo: 'bar']}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{true + 3.14}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       }
     ]
   }

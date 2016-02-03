@@ -1,0 +1,96 @@
+[
+  {
+    "name": "arithmetic",
+    "cases": [
+      {
+        "input": "{{'10' - 2}}",
+        "expectedResult": "8"
+      },
+      {
+        "input": "{{'x10' - 2}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{'10' * 2}}",
+        "expectedResult": "20"
+      },
+      {
+        "input": "{{'x10' * 2}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{'10' / 2}}",
+        "expectedResult": "5"
+      },
+      {
+        "input": "{{'x10' / 2}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{'10' % 3}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{'x10' % 2}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{-'x10'}}",
+        "expectedResult": "undefined"
+      }
+    ]
+  },
+  {
+    "name": "addition",
+    "cases": [
+      {
+        "input": "{{'10' + 2}}",
+        "expectedResult": "102"
+      },
+      {
+        "input": "{{10 + '-bar'}}",
+        "expectedResult": "10-bar"
+      },
+      {
+        "input": "{{'foo-' + 'bar'}}",
+        "expectedResult": "foo-bar"
+      },
+      {
+        "input": "{{'foo-' + true}}",
+        "expectedResult": "foo-true"
+      },
+      {
+        "input": "{{'foo-' + null}}",
+        "expectedResult": "foo-null"
+      },
+      {
+        "input": "{{[1, 2] + [3, 4]}}",
+        "expectedResult": "[1, 2, 3, 4]"
+      },
+      {
+        "input": "{{[foo: 'bar'] + [x: 'yyy']}}",
+        "expectedResult": "[foo: 'bar', x: 'yyy']"
+      },
+      {
+        "input": "{{[1, 2] + [x: 'yyy']}}",
+        "expectedResult": "[0: 1, 1: 2, x: 'yyy']"
+      },
+      {
+        "input": "{{[x: 'yyy'] + [1, 2]}}",
+        "expectedResult": "[x: 'yyy', 0: 1, 1: 2]"
+      },
+      {
+        "input": "{{10 / 0}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{'string' * [foo: 'bar']}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{true + 3.14}}",
+        "expectedResult": "undefined"
+      }
+    ]
+  }
+]

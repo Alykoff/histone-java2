@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.global;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
@@ -23,7 +24,7 @@ import java.util.Comparator;
  *
  * Created by gali.alykoff on 22/01/16.
  */
-public class NumberComparator implements Comparator<Number> {
+public class NumberComparator implements Comparator<Number>, Serializable {
     private static boolean isSpecial(final Number x) {
         boolean specialDouble = x instanceof Double
                 && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));

@@ -702,6 +702,7 @@ public class Parser {
 
     private StringAstNode getStringLiteral(TokenizerWrapper wrapper) throws ParserException {
         String start = wrapper.next().first().getValue();
+        wrapper = new TokenizerWrapper(wrapper);
         TokenizerResult fragment;
         final StringBuilder builder = new StringBuilder();
         while ((fragment = wrapper.next()).isFound()) {

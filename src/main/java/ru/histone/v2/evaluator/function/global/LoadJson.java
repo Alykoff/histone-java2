@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * Created by inv3r on 25/01/16.
+ * @author alexey.nevinsky
  */
 public class LoadJson extends AbstractFunction {
 

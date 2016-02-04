@@ -8,7 +8,7 @@
       },
       {
         "input": "{{['one', 'two', 'three']->reverse->toJSON}} = [\"three\",\"two\",\"one\"]",
-        "expectedResult": "[\"XL\",\"gold\"] = [\"XL\",\"gold\"]"
+        "expectedResult": "[\"three\",\"two\",\"one\"] = [\"three\",\"two\",\"one\"]"
       }
     ]
   }

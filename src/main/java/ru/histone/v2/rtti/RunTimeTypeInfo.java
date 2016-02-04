@@ -66,39 +66,6 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommonFunctions();
     }
 
-//    public HistoneType getType(EvalNode node) {
-//        if (node == null) {
-//            throw new NullPointerException();
-//        }
-//        if (node instanceof NullEvalNode) {
-//            return T_NULL;
-//        } else if (node instanceof FloatEvalNode) {
-//            final Float valueFloat = ((FloatEvalNode) node).getValue();
-//            if (valueFloat == null || Float.isNaN(valueFloat) || !Float.isFinite(valueFloat)) {
-//                return T_UNDEFINED;
-//            }
-//            return T_NUMBER;
-//        } else if (node instanceof LongEvalNode) {
-//            return T_NUMBER;
-//        } else if (node instanceof MapEvalNode) {
-//            return T_ARRAY;
-//        } else if (node instanceof BooleanEvalNode) {
-//            return T_BOOLEAN;
-//        } else if (node instanceof StringEvalNode) {
-//            return T_STRING;
-//        } else if (node instanceof EmptyEvalNode) {
-//            return T_UNDEFINED;
-//        } else if (node instanceof RegexEvalNode) {
-//            return T_REGEXP;
-//        } else if (node instanceof MacroEvalNode) {
-//            return T_MACRO;
-//        } else if (node instanceof GlobalEvalNode) {
-//            return T_GLOBAL;
-//        }
-//
-//        throw new NotImplementedException(node.toString());
-//    }
-
     private void registerCommonFunctions() {
         registerForAlltypes(new ToJson());
         registerForAlltypes(new ToString());
@@ -133,6 +100,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetWeekDayName(false));
         registerCommon(T_GLOBAL, new GetMonthName(true));
         registerCommon(T_GLOBAL, new GetMonthName(false));
+        registerCommon(T_GLOBAL, new GetRand());
 
         registerCommon(T_REGEXP, new Test());
 
@@ -188,7 +156,6 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     @Override
     public CompletableFuture<EvalNode> callFunction(String baseUri, Locale locale, EvalNode node, String funcName, List<EvalNode> args) {
-        HistoneType type = Irtti.getType(node);
-        return callFunction(baseUri, locale, type, funcName, args);
+        return callFunction(baseUri, locale, node.getType(), funcName, args);
     }
 }

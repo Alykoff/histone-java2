@@ -16,10 +16,12 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.rtti.HistoneType;
+
 /**
  * Created by inv3r on 19/01/16.
  */
-public class EvalNode<T> {
+public abstract class EvalNode<T> {
     protected T value;
     protected boolean isReturn = false;
 
@@ -38,6 +40,8 @@ public class EvalNode<T> {
     public boolean isReturn() {
         return isReturn;
     }
+
+    public abstract HistoneType getType();
 
     @Override
     public String toString() {

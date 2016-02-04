@@ -16,8 +16,10 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.rtti.HistoneType;
+
 /**
- * Created by inv3r on 14/01/16.
+ * @author alexey.nevinsky
  */
 public class StringEvalNode extends EvalNode<String> {
     public StringEvalNode(String value) {
@@ -25,5 +27,10 @@ public class StringEvalNode extends EvalNode<String> {
         if (value == null) {
             throw new NullPointerException();
         }
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_STRING;
     }
 }

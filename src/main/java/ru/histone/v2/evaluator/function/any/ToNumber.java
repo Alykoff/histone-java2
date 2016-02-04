@@ -22,6 +22,7 @@ import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
 import java.util.Locale;
@@ -41,7 +42,7 @@ public class ToNumber extends AbstractFunction {
         EvalNode node = args.get(0);
         if (EvalUtils.isNumberNode(node)) {
             return CompletableFuture.completedFuture(node);
-        } else if (node instanceof StringEvalNode && EvalUtils.isNumeric((StringEvalNode) node)) {
+        } else if (node.getType() == HistoneType.T_STRING && EvalUtils.isNumeric((StringEvalNode) node)) {
             Float v = Float.parseFloat(((StringEvalNode) node).getValue());
             if (v % 1 == 0 && v <= Long.MAX_VALUE) {
                 return EvalUtils.getValue(v.longValue());

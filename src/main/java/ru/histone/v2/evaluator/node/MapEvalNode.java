@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.node;
 
 import ru.histone.HistoneException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.Map;
 
@@ -26,6 +27,11 @@ import java.util.Map;
 public class MapEvalNode extends EvalNode<Map<String, EvalNode>> {
     public MapEvalNode(Map<String, EvalNode> value) {
         super(value);
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_ARRAY;
     }
 
     public void append(MapEvalNode node) {

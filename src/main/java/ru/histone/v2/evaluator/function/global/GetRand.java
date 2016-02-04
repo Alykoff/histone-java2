@@ -13,27 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package ru.histone.v2.evaluator.function.global;
 
-package ru.histone.v2.rtti;
-
-import ru.histone.v2.evaluator.Function;
+import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff
+ * @author alexey.nevinsky
  */
-public interface Irtti {
-    Function getFunc(HistoneType type, String funcName);
+public class GetRand extends AbstractFunction {
+    @Override
+    public String getName() {
+        return "getRand";
+    }
 
-    void register(HistoneType type, String funcName, Function func);
-
-    void unregistered(HistoneType type, String funcName);
-
-    CompletableFuture<EvalNode> callFunction(String baseUri, Locale locale, HistoneType type, String funcName, List<EvalNode> args);
-
-    CompletableFuture<EvalNode> callFunction(String baseUri, Locale locale, EvalNode node, String funcName, List<EvalNode> args);
+    @Override
+    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+        Random random = new Random();
+        return EvalUtils.getValue(random.nextLong());
+    }
 }

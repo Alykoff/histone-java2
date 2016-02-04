@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.node;
 
 import ru.histone.v2.evaluator.data.HistoneMacro;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
 
@@ -30,5 +31,10 @@ public class MacroEvalNode extends EvalNode<HistoneMacro> implements Serializabl
         if (value == null) {
             throw new NullPointerException();
         }
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_MACRO;
     }
 }

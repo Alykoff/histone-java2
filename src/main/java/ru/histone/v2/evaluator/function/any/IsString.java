@@ -19,8 +19,8 @@ package ru.histone.v2.evaluator.function.any;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +37,6 @@ public class IsString extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
-        return EvalUtils.getValue(args.get(0) instanceof StringEvalNode);
+        return EvalUtils.getValue(args.get(0).getType() == HistoneType.T_STRING);
     }
 }

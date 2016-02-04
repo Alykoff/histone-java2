@@ -25,8 +25,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class ToJson extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
-        if (node instanceof NullEvalNode) {
+        if (node.getType() == HistoneType.T_NULL) {
             return EvalUtils.getValue("null");
         }
 

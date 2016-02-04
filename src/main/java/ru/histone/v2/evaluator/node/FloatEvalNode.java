@@ -16,6 +16,11 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.rtti.HistoneType;
+
+import static ru.histone.v2.rtti.HistoneType.T_NUMBER;
+import static ru.histone.v2.rtti.HistoneType.T_UNDEFINED;
+
 /**
  * Created by inv3r on 19/01/16.
  */
@@ -25,5 +30,13 @@ public class FloatEvalNode extends EvalNode<Float> {
         if (val == null) {
             throw new NullPointerException();
         }
+    }
+
+    @Override
+    public HistoneType getType() {
+        if (value == null || Float.isNaN(value) || !Float.isFinite(value)) {
+            return T_UNDEFINED;
+        }
+        return T_NUMBER;
     }
 }

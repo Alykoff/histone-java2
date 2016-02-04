@@ -17,7 +17,6 @@
 package ru.histone.v2.evaluator;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.NotImplementedException;
 import ru.histone.HistoneException;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
@@ -27,6 +26,7 @@ import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.global.StringEvalNodeComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.*;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
@@ -262,7 +262,7 @@ public class Evaluator {
                 .map(x -> evaluateNode(x, context))
                 .collect(Collectors.toList()));
         return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
-            if (functionNameNode instanceof StringEvalNode && !valueNodeExists) {
+            if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);
             } else {
                 return processMethod(node, context, args);
@@ -383,7 +383,7 @@ public class Evaluator {
         return leftRight.thenCompose(lr -> {
             EvalNode left = lr.get(0);
             EvalNode right = lr.get(1);
-            if (!(left instanceof StringEvalNode || right instanceof StringEvalNode)) {
+            if (!(left.getType() == HistoneType.T_STRING || right.getType() == HistoneType.T_STRING)) {
                 if (isNumberNode(left) && isNumberNode(right)) {
                     Float res = getValue(left).orElse(null) + getValue(right).orElse(null);
                     if (res % 1 == 0 && res <= Long.MAX_VALUE) {
@@ -393,8 +393,8 @@ public class Evaluator {
                     }
                 }
 
-                if (left instanceof MapEvalNode && right instanceof MapEvalNode) {
-                    ((MapEvalNode)left).append((MapEvalNode) right);
+                if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
+                    ((MapEvalNode) left).append((MapEvalNode) right);
                     return CompletableFuture.completedFuture(left);
                 }
             }
@@ -417,8 +417,8 @@ public class Evaluator {
             EvalNode left = futures.get(0);
             EvalNode right = futures.get(1);
 
-            if ((isNumberNode(left) || left instanceof StringEvalNode) &&
-                    (isNumberNode(right) || right instanceof StringEvalNode)) {
+            if ((isNumberNode(left) || left.getType() == HistoneType.T_STRING) &&
+                    (isNumberNode(right) || right.getType() == HistoneType.T_STRING)) {
                 Float leftValue = getValue(left).orElse(null);
                 Float rightValue = getValue(right).orElse(null);
                 if (leftValue == null || rightValue == null) {
@@ -447,7 +447,7 @@ public class Evaluator {
     }
 
     private Optional<Float> getValue(EvalNode node) {
-        if (node instanceof StringEvalNode) {
+        if (node.getType() == HistoneType.T_STRING) {
             return ParserUtils.tryFloat(((StringEvalNode) node).getValue());
         } else {
             return Optional.of(Float.valueOf(node.getValue() + ""));
@@ -461,14 +461,14 @@ public class Evaluator {
             final EvalNode right = evalNodeList.get(1);
 
             final CompletableFuture<Integer> compareResultRaw;
-            if (left instanceof StringEvalNode && isNumberNode(right)) {
+            if (left.getType() == HistoneType.T_STRING && isNumberNode(right)) {
                 final StringEvalNode stringLeft = (StringEvalNode) left;
                 if (isNumeric(stringLeft)) {
                     compareResultRaw = processRelationNumberHelper(left, right);
                 } else {
                     compareResultRaw = processRelationToString(stringLeft, right, context, false);
                 }
-            } else if (isNumberNode(left) && right instanceof StringEvalNode) {
+            } else if (isNumberNode(left) && right.getType() == HistoneType.T_STRING) {
                 final StringEvalNode stringRight = (StringEvalNode) right;
                 if (isNumeric(stringRight)) {
                     compareResultRaw = processRelationNumberHelper(left, right);
@@ -476,7 +476,7 @@ public class Evaluator {
                     compareResultRaw = processRelationToString(stringRight, left, context, true);
                 }
             } else if (!isNumberNode(left) || !isNumberNode(right)) {
-                if (left instanceof StringEvalNode && right instanceof StringEvalNode) {
+                if (left.getType() == HistoneType.T_STRING && right.getType() == HistoneType.T_STRING) {
                     compareResultRaw = processRelationStringHelper(left, right);
                 } else {
                     compareResultRaw = processRelationBooleanHelper(left, right, context);
@@ -559,15 +559,15 @@ public class Evaluator {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(f -> {
             long first = 0;
-            if (f.get(0) instanceof FloatEvalNode || f.get(0) instanceof LongEvalNode) {
+            if (f.get(0).getType() == HistoneType.T_NUMBER) {
                 first = (long) f.get(0).getValue();
-            } else if (f.get(0) instanceof BooleanEvalNode) {
+            } else if (f.get(0).getType() == HistoneType.T_BOOLEAN) {
                 first = nodeAsBoolean(f.get(0)) ? 1 : 0;
             }
             long second = 0;
-            if (f.get(1) instanceof FloatEvalNode || f.get(1) instanceof LongEvalNode) {
+            if (f.get(1).getType() == HistoneType.T_NUMBER) {
                 second = (long) f.get(1).getValue();
-            } else if (f.get(1) instanceof BooleanEvalNode) {
+            } else if (f.get(1).getType() == HistoneType.T_BOOLEAN) {
                 second = nodeAsBoolean(f.get(1)) ? 1 : 0;
             }
             return EvalUtils.createEvalNode(function.apply(first, second));
@@ -665,8 +665,8 @@ public class Evaluator {
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(f -> {
-            if (f.get(0) instanceof EmptyEvalNode
-                    || f.get(0) instanceof NullEvalNode
+            if (f.get(0).getType() == HistoneType.T_UNDEFINED
+                    || f.get(0).getType() == HistoneType.T_NULL
                     || !nodeAsBoolean(f.get(0))) {
                 return f.get(1);
             }
@@ -677,13 +677,13 @@ public class Evaluator {
     private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(f -> {
-            if (f.get(0) instanceof EmptyEvalNode
-                    || f.get(0) instanceof NullEvalNode
+            if (f.get(0).getType() == HistoneType.T_UNDEFINED
+                    || f.get(0).getType() == HistoneType.T_NULL
                     || !nodeAsBoolean(f.get(0))) {
                 return f.get(0);
-            } else if (f.get(1) instanceof EmptyEvalNode
-                    || f.get(1) instanceof NullEvalNode
-                    || (!(f.get(0) instanceof BooleanEvalNode) && f.get(1) instanceof BooleanEvalNode)
+            } else if (f.get(1).getType() == HistoneType.T_UNDEFINED
+                    || f.get(1).getType() == HistoneType.T_NULL
+                    || (!(f.get(0).getType() == HistoneType.T_BOOLEAN) && f.get(1).getType() == HistoneType.T_BOOLEAN)
                     ) {
                 if (!nodeAsBoolean(f.get(0))) {
                     return f.get(0);

@@ -17,12 +17,18 @@
 package ru.histone.v2.evaluator.node;
 
 
+import ru.histone.v2.rtti.HistoneType;
+
 /**
- *
- * Created by inv3r on 18/01/16.
+ * @author alexey.nevinsky
  */
 public class ObjectEvalNode extends EvalNode<Object> {
     public ObjectEvalNode(Object value) {
         super(value);
+    }
+
+    @Override
+    public HistoneType getType() {
+        throw new RuntimeException("Wrong node! Please check your logic");
     }
 }

@@ -18,17 +18,16 @@ package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
+import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.rtti.Irtti;
 import ru.histone.v2.utils.AsyncUtils;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import static ru.histone.v2.rtti.HistoneType.*;
 
 /**
  * Created by inv3r on 27/01/16.
@@ -47,7 +46,7 @@ public class ToString extends AbstractFunction {
 
     private CompletableFuture<String> executeHelper(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         final EvalNode node = args.get(0);
-        final HistoneType nodeType = Irtti.getType(node);
+        final HistoneType nodeType = node.getType();
         switch (nodeType) {
             case T_UNDEFINED: {
                 return CompletableFuture.completedFuture("");

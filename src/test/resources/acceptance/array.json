@@ -21,6 +21,26 @@
       {
         "input": "{{var array = [if: 'if', for: 'for', return: 'return']}}<div>{{array.if}} = if</div><div>{{array.for}} = for</div><div>{{array.return}} = return</div>",
         "expectedResult": "<div>if = if</div><div>for = for</div><div>return = return</div>"
+      },
+      {
+        "input": "{{['Moscow', 'New York', 'Paris', 'London'][1]}}",
+        "expectedResult": "New York"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444'][1]}}",
+        "expectedResult": "1111"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444']['foo']}}",
+        "expectedResult": "2222"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444'].x}}",
+        "expectedResult": "3333"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444']['mmm']}}",
+        "expectedResult": "4444"
       }
     ]
   }

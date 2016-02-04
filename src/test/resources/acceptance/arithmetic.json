@@ -65,19 +65,19 @@
       },
       {
         "input": "{{[1, 2] + [3, 4]}}",
-        "expectedResult": "[1, 2, 3, 4]"
+        "expectedResult": "1 2 3 4"
       },
       {
         "input": "{{[foo: 'bar'] + [x: 'yyy']}}",
-        "expectedResult": "[foo: 'bar', x: 'yyy']"
+        "expectedResult": "bar yyy"
       },
       {
         "input": "{{[1, 2] + [x: 'yyy']}}",
-        "expectedResult": "[0: 1, 1: 2, x: 'yyy']"
+        "expectedResult": "1 2 yyy"
       },
       {
         "input": "{{[x: 'yyy'] + [1, 2]}}",
-        "expectedResult": "[x: 'yyy', 0: 1, 1: 2]"
+        "expectedResult": "yyy 1 2"
       },
       {
         "input": "{{10 / 0}}",

@@ -53,8 +53,7 @@ public class Evaluator {
     public static final String TO_BOOLEAN = "toBoolean";
     private static final String TO_STRING_FUNC_NAME = "toString";
 
-    public String process(String baseUri, ExpAstNode node, Context context) {
-        context.setBaseUri(baseUri);
+    public String process(ExpAstNode node, Context context) {
         return processInternal(node, context);
     }
 

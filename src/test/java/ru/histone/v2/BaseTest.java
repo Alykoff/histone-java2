@@ -54,7 +54,7 @@ public class BaseTest {
                 Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
             }
             if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot("", rtti);
+                Context context = Context.createRoot("http://localhost/histone", rtti);
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {
@@ -64,7 +64,7 @@ public class BaseTest {
                         }
                     }
                 }
-                String result = evaluator.process("", root, context);
+                String result = evaluator.process(root, context);
                 Assert.assertEquals(testCase.getExpectedResult(), result);
             }
         } catch (ParserException ex) {

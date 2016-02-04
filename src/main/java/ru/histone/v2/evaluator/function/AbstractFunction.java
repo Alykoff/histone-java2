@@ -17,7 +17,9 @@
 package ru.histone.v2.evaluator.function;
 
 import ru.histone.v2.evaluator.Function;
+import ru.histone.v2.evaluator.node.EvalNode;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -32,6 +34,10 @@ public abstract class AbstractFunction implements Function {
 
     protected AbstractFunction(Executor executor) {
         this.executor = executor;
+    }
+
+    protected <T> T getValue(List<EvalNode> args, int index) {
+        return index > args.size() - 1 ? null : (T) args.get(index).getValue();
     }
 
     @Override

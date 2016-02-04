@@ -1,10 +1,22 @@
 [
   {
-    "name": "global",
+    "name": "Global.functions",
     "cases": [
       {
         "input": "{{global->getBaseURI()}}",
-        "expectedResult": ""
+        "expectedResult": "http://localhost/histone"
+      },
+      {
+        "input": "<div>{{resolveURI('foo', 'http://abc.com/')}}</div>",
+        "expectedResult": "<div>http://abc.com/foo</div>"
+      },
+      {
+        "input": "<div>{{resolveURI(123, 'http://abc.com/')}}</div>",
+        "expectedResult": "<div>http://abc.com/123</div>"
+      },
+      {
+        "input": "<div>{{resolveURI('foo')}}</div>",
+        "expectedResult": "<div>http://localhost/histone/foo</div>"
       }
     ]
   }

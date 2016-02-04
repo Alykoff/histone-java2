@@ -55,7 +55,7 @@ public class HistoneV2StandardFromJs {
             final Evaluator evaluator = new Evaluator();
             final ExpAstNode root = new Parser().process(tpl, baseURI);
             System.out.println(ParserUtils.astToString(root));
-            final String result = evaluator.process(baseURI, root, context);
+            final String result = evaluator.process(root, context);
             System.out.println(result);
         } catch (HistoneException e) {
             e.printStackTrace();

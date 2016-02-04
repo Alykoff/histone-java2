@@ -24,6 +24,7 @@ import ru.histone.v2.rtti.RunTimeTypeInfo;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,15 +36,29 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Context implements Serializable {
     private String baseUri;
+    private Locale locale;
     private RunTimeTypeInfo rttiInfo;
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
     private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = new ConcurrentHashMap<>();
 
     private Context parent;
 
-    private Context(String baseUri, RunTimeTypeInfo rttiInfo) {
+    private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
         this.baseUri = baseUri;
         this.rttiInfo = rttiInfo;
+        this.locale = locale;
+    }
+
+    /**
+     * This method used for create a root node
+     *
+     * @param baseUri  of context
+     * @param locale   environment locale
+     * @param rttiInfo is global run time type info
+     * @return created root context
+     */
+    public static Context createRoot(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
+        return new Context(baseUri, locale, rttiInfo);
     }
 
     /**
@@ -54,8 +69,9 @@ public class Context implements Serializable {
      * @return created root context
      */
     public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo) {
-        return new Context(baseUri, rttiInfo);
+        return new Context(baseUri, Locale.getDefault(), rttiInfo);
     }
+
 
     /**
      * This method used for create a child context
@@ -63,7 +79,7 @@ public class Context implements Serializable {
      * @return child context
      */
     public Context createNew() {
-        Context ctx = new Context(baseUri, rttiInfo);
+        Context ctx = new Context(baseUri, locale, rttiInfo);
         ctx.parent = this;
         ctx.thisVars = thisVars;
         return ctx;
@@ -112,10 +128,10 @@ public class Context implements Serializable {
     }
 
     public CompletableFuture<EvalNode> call(String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(baseUri, HistoneType.T_GLOBAL, name, args);
+        return rttiInfo.callFunction(baseUri, locale, HistoneType.T_GLOBAL, name, args);
     }
 
     public CompletableFuture<EvalNode> call(EvalNode node, String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(baseUri, node, name, args);
+        return rttiInfo.callFunction(baseUri, locale, node, name, args);
     }
 }

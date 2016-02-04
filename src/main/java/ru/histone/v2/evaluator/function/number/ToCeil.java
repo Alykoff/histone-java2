@@ -23,6 +23,7 @@ import ru.histone.v2.evaluator.node.FloatEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -35,7 +36,7 @@ public class ToCeil extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         if (args.get(0) instanceof FloatEvalNode) {
             Float v = (float) Math.ceil(((FloatEvalNode) args.get(0)).getValue());
             if (v % 1 == 0 && v <= Long.MAX_VALUE) {

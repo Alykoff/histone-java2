@@ -19,8 +19,8 @@ package ru.histone.v2.evaluator.function.macro;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.data.HistoneMacro;
+import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
@@ -31,14 +31,14 @@ import ru.histone.v2.parser.node.AstNode;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- *
- * Created by gali.alykoff on 28/01/16.
+ * @author gali.alykoff
  */
-public class MacroCall implements Function, Serializable {
+public class MacroCall extends AbstractFunction implements Serializable {
     public final static String NAME = "call";
     public static final int MACRO_NODE_INDEX = 0;
 
@@ -48,7 +48,7 @@ public class MacroCall implements Function, Serializable {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
         final HistoneMacro histoneMacro = macroNode.getValue();
         final AstNode body = histoneMacro.getBody();
@@ -61,8 +61,8 @@ public class MacroCall implements Function, Serializable {
         for (int i = 0; i < namesOfVars.size(); i++) {
             final String argName = namesOfVars.get(i);
             final EvalNode param = (i < params.size())
-                ? params.get(i)
-                : EmptyEvalNode.INSTANCE;
+                    ? params.get(i)
+                    : EmptyEvalNode.INSTANCE;
             currentContext.put(argName, CompletableFuture.completedFuture(param));
         }
         return evaluator.evaluateNode(body, currentContext);
@@ -89,15 +89,5 @@ public class MacroCall implements Function, Serializable {
             }
         }
         return params;
-    }
-
-    @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public boolean isClear() {
-        return false;
     }
 }

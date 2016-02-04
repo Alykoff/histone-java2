@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.Function;
+import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -36,14 +36,14 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Created by inv3r on 22/01/16.
  */
-public class ToJson implements Function {
+public class ToJson extends AbstractFunction {
     @Override
     public String getName() {
         return "toJSON";
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
         if (node instanceof NullEvalNode) {
             return EvalUtils.getValue("null");
@@ -87,15 +87,5 @@ public class ToJson implements Function {
         } catch (JsonProcessingException e) {
             throw new FunctionExecutionException("Failed to write object to json", e);
         }
-    }
-
-    @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public boolean isClear() {
-        return true;
     }
 }

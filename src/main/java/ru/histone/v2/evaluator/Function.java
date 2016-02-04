@@ -19,10 +19,13 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Use this interface when you need to implement your own global function
+ *
+ * @author alexey.nevinsky
  */
 public interface Function {
 
@@ -36,14 +39,18 @@ public interface Function {
     /**
      * This method will be run when Histone evaluate function<br/>
      *
-     * @param args arguments from Histone template
+     * @param locale of current environment
+     * @param args   arguments from Histone template
      * @return result as one of Histone types
-     * @throws FunctionExecutionException if your function stops with error and you need to put details into log, then you should use this exception
+     * @throws FunctionExecutionException if your function stops with error and you need to put details into log,
+     *                                    then you should use this exception
      */
-    CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException;
+    CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException;
 
     /**
-     * @return
+     * Return true, if function must be run in own thread, otherwise - false
+     *
+     * @return true if async function
      */
     boolean isAsync();
 

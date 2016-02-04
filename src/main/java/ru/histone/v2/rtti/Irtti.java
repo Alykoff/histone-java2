@@ -20,6 +20,7 @@ import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EvalNode;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,7 +35,7 @@ public interface Irtti {
 
     void unregistered(HistoneType type, String funcName);
 
-    CompletableFuture<EvalNode> callFunction(String baseUri, HistoneType type, String funcName, List<EvalNode> args);
+    CompletableFuture<EvalNode> callFunction(String baseUri, Locale locale, HistoneType type, String funcName, List<EvalNode> args);
 
-    CompletableFuture<EvalNode> callFunction(String baseUri, EvalNode node, String funcName, List<EvalNode> args);
+    CompletableFuture<EvalNode> callFunction(String baseUri, Locale locale, EvalNode node, String funcName, List<EvalNode> args);
 }

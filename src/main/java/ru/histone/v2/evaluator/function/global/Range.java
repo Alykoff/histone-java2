@@ -23,6 +23,7 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,7 +40,7 @@ public class Range implements Function {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() != 2) {
             throw new IllegalArgumentException("Wrong count of arguments. Actual is " + args.size() + ", but expected is 2");
         }

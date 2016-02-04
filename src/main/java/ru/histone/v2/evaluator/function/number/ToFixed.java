@@ -25,6 +25,7 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -37,7 +38,7 @@ public class ToFixed extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         if (args.get(0) instanceof LongEvalNode) {
             return CompletableFuture.completedFuture(args.get(0));
         }

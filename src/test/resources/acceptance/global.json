@@ -17,6 +17,10 @@
       {
         "input": "<div>{{resolveURI('foo')}}</div>",
         "expectedResult": "<div>http://localhost/histone/foo</div>"
+      },
+      {
+        "input": "{{for day in range(1, 7)}}{{getWeekDayNameShort(day)}} {{/for}}",
+        "expectedResult": "Mo Tu We Th Fr Sa Su "
       }
     ]
   }

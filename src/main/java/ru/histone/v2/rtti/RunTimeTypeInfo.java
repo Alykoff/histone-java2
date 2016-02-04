@@ -34,6 +34,7 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -169,19 +170,19 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     }
 
     @Override
-    public CompletableFuture<EvalNode> callFunction(String baseUri, HistoneType type, String funcName, List<EvalNode> args) {
+    public CompletableFuture<EvalNode> callFunction(String baseUri, Locale locale, HistoneType type, String funcName, List<EvalNode> args) {
         final Function f = getFunc(type, funcName);
         if (f.isAsync()) {
             return CompletableFuture
                     .completedFuture(null)
-                    .thenComposeAsync((x) -> f.execute(baseUri, args), executor);
+                    .thenComposeAsync((x) -> f.execute(baseUri, locale, args), executor);
         }
-        return f.execute(baseUri, args);
+        return f.execute(baseUri, locale, args);
     }
 
     @Override
-    public CompletableFuture<EvalNode> callFunction(String baseUri, EvalNode node, String funcName, List<EvalNode> args) {
+    public CompletableFuture<EvalNode> callFunction(String baseUri, Locale locale, EvalNode node, String funcName, List<EvalNode> args) {
         HistoneType type = getType(node);
-        return callFunction(baseUri, type, funcName, args);
+        return callFunction(baseUri, locale, type, funcName, args);
     }
 }

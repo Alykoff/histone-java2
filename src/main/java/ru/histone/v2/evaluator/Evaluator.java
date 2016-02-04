@@ -617,7 +617,7 @@ public class Evaluator {
                 Float value = ((FloatEvalNode) n).getValue();
                 return new FloatEvalNode(-value);
             }
-            throw new NotImplementedException();
+            return EmptyEvalNode.INSTANCE;
         });
     }
 

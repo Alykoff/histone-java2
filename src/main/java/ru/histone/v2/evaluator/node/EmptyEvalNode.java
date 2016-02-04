@@ -20,10 +20,14 @@ package ru.histone.v2.evaluator.node;
  * Created by inv3r on 19/01/16.
  */
 public class EmptyEvalNode extends EvalNode<Void> {
-    public static final EmptyEvalNode INSTANCE = new EmptyEvalNode();
+    public static final EmptyEvalNode INSTANCE = EmptyEvalNodeHolder.EMPTY_EVAL_NODE;
 
     private EmptyEvalNode() {
         super(null);
+    }
+
+    private static class EmptyEvalNodeHolder {
+        private static final EmptyEvalNode EMPTY_EVAL_NODE = new EmptyEvalNode();
     }
 
 }

@@ -394,8 +394,8 @@ public class Evaluator {
                 }
 
                 if (left instanceof MapEvalNode && right instanceof MapEvalNode) {
-                    throw new NotImplementedException();
-                    // TODO call RTTI func `concat` for array
+                    ((MapEvalNode)left).append((MapEvalNode) right);
+                    return CompletableFuture.completedFuture(left);
                 }
             }
 

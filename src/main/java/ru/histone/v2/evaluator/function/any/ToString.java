@@ -18,18 +18,13 @@ package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
-import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.evaluator.node.NullEvalNode;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.Irtti;
+import ru.histone.v2.utils.AsyncUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -46,41 +41,50 @@ public class ToString extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+        return executeHelper(baseUri, locale, args)
+                .thenCompose(EvalUtils::getValue);
+    }
+
+    private CompletableFuture<String> executeHelper(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         final EvalNode node = args.get(0);
         final HistoneType nodeType = Irtti.getType(node);
         switch (nodeType) {
             case T_UNDEFINED: {
-                return EvalUtils.getValue("");
+                return CompletableFuture.completedFuture("");
             }
             case T_ARRAY: {
-                return EvalUtils.getValue(getMapString((MapEvalNode) node));
+                final Map<String, EvalNode> map = ((MapEvalNode) node).getValue();
+                return recurseFlattening(baseUri, locale, map);
             }
             case T_NULL: {
-                return EvalUtils.getValue("null");
+                return CompletableFuture.completedFuture("null");
             }
             default: {
-                return EvalUtils.getValue(node.getValue() + "");
+                return CompletableFuture.completedFuture(node.getValue() + "");
             }
         }
     }
 
-    private String getMapString(MapEvalNode node) {
-        Map<String, Object> map = node.getValue();
-
-        return recurseFlattening(map).stream().map(x -> x + "").collect(Collectors.joining(" "));
-    }
-
-    private List<Object> recurseFlattening(Map<String, Object> map) {
-        List<Object> res = new ArrayList<>();
-        for (Object v : map.values()) {
-            if (v != null) {
-                if (v instanceof Map) {
-                    res.addAll(recurseFlattening((Map<String, Object>) v));
+    private CompletableFuture<String> recurseFlattening(String baseUri, Locale locale, Map<String, EvalNode> map) {
+        final List<CompletableFuture<String>> valuesRawListFuture = new ArrayList<>();
+        for (EvalNode rawValue : map.values()) {
+            if (rawValue != null) {
+                if (rawValue instanceof Map) {
+                    final Map<String, EvalNode> value = (Map<String, EvalNode>) rawValue;
+                    valuesRawListFuture.add(recurseFlattening(baseUri, locale, value));
                 } else {
-                    res.add(v);
+                    final CompletableFuture<EvalNode> executedValue = execute(
+                            baseUri, locale, Collections.singletonList(rawValue)
+                    );
+                    final CompletableFuture<String> value = executedValue
+                            .thenApply(x -> ((StringEvalNode)x).getValue());
+                    valuesRawListFuture.add(value);
                 }
             }
         }
-        return res;
+        final CompletableFuture<List<String>> valuesListFuture = AsyncUtils.sequence(valuesRawListFuture);
+        return valuesListFuture.thenApply(x ->
+                x.stream().collect(Collectors.joining(" "))
+        );
     }
 }

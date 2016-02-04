@@ -100,7 +100,7 @@ public class EvalUtils {
             return new StringEvalNode((String) object);
         }
         if (object instanceof Map) {
-            return new MapEvalNode((Map<String, Object>) object);
+            return new MapEvalNode((Map<String, EvalNode>) object);
         }
         if (object instanceof HistoneRegex) {
             return new RegexEvalNode((HistoneRegex) object);

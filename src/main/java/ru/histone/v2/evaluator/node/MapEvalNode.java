@@ -23,14 +23,14 @@ import java.util.Map;
 /**
  * @author alexey.nevinsky
  */
-public class MapEvalNode extends EvalNode<Map<String, Object>> {
-    public MapEvalNode(Map<String, Object> value) {
+public class MapEvalNode extends EvalNode<Map<String, EvalNode>> {
+    public MapEvalNode(Map<String, EvalNode> value) {
         super(value);
     }
 
     public void append(MapEvalNode node) {
         int maxIndex = getMaxIndex();
-        for (Map.Entry<String, Object> entry : node.getValue().entrySet()) {
+        for (Map.Entry<String, EvalNode> entry : node.getValue().entrySet()) {
             if (convertToIndex(entry.getKey()) != null) {
                 value.put(++maxIndex + "", entry.getValue());
             } else {
@@ -66,7 +66,7 @@ public class MapEvalNode extends EvalNode<Map<String, Object>> {
             Object curr = value;
             for (String str : propArray) {
                 if (curr instanceof Map) {
-                    curr = ((Map<String, Object>) curr).get(str);
+                    curr = ((Map<String, EvalNode>) curr).get(str);
                 } else {
                     throw new HistoneException("Unable to find property '" + str + "'");
                 }

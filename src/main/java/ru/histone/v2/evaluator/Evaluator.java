@@ -342,7 +342,7 @@ public class Evaluator {
             objToIterate, EvalNode keyVarName, EvalNode valueVarName) {
         List<CompletableFuture<EvalNode>> futures = new ArrayList<>(objToIterate.getValue().size());
         int i = 0;
-        for (Map.Entry<String, Object> entry : objToIterate.getValue().entrySet()) {
+        for (Map.Entry<String, EvalNode> entry : objToIterate.getValue().entrySet()) {
             Context iterableContext = getIterableContext(context, objToIterate, keyVarName, valueVarName, i, entry);
             futures.add(evaluateNode(expNode.getNode(3), iterableContext));
             i++;
@@ -355,7 +355,7 @@ public class Evaluator {
                 );
     }
 
-    private Context getIterableContext(Context context, MapEvalNode objToIterate, EvalNode keyVarName, EvalNode valueVarName, int i, Map.Entry<String, Object> entry) {
+    private Context getIterableContext(Context context, MapEvalNode objToIterate, EvalNode keyVarName, EvalNode valueVarName, int i, Map.Entry<String, EvalNode> entry) {
         Context iterableContext = context.createNew();
         if (valueVarName != NullEvalNode.INSTANCE) {
             iterableContext.put(valueVarName.getValue() + "", EvalUtils.getValue(entry.getValue()));
@@ -595,11 +595,11 @@ public class Evaluator {
             if (node.size() > 0) {
                 CompletableFuture<List<EvalNode>> futures = evalAllNodesOfCurrent(node, context);
                 return futures.thenApply(nodes -> {
-                    Map<String, Object> map = new LinkedHashMap<>();
+                    Map<String, EvalNode> map = new LinkedHashMap<>();
                     for (int i = 0; i < nodes.size() / 2; i++) {
                         EvalNode key = nodes.get(i * 2);
                         EvalNode value = nodes.get(i * 2 + 1);
-                        map.put(key.getValue() + "", value.getValue());
+                        map.put(key.getValue() + "", value);
                     }
                     return new MapEvalNode(map);
                 });

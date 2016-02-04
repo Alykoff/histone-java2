@@ -650,6 +650,7 @@ public class Parser {
         do {
             while (next(wrapper, T_COMMA)) ;
             if (next(wrapper, T_RBRACKET)) {
+                fillNodeFromMap(result, map);
                 return result;
             }
             final TokenizerResult tokenRes = wrapper.next(T_PROP.getId(), T_COLON.getId());
@@ -692,12 +693,16 @@ public class Parser {
         if (!next(wrapper, T_RBRACKET)) {
             throw buildUnexpectedTokenException(wrapper, "]");
         }
+        fillNodeFromMap(result, map);
+
+        return result;
+    }
+
+    private void fillNodeFromMap(ExpAstNode result, Map<String, AstNode> map) {
         for (Map.Entry<String, AstNode> entry : map.entrySet()) {
             result.add(new StringAstNode(entry.getKey()))
                     .add(entry.getValue());
         }
-
-        return result;
     }
 
     private StringAstNode getStringLiteral(TokenizerWrapper wrapper) throws ParserException {

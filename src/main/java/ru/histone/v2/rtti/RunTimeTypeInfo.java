@@ -28,7 +28,7 @@ import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.Case;
 import ru.histone.v2.evaluator.function.string.StringSize;
-import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
@@ -127,6 +127,10 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetBaseUri());
         registerCommon(T_GLOBAL, new GetUniqueId());
         registerCommon(T_GLOBAL, new ResolveURI());
+        registerCommon(T_GLOBAL, new GetWeekDayName(true));
+        registerCommon(T_GLOBAL, new GetWeekDayName(false));
+        registerCommon(T_GLOBAL, new GetMonthName(true));
+        registerCommon(T_GLOBAL, new GetMonthName(false));
 
         registerCommon(T_REGEXP, new Test());
 

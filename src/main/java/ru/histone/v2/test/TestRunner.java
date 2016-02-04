@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by inv3r on 14/01/16.
+ * @author alexey.nevinsky
  */
 public class TestRunner {
     public static List<HistoneTestCase> loadTestCases() throws URISyntaxException, IOException {

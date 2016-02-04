@@ -34,7 +34,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("0=0");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("{{this.foo}}{{this.bar}}{{this.y}}", testCase);
+        doTest("{{['Moscow', 'New York', 'Paris', 'London'][1]}}", testCase);
     }
 
     private Map<String, Object> getMap() {

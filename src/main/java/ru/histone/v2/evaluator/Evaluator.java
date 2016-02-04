@@ -58,8 +58,11 @@ public class Evaluator {
     }
 
     private String processInternal(ExpAstNode node, Context context) {
-        EvalNode res = evaluateNode(node, context).join();
-        return ((StringEvalNode) context.call(res, TO_STRING_FUNC_NAME, Collections.singletonList(res)).join()).getValue();
+        EvalNode resEvalNode = evaluateNode(node, context).join();
+        EvalNode stringEvalNode = context.call(
+                resEvalNode, TO_STRING_FUNC_NAME, Collections.singletonList(resEvalNode)
+        ).join();
+        return ((StringEvalNode) stringEvalNode).getValue();
     }
 
     public CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {

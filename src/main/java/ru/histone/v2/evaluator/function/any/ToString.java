@@ -23,6 +23,8 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.rtti.Irtti;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static ru.histone.v2.rtti.HistoneType.*;
 
 /**
  * Created by inv3r on 27/01/16.
@@ -42,15 +46,22 @@ public class ToString extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
-        EvalNode node = args.get(0);
-        if (node instanceof EmptyEvalNode) {
-            return EvalUtils.getValue("");
-        } else if (node instanceof MapEvalNode) {
-            return EvalUtils.getValue(getMapString((MapEvalNode) node));
-        } else if (node instanceof NullEvalNode) {
-            return EvalUtils.getValue("null");
+        final EvalNode node = args.get(0);
+        final HistoneType nodeType = Irtti.getType(node);
+        switch (nodeType) {
+            case T_UNDEFINED: {
+                return EvalUtils.getValue("");
+            }
+            case T_ARRAY: {
+                return EvalUtils.getValue(getMapString((MapEvalNode) node));
+            }
+            case T_NULL: {
+                return EvalUtils.getValue("null");
+            }
+            default: {
+                return EvalUtils.getValue(node.getValue() + "");
+            }
         }
-        return EvalUtils.getValue(node.getValue() + "");
     }
 
     private String getMapString(MapEvalNode node) {

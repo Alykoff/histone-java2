@@ -16,18 +16,52 @@
 
 package ru.histone.v2.rtti;
 
+import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Function;
-import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.*;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
+import static ru.histone.v2.rtti.HistoneType.*;
+
 /**
  * Created by gali.alykoff on 22/01/16.
  */
 public interface Irtti {
-    HistoneType getType(EvalNode node);
+    static HistoneType getType(EvalNode node) {
+        if (node == null) {
+            throw new NullPointerException();
+        }
+        if (node instanceof NullEvalNode) {
+            return T_NULL;
+        } else if (node instanceof FloatEvalNode) {
+            final Float valueFloat = ((FloatEvalNode) node).getValue();
+            if (valueFloat == null || Float.isNaN(valueFloat) || !Float.isFinite(valueFloat)) {
+                return T_UNDEFINED;
+            }
+            return T_NUMBER;
+        } else if (node instanceof LongEvalNode) {
+            return T_NUMBER;
+        } else if (node instanceof MapEvalNode) {
+            return T_ARRAY;
+        } else if (node instanceof BooleanEvalNode) {
+            return T_BOOLEAN;
+        } else if (node instanceof StringEvalNode) {
+            return T_STRING;
+        } else if (node instanceof EmptyEvalNode) {
+            return T_UNDEFINED;
+        } else if (node instanceof RegexEvalNode) {
+            return T_REGEXP;
+        } else if (node instanceof MacroEvalNode) {
+            return T_MACRO;
+        } else if (node instanceof GlobalEvalNode) {
+            return T_GLOBAL;
+        }
+
+        throw new NotImplementedException(node.toString());
+    }
 
     Function getFunc(HistoneType type, String funcName);
 

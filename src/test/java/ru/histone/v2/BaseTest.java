@@ -120,6 +120,8 @@ public class BaseTest {
             } else {
                 return v.floatValue();
             }
+        } else if (value instanceof Integer) {
+            return ((Integer) value).longValue();
         } else {
             return value;
         }

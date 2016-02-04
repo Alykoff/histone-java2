@@ -32,20 +32,20 @@ public class ConcreteTest extends BaseTest {
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("0=0");
-//        testCase.setContext(getMap());
+        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("{{null&true}}=0", testCase);
+        doTest("{{this.foo}}{{this.bar}}{{this.y}}", testCase);
     }
 
     private Map<String, Object> getMap() {
         Map<String, Object> res = new HashMap<>();
 
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("0", 1L);
-        values.put("1", 2L);
-        values.put("2", 3L);
+        values.put("foo", 1L);
+        values.put("bar", 2L);
+        values.put("y", 3L);
 
-        res.put("items", values);
+        res.put("this", values);
         return res;
     }
 }

@@ -17,8 +17,8 @@
 package ru.histone.v2.evaluator.function.regex;
 
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.data.HistoneRegex;
+import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 /**
  * Created by gali.alykoff on 26/01/16.
  */
-public class Test implements Function, Serializable {
+public class Test extends AbstractFunction implements Serializable {
     public static final String NAME = "test";
 
     @Override
@@ -56,15 +56,5 @@ public class Test implements Function, Serializable {
         } catch (Exception e) {
             throw new FunctionExecutionException(e);
         }
-    }
-
-    @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public boolean isClear() {
-        return true;
     }
 }

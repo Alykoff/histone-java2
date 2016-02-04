@@ -16,12 +16,15 @@
 
 package ru.histone.v2.test.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by inv3r on 15/01/16.
+ * @author alexey.nevinsky
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HistoneTestCase {
     private String name;
     private List<Case> cases;

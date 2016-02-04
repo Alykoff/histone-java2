@@ -16,12 +16,11 @@
 
 package ru.histone.v2.test;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.histone.v2.test.dto.HistoneTestCase;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -41,8 +40,9 @@ public class TestRunner {
     public static List<HistoneTestCase> loadTestCases() throws URISyntaxException, IOException {
         DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(TestRunner.class.getResource("/acceptance").toURI()));
 
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<HistoneTestCase>>() {}.getType();
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference type = new TypeReference<List<HistoneTestCase>>() {
+        };
 
         List<HistoneTestCase> cases = new ArrayList<>();
         Map<String, Path> tplMap = new HashMap<>();
@@ -51,7 +51,7 @@ public class TestRunner {
             for (Path p : paths) {
                 if (p.toString().endsWith(".json")) {
                     Stream<String> stringStream = Files.lines(p);
-                    List<HistoneTestCase> histoneCases = gson.fromJson(stringStream.collect(Collectors.joining()), listType);
+                    List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
                     cases.addAll(histoneCases);
                 } else {
                     tplMap.put(p.getFileName().toString(), p);

@@ -30,13 +30,19 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author alexey.nevinsky
  */
-public class GetMax extends AbstractFunction {
+public class GetMinMax extends AbstractFunction {
 
     private static final NumberComparator comparator = new NumberComparator();
 
+    private final boolean isMin;
+
+    public GetMinMax(boolean isMin) {
+        this.isMin = isMin;
+    }
+
     @Override
     public String getName() {
-        return "getMax";
+        return isMin ? "getMin" : "getMax";
     }
 
     @Override
@@ -49,7 +55,19 @@ public class GetMax extends AbstractFunction {
         for (EvalNode arg : args) {
             if (arg.getType() == HistoneType.T_NUMBER) {
                 Number next = (Number) arg.getValue();
-                max = (max == null || comparator.compare(max, next) < 0) ? next : max;
+                if (max == null) {
+                    max = next;
+                } else {
+                    if (isMin) {
+                        if (comparator.compare(max, next) > 0) {
+                            max = next;
+                        }
+                    } else {
+                        if (comparator.compare(max, next) < 0) {
+                            max = next;
+                        }
+                    }
+                }
             } else {
                 max = findMax(max, arg);
             }
@@ -66,7 +84,15 @@ public class GetMax extends AbstractFunction {
             for (EvalNode node : ((MapEvalNode) values).getValue().values()) {
                 if (node.getType() == HistoneType.T_NUMBER) {
                     Number next = (Number) node.getValue();
-                    max = (max == null || comparator.compare(max, next) < 0) ? next : max;
+                    if (max == null) {
+                        max = next;
+                    } else {
+                        if (isMin && comparator.compare(max, next) > 0) {
+                            max = next;
+                        } else if (!isMin && comparator.compare(max, next) < 0) {
+                            max = next;
+                        }
+                    }
                 } else if (node.getType() == HistoneType.T_ARRAY) {
                     max = findMax(max, node);
                 }

@@ -1576,6 +1576,55 @@
         "expectedResult": "http4://host/path/subpath"
       }
     ]
+  },
+  {
+    "name": "global -> getUniqueId",
+    "cases": [
+      {
+        "input": "a {{getUniqueId().isString()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{getUniqueId() != getUniqueId()}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  },
+  {
+    "name": "global -> getWeekDayNameShort",
+    "cases": [
+      {
+        "input": "{{for day in range(1, 7)}}{{getWeekDayNameShort(day)}} {{/for}}",
+        "expectedResult": "Mo Tu We Th Fr Sa Su "
+      }
+    ]
+  },
+  {
+    "name": "global -> getWeekDayNameLong",
+    "cases": [
+      {
+        "input": "{{for day in range(1, 7)}}{{getWeekDayNameLong(day)}} {{/for}}",
+        "expectedResult": "Monday Tuesday Wednesday Thursday Friday Saturday Sunday "
+      }
+    ]
+  },
+  {
+    "name": "global -> getMonthNameShort",
+    "cases": [
+      {
+        "input": "{{for day in range(1, 12)}}{{getMonthNameShort(day)}} {{/for}}",
+        "expectedResult": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec "
+      }
+    ]
+  },
+  {
+    "name": "global -> getMonthNameLong",
+    "cases": [
+      {
+        "input": "{{for day in range(1, 12)}}{{getMonthNameLong(day)}} {{/for}}",
+        "expectedResult": "January February March April May June July August September October November December "
+      }
+    ]
   }
 ]
 

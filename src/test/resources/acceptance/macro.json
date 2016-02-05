@@ -28,5 +28,14 @@
         "expectedResult": "<div>a = foo</div><div>b = bar</div><div>c = 10</div><div>d = 20</div>"
       }
     ]
+  },
+  {
+    "name": "macro - extend",
+    "cases": [
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
+        "expectedResult": "<input type=\"password\" />"
+      }
+    ]
   }
 ]

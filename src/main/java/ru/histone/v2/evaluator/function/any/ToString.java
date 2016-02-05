@@ -62,8 +62,8 @@ public class ToString extends AbstractFunction {
             }
             case T_NUMBER: {
                 Number v = (Number) node.getValue();
-                if (v instanceof Float) {
-                    Float fv = (Float) v;
+                if (v instanceof Double) {
+                    Double fv = (Double) v;
                     if (fv % 1 == 0 && fv <= Long.MAX_VALUE) {
                         return CompletableFuture.completedFuture(String.valueOf(fv.longValue()));
                     } else {

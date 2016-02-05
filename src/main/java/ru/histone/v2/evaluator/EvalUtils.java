@@ -49,27 +49,27 @@ public class EvalUtils {
         return true;
     }
 
-    public static Float parseFloat(String value) throws NumberFormatException {
-        return Float.parseFloat(value);
+    public static Double parseDouble(String value) throws NumberFormatException {
+        return Double.parseDouble(value);
     }
 
     public static Number getNumberValue(EvalNode node) {
         if (!(isNumberNode(node) || node instanceof StringEvalNode)) {
             throw new RuntimeException();
         }
-        if (node instanceof FloatEvalNode) {
-            return ((FloatEvalNode) node).getValue();
+        if (node instanceof DoubleEvalNode) {
+            return ((DoubleEvalNode) node).getValue();
         } else if (node instanceof LongEvalNode) {
             return ((LongEvalNode) node).getValue();
         } else if (node instanceof StringEvalNode) {
-            return Float.parseFloat(((StringEvalNode) node).getValue());
+            return Double.parseDouble(((StringEvalNode) node).getValue());
         } else {
             throw new NotImplementedException();
         }
     }
 
     public static boolean isNumberNode(EvalNode node) {
-        return node instanceof LongEvalNode || node instanceof FloatEvalNode;
+        return node instanceof LongEvalNode || node instanceof DoubleEvalNode;
     }
 
     public static boolean isNumeric(StringEvalNode evalNode) {
@@ -78,8 +78,8 @@ public class EvalUtils {
 
     public static boolean isNumeric(String v) {
         try {
-            final Float value = parseFloat(v);
-            return !Float.isNaN(value) && Float.isFinite(value);
+            final Double value = parseDouble(v);
+            return !Double.isNaN(value) && Double.isFinite(value);
         } catch (NumberFormatException e) {
             return false;
         }
@@ -96,10 +96,10 @@ public class EvalUtils {
             return new BooleanEvalNode((Boolean) object);
         }
         if (object instanceof Integer) {
-            return new FloatEvalNode(((Integer) object).floatValue());
+            return new DoubleEvalNode(((Integer) object).doubleValue());
         }
-        if (object instanceof Float) {
-            return new FloatEvalNode((Float) object);
+        if (object instanceof Double) {
+            return new DoubleEvalNode((Double) object);
         }
         if (object instanceof Long) {
             return new LongEvalNode((Long) object);

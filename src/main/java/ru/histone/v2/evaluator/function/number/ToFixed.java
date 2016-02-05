@@ -18,8 +18,8 @@ package ru.histone.v2.evaluator.function.number;
 
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.FloatEvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
@@ -43,7 +43,7 @@ public class ToFixed extends AbstractFunction {
             return CompletableFuture.completedFuture(args.get(0));
         }
         long count = ((LongEvalNode) args.get(1)).getValue();
-        Float v = ((FloatEvalNode) args.get(0)).getValue();
+        double v = ((DoubleEvalNode) args.get(0)).getValue();
 
         return EvalUtils.getValue(new DecimalFormat(format(count)).format(v));
     }

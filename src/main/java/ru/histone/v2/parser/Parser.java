@@ -631,7 +631,7 @@ public class Parser {
         } else if (test(wrapper, T_HEX)) {
             return new LongAstNode(Long.parseLong(wrapper.next().first().getValue().substring(2), 16));
         } else if (test(wrapper, T_FLOAT)) {
-            return new FloatAstNode(Float.parseFloat(wrapper.next().first().getValue()));
+            return new DoubleAstNode(Double.parseDouble(wrapper.next().first().getValue()));
         } else if (test(wrapper, T_REF)) {
             return new ExpAstNode(AST_REF)
                     .add(new StringAstNode(wrapper.next().first().getValue()));
@@ -673,7 +673,7 @@ public class Parser {
                     if (ParserUtils.isStrongString(val) && ParserUtils.isInt((String) val)) {
                         mapKey = Integer.valueOf((String) val); //todo check this
                     }
-                    Optional<Float> floatVal = ParserUtils.tryFloat(val);
+                    Optional<Double> floatVal = ParserUtils.tryDouble(val);
                     if (floatVal.isPresent()) {
                         int intValue = floatVal.get().intValue();
                         if (intValue < counter) {

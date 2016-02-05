@@ -98,7 +98,7 @@ public class Range extends AbstractFunction {
 
     private long getValue(EvalNode node) {
         Number n = EvalUtils.getNumberValue(node);
-        if (n instanceof Float) {
+        if (n instanceof Double) {
             return n.longValue();
         }
         return (long) n;

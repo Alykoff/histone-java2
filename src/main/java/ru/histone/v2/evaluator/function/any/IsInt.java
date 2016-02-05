@@ -18,8 +18,8 @@ package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.FloatEvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
@@ -41,8 +41,8 @@ public class IsInt extends AbstractFunction {
         EvalNode node = args.get(0);
         if (node instanceof LongEvalNode) {
             return EvalUtils.getValue(true);
-        } else if (node instanceof FloatEvalNode) {
-            if (((FloatEvalNode) node).getValue() % 1 == 0 && ((FloatEvalNode) node).getValue() <= Long.MAX_VALUE) {
+        } else if (node instanceof DoubleEvalNode) {
+            if (((DoubleEvalNode) node).getValue() % 1 == 0 && ((DoubleEvalNode) node).getValue() <= Long.MAX_VALUE) {
                 return EvalUtils.getValue(true);
             }
         }

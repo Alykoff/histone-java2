@@ -21,8 +21,8 @@ import java.io.Serializable;
 /**
  * Created by gali.alykoff on 20/01/16.
  */
-public class FloatAstNode extends ValueNode<Float> implements Serializable {
-    public FloatAstNode(Float value) {
+public class DoubleAstNode extends ValueNode<Double> implements Serializable {
+    public DoubleAstNode(Double value) {
         super(value);
     }
 }

@@ -24,8 +24,8 @@ import static ru.histone.v2.rtti.HistoneType.T_UNDEFINED;
 /**
  * Created by inv3r on 19/01/16.
  */
-public class FloatEvalNode extends EvalNode<Float> {
-    public FloatEvalNode(Float val) {
+public class DoubleEvalNode extends EvalNode<Double> {
+    public DoubleEvalNode(Double val) {
         super(val);
         if (val == null) {
             throw new NullPointerException();
@@ -34,7 +34,7 @@ public class FloatEvalNode extends EvalNode<Float> {
 
     @Override
     public HistoneType getType() {
-        if (value == null || Float.isNaN(value) || !Float.isFinite(value)) {
+        if (value == null || Double.isNaN(value) || !Double.isFinite(value)) {
             return T_UNDEFINED;
         }
         return T_NUMBER;

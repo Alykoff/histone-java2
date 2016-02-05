@@ -391,7 +391,7 @@ public class Evaluator {
                 final boolean isLeftNumberNode = isNumberNode(left);
                 final boolean isRightNumberNode = isNumberNode(right);
                 if (isLeftNumberNode && isRightNumberNode) {
-                    final Float res = getValue(left).orElse(null) + getValue(right).orElse(null);
+                    final Double res = getValue(left).orElse(null) + getValue(right).orElse(null);
                     if (res % 1 == 0 && res <= Long.MAX_VALUE) {
                         return EvalUtils.getValue(res.longValue());
                     } else {
@@ -427,13 +427,13 @@ public class Evaluator {
 
             if ((isNumberNode(left) || left.getType() == HistoneType.T_STRING) &&
                     (isNumberNode(right) || right.getType() == HistoneType.T_STRING)) {
-                Float leftValue = getValue(left).orElse(null);
-                Float rightValue = getValue(right).orElse(null);
+                Double leftValue = getValue(left).orElse(null);
+                Double rightValue = getValue(right).orElse(null);
                 if (leftValue == null || rightValue == null) {
                     return EmptyEvalNode.INSTANCE;
                 }
 
-                Float res;
+                Double res;
                 AstType type = node.getType();
                 if (type == AstType.AST_SUB) {
                     res = leftValue - rightValue;
@@ -447,18 +447,18 @@ public class Evaluator {
                 if (res % 1 == 0 && res <= Long.MAX_VALUE) {
                     return new LongEvalNode(res.longValue());
                 } else {
-                    return new FloatEvalNode(res);
+                    return new DoubleEvalNode(res);
                 }
             }
             return EmptyEvalNode.INSTANCE;
         });
     }
 
-    private Optional<Float> getValue(EvalNode node) {
+    private Optional<Double> getValue(EvalNode node) {
         if (node.getType() == HistoneType.T_STRING) {
-            return ParserUtils.tryFloat(((StringEvalNode) node).getValue());
+            return ParserUtils.tryDouble(((StringEvalNode) node).getValue());
         } else {
-            return Optional.of(Float.valueOf(node.getValue() + ""));
+            return Optional.of(Double.valueOf(node.getValue() + ""));
         }
     }
 
@@ -623,9 +623,9 @@ public class Evaluator {
             if (n instanceof LongEvalNode) {
                 Long value = ((LongEvalNode) n).getValue();
                 return new LongEvalNode(-value);
-            } else if (n instanceof FloatEvalNode) {
-                Float value = ((FloatEvalNode) n).getValue();
-                return new FloatEvalNode(-value);
+            } else if (n instanceof DoubleEvalNode) {
+                Double value = ((DoubleEvalNode) n).getValue();
+                return new DoubleEvalNode(-value);
             }
             return EmptyEvalNode.INSTANCE;
         });
@@ -642,8 +642,8 @@ public class Evaluator {
             return CompletableFuture.completedFuture(new BooleanEvalNode((Boolean) val));
         } else if (val instanceof Long) {
             return CompletableFuture.completedFuture(new LongEvalNode((Long) val));
-        } else if (val instanceof Float) {
-            return CompletableFuture.completedFuture(new FloatEvalNode((Float) val));
+        } else if (val instanceof Double) {
+            return CompletableFuture.completedFuture(new DoubleEvalNode((Double) val));
         }
         return CompletableFuture.completedFuture(new StringEvalNode(val + ""));
     }

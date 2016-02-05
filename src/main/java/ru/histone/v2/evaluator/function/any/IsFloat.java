@@ -18,8 +18,8 @@ package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.FloatEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
@@ -38,8 +38,8 @@ public class IsFloat extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
-        if (node instanceof FloatEvalNode) {
-            if (((FloatEvalNode) node).getValue() % 1 == 0 && ((FloatEvalNode) node).getValue() <= Long.MAX_VALUE) {
+        if (node instanceof DoubleEvalNode) {
+            if (((DoubleEvalNode) node).getValue() % 1 == 0 && ((DoubleEvalNode) node).getValue() <= Long.MAX_VALUE) {
                 return EvalUtils.getValue(false);
             }
             return EvalUtils.getValue(true);

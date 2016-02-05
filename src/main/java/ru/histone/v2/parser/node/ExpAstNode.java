@@ -23,7 +23,8 @@ import java.util.List;
 
 /**
  * Expression AST Node
- * Created by alexey.nevinsky on 24.12.2015.
+ *
+ * @author alexey.nevinsky
  */
 public class ExpAstNode extends AstNode implements Serializable {
     public static final int LEAF_NODE_TYPE_ID = Integer.MIN_VALUE;
@@ -81,9 +82,7 @@ public class ExpAstNode extends AstNode implements Serializable {
     }
 
     public <X extends AstNode> X getNode(int index) {
-        return nodes.size() >= index + 1
-                ? (X) nodes.get(index)
-                : null;
+        return nodes.size() >= index + 1 ? (X) nodes.get(index) : null;
     }
 
     public AstNode escaped() {

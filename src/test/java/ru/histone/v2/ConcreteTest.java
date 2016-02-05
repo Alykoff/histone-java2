@@ -31,10 +31,10 @@ public class ConcreteTest extends BaseTest {
     @Test
     public void concreteTest() throws HistoneException {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("0=0");
+        testCase.setExpectedResult("true");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("{{[,,,,1, 2, 3,,,,]}}", testCase);
+        doTest("{{getMax(100.03E+8, 200.3E1, 3000.8, 4000.12E1, 3.2E0, 1000.2E+0, 200.122E2)}} ", testCase);
     }
 
     private Map<String, Object> getMap() {

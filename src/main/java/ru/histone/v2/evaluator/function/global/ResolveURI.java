@@ -19,6 +19,7 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.utils.PathUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -35,16 +36,10 @@ public class ResolveURI extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
-        String relativeUri = getValue(args, 0) + "";
-        if (getValue(args, 1) != null) {
-            baseUri = getValue(args, 1);
+        if (args.size() > 0) {
+            String res = PathUtils.resolveUrl(getValue(args, 0) + "", getValue(args, 1) + "");
+            return EvalUtils.getValue(res);
         }
-        if (!baseUri.endsWith("/")) {
-            baseUri += "/";
-        }
-        if (relativeUri.startsWith("/")) {
-            relativeUri = relativeUri.substring(1);
-        }
-        return EvalUtils.getValue(baseUri + relativeUri);
+        return EvalUtils.getValue(null);
     }
 }

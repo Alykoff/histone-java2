@@ -1,0 +1,11 @@
+[
+  {
+    "name": "global -> getBaseURI",
+    "cases": [
+      {
+        "input": "{{global->getBaseURI()}}",
+        "expectedResult": "http://localhost/histone"
+      }
+    ]
+  }
+]

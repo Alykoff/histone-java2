@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Created by inv3r on 27/01/16.
+ * @author alexey.nevinsky
  */
 public class ToString extends AbstractFunction {
     @Override
@@ -58,6 +58,18 @@ public class ToString extends AbstractFunction {
             case T_NULL: {
                 return CompletableFuture.completedFuture("null");
             }
+            case T_NUMBER: {
+                Number v = (Number) node.getValue();
+                if (v instanceof Float) {
+                    Float fv = (Float) v;
+                    if (fv % 1 == 0 && fv <= Long.MAX_VALUE) {
+                        return CompletableFuture.completedFuture(String.valueOf(fv.longValue()));
+                    } else {
+                        return CompletableFuture.completedFuture(String.valueOf(fv));
+                    }
+                }
+                return CompletableFuture.completedFuture(String.valueOf(v));
+            }
             default: {
                 return CompletableFuture.completedFuture(node.getValue() + "");
             }
@@ -76,7 +88,7 @@ public class ToString extends AbstractFunction {
                             baseUri, locale, Collections.singletonList(rawValue)
                     );
                     final CompletableFuture<String> value = executedValue
-                            .thenApply(x -> ((StringEvalNode)x).getValue());
+                            .thenApply(x -> ((StringEvalNode) x).getValue());
                     valuesRawListFuture.add(value);
                 }
             }

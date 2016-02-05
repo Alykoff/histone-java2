@@ -72,8 +72,12 @@ public class EvalUtils {
     }
 
     public static boolean isNumeric(StringEvalNode evalNode) {
+        return isNumeric(evalNode.getValue());
+    }
+
+    public static boolean isNumeric(String v) {
         try {
-            final Float value = parseFloat(evalNode.getValue());
+            final Float value = parseFloat(v);
             return !Float.isNaN(value) && Float.isFinite(value);
         } catch (NumberFormatException e) {
             return false;

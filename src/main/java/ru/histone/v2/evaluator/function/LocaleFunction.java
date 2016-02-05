@@ -52,6 +52,7 @@ public abstract class LocaleFunction extends AbstractFunction {
 
                 props.put(fileName, properties);
             }
+            stream.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -27,7 +27,6 @@ import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.ParserUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -53,18 +52,16 @@ public class ToJson extends AbstractFunction {
 
         SimpleModule module = new SimpleModule();
         module.addSerializer(LinkedHashMap.class, new JsonSerializer<LinkedHashMap>() {
-
+            //todo add generics to map
             @Override
             public void serialize(LinkedHashMap value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 Set<?> keys = value.keySet();
                 boolean isArray = true;
-                int i = 0;
                 for (Object key : keys) {
-                    if (!ParserUtils.isInt((String) key) || Integer.parseInt((String) key) != i) {
+                    if (!EvalUtils.isNumeric((String) key)) {
                         isArray = false;
                         break;
                     }
-                    i++;
                 }
 
                 if (isArray) {
@@ -77,6 +74,13 @@ public class ToJson extends AbstractFunction {
                     JsonSerializer<Object> serializer = provider.findValueSerializer(Map.class, null);
                     serializer.serialize(value, jgen, provider);
                 }
+            }
+        });
+        module.addSerializer(EvalNode.class, new JsonSerializer<EvalNode>() {
+            @Override
+            public void serialize(EvalNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+                JsonSerializer<Object> serializer = provider.findValueSerializer(value.getValue().getClass(), null);
+                serializer.serialize(value.getValue(), jgen, provider);
             }
         });
         mapper.registerModule(module);

@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by alexey.nevinsky on 24.12.2015.
+ * @author alexey.nevinsky
  */
 public final class ExpressionList {
     public static final List<Expression> VALUES = Arrays.asList(

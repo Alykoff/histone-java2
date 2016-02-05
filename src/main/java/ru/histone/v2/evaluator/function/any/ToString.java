@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.function.any;
 
+import ru.histone.utils.StringUtils;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -95,7 +96,7 @@ public class ToString extends AbstractFunction {
         }
         final CompletableFuture<List<String>> valuesListFuture = AsyncUtils.sequence(valuesRawListFuture);
         return valuesListFuture.thenApply(x ->
-                x.stream().collect(Collectors.joining(" "))
+                x.stream().filter(StringUtils::isNotEmpty).collect(Collectors.joining(" "))
         );
     }
 }

@@ -18,6 +18,7 @@ package ru.histone.v2.evaluator;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
+import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 
@@ -94,6 +95,9 @@ public class EvalUtils {
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);
         }
+        if (object instanceof Integer) {
+            return new FloatEvalNode(((Integer) object).floatValue());
+        }
         if (object instanceof Float) {
             return new FloatEvalNode((Float) object);
         }
@@ -112,7 +116,7 @@ public class EvalUtils {
         if (object instanceof EvalNode) {
             return (EvalNode) object;
         }
-        return new ObjectEvalNode(object);
+        throw new HistoneException("Didn't resolve object class: " + object.getClass());
     }
 
 

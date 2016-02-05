@@ -22,6 +22,7 @@ import ru.histone.v2.rtti.HistoneType;
 /**
  * @author alexey.nevinsky
  */
+@Deprecated
 public class ObjectEvalNode extends EvalNode<Object> {
     public ObjectEvalNode(Object value) {
         super(value);

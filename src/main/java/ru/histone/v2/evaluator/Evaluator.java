@@ -244,9 +244,16 @@ public class Evaluator {
     private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
-                    Object obj = ((MapEvalNode) futures.get(0)).getProperty(futures.get(1).getValue());
+                    final MapEvalNode mapEvalNode = (MapEvalNode) futures.get(0);
+                    final Object value = futures.get(1).getValue();
+                    EvalNode obj = null;
+                    try {
+                        obj = (EvalNode) mapEvalNode.getProperty(value);
+                    } catch (Exception e) {
+                        System.out.println("empty");
+                    }
                     if (obj != null) {
-                        return createEvalNode(obj);
+                        return obj;
                     }
                     return EmptyEvalNode.INSTANCE;
                 });
@@ -369,12 +376,12 @@ public class Evaluator {
         return iterableContext;
     }
 
-    private Map<String, Object> constructSelfValue(String key, Object value, long currentIndex, long lastIndex) {
-        Map<String, Object> res = new LinkedHashMap<>();
-        res.put(SELF_CONTEXT_KEY, key);
-        res.put(SELF_CONTEXT_VALUE, value);
-        res.put(SELF_CONTEXT_CURRENT_INDEX, currentIndex);
-        res.put(SELF_CONTEXT_LAST_INDEX, lastIndex);
+    private Map<String, EvalNode> constructSelfValue(String key, Object value, long currentIndex, long lastIndex) {
+        Map<String, EvalNode> res = new LinkedHashMap<>();
+        res.put(SELF_CONTEXT_KEY, new StringEvalNode(key));
+        res.put(SELF_CONTEXT_VALUE, EvalUtils.createEvalNode(value));
+        res.put(SELF_CONTEXT_CURRENT_INDEX, new LongEvalNode(currentIndex));
+        res.put(SELF_CONTEXT_LAST_INDEX, new LongEvalNode(lastIndex));
         return res;
     }
 

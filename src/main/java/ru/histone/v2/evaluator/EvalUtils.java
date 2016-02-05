@@ -105,6 +105,9 @@ public class EvalUtils {
         if (object instanceof HistoneRegex) {
             return new RegexEvalNode((HistoneRegex) object);
         }
+        if (object instanceof EvalNode) {
+            return (EvalNode) object;
+        }
         return new ObjectEvalNode(object);
     }
 

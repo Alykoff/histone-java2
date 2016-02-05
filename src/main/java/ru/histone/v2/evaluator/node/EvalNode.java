@@ -45,8 +45,6 @@ public abstract class EvalNode<T> {
 
     @Override
     public String toString() {
-        return "{\"EvalNode\": {" +
-                "\", \"value\": \"" + value +
-                "\"}}";
+        return "{\"EvalNode\": {\"value\": \"" + value + "\"}}";
     }
 }

@@ -21,6 +21,8 @@ import ru.histone.HistoneException;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
+import ru.histone.v2.evaluator.function.any.ToBoolean;
+import ru.histone.v2.evaluator.function.any.ToString;
 import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.global.StringEvalNodeComparator;
@@ -50,8 +52,8 @@ public class Evaluator {
     public static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
     public static final Comparator<StringEvalNode> STRING_EVAL_NODE_COMPARATOR = new StringEvalNodeComparator();
     public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
-    public static final String TO_BOOLEAN = "toBoolean";
-    private static final String TO_STRING_FUNC_NAME = "toString";
+    public static final String TO_BOOLEAN = ToBoolean.NAME;
+    private static final String TO_STRING_FUNC_NAME = ToString.NAME;
 
     public String process(ExpAstNode node, Context context) {
         return processInternal(node, context);

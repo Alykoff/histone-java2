@@ -19,9 +19,7 @@ package ru.histone.v2.evaluator.function.any;
 import ru.histone.utils.StringUtils;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.evaluator.node.StringEvalNode;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
@@ -34,9 +32,12 @@ import java.util.stream.Collectors;
  * @author alexey.nevinsky
  */
 public class ToString extends AbstractFunction {
+    public static final String NAME = "toString";
+    public static final String ARRAY_HISTONE_VIEW_DELIMITER = " ";
+
     @Override
     public String getName() {
-        return "toString";
+        return NAME;
     }
 
     @Override
@@ -50,14 +51,14 @@ public class ToString extends AbstractFunction {
         final HistoneType nodeType = node.getType();
         switch (nodeType) {
             case T_UNDEFINED: {
-                return CompletableFuture.completedFuture("");
+                return CompletableFuture.completedFuture(EmptyEvalNode.HISTONE_VIEW);
             }
             case T_ARRAY: {
                 final Map<String, EvalNode> map = ((MapEvalNode) node).getValue();
                 return recurseFlattening(baseUri, locale, map);
             }
             case T_NULL: {
-                return CompletableFuture.completedFuture("null");
+                return CompletableFuture.completedFuture(NullEvalNode.HISTONE_VIEW);
             }
             case T_NUMBER: {
                 Number v = (Number) node.getValue();
@@ -96,7 +97,9 @@ public class ToString extends AbstractFunction {
         }
         final CompletableFuture<List<String>> valuesListFuture = AsyncUtils.sequence(valuesRawListFuture);
         return valuesListFuture.thenApply(x ->
-                x.stream().filter(StringUtils::isNotEmpty).collect(Collectors.joining(" "))
+                x.stream()
+                        .filter(StringUtils::isNotEmpty)
+                        .collect(Collectors.joining(ARRAY_HISTONE_VIEW_DELIMITER))
         );
     }
 }

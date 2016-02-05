@@ -23,7 +23,7 @@ import ru.histone.v2.rtti.HistoneType;
  * @author alexey.nevinsky
  */
 public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
-
+    public static final String HISTONE_VIEW = "null";
     public static final NullEvalNode INSTANCE = new NullEvalNode();
 
     private NullEvalNode() {

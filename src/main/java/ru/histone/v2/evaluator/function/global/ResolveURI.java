@@ -37,7 +37,10 @@ public class ResolveURI extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() > 0) {
-            String res = PathUtils.resolveUrl(getValue(args, 0) + "", getValue(args, 1) + "");
+            if (getValue(args, 1) != null) {
+                baseUri = getValue(args, 1);
+            }
+            String res = PathUtils.resolveUrl(getValue(args, 0) + "", baseUri);
             return EvalUtils.getValue(res);
         }
         return EvalUtils.getValue(null);

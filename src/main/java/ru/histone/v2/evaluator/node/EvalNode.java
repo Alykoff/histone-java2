@@ -20,6 +20,8 @@ import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
 
+import java.util.Objects;
+
 /**
  * Created by inv3r on 19/01/16.
  */
@@ -48,5 +50,18 @@ public abstract class EvalNode<T> implements Serializable {
     @Override
     public String toString() {
         return "{\"EvalNode\": {\"value\": \"" + value + "\", \"type\": \"" + getType() + "\"}}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EvalNode<?> evalNode = (EvalNode<?>) o;
+        return Objects.equals(value, evalNode.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
     }
 }

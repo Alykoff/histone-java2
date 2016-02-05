@@ -1,0 +1,87 @@
+[
+  {
+    "name": "global -> range",
+    "cases": [
+      {
+        "input": "a {{var x = range(1,1)}} b {{x}} c {{x = [1]}} d",
+        "expectedResult": "a  b 1 c true d"
+      },
+      {
+        "input": "a {{var x = range(1,3)}} b {{x}} c {{x = [1,2,3]}} d",
+        "expectedResult": "a  b 1 2 3 c true d"
+      },
+      {
+        "input": "a {{var x = range(3,1)}} b {{x}} c {{x = [3,2,1]}} d",
+        "expectedResult": "a  b 3 2 1 c true d"
+      },
+      {
+        "input": "a {{var x = range(-10,-10)}} b {{x}} c {{x = [-10]}} d",
+        "expectedResult": "a  b -10 c true d"
+      },
+      {
+        "input": "a {{var x = range(-3,-1)}} b {{x}} c {{x = [-3,-2,-1]}} d",
+        "expectedResult": "a  b -3 -2 -1 c true d"
+      },
+      {
+        "input": "a {{var x = range(-1,-3)}} b {{x}} c {{x = [-1,-2,-3]}} d",
+        "expectedResult": "a  b -1 -2 -3 c true d"
+      },
+      {
+        "input": "a {{var x = range(-2,2)}} b {{x}} c {{x = [-2,-1,0,1,2]}} d",
+        "expectedResult": "a  b -2 -1 0 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range(2,-2)}} b {{x}} c {{x = [2,1,0,-1,-2]}} d",
+        "expectedResult": "a  b 2 1 0 -1 -2 c true d"
+      },
+      {
+        "input": "a {{var x = range('1',2)}} b {{x}} c {{x = [1,2]}} d",
+        "expectedResult": "a  b 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range(1,'2')}} b {{x}} c {{x = [1,2]}} d",
+        "expectedResult": "a  b 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range('1','2')}} b {{x}} c {{x = [1,2]}} d",
+        "expectedResult": "a  b 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range(1.1)}} b {{x ->isUndefined()}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "a {{var x = range(1.1,2)}} b {{x ->isUndefined()}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "a {{var x = range(1.1,2.2)}} b {{x ->isUndefined()}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "a {{var x = range(1,2.2)}} b {{x ->isUndefined()}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "a {{var x = range(1,3,'adsfasdfdsf')}} b {{x}} c {{x = [1,2,3]}} d",
+        "expectedResult": "a  b  c false d"
+      },
+      {
+        "input": "a {{var x = range('aaa',2)}} b {{x ->isUndefined()}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "a {{var x = range(2,'aaa')}} b {{x ->isUndefined()}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "a {{var x = range('aaa','bbb')}} b {{x ->isUndefined()}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "a {{var x = range(1,3,5)}} b {{x = [5,10,15]}} c",
+        "expectedResult": "a  b true c"
+      }
+    ]
+  }
+]

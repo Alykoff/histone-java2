@@ -16,10 +16,14 @@
 
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.evaluator.functions.global.GlobalFunctionExecutionException;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.LongEvalNode;
+import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,9 +34,20 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Created by inv3r on 22/01/16.
  */
-public class Range extends AbstractFunction{
+public class Range extends AbstractFunction {
 
     public static final String NAME = "range";
+
+    private static boolean checkArg(EvalNode node) throws GlobalFunctionExecutionException {
+        if (node.getType() == HistoneType.T_STRING && EvalUtils.isNumeric((StringEvalNode) node)) {
+            return true;
+        }
+
+        if (!(node instanceof LongEvalNode)) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public String getName() {
@@ -41,16 +56,51 @@ public class Range extends AbstractFunction{
 
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
-        if (args.size() != 2) {
-            throw new IllegalArgumentException("Wrong count of arguments. Actual is " + args.size() + ", but expected is 2");
+        if (args.size() < 2) {
+//            throw new FunctionExecutionException("Function range() needs to have two arguments, but you provided '" + args.size() + "' arguments");
+            return EvalUtils.getValue(null);
         }
-        long from = (long) args.get(0).getValue();
-        long to = (long) args.get(1).getValue();
 
-        Map<String, Object> res = new LinkedHashMap<>();
-        for (int i = 0; i < to - from + 1; i++) {
-            res.put(i + "", from + i);
+        if (args.size() > 3) {
+            throw new FunctionExecutionException("Function range() has only two arguments, but you provided '" + args.size() + "' arguments");
+        }
+
+        for (EvalNode node : args) {
+            if (!checkArg(node)) {
+                return EvalUtils.getValue(null);
+            }
+        }
+
+        long from = getValue(args.get(0));
+        long to = getValue(args.get(1));
+
+        Long step = getValue(args, 2);
+        Map<String, EvalNode> res = new LinkedHashMap<>();
+        if (from <= to) {
+            for (long i = from; i <= to; i++) {
+                if (step != null) {
+                    res.put((i - from) + "", EvalUtils.createEvalNode(step * i));
+                } else {
+                    res.put((i - from) + "", EvalUtils.createEvalNode(i));
+                }
+            }
+        } else {
+            for (long i = from; i >= to; i--) {
+                if (step != null) {
+                    res.put((from - i) + "", EvalUtils.createEvalNode(step * i));
+                } else {
+                    res.put((from - i) + "", EvalUtils.createEvalNode(i));
+                }
+            }
         }
         return EvalUtils.getValue(res);
+    }
+
+    private long getValue(EvalNode node) {
+        Number n = EvalUtils.getNumberValue(node);
+        if (n instanceof Float) {
+            return n.longValue();
+        }
+        return (long) n;
     }
 }

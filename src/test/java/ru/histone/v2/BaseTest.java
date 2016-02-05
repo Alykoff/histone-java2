@@ -55,7 +55,7 @@ public class BaseTest {
                 Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
             }
             if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot("http://localhost/histone", rtti);
+                Context context = Context.createRoot("http://localhost/histone/", rtti);
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {

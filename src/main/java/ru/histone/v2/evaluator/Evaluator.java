@@ -246,12 +246,7 @@ public class Evaluator {
                 .thenApply(futures -> {
                     final MapEvalNode mapEvalNode = (MapEvalNode) futures.get(0);
                     final Object value = futures.get(1).getValue();
-                    EvalNode obj = null;
-                    try {
-                        obj = (EvalNode) mapEvalNode.getProperty(value);
-                    } catch (Exception e) {
-                        System.out.println("empty");
-                    }
+                    final EvalNode obj = mapEvalNode.getProperty(value);
                     if (obj != null) {
                         return obj;
                     }

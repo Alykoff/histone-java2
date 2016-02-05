@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 /**
@@ -112,18 +113,23 @@ public class BaseTest {
         return value instanceof Double;
     }
 
-    protected Object getObjectValue(Object value) {
+    protected EvalNode getObjectValue(Object rawValue) {
+        Object value = rawValue;
         if (isDouble(value)) {
             Double v = (Double) value;
             if (v % 1 == 0 && v <= Integer.MAX_VALUE) {
-                return v.longValue();
+                value = v.longValue();
             } else {
-                return v.floatValue();
+                value = v.floatValue();
             }
         } else if (value instanceof Integer) {
-            return ((Integer) value).longValue();
-        } else {
-            return value;
+            value = ((Integer) value).longValue();
+        }
+
+        try {
+            return EvalUtils.getValue(value).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 }

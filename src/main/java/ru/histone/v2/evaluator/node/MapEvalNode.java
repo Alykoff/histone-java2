@@ -64,15 +64,13 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> {
         }
     }
 
-    public Object getProperty(Object propertyName) throws HistoneException {
+    public EvalNode getProperty(Object propertyName) throws HistoneException {
         if (propertyName instanceof String) {
-
-            String[] propArray = ((String) propertyName).split("\\.");
-
-            Object curr = value;
+            final String[] propArray = ((String) propertyName).split("\\.");
+            EvalNode curr = this;
             for (String str : propArray) {
-                if (curr instanceof Map) {
-                    curr = ((Map<String, EvalNode>) curr).get(str);
+                if (curr instanceof MapEvalNode) {
+                    curr = ((MapEvalNode) curr).value.get(str);
                 } else {
                     throw new HistoneException("Unable to find property '" + str + "'");
                 }
@@ -80,7 +78,7 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> {
 
             return curr;
         } else {
-            return ((Map) value).get(propertyName + "");
+            return value.get(propertyName + "");
         }
     }
 

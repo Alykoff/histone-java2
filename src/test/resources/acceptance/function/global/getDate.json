@@ -1,0 +1,11 @@
+[
+  {
+    "name": "global -> getDate",
+    "cases": [
+      {
+        "input": "{{global->getDate() != undefined}}",
+        "expectedResult": "true"
+      }
+    ]
+  }
+]

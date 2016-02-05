@@ -24,6 +24,8 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -67,7 +69,8 @@ public class ToString extends AbstractFunction {
                     if (fv % 1 == 0 && fv <= Long.MAX_VALUE) {
                         return CompletableFuture.completedFuture(String.valueOf(fv.longValue()));
                     } else {
-                        return CompletableFuture.completedFuture(String.valueOf(fv));
+                        String res = new BigDecimal(fv, MathContext.DECIMAL32).stripTrailingZeros().toPlainString();
+                        return CompletableFuture.completedFuture(res);
                     }
                 }
                 return CompletableFuture.completedFuture(String.valueOf(v));

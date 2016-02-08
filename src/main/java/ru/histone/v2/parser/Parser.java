@@ -119,8 +119,8 @@ public class Parser {
             result = getMacroStatement(wrapper);
         } else if (next(wrapper, T_RETURN)) {
             result = getReturnStatement(wrapper);
-        } else if (next(wrapper, T_SUPRESS)) {
-            result = getSupressStatement(wrapper);
+        } else if (next(wrapper, T_SUPPRESS)) {
+            result = getSuppressStatement(wrapper);
         } else if (next(wrapper, T_LISTEN)) {
             result = getListenStatement(wrapper, AST_LISTEN);
         } else if (next(wrapper, T_TRIGGER)) {
@@ -150,8 +150,12 @@ public class Parser {
         throw new NotImplementedException();
     }
 
-    private ExpAstNode getSupressStatement(TokenizerWrapper wrapper) {
-        throw new NotImplementedException();
+    private ExpAstNode getSuppressStatement(TokenizerWrapper wrapper) {
+        final ExpAstNode result = new ExpAstNode(AST_SUPPRESS, getExpression(wrapper));
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
+        }
+        return result;
     }
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) throws ParserException {

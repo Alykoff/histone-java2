@@ -39,7 +39,7 @@ public class Context implements Serializable {
     private Locale locale;
     private RunTimeTypeInfo rttiInfo;
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
-    private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = null;
 
     private Context parent;
 
@@ -58,7 +58,9 @@ public class Context implements Serializable {
      * @return created root context
      */
     public static Context createRoot(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
-        return new Context(baseUri, locale, rttiInfo);
+        Context ctx = new Context(baseUri, locale, rttiInfo);
+        ctx.thisVars = new ConcurrentHashMap<>();
+        return ctx;
     }
 
     /**
@@ -69,9 +71,10 @@ public class Context implements Serializable {
      * @return created root context
      */
     public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo) {
-        return new Context(baseUri, Locale.getDefault(), rttiInfo);
+        Context ctx = new Context(baseUri, Locale.getDefault(), rttiInfo);
+        ctx.thisVars = new ConcurrentHashMap<>();
+        return ctx;
     }
-
 
     /**
      * This method used for create a child context

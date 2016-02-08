@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 /**
- * Created by inv3r on 21/01/16.
+ * @author alexey.nevinsky
  */
 public class BaseTest {
 

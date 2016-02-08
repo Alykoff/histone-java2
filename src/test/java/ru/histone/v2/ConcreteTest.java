@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Created by inv3r on 19/01/16.
+ * @author alexey.nevinsky
  */
 public class ConcreteTest extends BaseTest {
     @Test

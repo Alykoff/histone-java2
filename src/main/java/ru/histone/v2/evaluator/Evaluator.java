@@ -17,6 +17,8 @@
 package ru.histone.v2.evaluator;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.histone.HistoneException;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
@@ -42,8 +44,8 @@ import java.util.stream.Collectors;
 
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
-import static ru.histone.v2.parser.node.AstType.*;
 
 /**
  * The main class for evaluating AST tree.
@@ -52,10 +54,12 @@ import static ru.histone.v2.parser.node.AstType.*;
  * @author gali.alykoff
  */
 public class Evaluator implements Serializable {
+
     public static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
     public static final Comparator<StringEvalNode> STRING_EVAL_NODE_COMPARATOR = new StringEvalNodeComparator();
     public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     public static final String TO_BOOLEAN = ToBoolean.NAME;
+    private static final Logger LOG = LoggerFactory.getLogger(Evaluator.class);
     private static final String TO_STRING_FUNC_NAME = ToString.NAME;
 
     public String process(ExpAstNode node, Context context) {
@@ -143,8 +147,8 @@ public class Evaluator implements Serializable {
                 return processBxorNode(expNode, context);
             case AST_BAND:
                 return processBandNode(expNode, context);
-            case AST_SUPRESS:
-                break;
+            case AST_SUPPRESS:
+                return processSuppressNode(expNode, context);
             case AST_LISTEN:
                 break;
             case AST_TRIGGER:
@@ -152,6 +156,13 @@ public class Evaluator implements Serializable {
         }
         throw new HistoneException("Unknown AST Histone Type: " + node.getType());
 
+    }
+
+    private CompletableFuture<EvalNode> processSuppressNode(ExpAstNode expNode, Context context) {
+        return evaluateNode(expNode.getNode(0), context).exceptionally(e -> {
+            LOG.error(e.getMessage(), e);
+            return EmptyEvalNode.INSTANCE;
+        });
     }
 
     private CompletableFuture<EvalNode> processThisNode(ExpAstNode expNode, Context context) {

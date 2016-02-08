@@ -1,0 +1,71 @@
+[
+  {
+    "name": "type -> isNull",
+    "cases": [
+      {
+        "input": "a {{undefined -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{null -> isNull()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{true -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{false -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{\"string\" -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123 -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123.8 -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{.123 -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{0.123 -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123E-3 -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-123.8) -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-.123) -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-0.123) -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-123E-3) -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{[1, 2, 3] -> isNull()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{[\"foo\": \"bar\"] -> isNull()}} b",
+        "expectedResult": "a false b"
+      }
+    ]
+  }
+]

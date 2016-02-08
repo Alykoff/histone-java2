@@ -102,7 +102,7 @@ public class Context implements Serializable {
             if (thisVars.containsKey(key)) {
                 return thisVars.get(key);
             }
-            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            return EmptyEvalNode.FUTURE_INSTANCE;
         }
         return vars.get(key);
     }

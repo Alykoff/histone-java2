@@ -69,7 +69,7 @@ public class Evaluator {
 
     public CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
         if (node == null) {
-            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            return EmptyEvalNode.FUTURE_INSTANCE;
         }
 
         if (node.hasValue()) {
@@ -239,7 +239,7 @@ public class Evaluator {
             } else if (expNode.getNode(2) != null) {
                 return evaluateNode(expNode.getNode(2), context);
             }
-            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            return EmptyEvalNode.FUTURE_INSTANCE;
         });
     }
 
@@ -287,7 +287,7 @@ public class Evaluator {
 
     private CompletionStage<EvalNode> processNonMapValue(ExpAstNode expNode, Context context) {
         if (expNode.size() == 4) {
-            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            return EmptyEvalNode.FUTURE_INSTANCE;
         }
         int i = 0;
         ExpAstNode expressionNode = expNode.getNode(i + 4);
@@ -306,7 +306,7 @@ public class Evaluator {
             return evaluateNode(expressionNode, context);
         }
 
-        return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+        return EmptyEvalNode.FUTURE_INSTANCE;
     }
 
     private CompletableFuture<EvalNode> processMapValue(ExpAstNode expNode, Context context, MapEvalNode objToIterate) {
@@ -398,7 +398,7 @@ public class Evaluator {
                         return EvalUtils.getValue(res);
                     }
                 } else if (isLeftNumberNode || isRightNumberNode) {
-                    return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+                    return EmptyEvalNode.FUTURE_INSTANCE;
                 }
 
                 if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
@@ -655,7 +655,7 @@ public class Evaluator {
             if (v != null) {
                 return CompletableFuture.completedFuture(v);
             } else {
-                return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+                return EmptyEvalNode.FUTURE_INSTANCE;
             }
         });
     }
@@ -667,7 +667,7 @@ public class Evaluator {
             }
             context = context.getParent();
         }
-        return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+        return EmptyEvalNode.FUTURE_INSTANCE;
     }
 
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {

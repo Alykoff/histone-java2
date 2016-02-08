@@ -18,12 +18,15 @@ package ru.histone.v2.evaluator.node;
 
 import ru.histone.v2.rtti.HistoneType;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Created by inv3r on 19/01/16.
  */
 public class EmptyEvalNode extends EvalNode<Void> {
     public static final String HISTONE_VIEW = "";
     public static final EmptyEvalNode INSTANCE = EmptyEvalNodeHolder.EMPTY_EVAL_NODE;
+    public static final CompletableFuture<EvalNode> FUTURE_INSTANCE = EmptyEvalNodeHolder.EMPTY_FUTURE;
 
     private EmptyEvalNode() {
         super(null);
@@ -36,5 +39,7 @@ public class EmptyEvalNode extends EvalNode<Void> {
 
     private static class EmptyEvalNodeHolder {
         private static final EmptyEvalNode EMPTY_EVAL_NODE = new EmptyEvalNode();
+
+        private static final CompletableFuture<EvalNode> EMPTY_FUTURE = CompletableFuture.completedFuture(EMPTY_EVAL_NODE);
     }
 }

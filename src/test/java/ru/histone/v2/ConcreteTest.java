@@ -34,7 +34,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("a 0.0000010003 b");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("{{getMin(1000E-2, 200E-2, 3000E-2, 4000E-3, 3E-4, 1000E-2, 200E-0)}}", testCase);
+        doTest("{{getDayOfWeek(2012,1,32) -> isUndefined()}}", testCase);
     }
 
     private Map<String, Object> getMap() {

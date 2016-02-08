@@ -17,33 +17,44 @@ package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Method returns current date
- *
  * @author alexey.nevinsky
  */
-public class GetDate extends AbstractFunction {
+public class GetDayOfWeek extends AbstractFunction {
     @Override
     public String getName() {
-        return "getDate";
+        return "getDayOfWeek";
     }
 
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
-
         Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        Map<String, EvalNode> res = new LinkedHashMap<>();
-        res.put("day", EvalUtils.createEvalNode((long) c.get(Calendar.DAY_OF_MONTH)));
-        res.put("month", EvalUtils.createEvalNode((long) c.get(Calendar.MONTH) + 1));
-        res.put("year", EvalUtils.createEvalNode((long) c.get(Calendar.YEAR)));
+        c.setFirstDayOfWeek(Calendar.MONDAY);
+        c.setLenient(false);
+        c.set(Calendar.YEAR, EvalUtils.getNumberValue(args.get(0)).intValue());
+        c.set(Calendar.MONTH, EvalUtils.getNumberValue(args.get(1)).intValue() - 1);
+        c.set(Calendar.DAY_OF_MONTH, EvalUtils.getNumberValue(args.get(2)).intValue());
 
-        return EvalUtils.getValue(res);
+        try {
+            c.getTimeInMillis();
+        } catch (IllegalArgumentException e) {
+            return EmptyEvalNode.FUTURE_INSTANCE;
+        }
+
+        int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
+        if (dayOfWeek == 0) {
+            dayOfWeek = 7;
+        }
+
+        return EvalUtils.getValue(dayOfWeek);
     }
 }

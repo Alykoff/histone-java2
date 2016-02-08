@@ -37,7 +37,7 @@ public interface Function {
     String getName();
 
     /**
-     * This method will be run when Histone evaluate function<br/>
+     * Method returns {@link CompletableFuture} with result of execution.
      *
      * @param locale of current environment
      * @param args   arguments from Histone template

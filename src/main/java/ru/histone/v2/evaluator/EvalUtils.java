@@ -30,7 +30,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public class EvalUtils {
     public static boolean equalityNode(EvalNode node1, EvalNode node2) {
-        //todo normal equality logic
         return ObjectUtils.equals(node1.getValue(), node2.getValue());
     }
 

@@ -17,6 +17,7 @@ package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.PathUtils;
@@ -43,6 +44,6 @@ public class ResolveURI extends AbstractFunction {
             String res = PathUtils.resolveUrl(getValue(args, 0) + "", baseUri);
             return EvalUtils.getValue(res);
         }
-        return EvalUtils.getValue(null);
+        return EmptyEvalNode.FUTURE_INSTANCE;
     }
 }

@@ -18,12 +18,16 @@ package ru.histone.v2.evaluator.data;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.parser.node.AstNode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -33,6 +37,7 @@ public class HistoneMacro implements Serializable, Cloneable {
     private AstNode body;
     private Context context;
     private List<String> args = new ArrayList<>();
+    private List<EvalNode> bindArgs = new ArrayList<>();
     private Evaluator evaluator;
 
     public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator) {
@@ -40,6 +45,27 @@ public class HistoneMacro implements Serializable, Cloneable {
         this.body = body;
         this.context = context;
         this.evaluator = evaluator;
+    }
+
+    public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator, List<EvalNode> bindArgs) {
+        this.args.addAll(args);
+        this.body = body;
+        this.context = context;
+        this.evaluator = evaluator;
+        this.bindArgs = bindArgs;
+    }
+
+    public void addBindArgs(List<EvalNode> bindArgs) {
+        this.bindArgs.addAll(bindArgs);
+    }
+
+    public HistoneMacro clone() {
+        final ArrayList<String> copyArgs = new ArrayList<>(this.args.size());
+        copyArgs.addAll(this.args);
+
+        final ArrayList<EvalNode> copyBindArgs = new ArrayList<>(this.bindArgs.size());
+        copyBindArgs.addAll(this.bindArgs);
+        return new HistoneMacro(copyArgs, this.body, this.context, this.evaluator, copyBindArgs);
     }
 
     @Override
@@ -50,12 +76,13 @@ public class HistoneMacro implements Serializable, Cloneable {
         return Objects.equals(body, that.body) &&
                 Objects.equals(context, that.context) &&
                 Objects.equals(args, that.args) &&
+                Objects.equals(bindArgs, that.bindArgs) &&
                 Objects.equals(evaluator, that.evaluator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(body, context, args, evaluator);
+        return Objects.hash(body, context, args, bindArgs, evaluator);
     }
 
     @Override
@@ -63,7 +90,8 @@ public class HistoneMacro implements Serializable, Cloneable {
         return "{\"HistoneMacro\": {" +
                 "\"body\":" + body +
                 ", \"context\":" + context +
-                ", \"args:\"" + args + "\"}}";
+                ", \"args\":[" + args + "]\"" +
+                ", \"bindArgs\":[" + bindArgs + "]\"}}";
     }
 
     public AstNode getBody() {
@@ -96,5 +124,13 @@ public class HistoneMacro implements Serializable, Cloneable {
 
     public void setEvaluator(Evaluator evaluator) {
         this.evaluator = evaluator;
+    }
+
+    public List<EvalNode> getBindArgs() {
+        return bindArgs;
+    }
+
+    public void setBindArgs(List<EvalNode> bindArgs) {
+        this.bindArgs = bindArgs;
     }
 }

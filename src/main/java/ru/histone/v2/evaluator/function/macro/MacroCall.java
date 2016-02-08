@@ -55,8 +55,13 @@ public class MacroCall extends AbstractFunction implements Serializable {
         final List<String> namesOfVars = histoneMacro.getArgs();
         final Evaluator evaluator = histoneMacro.getEvaluator();
         final Context context = histoneMacro.getContext();
+        final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
 
-        final List<EvalNode> params = getParams(args);
+        final List<EvalNode> paramsInput = getParams(args);
+        final List<EvalNode> params = new ArrayList<>(bindArgs.size() + paramsInput.size());
+        params.addAll(bindArgs);
+        params.addAll(paramsInput);
+
         final Context currentContext = context.createNew();
         for (int i = 0; i < namesOfVars.size(); i++) {
             final String argName = namesOfVars.get(i);

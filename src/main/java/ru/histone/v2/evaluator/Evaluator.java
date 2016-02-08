@@ -23,6 +23,7 @@ import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.any.ToBoolean;
 import ru.histone.v2.evaluator.function.any.ToString;
+import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.global.StringEvalNodeComparator;
@@ -31,6 +32,7 @@ import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
+import static ru.histone.v2.parser.node.AstType.*;
 
 /**
  * The main class for evaluating AST tree.
@@ -48,7 +51,7 @@ import static ru.histone.v2.utils.AsyncUtils.sequence;
  * @author alexey.nevinsky
  * @author gali.alykoff
  */
-public class Evaluator {
+public class Evaluator implements Serializable {
     public static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
     public static final Comparator<StringEvalNode> STRING_EVAL_NODE_COMPARATOR = new StringEvalNodeComparator();
     public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
@@ -266,7 +269,21 @@ public class Evaluator {
                 .map(x -> evaluateNode(x, context))
                 .collect(Collectors.toList()));
         return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
-            if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
+            if (node.getType() == AST_REF) {
+                final String refName = ((StringEvalNode) functionNameNode).getValue();
+                if (context.contains(refName)) {
+                    return context.getValue(refName).thenCompose(rawMacro -> {
+                        final MacroEvalNode macro = (MacroEvalNode) rawMacro;
+                        final List<EvalNode> callArgs = new ArrayList<>();
+                        callArgs.add(macro);
+                        callArgs.addAll(args);
+                        return context.call(macro, MacroCall.NAME, callArgs);
+                    });
+                } else {
+                    return context.call(refName, args);
+//                    return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+                }
+            } else if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);
             } else {
                 return processMethod(node, context, args);

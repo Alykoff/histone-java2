@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
  * @author alexey.nevinsky
  */
 public class GetDate extends AbstractFunction {
+
     @Override
     public String getName() {
         return "getDate";
@@ -36,6 +37,7 @@ public class GetDate extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+        checkMaxArgsLength(args, 0);
 
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());

@@ -63,16 +63,25 @@
         "expectedResult": "a 2 b"
       },
       {
-        "input": "a {{getDayOfWeek('a',3,1) -> isUndefined()}} b",
-        "expectedResult": "a true b"
+        "input": "a {{getDayOfWeek('a',3,1)}} b",
+        "expectedException": {
+          "line": "1",
+          "message": "For input string: \"a\""
+        }
       },
       {
         "input": "a {{getDayOfWeek(2011,'a',1) -> isUndefined()}} b",
-        "expectedResult": "a true b"
+        "expectedException": {
+          "line": "1",
+          "message": "For input string: \"a\""
+        }
       },
       {
         "input": "a {{getDayOfWeek(2011,3,'a') -> isUndefined()}} b",
-        "expectedResult": "a true b"
+        "expectedException": {
+          "line": "1",
+          "message": "For input string: \"a\""
+        }
       }
     ]
   }

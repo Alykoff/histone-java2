@@ -23,6 +23,10 @@ public class FunctionExecutionException extends RuntimeException {
         super(message);
     }
 
+    public FunctionExecutionException(String template, Object... args) {
+        super(String.format(template, args));
+    }
+
     public FunctionExecutionException(String message, Throwable cause) {
         super(message, cause);
     }

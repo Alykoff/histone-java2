@@ -1,6 +1,6 @@
 [
   {
-    "name": "values",
+    "name": "array - size",
     "cases": [
       {
         "input": "{{['size': 'XL', 'color': 'gold']->values}}",

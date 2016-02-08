@@ -1,5 +1,6 @@
 package ru.histone.v2.evaluator.function.macro;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -7,7 +8,8 @@ import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -23,7 +25,7 @@ public class MacroBind extends AbstractFunction implements Serializable {
 
     @Override
     public CompletableFuture<EvalNode> execute(
-            String baseUri, Locale locale, List<EvalNode> args
+            Context context, List<EvalNode> args
     ) throws FunctionExecutionException {
         final CompletableFuture<HistoneMacro> histoneMacro = CompletableFuture.completedFuture(
                 ((MacroEvalNode) args.get(0)).getValue().clone()

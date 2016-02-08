@@ -49,14 +49,6 @@ public class Context implements Serializable {
         this.locale = locale;
     }
 
-    public Context clone() {
-        final Context that = new Context(baseUri, locale, rttiInfo);
-        that.parent = this.parent;
-        that.thisVars = this.thisVars;
-        that.vars.putAll(this.vars);
-        return that;
-    }
-
     /**
      * This method used for create a root node
      *
@@ -82,6 +74,14 @@ public class Context implements Serializable {
         Context ctx = new Context(baseUri, Locale.getDefault(), rttiInfo);
         ctx.thisVars = new ConcurrentHashMap<>();
         return ctx;
+    }
+
+    public Context clone() {
+        final Context that = new Context(baseUri, locale, rttiInfo);
+        that.parent = this.parent;
+        that.thisVars = this.thisVars;
+        that.vars.putAll(this.vars);
+        return that;
     }
 
     /**
@@ -139,10 +139,14 @@ public class Context implements Serializable {
     }
 
     public CompletableFuture<EvalNode> call(String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(baseUri, locale, HistoneType.T_GLOBAL, name, args);
+        return rttiInfo.callFunction(this, HistoneType.T_GLOBAL, name, args);
     }
 
     public CompletableFuture<EvalNode> call(EvalNode node, String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(baseUri, locale, node, name, args);
+        return rttiInfo.callFunction(this, node, name, args);
+    }
+
+    public Locale getLocale() {
+        return locale;
     }
 }

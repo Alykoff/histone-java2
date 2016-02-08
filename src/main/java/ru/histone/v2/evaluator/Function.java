@@ -19,7 +19,6 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -39,13 +38,14 @@ public interface Function {
     /**
      * Method returns {@link CompletableFuture} with result of execution.
      *
-     * @param locale of current environment
+     *
+     * @param context
      * @param args   arguments from Histone template
      * @return result as one of Histone types
      * @throws FunctionExecutionException if your function stops with error and you need to put details into log,
      *                                    then you should use this exception
      */
-    CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException;
+    CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException;
 
     /**
      * Return true, if function must be run in own thread, otherwise - false

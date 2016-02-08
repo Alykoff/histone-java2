@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.utils.StringUtils;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.*;
@@ -26,7 +27,10 @@ import ru.histone.v2.utils.AsyncUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -43,12 +47,11 @@ public class ToString extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
-        return executeHelper(baseUri, locale, args)
-                .thenCompose(EvalUtils::getValue);
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return executeHelper(context, args).thenCompose(EvalUtils::getValue);
     }
 
-    private CompletableFuture<String> executeHelper(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+    private CompletableFuture<String> executeHelper(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final EvalNode node = args.get(0);
         final HistoneType nodeType = node.getType();
         switch (nodeType) {
@@ -57,7 +60,7 @@ public class ToString extends AbstractFunction {
             }
             case T_ARRAY: {
                 final Map<String, EvalNode> map = ((MapEvalNode) node).getValue();
-                return recurseFlattening(baseUri, locale, map);
+                return recurseFlattening(context, map);
             }
             case T_NULL: {
                 return CompletableFuture.completedFuture(NullEvalNode.HISTONE_VIEW);
@@ -81,16 +84,16 @@ public class ToString extends AbstractFunction {
         }
     }
 
-    private CompletableFuture<String> recurseFlattening(String baseUri, Locale locale, Map<String, EvalNode> map) {
+    private CompletableFuture<String> recurseFlattening(Context context, Map<String, EvalNode> map) {
         final List<CompletableFuture<String>> valuesRawListFuture = new ArrayList<>();
         for (EvalNode rawValue : map.values()) {
             if (rawValue != null) {
                 if (rawValue instanceof Map) {
                     final Map<String, EvalNode> value = (Map<String, EvalNode>) rawValue;
-                    valuesRawListFuture.add(recurseFlattening(baseUri, locale, value));
+                    valuesRawListFuture.add(recurseFlattening(context, value));
                 } else {
                     final CompletableFuture<EvalNode> executedValue = execute(
-                            baseUri, locale, Collections.singletonList(rawValue)
+                            context, Collections.singletonList(rawValue)
                     );
                     final CompletableFuture<String> value = executedValue
                             .thenApply(x -> ((StringEvalNode) x).getValue());

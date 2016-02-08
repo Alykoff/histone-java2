@@ -31,7 +31,6 @@ import ru.histone.v2.parser.node.AstNode;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -48,13 +47,12 @@ public class MacroCall extends AbstractFunction implements Serializable {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
         final HistoneMacro histoneMacro = macroNode.getValue();
         final AstNode body = histoneMacro.getBody();
         final List<String> namesOfVars = histoneMacro.getArgs();
         final Evaluator evaluator = histoneMacro.getEvaluator();
-        final Context context = histoneMacro.getContext();
         final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
 
         final List<EvalNode> paramsInput = getParams(args);

@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -24,7 +25,6 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -43,7 +43,7 @@ public class LoadJson extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         return CompletableFuture
                 .completedFuture(null)
                 .thenComposeAsync(x -> {

@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.function.regex;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
@@ -24,7 +25,6 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +41,7 @@ public class Test extends AbstractFunction implements Serializable {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         try {
             final HistoneRegex regexHistone = (HistoneRegex) args.get(0).getValue();
             final EvalNode evalNode = args.get(1);

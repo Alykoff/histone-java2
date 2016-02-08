@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.evaluator.functions.global.GlobalFunctionExecutionException;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
@@ -28,7 +29,6 @@ import ru.histone.v2.rtti.HistoneType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -56,7 +56,7 @@ public class Range extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() < 2) {
 //            throw new FunctionExecutionException("Function range() needs to have two arguments, but you provided '" + args.size() + "' arguments");
             return EmptyEvalNode.FUTURE_INSTANCE;

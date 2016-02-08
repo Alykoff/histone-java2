@@ -15,6 +15,7 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
@@ -23,7 +24,6 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.PathUtils;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,8 +36,9 @@ public class ResolveURI extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() > 0) {
+            String baseUri = context.getBaseUri();
             if (getValue(args, 1) != null) {
                 baseUri = getValue(args, 1);
             }

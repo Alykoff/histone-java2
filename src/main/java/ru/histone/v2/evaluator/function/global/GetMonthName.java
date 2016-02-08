@@ -15,13 +15,13 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
@@ -43,8 +43,8 @@ public class GetMonthName extends LocaleFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, Locale locale, List<EvalNode> args) throws FunctionExecutionException {
-        Properties properties = getCurrentProperties(locale);
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        Properties properties = getCurrentProperties(context.getLocale());
 
         long id = getValue(args, 0);
 

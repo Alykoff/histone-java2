@@ -43,6 +43,18 @@
       {
         "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text'],[PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
         "expectedResult": "<input type=\"\" />"
+      },
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text', PASSWORD: 'password'])}}{{inputWidget(inputWidget.RE)}}",
+        "expectedResult": "<input type=\"\" />"
+      },
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{var inputWidget = inputWidget->extend([PASSWORD: 'ppp'])}}{{inputWidget(inputWidget.PASSWORD)}}",
+        "expectedResult": "<input type=\"password\" />"
+      },
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{var inputWidget = inputWidget->extend([PPP: 'ppp'])}}{{inputWidget(inputWidget.PPP)}}",
+        "expectedResult": "<input type=\"ppp\" />"
       }
     ]
   }

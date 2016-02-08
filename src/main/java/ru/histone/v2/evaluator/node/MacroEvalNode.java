@@ -52,8 +52,14 @@ public class MacroEvalNode extends EvalNode<HistoneMacro> implements HasProperti
     }
 
     public MacroEvalNode putAllExtArgs(Map<String, EvalNode> extArgs) {
-        this.extArgs.putAll(extArgs);
+        for (Map.Entry<String, EvalNode> arg : extArgs.entrySet()) {
+            this.extArgs.putIfAbsent(arg.getKey(), arg.getValue());
+        }
         return this;
+    }
+
+    public Map<String, EvalNode> getExtArgs() {
+        return this.extArgs;
     }
 
     @Override

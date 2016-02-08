@@ -49,6 +49,14 @@ public class Context implements Serializable {
         this.locale = locale;
     }
 
+    public Context clone() {
+        final Context that = new Context(baseUri, locale, rttiInfo);
+        that.parent = this.parent;
+        that.thisVars = this.thisVars;
+        that.vars.putAll(this.vars);
+        return that;
+    }
+
     /**
      * This method used for create a root node
      *

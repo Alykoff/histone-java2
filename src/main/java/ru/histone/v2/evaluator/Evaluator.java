@@ -191,6 +191,7 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processMacroNode(ExpAstNode node, Context context) {
         final int bodyIndex = 0;
         final int startVarIndex = 2;
+        final Context cloneContext = context.clone();
         final CompletableFuture<List<AstNode>> astArgsFuture = CompletableFuture.completedFuture(
                 node.size() < startVarIndex
                         ? Collections.<AstNode>emptyList()
@@ -206,7 +207,7 @@ public class Evaluator implements Serializable {
         );
         return argsFuture.thenApply(args -> {
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(args, body, context, Evaluator.this));
+            return new MacroEvalNode(new HistoneMacro(args, body, cloneContext, Evaluator.this));
         });
     }
 
@@ -292,7 +293,6 @@ public class Evaluator implements Serializable {
                     });
                 } else {
                     return context.call(refName, args);
-//                    return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
                 }
             } else if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);

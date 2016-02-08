@@ -1,0 +1,51 @@
+[
+  {
+    "name": "type  ->  toString",
+    "cases": [
+      {
+        "input": "a {{null}} b",
+        "expectedResult": "a null b"
+      },
+      {
+        "input": "a {{true}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{false}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{undefined -> toString()}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{null -> toString()}} b",
+        "expectedResult": "a null b"
+      },
+      {
+        "input": "a {{10 -> toString()}} b",
+        "expectedResult": "a 10 b"
+      },
+      {
+        "input": "a {{(-10) -> toString()[0]}} b",
+        "expectedResult": "a - b"
+      },
+      {
+        "input": "a {{'string' -> toString()}} b",
+        "expectedResult": "a string b"
+      },
+      {
+        "input": "a {{'string' -> toString}} b",
+        "expectedResult": "a string b"
+      },
+      {
+        "input": "a {{[1, 2, 3] -> toString()}} b",
+        "expectedResult": "a 1 2 3 b"
+      },
+      {
+        "input": "a {{[\"foo\": \"bar\"] -> toString()}} b",
+        "expectedResult": "a bar b"
+      }
+    ]
+  }
+]

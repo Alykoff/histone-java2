@@ -19,12 +19,13 @@ package ru.histone.v2.evaluator.node;
 import ru.histone.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * @author alexey.nevinsky
  */
-public class MapEvalNode extends EvalNode<Map<String, EvalNode>> {
+public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasProperties, Serializable {
     public MapEvalNode(Map<String, EvalNode> value) {
         super(value);
     }

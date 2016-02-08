@@ -261,7 +261,7 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
-                    final MapEvalNode mapEvalNode = (MapEvalNode) futures.get(0);
+                    final HasProperties mapEvalNode = (HasProperties) futures.get(0);
                     final Object value = futures.get(1).getValue();
                     final EvalNode obj = mapEvalNode.getProperty(value);
                     if (obj != null) {

@@ -16,16 +16,21 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
  * Created by gali.alykoff on 27/01/16.
  */
-public class MacroEvalNode extends EvalNode<HistoneMacro> implements Serializable {
+public class MacroEvalNode extends EvalNode<HistoneMacro> implements HasProperties, Serializable {
+    private Map<String, EvalNode> extArgs = new LinkedHashMap<>();
     public MacroEvalNode(HistoneMacro value) {
         super(value);
         if (value == null) {
@@ -33,8 +38,27 @@ public class MacroEvalNode extends EvalNode<HistoneMacro> implements Serializabl
         }
     }
 
+    public MacroEvalNode(HistoneMacro value, Map<String, EvalNode> extArgs) {
+        super(value);
+        if (value == null) {
+            throw new NullPointerException();
+        }
+        this.extArgs.putAll(extArgs);
+    }
+
     @Override
     public HistoneType getType() {
         return HistoneType.T_MACRO;
     }
+
+    public MacroEvalNode putAllExtArgs(Map<String, EvalNode> extArgs) {
+        this.extArgs.putAll(extArgs);
+        return this;
+    }
+
+    @Override
+    public EvalNode getProperty(Object propertyName) throws HistoneException {
+        return this.extArgs.get(propertyName);
+    }
+
 }

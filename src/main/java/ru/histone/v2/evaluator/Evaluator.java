@@ -236,10 +236,15 @@ public class Evaluator implements Serializable {
         return processNodes.thenCompose(methodNodes -> {
             final EvalNode valueNode = methodNodes.get(valueIndex);
             final StringEvalNode methodNode = (StringEvalNode) methodNodes.get(methodIndex);
-            final List<EvalNode> argsNodes = new ArrayList<>();
+            List<EvalNode> argsNodes = new ArrayList<>();
             argsNodes.add(valueNode);
             argsNodes.addAll(args);
 
+            if (valueNode.getType() == HistoneType.T_MACRO && !context.findFunction(valueNode, methodNode.getValue())) {
+                argsNodes = new ArrayList<>(Arrays.asList(valueNode, methodNode));
+                argsNodes.addAll(args);
+                return context.call(valueNode, MacroCall.NAME, argsNodes);
+            }
             return context.call(valueNode, methodNode.getValue(), argsNodes);
         });
     }

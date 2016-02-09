@@ -28,7 +28,7 @@ public class MacroBind extends AbstractFunction implements Serializable {
             Context context, List<EvalNode> args
     ) throws FunctionExecutionException {
         final CompletableFuture<HistoneMacro> histoneMacro = CompletableFuture.completedFuture(
-                ((MacroEvalNode) args.get(0)).getValue().clone()
+                ((MacroEvalNode) args.get(0)).getMacro().clone()
         );
         return histoneMacro.thenApply(macro -> {
             final List<EvalNode> argsBindEvalNodes = new ArrayList<>();

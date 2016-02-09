@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
@@ -144,6 +145,15 @@ public class Context implements Serializable {
 
     public CompletableFuture<EvalNode> call(EvalNode node, String name, List<EvalNode> args) {
         return rttiInfo.callFunction(this, node, name, args);
+    }
+
+    public boolean findFunction(EvalNode node, String name) {
+        try {
+            return rttiInfo.getFunc(node.getType(), name) != null;
+        } catch (FunctionExecutionException ignore) {
+            // yeah, we couldn't find function with this name
+        }
+        return false;
     }
 
     public Locale getLocale() {

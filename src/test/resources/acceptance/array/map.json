@@ -5,10 +5,6 @@
       {
         "input": "{{macro mapper(value)}}{{return value * 100}}{{/macro}}{{[1, 4, 9]->map(mapper)}}",
         "expectedResult": "100 400 900"
-      },
-      {
-        "input": "{{macro mapper(prefix, value)}}{{return prefix + value}}{{/macro}}{{[1, 2, 3, 4]->map(mapper, 'prefix_')}}",
-        "expectedResult": "prefix_1 prefix_2 prefix_3 prefix_4"
       }
     ]
   }

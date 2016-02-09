@@ -33,7 +33,7 @@ public class MacroExtend extends AbstractFunction implements Serializable {
                 (MacroEvalNode) args.get(0)
         );
         return histoneMacro.thenApply(macro -> {
-            final HistoneMacro macroClone = macro.getValue().clone();
+            final HistoneMacro macroClone = macro.getMacro().clone();
             final Map<String, EvalNode> argsBindEvalNodes = new LinkedHashMap<>();
             if (args.size() > INDEX_PROPERTY_NAME
                     && args.get(INDEX_PROPERTY_NAME).getType() == HistoneType.T_ARRAY) {

@@ -42,9 +42,15 @@ public class ToFixed extends AbstractFunction {
         if (args.get(0) instanceof LongEvalNode) {
             return CompletableFuture.completedFuture(args.get(0));
         }
-        long count = ((LongEvalNode) args.get(1)).getValue();
         double v = ((DoubleEvalNode) args.get(0)).getValue();
 
+        long count = 0;
+        if (args.size() > 1) {
+            count = ((LongEvalNode) args.get(1)).getValue();
+        }
+        if (count < 0) {
+            count = 0;
+        }
         return EvalUtils.getValue(new DecimalFormat(format(count)).format(v));
     }
 

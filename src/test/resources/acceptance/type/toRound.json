@@ -1,0 +1,27 @@
+[
+  {
+    "name": "number -> toRound",
+    "cases": [
+      {
+        "input": "a {{0.60 -> toRound()}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
+        "input": "a {{0.50 -> toRound()}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
+        "input": "a {{0.49 -> toRound()}} b",
+        "expectedResult": "a 0 b"
+      },
+      {
+        "input": "a {{-4.40 -> toRound()}} b",
+        "expectedResult": "a -4 b"
+      },
+      {
+        "input": "a {{-4.60 -> toRound()}} b",
+        "expectedResult": "a -5 b"
+      }
+    ]
+  }
+]

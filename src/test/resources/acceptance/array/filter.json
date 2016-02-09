@@ -1,0 +1,20 @@
+[
+  {
+    "name": "array - filter",
+    "cases": [
+      {
+        "input": "{{macro isBigEnough(element)}}{{return element >= 10}}{{/macro}}{{[12, 5, 8, 130, 44]->filter(isBigEnough)}}",
+        "expectedResult": "12 130 44"
+      },
+      {
+        "input": "{{macro isBigEnough(element)}}{{return element >= 10}}{{/macro}}{{[12, 5, 8, 130, 44]->filter(isBigEnough)}}",
+        "expectedResult": "12 130 44"
+      },
+      {
+        "input": "{{macro isBigEnough(biggerThan, element)}}{{return element >= biggerThan}}{{/macro}}{{[12, 5, 8, 130, 44]->filter(isBigEnough, 10)}}",
+        "expectedResult": "12 130 44"
+      }
+    ]
+  }
+]
+

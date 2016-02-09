@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * @author gali.alykoff on 09/02/16.
  */
-public class ArrayFilter  extends AbstractFunction implements Serializable {
+public class ArrayFilter extends AbstractFunction implements Serializable {
     public static final String NAME = "filter";
     public static final int MAP_EVAL_INDEX = 0;
     public static final int MACRO_INDEX = 1;

@@ -1,0 +1,169 @@
+[
+  {
+    "name": "array methods -> size",
+    "cases": [
+      {
+        "input": "<div>{{[1, 2, 3]->size}} = 3</div>",
+        "expectedResult": "<div>3 = 3</div>"
+      },
+      {
+        "input": "<div>{{[foo: 'bar']->size}} = 1</div>",
+        "expectedResult": "<div>1 = 1</div>"
+      },
+      {
+        "input": "<div>{{[]->size}} = 0</div>",
+        "expectedResult": "<div>0 = 0</div>"
+      }
+    ]
+  },
+  {
+    "name": "array - some",
+    "cases": [
+      {
+        "input": "{{macro isBiggerThan10(element)}}{{return element > 10}}{{/macro}}{{[2, 5, 8, 1, 4]->some(isBiggerThan10)}} {{[12, 5, 8, 1, 4]->some(isBiggerThan10)}}",
+        "expectedResult": "false true"
+      },
+      {
+        "input": "{{macro isBiggerThan(biggerThan, element)}}{{return element > biggerThan}}{{/macro}}{{[2, 5, 8, 1, 4]->some(isBiggerThan, 10)}} {{[12, 5, 8, 1, 4]->some(isBiggerThan, 10)}}",
+        "expectedResult": "false true"
+      }
+    ]
+  },
+  {
+    "name": "array - filter",
+    "cases": [
+      {
+        "input": "{{macro isBigEnough(element)}}{{return element >= 10}}{{/macro}}{{[12, 5, 8, 130, 44]->filter(isBigEnough)}}",
+        "expectedResult": "12 130 44"
+      },
+      {
+        "input": "{{macro isBigEnough(element)}}{{return element >= 10}}{{/macro}}{{[12, 5, 8, 130, 44]->filter(isBigEnough)}}",
+        "expectedResult": "12 130 44"
+      },
+      {
+        "input": "{{macro isBigEnough(biggerThan, element)}}{{return element >= biggerThan}}{{/macro}}{{[12, 5, 8, 130, 44]->filter(isBigEnough, 10)}}",
+        "expectedResult": "12 130 44"
+      }
+    ]
+  },
+  {
+    "name": "array methods -> keys",
+    "cases": [
+      {
+        "input": "<div>{{[1, 2, 3]->keys->toJSON}} = [0,1,2]</div>",
+        "expectedResult": "<div>[0,1,2] = [0,1,2]</div>"
+      },
+      {
+        "input": "<div>{{[foo: 'bar', bar: 'foo']->keys->toJSON}} = [\"foo\",\"bar\"]</div>",
+        "expectedResult": "<div>[\"foo\",\"bar\"] = [\"foo\",\"bar\"]</div>"
+      },
+      {
+        "input": "<div>{{[bar: 'foo', foo: 'bar']->keys->toJSON}} = [\"bar\",\"foo\"]</div>",
+        "expectedResult": "<div>[\"bar\",\"foo\"] = [\"bar\",\"foo\"]</div>"
+      },
+      {
+        "input": "<div>{{[]->keys->toJSON}} = []</div>",
+        "expectedResult": "<div>[] = []</div>"
+      }
+    ]
+  },
+  {
+    "name": "array - map",
+    "cases": [
+      {
+        "input": "{{macro mapper(value)}}{{return value * 100}}{{/macro}}{{[1, 4, 9]->map(mapper)}}",
+        "expectedResult": "100 400 900"
+      },
+      {
+        "input": "{{macro mapper(prefix, value)}}{{return prefix + value}}{{/macro}}{{[1, 2, 3, 4]->map(mapper, 'prefix_')}}",
+        "expectedResult": "prefix_1 prefix_2 prefix_3 prefix_4"
+      }
+    ]
+  },
+  {
+    "name": "array - size",
+    "cases": [
+      {
+        "input": "{{['size': 'XL', 'color': 'gold']->values}}",
+        "expectedResult": "XL gold"
+      },
+      {
+        "input": "{{[\"size\": \"XL\", \"color\": \"gold\"]->values->toJSON}} = [\"XL\",\"gold\"]",
+        "expectedResult": "[\"XL\",\"gold\"] = [\"XL\",\"gold\"]"
+      },
+      {
+        "input": "{{['one', 'two', 'three']->reverse->toJSON}} = [\"three\",\"two\",\"one\"]",
+        "expectedResult": "[\"three\",\"two\",\"one\"] = [\"three\",\"two\",\"one\"]"
+      }
+    ]
+  },
+  {
+    "name": "array methods -> concat",
+    "cases": [
+      {
+        "input": "{{[1, 2, 3] + [4, 5, 6]}}",
+        "expectedResult": "1 2 3 4 5 6"
+      },
+      {
+        "input": "{{[foo: 'bar'] + [x: 'y']}}",
+        "expectedResult": "bar y"
+      }
+    ]
+  },
+  {
+    "name": "array methods -> every",
+    "cases": [
+      {
+        "input": "{{macro isBigEnough(element)}}{{return element >= 10}}{{/macro}}{{[12, 5, 8, 130, 44]->every(isBigEnough)}}{{[12, 54, 18, 130, 44]->every(isBigEnough)}}",
+        "expectedResult": "false true"
+      },
+      {
+        "input": "{{macro isBigEnough(biggerThan, element)}}{{return element >= biggerThan}}{{/macro}}{{[12, 5, 8, 130, 44]->every(isBigEnough, 10)}}{{[12, 54, 18, 130, 44]->every(isBigEnough, 10)}}",
+        "expectedResult": "false true"
+      }
+    ]
+  },
+  {
+    "name": "array methods -> join",
+    "cases": [
+      {
+        "input": "{{var a = ['Wind', 'Rain', 'Fire']}}{{a->join}}",
+        "expectedResult": "WindRainFire"
+      },
+      {
+        "input": "{{var a = ['Wind', 'Rain', 'Fire']}}{{a->join('')}}",
+        "expectedResult": "WindRainFire"
+      },
+      {
+        "input": "{{var a = ['Wind', 'Rain', 'Fire']}}{{a->join(' and ')}}",
+        "expectedResult": "Wind and Rain and Fire"
+      },
+      {
+        "input": "{{var a = ['Wind', 'Rain', 'Fire']}}{{a->join(' + ')}}",
+        "expectedResult": "Wind + Rain + Fire"
+      },
+      {
+        "input": "{{var a = ['Wind', 'Rain', 'Fire']}}{{a->join(0)}}",
+        "expectedResult": "Wind0Rain0Fire"
+      },
+      {
+        "input": "{{var a = ['Wind', 'Rain', 'Fire']}}{{a->join(['*'])}}",
+        "expectedResult": "Wind*Rain*Fire"
+      }
+    ]
+  },
+  {
+    "name": "array methods -> chunk",
+    "cases": [
+      {
+        "input": "{{range(6)->chunk(2)->toJSON}}",
+        "expectedResult": "[[0,1],[2,3],[4,5]]"
+      },
+      {
+        "input": "{{range(7)->chunk(2)->toJSON}}",
+        "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
+      }
+    ]
+  }
+]
+

@@ -13,9 +13,12 @@ import java.util.concurrent.CompletableFuture;
  * @author gali.alykoff on 09/02/16.
  */
 public class ArrayJoin extends AbstractFunction implements Serializable {
+
+    public static final String NAME = "join";
+
     @Override
     public String getName() {
-        return null;
+        return NAME;
     }
 
     @Override

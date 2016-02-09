@@ -1,7 +1,5 @@
 package ru.histone.v2.utils;
 
-import ru.histone.v2.evaluator.node.EvalNode;
-
 import java.io.Serializable;
 import java.util.Objects;
 

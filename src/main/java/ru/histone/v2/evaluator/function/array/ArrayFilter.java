@@ -50,7 +50,7 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
                     final CompletableFuture<EvalNode> predicateFuture = MacroCall.staticExecute(context, arguments);
                     return predicateFuture.thenApply(predicateNode -> {
                         final Boolean predicate = ((BooleanEvalNode) predicateNode).getValue();
-                        return Tuple.create(arg, predicate);
+                        return Tuple.<EvalNode, Boolean>create(arg, predicate);
                     });
                 }).collect(Collectors.toList());
         final CompletableFuture<List<Tuple<EvalNode, Boolean>>> mapResult = AsyncUtils.sequence(mapResultWithPredicate);

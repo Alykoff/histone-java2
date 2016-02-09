@@ -35,6 +35,15 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return calcByPredicate(context, args).thenApply(pairs ->
+            pairs.stream()
+                    .filter(Tuple::getRight)
+                    .map(Tuple::getLeft)
+                    .collect(Collectors.toList())
+        ).thenApply(MapEvalNode::new);
+    }
+
+    public static CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
         final MacroEvalNode macro = (MacroEvalNode) args.get(MACRO_INDEX);
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
@@ -53,12 +62,6 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
                         return Tuple.<EvalNode, Boolean>create(arg, predicate);
                     });
                 }).collect(Collectors.toList());
-        final CompletableFuture<List<Tuple<EvalNode, Boolean>>> mapResult = AsyncUtils.sequence(mapResultWithPredicate);
-        return mapResult.thenApply(pairs ->
-            pairs.stream()
-                    .filter(Tuple::getRight)
-                    .map(Tuple::getLeft)
-                    .collect(Collectors.toList())
-        ).thenApply(MapEvalNode::new);
+        return AsyncUtils.sequence(mapResultWithPredicate);
     }
 }

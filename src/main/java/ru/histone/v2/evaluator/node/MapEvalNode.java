@@ -20,12 +20,22 @@ import ru.histone.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author alexey.nevinsky
  */
 public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasProperties, Serializable {
+
+    public MapEvalNode(List<EvalNode> values) {
+        super(new LinkedHashMap<>());
+        for (int i = 0; i < values.size(); i++) {
+            this.value.put(i + "", values.get(i));
+        }
+    }
+
     public MapEvalNode(Map<String, EvalNode> value) {
         super(value);
     }

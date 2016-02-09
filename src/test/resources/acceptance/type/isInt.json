@@ -1,0 +1,19 @@
+[
+  {
+    "name": "number -> isInt",
+    "cases": [
+      {
+        "input": "a {{10 -> isInt()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{0.3 -> isInt()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-3.33) -> isInt()}} b",
+        "expectedResult": "a false b"
+      }
+    ]
+  }
+]

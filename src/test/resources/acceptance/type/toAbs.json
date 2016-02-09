@@ -1,0 +1,55 @@
+[
+  {
+    "name": "number -> toAbs",
+    "cases": [
+      {
+        "input": "a {{0 -> toAbs()}} b",
+        "expectedResult": "a 0 b"
+      },
+      {
+        "input": "a {{10 -> toAbs()}} b",
+        "expectedResult": "a 10 b"
+      },
+      {
+        "input": "a {{(-10) -> toAbs()}} b",
+        "expectedResult": "a 10 b"
+      },
+      {
+        "input": "a {{10E12 -> toAbs()}} b",
+        "expectedResult": "a 10000000000000 b"
+      },
+      {
+        "input": "a {{10E-12 -> toAbs()}} b",
+        "expectedResult": "a 0.00000000001 b"
+      },
+      {
+        "input": "a {{(-10E12) -> toAbs()}} b",
+        "expectedResult": "a 10000000000000 b"
+      },
+      {
+        "input": "a {{(-10E-12) -> toAbs()}} b",
+        "expectedResult": "a 0.00000000001 b"
+      },
+      {
+        "input": "a {{.10E12 -> toAbs()}} b",
+        "expectedResult": "a 100000000000 b"
+      },
+      {
+        "input": "a {{.10E-12 -> toAbs()}} b",
+        "expectedResult": "a 0.0000000000001 b"
+      },
+      {
+        "input": "a {{(-.10E12) -> toAbs()}} b",
+        "expectedResult": "a 100000000000 b"
+      },
+      {
+        "input": "a {{(-.10E-12) -> toAbs()}} b",
+        "expectedResult": "a 0.0000000000001 b"
+      },
+      {
+        "input": "a {{(-.10E12) -> toAbs().isNumber()}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  }
+]

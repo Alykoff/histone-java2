@@ -18,11 +18,13 @@ package ru.histone.v2;
 
 import org.junit.Test;
 import ru.histone.HistoneException;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.test.dto.HistoneTestCase;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 /**
  * @author alexey.nevinsky
@@ -30,11 +32,13 @@ import java.util.Map;
 public class ConcreteTest extends BaseTest {
     @Test
     public void concreteTest() throws HistoneException {
+        RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
+
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("a 0.0000010003 b");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("a {{-.123 -> isUndefined()}} b", testCase);
+        doTest("a {{-.123 -> isUndefined()}} b", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

@@ -36,18 +36,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 /**
  * @author alexey.nevinsky
  */
 public class BaseTest {
 
-    protected void doTest(String input, HistoneTestCase.Case testCase) throws HistoneException {
+    protected void doTest(String input, RunTimeTypeInfo rtti, HistoneTestCase.Case testCase) throws HistoneException {
         Parser parser = new Parser();
 
         Evaluator evaluator = new Evaluator();
-        RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
 
         try {
             ExpAstNode root = parser.process(input, "");

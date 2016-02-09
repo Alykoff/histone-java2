@@ -1,0 +1,75 @@
+[
+  {
+    "name": "type -> isNumber",
+    "cases": [
+      {
+        "input": "a {{undefined -> isNumber()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{null -> isNumber()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{true -> isNumber()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{false -> isNumber()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{\"string\" -> isNumber()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123 -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{123.8 -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{.123 -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{0.123 -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{123E-3 -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-123) -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-123.8) -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-.123) -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-0.123) -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-123E-3) -> isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{[1, 2, 3] -> isNumber()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{[\"foo\": \"bar\"] -> isNumber()}} b",
+        "expectedResult": "a false b"
+      }
+    ]
+  }
+]

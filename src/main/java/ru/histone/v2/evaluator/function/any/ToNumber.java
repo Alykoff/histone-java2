@@ -43,7 +43,7 @@ public class ToNumber extends AbstractFunction {
         if (EvalUtils.isNumberNode(node)) {
             return CompletableFuture.completedFuture(node);
         } else if (node.getType() == HistoneType.T_STRING && EvalUtils.isNumeric((StringEvalNode) node)) {
-            Float v = Float.parseFloat(((StringEvalNode) node).getValue());
+            Double v = Double.parseDouble(((StringEvalNode) node).getValue());
             if (v % 1 == 0 && v <= Long.MAX_VALUE) {
                 return EvalUtils.getValue(v.longValue());
             } else {

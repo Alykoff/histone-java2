@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.histone.HistoneException;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.test.TestRunner;
 import ru.histone.v2.test.dto.HistoneTestCase;
 
@@ -28,12 +29,15 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 /**
  * Created by alexey.nevinsky on 25.12.2015.
  */
 @RunWith(Parameterized.class)
 public class EvaluatorTest extends BaseTest {
+
+    private static final RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
 
     private String input;
     private HistoneTestCase.Case expected;
@@ -64,6 +68,6 @@ public class EvaluatorTest extends BaseTest {
 
     @Test
     public void test() throws HistoneException {
-        doTest(input, expected);
+        doTest(input, rtti, expected);
     }
 }

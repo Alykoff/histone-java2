@@ -170,10 +170,7 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processReturnNode(ExpAstNode expNode, Context context) {
-        return evaluateNode(expNode.getNode(0), context).thenApply(r -> {
-            r.setIsReturn();
-            return r;
-        });
+        return evaluateNode(expNode.getNode(0), context).thenApply(EvalNode::getReturned);
     }
 
     private CompletableFuture<EvalNode> processGlobalNode(ExpAstNode expNode, Context context) {
@@ -363,7 +360,7 @@ public class Evaluator implements Serializable {
                             .collect(Collectors.joining())
             );
             if (rNode.isPresent()) {
-                result.setIsReturn();
+                return result.getReturned();
             }
             return result;
 

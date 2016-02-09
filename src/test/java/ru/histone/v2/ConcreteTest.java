@@ -35,10 +35,10 @@ public class ConcreteTest extends BaseTest {
         RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("a 0.0000010003 b");
+        testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("a {{-.123 -> isUndefined()}} b", rtti, testCase);
+        doTest("{{ var x = {{%{{5+5}}%}}}}{{x}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

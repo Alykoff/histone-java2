@@ -19,11 +19,10 @@ package ru.histone.v2.evaluator.node;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
-
 import java.util.Objects;
 
 /**
- * Created by inv3r on 19/01/16.
+ * @author alexey.nevinsky
  */
 public abstract class EvalNode<T> implements Serializable {
     protected T value;
@@ -37,8 +36,9 @@ public abstract class EvalNode<T> implements Serializable {
         return value;
     }
 
-    public void setIsReturn() {
+    public EvalNode getReturned() {
         isReturn = true;
+        return this;
     }
 
     public boolean isReturn() {

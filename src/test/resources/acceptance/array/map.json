@@ -3,7 +3,7 @@
     "name": "array - map",
     "cases": [
       {
-        "input": "{{macro mapper(value)}}{{return value * 100}}{{/macro}}{{[1, 4, 9]->map(mapper)->toJSON}}",
+        "input": "{{macro mapper(value)}}{{return value * 100}}{{/macro}}{{[1, 4, 9]->map(mapper)}}",
         "expectedResult": "100 400 900"
       },
       {

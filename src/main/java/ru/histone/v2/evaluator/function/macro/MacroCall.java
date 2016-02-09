@@ -41,17 +41,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
     public final static String NAME = "call";
     public static final int MACRO_NODE_INDEX = 0;
 
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return staticExecute(args);
-    }
-
-    public static CompletableFuture<EvalNode> staticExecute(List<EvalNode> args) throws FunctionExecutionException {
+    public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
         final HistoneMacro histoneMacro = macroNode.getValue();
         final AstNode body = histoneMacro.getBody();
@@ -98,5 +88,15 @@ public class MacroCall extends AbstractFunction implements Serializable {
             }
         }
         return params;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return staticExecute(context, args);
     }
 }

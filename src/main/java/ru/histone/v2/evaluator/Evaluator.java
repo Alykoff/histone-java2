@@ -35,6 +35,7 @@ import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -59,7 +60,7 @@ public class Evaluator implements Serializable {
     public static final Comparator<StringEvalNode> STRING_EVAL_NODE_COMPARATOR = new StringEvalNodeComparator();
     public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     public static final String TO_BOOLEAN = ToBoolean.NAME;
-    private static final Logger LOG = LoggerFactory.getLogger(Evaluator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static final String TO_STRING_FUNC_NAME = ToString.NAME;
 
     public String process(ExpAstNode node, Context context) {

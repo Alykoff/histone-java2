@@ -19,10 +19,9 @@ package ru.histone.v2.evaluator.function.any;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
-import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.StringEvalNode;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
@@ -44,7 +43,7 @@ public class ToNumber extends AbstractFunction {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
         if (EvalUtils.isNumberNode(node)) {
-            return CompletableFuture.completedFuture(node);
+            return getFromNumberNode(node);
         } else if (node.getType() == HistoneType.T_STRING && EvalUtils.isNumeric((StringEvalNode) node)) {
             Double v = Double.parseDouble(((StringEvalNode) node).getValue());
             if (v % 1 == 0 && v <= Long.MAX_VALUE) {
@@ -56,5 +55,15 @@ public class ToNumber extends AbstractFunction {
             return CompletableFuture.completedFuture(args.get(1));
         }
         return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+    }
+
+    private CompletableFuture<EvalNode> getFromNumberNode(EvalNode node) {
+        if (node instanceof DoubleEvalNode) {
+            final Double value = ((DoubleEvalNode) node).getValue();
+            if (value % 1 == 0) {
+                return CompletableFuture.completedFuture(new LongEvalNode(value.longValue()));
+            }
+        }
+        return CompletableFuture.completedFuture(node);
     }
 }

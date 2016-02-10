@@ -23,6 +23,7 @@ import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -50,6 +51,32 @@ public class EvalUtils {
 
     public static Double parseDouble(String value) throws NumberFormatException {
         return Double.parseDouble(value);
+    }
+
+    public static Optional<Integer> tryPureIntegerValue(EvalNode node) {
+        if (!(isNumberNode(node) || node instanceof StringEvalNode)) {
+            return Optional.empty();
+        }
+        if (node instanceof DoubleEvalNode) {
+            final Double value = ((DoubleEvalNode) node).getValue();
+            if (value % 1 == 0) {
+                return Optional.of(value).map(Double::intValue);
+            } else {
+                return Optional.empty();
+            }
+        } else if (node instanceof LongEvalNode) {
+            final Long value = ((LongEvalNode) node).getValue();
+            return Optional.ofNullable(value).map(Long::intValue);
+        } else if (node instanceof StringEvalNode) {
+            try {
+                final double value = Double.parseDouble(((StringEvalNode) node).getValue());
+                return Optional.ofNullable(value).map(Double::intValue);
+            } catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
     }
 
     public static Number getNumberValue(EvalNode node) {
@@ -121,6 +148,19 @@ public class EvalUtils {
 
     public static CompletableFuture<EvalNode> getValue(Object v) {
         return CompletableFuture.completedFuture(createEvalNode(v));
+    }
+
+    public static Optional<Integer> getOptionalInteger(EvalNode splitNode) {
+        if (splitNode instanceof LongEvalNode) {
+            final Long value = ((LongEvalNode) splitNode).getValue();
+            if (value > Integer.MAX_VALUE || value <= 0) {
+                return Optional.empty();
+            } else {
+                return Optional.of(value.intValue());
+            }
+        } else {
+            return Optional.empty();
+        }
     }
 
 }

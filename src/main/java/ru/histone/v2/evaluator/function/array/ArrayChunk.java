@@ -1,15 +1,13 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.function.any.ToNumber;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.AsyncUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,7 +38,7 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
         }
         final CompletableFuture<Optional<Integer>> splitSizeValue = context
                 .call(ToNumber.NAME, Collections.singletonList(args.get(SPLIT_SIZE_INDEX)))
-                .thenApply(ArrayChunk::getChunkSizeAfterToNumber);
+                .thenApply(EvalUtils::getOptionalInteger);
         return splitSizeValue.thenApply(sizeOptional ->
             sizeOptional.map(size -> {
                 final List<EvalNode> valuesRaw = new ArrayList<>(
@@ -53,19 +51,6 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
                 return new MapEvalNode(innerNewValues);
             }).orElse(mapEvalNode)
         );
-    }
-
-    public static Optional<Integer> getChunkSizeAfterToNumber(EvalNode splitNode) {
-        if (splitNode instanceof LongEvalNode) {
-            final Long value = ((LongEvalNode) splitNode).getValue();
-            if (value > Integer.MAX_VALUE || value <= 0) {
-                return Optional.empty();
-            } else {
-                return Optional.of(value.intValue());
-            }
-        } else {
-            return Optional.empty();
-        }
     }
 
     public static <T> List<List<T>> chunk(List<T> original, int n) {

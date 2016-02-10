@@ -156,19 +156,23 @@
     "name": "array methods -> chunk",
     "cases": [
       {
-        "input": "{{range(6)->chunk(2)->toJSON}}",
-        "expectedResult": "[[0,1],[2,3],[4,5]]"
-      },
-      {
-        "input": "{{range(7)->chunk(2)->toJSON}}",
+        "input": "{{range(7)->chunk(2)->toJSON()}}",
         "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
       },
       {
-        "input": "{{range(7)->chunk('2')->toJSON}}",
+        "input": "{{[[0,1],[2,3],[4,5],[6]]->toJSON}}",
         "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
       },
       {
         "input": "{{range(7)->chunk(2.0)->toJSON}}",
+        "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
+      },
+      {
+        "input": "{{range(6)->chunk(2)->toJSON}}",
+        "expectedResult": "[[0,1],[2,3],[4,5]]"
+      },
+      {
+        "input": "{{range(7)->chunk('2')->toJSON}}",
         "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
       },
       {

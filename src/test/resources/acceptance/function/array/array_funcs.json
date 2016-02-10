@@ -196,6 +196,15 @@
         "expectedResult": "{\"sdf\":\"hhhh\",\"0\":\"dfdf\",\"1\":\"rrr\"}"
       }
     ]
+  },
+  {
+    "name": "array methods -> equals",
+    "cases": [
+      {
+        "input": "{{[1,2] = [5, 10, 15]}}",
+        "expectedResult": "true"
+      }
+    ]
   }
 ]
 

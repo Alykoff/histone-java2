@@ -27,5 +27,2411 @@
         "expectedResult": "null|null=0null|null=0null|true=1null|false=0null|0=0null|10=10null|\"\"=0null|\"string\"=0null|[]=0null|[1]=0null|{\"foo\":\"bar\"}=0null|null=0null|null=0null|true=1null|false=0null|0=0null|10=10null|\"\"=0null|\"string\"=0null|[]=0null|[1]=0null|{\"foo\":\"bar\"}=0true|null=1true|null=1true|true=1true|false=1true|0=1true|10=11true|\"\"=1true|\"string\"=1true|[]=1true|[1]=1true|{\"foo\":\"bar\"}=1false|null=0false|null=0false|true=1false|false=0false|0=0false|10=10false|\"\"=0false|\"string\"=0false|[]=0false|[1]=0false|{\"foo\":\"bar\"}=00|null=00|null=00|true=10|false=00|0=00|10=100|\"\"=00|\"string\"=00|[]=00|[1]=00|{\"foo\":\"bar\"}=010|null=1010|null=1010|true=1110|false=1010|0=1010|10=1010|\"\"=1010|\"string\"=1010|[]=1010|[1]=1010|{\"foo\":\"bar\"}=10\"\"|null=0\"\"|null=0\"\"|true=1\"\"|false=0\"\"|0=0\"\"|10=10\"\"|\"\"=0\"\"|\"string\"=0\"\"|[]=0\"\"|[1]=0\"\"|{\"foo\":\"bar\"}=0\"string\"|null=0\"string\"|null=0\"string\"|true=1\"string\"|false=0\"string\"|0=0\"string\"|10=10\"string\"|\"\"=0\"string\"|\"string\"=0\"string\"|[]=0\"string\"|[1]=0\"string\"|{\"foo\":\"bar\"}=0[]|null=0[]|null=0[]|true=1[]|false=0[]|0=0[]|10=10[]|\"\"=0[]|\"string\"=0[]|[]=0[]|[1]=0[]|{\"foo\":\"bar\"}=0[1]|null=0[1]|null=0[1]|true=1[1]|false=0[1]|0=0[1]|10=10[1]|\"\"=0[1]|\"string\"=0[1]|[]=0[1]|[1]=0[1]|{\"foo\":\"bar\"}=0{\"foo\":\"bar\"}|null=0{\"foo\":\"bar\"}|null=0{\"foo\":\"bar\"}|true=1{\"foo\":\"bar\"}|false=0{\"foo\":\"bar\"}|0=0{\"foo\":\"bar\"}|10=10{\"foo\":\"bar\"}|\"\"=0{\"foo\":\"bar\"}|\"string\"=0{\"foo\":\"bar\"}|[]=0{\"foo\":\"bar\"}|[1]=0{\"foo\":\"bar\"}|{\"foo\":\"bar\"}=0"
       }
     ]
+  },
+  {
+    "name": "operator.equals",
+    "cases": [
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true = true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true = false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true = 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true = 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true = []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true = [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true = ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false = true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false = false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false = 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false = 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false = []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false = [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false = ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 = true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 = false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 = 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 = 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 = []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 = [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 = ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 = true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 = false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 = 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 = 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 = []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 = [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 = ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null = []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null = ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] = true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] = false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] = 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] = 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] = []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] = [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] = ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] = true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] = false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] = 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] = 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] = []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] = [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] = ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] = true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] = false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] = 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] = 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] = null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] = []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] = [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] = ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true != true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true != false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true != 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true != []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true != [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true != ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false != true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false != false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false != 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false != 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false != []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false != [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false != ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 != true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 != false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 != 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 != 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 != []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 != [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 != ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 != true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 != false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 != 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 != []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 != [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 != ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null != []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null != ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] != true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] != false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] != 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] != []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] != [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] != ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] != true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] != false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] != 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] != []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] != [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] != ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] != true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] != false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] != 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] != null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] != []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] != [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] != ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true > false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true > 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 > false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 > 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] > false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] > 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] > false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] > 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] > true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] > false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] > 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] > 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] > null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] > []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] > [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] > ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true < ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false < true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false < 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false < []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false < [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false < ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 < true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 < 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 < []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 < [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 < ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 < ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null < []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null < ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] < ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] < ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] < ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true >= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false >= true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false >= 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false >= []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false >= [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false >= ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 >= true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 >= 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 >= []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 >= [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{0 >= ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 >= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= true}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= 10}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null >= []}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= [1]}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{null >= ['foo':'bar']}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] >= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] >= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] >= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true <= false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true <= 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{true <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{0 <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 <= false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 <= 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{10 <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{10 <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= false}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= null}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] <= false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] <= 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[] <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[] <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] <= false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] <= 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1] <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1] <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] <= true}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] <= false}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] <= 0}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] <= 10}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] <= null}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['foo':'bar'] <= []}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] <= [1]}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{['foo':'bar'] <= ['foo':'bar']}}",
+        "expectedResult": "true"
+      }
+    ]
   }
+
 ]

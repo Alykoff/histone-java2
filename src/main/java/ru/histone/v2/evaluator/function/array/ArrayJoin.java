@@ -3,14 +3,11 @@ package ru.histone.v2.evaluator.function.array;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.function.any.ToString;
-import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.AsyncUtils;
-import ru.histone.v2.utils.Tuple;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +39,7 @@ public class ArrayJoin extends AbstractFunction implements Serializable {
         final CompletableFuture<String> separatorFuture = separatorOptionalNode.map(separatorNode ->
                 context.call(ToString.NAME, Collections.singletonList(separatorNode))
                         .thenApply(x -> ((StringEvalNode) x).getValue())
-        ).orElseGet(() -> DEFAULT_DELIMITER_FUTURE);
+        ).orElse(DEFAULT_DELIMITER_FUTURE);
         final CompletableFuture<List<EvalNode>> valueNodesFuture = separatorFuture.thenCompose(separator -> {
             final List<CompletableFuture<EvalNode>> nodes = mapEvalNode.getValue()
                     .values()

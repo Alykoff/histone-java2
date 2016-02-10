@@ -32,9 +32,12 @@ import java.util.concurrent.CompletableFuture;
  * @author alexey.nevinsky
  */
 public class ToNumber extends AbstractFunction {
+
+    public static final String NAME = "toNumber";
+
     @Override
     public String getName() {
-        return "toNumber";
+        return NAME;
     }
 
     @Override

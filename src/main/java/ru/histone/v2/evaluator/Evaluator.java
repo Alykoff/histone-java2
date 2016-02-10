@@ -171,7 +171,9 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processReturnNode(ExpAstNode expNode, Context context) {
-        return evaluateNode(expNode.getNode(0), context).thenApply(EvalNode::getReturned);
+        Context ctx = context.createNew();
+        ctx.setReturned();
+        return evaluateNode(expNode.getNode(0), ctx).thenApply(EvalNode::getReturned);
     }
 
     private CompletableFuture<EvalNode> processGlobalNode(ExpAstNode expNode, Context context) {
@@ -240,7 +242,7 @@ public class Evaluator implements Serializable {
             argsNodes.add(valueNode);
             argsNodes.addAll(args);
 
-            if (valueNode.getType() == HistoneType.T_MACRO && !context.findFunction(valueNode, methodNode.getValue())) {
+            if (valueNode.getType() == HistoneType.T_REQUIRE) {
                 argsNodes = new ArrayList<>(Arrays.asList(valueNode, methodNode));
                 argsNodes.addAll(args);
                 return context.call(valueNode, MacroCall.NAME, argsNodes);
@@ -288,11 +290,10 @@ public class Evaluator implements Serializable {
                 final String refName = ((StringEvalNode) functionNameNode).getValue();
                 if (context.contains(refName)) {
                     return context.getValue(refName).thenCompose(rawMacro -> {
-                        final MacroEvalNode macro = (MacroEvalNode) rawMacro;
                         final List<EvalNode> callArgs = new ArrayList<>();
-                        callArgs.add(macro);
+                        callArgs.add(rawMacro);
                         callArgs.addAll(args);
-                        return context.call(macro, MacroCall.NAME, callArgs);
+                        return context.call(rawMacro, MacroCall.NAME, callArgs);
                     });
                 } else {
                     return context.call(refName, args);
@@ -737,12 +738,25 @@ public class Evaluator implements Serializable {
         final Context ctx = createContext ? context.createNew() : context;
         if (node.getNodes().size() == 1) {
             AstNode node1 = node.getNode(0);
-            CompletableFuture<EvalNode> res = evaluateNode(node1, ctx);
-            ctx.release();
-            return res;
+            return evaluateNode(node1, ctx);
         } else {
             CompletableFuture<List<EvalNode>> f = evalAllNodesOfCurrent(node, ctx);
-            return getEvaluatedString(context, f);
+            return f.thenCompose(nodes -> {
+                if (context.isReturned()) {
+                    for (EvalNode n : nodes) {
+                        if (n.isReturn()) {
+                            return CompletableFuture.completedFuture(new RequireEvalNode(n));
+                        }
+                    }
+                    return CompletableFuture.completedFuture(new RequireEvalNode(ctx));
+                }
+                for (EvalNode n : nodes) {
+                    if (n.isReturn()) {
+                        return CompletableFuture.completedFuture(n);
+                    }
+                }
+                return getEvaluatedString(ctx, f);
+            });
         }
     }
 
@@ -777,7 +791,6 @@ public class Evaluator implements Serializable {
                     } else {
                         result = evaluateNode(node.getNode(2), current);
                     }
-                    current.release();
                     return result;
                 });
     }

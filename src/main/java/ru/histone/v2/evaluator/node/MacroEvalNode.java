@@ -16,49 +16,30 @@
 
 package ru.histone.v2.evaluator.node;
 
-import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * @author gali.alykoff
  */
-public class MacroEvalNode extends EvalNode<Map<String, HistoneMacro>> implements HasProperties, Serializable {
-    private Map<String, EvalNode> extArgs = new LinkedHashMap<>();
-    private boolean required = false;
+public class MacroEvalNode extends PropertiesEvalNode<HistoneMacro> implements HasProperties, Serializable {
 
     public MacroEvalNode(HistoneMacro value) {
-        this(value, Collections.emptyMap());
+        super(value);
+        if (value == null) {
+            throw new NullPointerException();
+        }
     }
 
     public MacroEvalNode(HistoneMacro value, Map<String, EvalNode> extArgs) {
-        super(Collections.singletonMap(null, value));
+        super(value);
         if (value == null) {
             throw new NullPointerException();
         }
         this.extArgs.putAll(extArgs);
-    }
-
-    public MacroEvalNode(Map<String, HistoneMacro> macroses, Map<String, EvalNode> extArgs) {
-        super(macroses);
-        if (value == null) {
-            throw new NullPointerException();
-        }
-        this.extArgs.putAll(extArgs);
-        required = true;
-    }
-
-    public HistoneMacro getMacro() {
-        return getValue().get(null);
-    }
-
-    public boolean isRequired() {
-        return required;
     }
 
     @Override
@@ -72,14 +53,4 @@ public class MacroEvalNode extends EvalNode<Map<String, HistoneMacro>> implement
         }
         return this;
     }
-
-    public Map<String, EvalNode> getExtArgs() {
-        return this.extArgs;
-    }
-
-    @Override
-    public EvalNode getProperty(Object propertyName) throws HistoneException {
-        return this.extArgs.get(propertyName);
-    }
-
 }

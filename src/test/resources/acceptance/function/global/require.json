@@ -10,7 +10,7 @@
         }
       },
       {
-        "input": "a {{var x = require('/acceptance/tpl/function/test_for_import.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e",
+        "input": "a {{var x = require('/acceptance/tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e",
         "expectedResult": "a  b 10 c 111 d 222 e"
       }
     ]
@@ -19,16 +19,24 @@
     "name": "global -> require - macros",
     "cases": [
       {
-        "input": "a {{var x = require('/acceptance/tpl/function/test_for_import.tpl')}} b {{x -> macro_name()}} c",
+        "input": "a {{var x = require('/acceptance/tpl/function/test_for_require.tpl')}} b {{x -> macro_name()}} c",
         "expectedResult": "a  b inner macro output c"
       },
       {
-        "input": "a {{var x = require('/acceptance/tpl/function/test_for_import.tpl')}} b {{x()}} c",
+        "input": "a {{var x = require('/acceptance/tpl/function/test_for_require.tpl')}} b {{x()}} c",
         "expectedResult": "a  b  c"
       },
       {
-        "input": "a {{var x = require('/acceptance/tpl/function/test_for_import.tpl')}} b {{x -> param('parameter')}} c",
+        "input": "a {{var x = require('/acceptance/tpl/function/test_for_require.tpl')}} b {{x -> param('parameter')}} c",
         "expectedResult": "a  b parameter c"
+      },
+      {
+        "input": "a {{var x = require('/acceptance/tpl/function/test_for_require1.tpl')}} b {{x -> param('parameter')}} c",
+        "expectedResult": "a  b parameter c"
+      },
+      {
+        "input": "a {{var x = require('/acceptance/tpl/function/test_for_require_return.tpl')}} b {{x -> param('parameter')}} c",
+        "expectedResult": "a  b blablabla c"
       }
     ]
   }

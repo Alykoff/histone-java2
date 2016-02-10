@@ -16,12 +16,10 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MacroEvalNode;
+import ru.histone.v2.evaluator.node.RequireEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
@@ -32,9 +30,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,23 +61,16 @@ public class Require extends AbstractFunction {
 
         Context macroCtx = context.clone();
 
-        evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
+        CompletableFuture<EvalNode> enode = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
-        Map<String, HistoneMacro> macroMap = new HashMap<>();
-        Map<String, EvalNode> params = new HashMap<>();
-        for (Map.Entry<String, CompletableFuture<EvalNode>> entry : macroCtx.getVars().entrySet()) {
-            EvalNode node = entry.getValue().join();
-            if (node instanceof MacroEvalNode) {
-                HistoneMacro macro = ((MacroEvalNode) node).getMacro();
-                macroMap.put(entry.getKey(), macro);
-            } else {
-                params.put(entry.getKey(), node);
-            }
+        EvalNode rNode = enode.join();
+        if (rNode.getType() == HistoneType.T_REQUIRE) {
+            return enode;
+        } else if (rNode.isReturn()) {
+            return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
+        } else {
+            return CompletableFuture.completedFuture(new RequireEvalNode(macroCtx));
         }
-
-        MacroEvalNode macroNode = new MacroEvalNode(macroMap, params);
-
-        return EvalUtils.getValue(macroNode);
     }
 
     private String getTemplate(String url) {

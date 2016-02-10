@@ -30,6 +30,7 @@ import ru.histone.v2.parser.node.AstNode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -40,15 +41,19 @@ import java.util.stream.Collectors;
 public class MacroCall extends AbstractFunction implements Serializable {
     public final static String NAME = "call";
     public static final int MACRO_NODE_INDEX = 0;
-    public static final int SUB_MACRO_NODE_INDEX = 1;
 
     public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
-        final HistoneMacro histoneMacro = getMainMacro(macroNode, args);
-        if (histoneMacro == null) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
-        }
+        final HistoneMacro histoneMacro = getMacro(args);
+        return processMacro(args, histoneMacro, Collections.singletonList(MACRO_NODE_INDEX));
+    }
 
+    private static HistoneMacro getMacro(List<EvalNode> args) {
+        final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
+        return macroNode.getValue();
+    }
+
+    protected static CompletableFuture<EvalNode> processMacro(List<EvalNode> args, HistoneMacro histoneMacro,
+                                                              List<Integer> indexesToIgnore) {
         final AstNode body = histoneMacro.getBody();
         final List<String> namesOfVars = histoneMacro.getArgs();
         final Evaluator evaluator = histoneMacro.getEvaluator();
@@ -56,7 +61,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
         final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
 
-        final List<EvalNode> paramsInput = getParams(args, macroNode.isRequired());
+        final List<EvalNode> paramsInput = getParams(args, indexesToIgnore);
         final List<EvalNode> params = new ArrayList<>(bindArgs.size() + paramsInput.size());
         params.addAll(bindArgs);
         params.addAll(paramsInput);
@@ -72,24 +77,10 @@ public class MacroCall extends AbstractFunction implements Serializable {
         return evaluator.evaluateNode(body, currentContext);
     }
 
-    private static HistoneMacro getMainMacro(MacroEvalNode macroNode, List<EvalNode> args) {
-        if (macroNode.isRequired()) {
-            if (args.size() > 1) {
-                String macroName = (String) args.get(1).getValue();
-                return macroNode.getValue().get(macroName);
-            }
-            return null;
-        }
-
-        return macroNode.getMacro();
-    }
-
-    private static List<EvalNode> getParams(List<EvalNode> args, boolean isRequired) {
+    private static List<EvalNode> getParams(List<EvalNode> args, List<Integer> indexesToIgnore) {
         final List<EvalNode> params = new ArrayList<>();
         for (int i = 0; i < args.size(); i++) {
-            if (i == MACRO_NODE_INDEX) {
-                continue;
-            } else if (i == SUB_MACRO_NODE_INDEX && isRequired) {
+            if (indexesToIgnore.contains(i)) {
                 continue;
             }
 

@@ -75,6 +75,7 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasP
         }
     }
 
+    @Override
     public EvalNode getProperty(Object propertyName) throws HistoneException {
         if (propertyName instanceof String) {
             final String[] propArray = ((String) propertyName).split("\\.");

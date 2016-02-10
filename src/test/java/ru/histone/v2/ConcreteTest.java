@@ -38,7 +38,7 @@ public class ConcreteTest extends BaseTest {
         testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("{{ var x = {{%{{5+5}}%}}}}{{x}}", rtti, testCase);
+        doTest("a {{var x = require('/acceptance/tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

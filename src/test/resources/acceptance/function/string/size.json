@@ -1,17 +1,17 @@
 [
   {
-    "name": "String.size",
+    "name": "String.length",
     "cases": [
       {
-        "input": "<div>{{'Histone'->size}} = 7</div>",
+        "input": "<div>{{'Histone'->length}} = 7</div>",
         "expectedResult": "<div>7 = 7</div>"
       },
       {
-        "input": "<div>{{'фубар'->size}} = 5</div>",
+        "input": "<div>{{'фубар'->length}} = 5</div>",
         "expectedResult": "<div>5 = 5</div>"
       },
       {
-        "input": "<div>{{''->size}} = 0</div>",
+        "input": "<div>{{''->length}} = 0</div>",
         "expectedResult": "<div>0 = 0</div>"
       }
     ]

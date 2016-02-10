@@ -28,10 +28,12 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Created by inv3r on 02/02/16.
  */
-public class StringSize extends AbstractFunction {
+public class StringLength extends AbstractFunction {
+    public static final String NAME = "length";
+
     @Override
     public String getName() {
-        return "size";
+        return NAME;
     }
 
     @Override

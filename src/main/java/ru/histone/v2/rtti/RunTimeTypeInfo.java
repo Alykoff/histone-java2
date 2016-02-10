@@ -28,7 +28,7 @@ import ru.histone.v2.evaluator.function.macro.MacroExtend;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.Case;
-import ru.histone.v2.evaluator.function.string.StringSize;
+import ru.histone.v2.evaluator.function.string.StringLength;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
@@ -85,7 +85,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_NUMBER, new ToRound());
         registerCommon(T_NUMBER, new ToFixed());
 
-        registerCommon(T_ARRAY, new Size());
+        registerCommon(T_ARRAY, new ArrayLength());
         registerCommon(T_ARRAY, new Keys(true));
         registerCommon(T_ARRAY, new Keys(false));
         registerCommon(T_ARRAY, new Reverse());
@@ -115,7 +115,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
         registerCommon(T_REGEXP, new Test());
 
-        registerCommon(T_STRING, new StringSize());
+        registerCommon(T_STRING, new StringLength());
         registerCommon(T_STRING, new Case(false));
         registerCommon(T_STRING, new Case(true));
 

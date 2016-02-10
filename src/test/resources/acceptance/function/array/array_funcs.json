@@ -1,17 +1,17 @@
 [
   {
-    "name": "array methods -> size",
+    "name": "array methods -> length",
     "cases": [
       {
-        "input": "<div>{{[1, 2, 3]->size}} = 3</div>",
+        "input": "<div>{{[1, 2, 3]->length}} = 3</div>",
         "expectedResult": "<div>3 = 3</div>"
       },
       {
-        "input": "<div>{{[foo: 'bar']->size}} = 1</div>",
+        "input": "<div>{{[foo: 'bar']->length}} = 1</div>",
         "expectedResult": "<div>1 = 1</div>"
       },
       {
-        "input": "<div>{{[]->size}} = 0</div>",
+        "input": "<div>{{[]->length}} = 0</div>",
         "expectedResult": "<div>0 = 0</div>"
       }
     ]

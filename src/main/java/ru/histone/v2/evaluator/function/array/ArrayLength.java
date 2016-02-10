@@ -29,10 +29,13 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Created by inv3r on 25/01/16.
  */
-public class Size extends AbstractFunction {
+public class ArrayLength extends AbstractFunction {
+
+    public static final String NAME = "length";
+
     @Override
     public String getName() {
-        return "size";
+        return NAME;
     }
 
     @Override

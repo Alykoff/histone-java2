@@ -16,12 +16,14 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.rtti.HistoneType;
 
 /**
  * @author alexey.nevinsky
  */
-public class StringEvalNode extends EvalNode<String> {
+public class StringEvalNode extends EvalNode<String> implements HasProperties {
     public StringEvalNode(String value) {
         super(value);
         if (value == null) {
@@ -32,5 +34,15 @@ public class StringEvalNode extends EvalNode<String> {
     @Override
     public HistoneType getType() {
         return HistoneType.T_STRING;
+    }
+
+    @Override
+    public EvalNode getProperty(Object propertyName) throws HistoneException {
+        if (propertyName instanceof Double) {
+            return EvalUtils.createEvalNode(value.charAt(((Double) propertyName).intValue()) + "");
+        } else if (propertyName instanceof Long) {
+            return EvalUtils.createEvalNode(value.charAt(((Long) propertyName).intValue()) + "");
+        }
+        return null;
     }
 }

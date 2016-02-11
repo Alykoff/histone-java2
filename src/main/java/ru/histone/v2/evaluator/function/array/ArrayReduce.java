@@ -2,7 +2,6 @@ package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -39,7 +38,7 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
         if (size == 1) {
             return CompletableFuture.completedFuture(valuesList.get(0));
         }
-        final Deque<EvalNode> values = new LinkedList<>();
+        final Queue<EvalNode> values = new LinkedList<>();
         if (size > 2) {
             values.add(args.get(2));
         }
@@ -60,7 +59,7 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
                 });
         return macroNodeFuture.thenCompose(macro -> {
             final EvalNode acc = values.poll();
-            final CompletableFuture<Tuple<EvalNode, Deque<EvalNode>>> accTuple =
+            final CompletableFuture<Tuple<EvalNode, Queue<EvalNode>>> accTuple =
                     CompletableFuture.completedFuture(new Tuple<>(acc, values));
             return reduce(context, macro, accTuple);
         });
@@ -68,16 +67,16 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
 
     private static CompletableFuture<EvalNode> reduce(
             Context context, MacroEvalNode macro,
-            CompletableFuture<Tuple<EvalNode, Deque<EvalNode>>> accTupleFuture
+            CompletableFuture<Tuple<EvalNode, Queue<EvalNode>>> accTupleFuture
     ) {
         return accTupleFuture.thenCompose(accTuple -> {
             final EvalNode acc = accTuple.getLeft();
-            final Deque<EvalNode> vals = accTuple.getRight();
+            final Queue<EvalNode> vals = accTuple.getRight();
             if (vals.peek() == null) {
                 return CompletableFuture.completedFuture(acc);
             }
             final EvalNode curr = vals.poll();
-            final CompletableFuture<Tuple<EvalNode, Deque<EvalNode>>> newAccTuple = RttiUtils
+            final CompletableFuture<Tuple<EvalNode, Queue<EvalNode>>> newAccTuple = RttiUtils
                     .callMacro(context, macro, acc, curr)
                     .thenApply(newAcc -> new Tuple<>(newAcc, vals));
 

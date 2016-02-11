@@ -49,7 +49,7 @@ public class TestRunner {
         for (Path path : stream) {
             List<Path> paths = getFiles(path);
             for (Path p : paths) {
-                if (p.toString().endsWith("loadText.json")) {
+                if (p.toString().endsWith(".json")) {
                     Stream<String> stringStream = Files.lines(p);
                     List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
                     cases.addAll(histoneCases);

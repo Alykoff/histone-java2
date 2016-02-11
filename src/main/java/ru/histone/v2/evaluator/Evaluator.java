@@ -23,8 +23,6 @@ import ru.histone.HistoneException;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
-import ru.histone.v2.evaluator.function.any.ToBoolean;
-import ru.histone.v2.evaluator.function.any.ToString;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
 import ru.histone.v2.evaluator.global.NumberComparator;
@@ -60,7 +58,6 @@ public class Evaluator implements Serializable {
     public static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
     public static final Comparator<StringEvalNode> STRING_EVAL_NODE_COMPARATOR = new StringEvalNodeComparator();
     public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
-    public static final String TO_BOOLEAN = ToBoolean.NAME;
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public String process(ExpAstNode node, Context context) {
@@ -113,11 +110,9 @@ public class Evaluator implements Serializable {
             case AST_GT:
             case AST_LE:
             case AST_GE:
-                return processRelation(expNode, context);
             case AST_EQ:
-                return processEqNode(expNode, context, true);
             case AST_NEQ:
-                return processEqNode(expNode, context, false);
+                return processRelation(expNode, context);
             case AST_REF:
                 return processReferenceNode(expNode, context);
             case AST_METHOD:
@@ -476,7 +471,7 @@ public class Evaluator implements Serializable {
         });
     }
 
-    private Optional<Double> getValue(EvalNode node) {
+    private Optional<Double> getValue(EvalNode node) { // TODO duplicate ???
         if (node.getType() == HistoneType.T_STRING) {
             return ParserUtils.tryDouble(((StringEvalNode) node).getValue());
         } else {
@@ -489,36 +484,40 @@ public class Evaluator implements Serializable {
         return leftRightDone.thenCompose(evalNodeList -> {
             final EvalNode left = evalNodeList.get(0);
             final EvalNode right = evalNodeList.get(1);
-
-            final CompletableFuture<Integer> compareResultRaw;
-            if (left.getType() == HistoneType.T_STRING && isNumberNode(right)) {
-                final StringEvalNode stringLeft = (StringEvalNode) left;
-                if (isNumeric(stringLeft)) {
-                    compareResultRaw = processRelationNumberHelper(left, right);
-                } else {
-                    compareResultRaw = processRelationToString(stringLeft, right, context, false);
-                }
-            } else if (isNumberNode(left) && right.getType() == HistoneType.T_STRING) {
-                final StringEvalNode stringRight = (StringEvalNode) right;
-                if (isNumeric(stringRight)) {
-                    compareResultRaw = processRelationNumberHelper(left, right);
-                } else {
-                    compareResultRaw = processRelationToString(stringRight, left, context, true);
-                }
-            } else if (!isNumberNode(left) || !isNumberNode(right)) {
-                if (left.getType() == HistoneType.T_STRING && right.getType() == HistoneType.T_STRING) {
-                    compareResultRaw = processRelationStringHelper(left, right);
-                } else {
-                    compareResultRaw = processRelationBooleanHelper(left, right, context);
-                }
-            } else {
-                compareResultRaw = processRelationNumberHelper(left, right);
-            }
+            final CompletableFuture<Integer> compareResultRaw = compareNodes(left, right, context);
 
             return compareResultRaw.thenApply(compareResult ->
                     processRelationComparatorHelper(node.getType(), compareResult)
             );
         });
+    }
+
+    private CompletableFuture<Integer> compareNodes(EvalNode left, EvalNode right, Context context) {
+        final CompletableFuture<Integer> result;
+        if (isStringNode(left) && isNumberNode(right)) {
+            final StringEvalNode stringLeft = (StringEvalNode) left;
+            if (isNumeric(stringLeft)) {
+                result = processRelationNumberHelper(left, right);
+            } else {
+                result = processRelationToString(stringLeft, right, context, false);
+            }
+        } else if (isNumberNode(left) && isStringNode(right)) {
+            final StringEvalNode stringRight = (StringEvalNode) right;
+            if (isNumeric(stringRight)) {
+                result = processRelationNumberHelper(left, right);
+            } else {
+                result = processRelationToString(stringRight, left, context, true);
+            }
+        } else if (!isNumberNode(left) || !isNumberNode(right)) {
+            if (isStringNode(left) && isStringNode(right)) {
+                result = processRelationStringHelper(left, right);
+            } else {
+                result = processRelationBooleanHelper(left, right, context);
+            }
+        } else {
+            result = processRelationNumberHelper(left, right);
+        }
+        return result;
     }
 
     private CompletableFuture<Integer> processRelationToString(
@@ -548,14 +547,14 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<Integer> processRelationBooleanHelper(EvalNode left, EvalNode right, Context context) {
-        final CompletableFuture<EvalNode> leftBooleanFuture = context.call(left, TO_BOOLEAN, Collections.emptyList());
-        final CompletableFuture<EvalNode> rightBooleanFuture = context.call(right, TO_BOOLEAN, Collections.emptyList());
+        final CompletableFuture<EvalNode> leftF = RttiUtils.callToBoolean(context, left);
+        final CompletableFuture<EvalNode> rightF = RttiUtils.callToBoolean(context, right);
 
-        return leftBooleanFuture.thenCompose(leftBooleanRaw -> rightBooleanFuture.thenApply(rightBooleanRaw -> {
-            final BooleanEvalNode leftBoolean = (BooleanEvalNode) leftBooleanRaw;
-            final BooleanEvalNode rightBoolean = (BooleanEvalNode) rightBooleanRaw;
-            return BOOLEAN_EVAL_NODE_COMPARATOR.compare(leftBoolean, rightBoolean);
-        }));
+        return leftF.thenCompose(leftBooleanRaw -> rightF.thenApply(rightBooleanRaw ->
+            BOOLEAN_EVAL_NODE_COMPARATOR.compare(
+                (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
+            )
+        ));
     }
 
     private EvalNode processRelationComparatorHelper(AstType astType, int compareResult) {
@@ -568,6 +567,10 @@ public class Evaluator implements Serializable {
                 return new BooleanEvalNode(compareResult <= 0);
             case AST_GE:
                 return new BooleanEvalNode(compareResult >= 0);
+            case AST_EQ:
+                return new BooleanEvalNode(compareResult == 0);
+            case AST_NEQ:
+                return new BooleanEvalNode(compareResult != 0);
         }
         throw new RuntimeException("Unknown type for this case");
     }
@@ -756,25 +759,6 @@ public class Evaluator implements Serializable {
                 .map(currNode -> evaluateNode(currNode, context))
                 .collect(Collectors.toList());
         return sequence(futures);
-    }
-
-    private CompletableFuture<EvalNode> processEqNode(ExpAstNode node, Context context, boolean isEquals) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-
-        return leftRightDone.thenApply(f -> {
-            EvalNode left = f.get(0);
-            EvalNode right = f.get(1);
-            if (EvalUtils.isStringNode(left) && EvalUtils.isNumberNode(right)) {
-                if (EvalUtils.isNumeric((StringEvalNode) left)) {
-                    ; // TODO
-                } else {
-
-                }
-
-            }
-//            left.getType()
-            return new BooleanEvalNode(isEquals == equalityNode(left, right));
-        });
     }
 
     private CompletableFuture<EvalNode> processIfNode(ExpAstNode node, Context context) {

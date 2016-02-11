@@ -9,7 +9,7 @@ import java.util.Comparator;
  *
  * Created by gali.alykoff on 03/02/16.
  */
-public class StringEvalNodeComparator implements Comparator<StringEvalNode>, Serializable {
+public class StringEvalNodeLenComparator implements Comparator<StringEvalNode>, Serializable {
     @Override
     public int compare(StringEvalNode left, StringEvalNode right) {
         final long leftLength = left.getValue().length();

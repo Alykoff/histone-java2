@@ -155,19 +155,6 @@ public class EvalUtils {
         return CompletableFuture.completedFuture(createEvalNode(v));
     }
 
-    public static Optional<Integer> getOptionalInteger(EvalNode splitNode) {
-        if (splitNode instanceof LongEvalNode) {
-            final Long value = ((LongEvalNode) splitNode).getValue();
-            if (value > Integer.MAX_VALUE || value <= 0) {
-                return Optional.empty();
-            } else {
-                return Optional.of(value.intValue());
-            }
-        } else {
-            return Optional.empty();
-        }
-    }
-
     public static boolean canBeLong(Double v) {
         return v % 1 == 0 && v <= Long.MAX_VALUE && v >= Long.MIN_VALUE;
     }

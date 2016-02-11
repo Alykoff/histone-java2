@@ -63,8 +63,8 @@
         "expectedResult": "a  b [] c"
       },
       {
-        "input": "a {{var x = range(1,3,'adsfasdfdsf')}} b {{x}} c {{x = [1,2,3]}} d",
-        "expectedResult": "a  b  c false d"
+        "input": "a{{var x = range(1,3,'adsfasdfdsf')}}b{{x}}c{{x = [1,2,3]}}d",
+        "expectedResult": "ab1 2 3ctrued"
       },
       {
         "input": "a {{var x = range('aaa',2)}} b {{x->toJSON}} c",

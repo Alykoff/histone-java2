@@ -205,6 +205,27 @@
         "expectedResult": "true"
       }
     ]
+  },
+  {
+    "name": "array methods -> reduce",
+    "cases": [
+      {
+        "input": "{{macro re(prev, curr, o)}}{{prev->toNumber + curr->toNumber}}{{/macro}}{{[1,2,3]->reduce(re, 1)}}",
+        "expectedResult": "7"
+      },
+      {
+        "input": "{{macro re(prev, curr, o)}}{{prev->toNumber + curr->toNumber}}{{/macro}}{{[1,2,3]->reduce(re, 1, 1000)}}",
+        "expectedResult": "3001"
+      },
+      {
+        "input": "{{macro re(prev, curr, o)}}{{prev->toNumber + curr->toNumber}}{{/macro}}{{[1,2,3]->reduce(re)}}",
+        "expectedResult": "6"
+      },
+      {
+        "input": "{{macro re(prev, curr, o)}}{{prev->toNumber + curr->toNumber}}{{/macro}}{{[100,2,3]->reduce()}}",
+        "expectedResult": "100"
+      }
+    ]
   }
 ]
 

@@ -96,6 +96,11 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArrayEvery());
         registerCommon(T_ARRAY, new ArrayJoin());
         registerCommon(T_ARRAY, new ArrayChunk());
+        registerCommon(T_ARRAY, new ArrayReduce());
+        registerCommon(T_ARRAY, new ArrayFind());
+        registerCommon(T_ARRAY, new ArrayForEach());
+        registerCommon(T_ARRAY, new ArrayGroup());
+        registerCommon(T_ARRAY, new ArraySort());
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor));

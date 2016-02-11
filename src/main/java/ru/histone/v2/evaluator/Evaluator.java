@@ -481,7 +481,9 @@ public class Evaluator implements Serializable {
             return Optional.of(Double.valueOf(node.getValue() + ""));
         }
     }
-
+    // ==============================
+    // =========== Relation =========
+    // ==============================
     private CompletableFuture<EvalNode> processRelation(
             ExpAstNode node, Context context, Comparator<StringEvalNode> stringNodeComparator
     ) {
@@ -589,7 +591,9 @@ public class Evaluator implements Serializable {
         }
         throw new RuntimeException("Unknown type for this case");
     }
-
+    // ==============================
+    // ======= End Relation =========
+    // ==============================
     private CompletableFuture<EvalNode> processBorNode(ExpAstNode node, Context context) {
         return processBitwiseNode(node, context, (a, b) -> a | b);
     }

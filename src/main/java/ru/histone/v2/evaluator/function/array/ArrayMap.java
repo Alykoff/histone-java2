@@ -40,7 +40,7 @@ public class ArrayMap extends AbstractFunction implements Serializable {
         final List<CompletableFuture<EvalNode>> mapResultRaw = mapEvalNode.getValue()
                 .values().stream()
                 .map(arg -> {
-                    List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
+                    final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
                     if (param != null) {
                         arguments.add(param);
                     }
@@ -48,8 +48,6 @@ public class ArrayMap extends AbstractFunction implements Serializable {
                     return MacroCall.staticExecute(context, arguments);
                 })
                 .collect(Collectors.toList());
-        return AsyncUtils
-                .sequence(mapResultRaw)
-                .thenApply(MapEvalNode::new);
+        return AsyncUtils.sequence(mapResultRaw).thenApply(MapEvalNode::new);
     }
 }

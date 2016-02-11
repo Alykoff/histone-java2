@@ -18,27 +18,42 @@ package ru.histone.v2;
 
 import org.junit.Test;
 import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
+import ru.histone.v2.evaluator.resource.loader.DataLoader;
+import ru.histone.v2.evaluator.resource.loader.FileLoader;
+import ru.histone.v2.evaluator.resource.loader.HttpLoader;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.test.dto.HistoneTestCase;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
  * @author alexey.nevinsky
  */
 public class ConcreteTest extends BaseTest {
+    private static final Executor executor = Executors.newFixedThreadPool(20);
+    private static final RunTimeTypeInfo rtti;
+
+    static {
+        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
+        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
+        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader());
+        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        rtti = new RunTimeTypeInfo(executor, loader);
+    }
+
     @Test
     public void concreteTest() throws HistoneException {
-        RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("a {{var x = require('/acceptance/tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e", rtti, testCase);
+        doTest(" {{loadText('data:;,e3syICogMn19')}} ", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

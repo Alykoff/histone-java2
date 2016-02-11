@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
 
 /**
  * @author alexey.nevinsky
@@ -36,10 +35,10 @@ public abstract class LocaleFunction extends AbstractFunction {
         loadProperties();
     }
 
-    public LocaleFunction(Executor executor) {
-        super(executor);
-        loadProperties();
-    }
+//    public LocaleFunction(Executor executor) {
+//        super(executor);
+//        loadProperties();
+//    }
 
     private void loadProperties() {
         props = new ConcurrentHashMap<>();

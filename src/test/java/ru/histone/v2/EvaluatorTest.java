@@ -20,6 +20,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
+import ru.histone.v2.evaluator.resource.loader.DataLoader;
+import ru.histone.v2.evaluator.resource.loader.FileLoader;
+import ru.histone.v2.evaluator.resource.loader.HttpLoader;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.test.TestRunner;
 import ru.histone.v2.test.dto.HistoneTestCase;
@@ -29,6 +33,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
@@ -37,7 +42,16 @@ import java.util.concurrent.Executors;
 @RunWith(Parameterized.class)
 public class EvaluatorTest extends BaseTest {
 
-    private static final RunTimeTypeInfo rtti = new RunTimeTypeInfo(Executors.newFixedThreadPool(20));
+    private static final Executor executor = Executors.newFixedThreadPool(20);
+    private static final RunTimeTypeInfo rtti;
+
+    static {
+        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
+        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
+        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader());
+        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        rtti = new RunTimeTypeInfo(executor, loader);
+    }
 
     private String input;
     private HistoneTestCase.Case expected;

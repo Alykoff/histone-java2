@@ -21,6 +21,7 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.util.Date;
@@ -33,13 +34,13 @@ import java.util.concurrent.Executor;
  */
 public class LoadJson extends AbstractFunction {
 
-    public LoadJson(Executor executor) {
-        super(executor);
+    public LoadJson(Executor executor, HistoneResourceLoader loader) {
+        super(executor, loader);
     }
 
     @Override
     public String getName() {
-        return "loadJson";
+        return "loadJSON";
     }
 
     @Override

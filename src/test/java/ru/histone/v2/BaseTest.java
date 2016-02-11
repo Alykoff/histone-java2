@@ -77,6 +77,17 @@ public class BaseTest {
             } else {
                 throw new RuntimeException(ex);
             }
+        } catch (Exception ex) {
+            if (testCase.getExpectedException() != null) {
+                HistoneTestCase.ExpectedException e = testCase.getExpectedException();
+                if (e.getMessage() != null) {
+                    Assert.assertEquals(e.getMessage(), ex.getMessage());
+                } else {
+                    Assert.assertEquals("unexpected '" + e.getFound() + "', expected '" + e.getExpected() + "'", ex.getMessage());
+                }
+            } else {
+                throw new RuntimeException(ex);
+            }
         }
     }
 

@@ -31,6 +31,7 @@ import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.Case;
 import ru.histone.v2.evaluator.function.string.StringLength;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
@@ -54,9 +55,11 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     private final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 
     private final Executor executor;
+    private final HistoneResourceLoader loader;
 
-    public RunTimeTypeInfo(Executor executor) {
+    public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader) {
         this.executor = executor;
+        this.loader = loader;
 
         for (HistoneType type : HistoneType.values()) {
             typeMembers.put(type, new HashMap<>());
@@ -103,7 +106,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArraySort());
 
         registerCommon(T_GLOBAL, new Range());
-        registerCommon(T_GLOBAL, new LoadJson(executor));
+        registerCommon(T_GLOBAL, new LoadJson(executor, loader));
+        registerCommon(T_GLOBAL, new LoadText(executor, loader));
         registerCommon(T_GLOBAL, new GetBaseUri());
         registerCommon(T_GLOBAL, new GetUniqueId());
         registerCommon(T_GLOBAL, new ResolveURI());

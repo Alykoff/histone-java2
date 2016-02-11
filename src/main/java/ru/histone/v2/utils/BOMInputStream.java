@@ -1,12 +1,12 @@
-/**
- * Copyright 2013 MegaFon
- * <p>
+/*
+ * Copyright (c) 2016 MegaFon
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@
  * Date:    02 - November - 2005    
  * ____________________________________________________________________________
  */
-package ru.histone.utils;
+package ru.histone.v2.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.io.PushbackInputStream;
  * <code>InputStream</code> and detects the presence of any Unicode BOM
  * (Byte Order Mark) at its beginning, as defined by
  * <a href="http://www.faqs.org/rfcs/rfc3629.html">RFC 3629 - UTF-8, a transformation format of ISO 10646</a>
- *
+ * <p>
  * <p>The
  * <a href="http://www.unicode.org/unicode/faq/utf_bom.html">Unicode FAQ</a>
  * defines 5 types of BOMs:<ul>
@@ -41,7 +41,7 @@ import java.io.PushbackInputStream;
  * <li><pre>FF FE        = UTF-16, little-endian</pre></li>
  * <li><pre>EF BB BF     = UTF-8</pre></li>
  * </ul></p>
- *
+ * <p>
  * <p>Use the {@link #getBOM()} method to know whether a BOM has been detected
  * or not.
  * </p>
@@ -58,11 +58,10 @@ public class BOMInputStream extends InputStream {
      * specified <code>InputStream</code>.
      *
      * @param inputStream an <code>InputStream</code>.
-     *
      * @throws NullPointerException when <code>inputStream</code> is
-     * <code>null</code>.
-     * @throws IOException on reading from the specified <code>InputStream</code>
-     * when trying to detect the Unicode BOM.
+     *                              <code>null</code>.
+     * @throws IOException          on reading from the specified <code>InputStream</code>
+     *                              when trying to detect the Unicode BOM.
      */
     public BOMInputStream(final InputStream inputStream) throws NullPointerException,
             IOException
@@ -136,9 +135,8 @@ public class BOMInputStream extends InputStream {
      * <code>InputStream</code> object.
      *
      * @return this <code>UnicodeBOMInputStream</code>.
-     *
      * @throws IOException when trying to skip the BOM from the wrapped
-     * <code>InputStream</code> object.
+     *                     <code>InputStream</code> object.
      */
     public final synchronized BOMInputStream skipBOM() throws IOException {
         if (!skipped) {

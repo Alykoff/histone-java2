@@ -20,9 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -30,15 +32,19 @@ import java.util.concurrent.Executor;
  * @author alexey.nevinsky
  */
 public abstract class AbstractFunction implements Function {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
     protected final Executor executor;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final HistoneResourceLoader resourceLoader;
 
     protected AbstractFunction() {
         executor = null;
+        resourceLoader = null;
     }
 
-    protected AbstractFunction(Executor executor) {
+    protected AbstractFunction(Executor executor, HistoneResourceLoader resourceLoader) {
         this.executor = executor;
+        this.resourceLoader = resourceLoader;
     }
 
     /**
@@ -61,6 +67,10 @@ public abstract class AbstractFunction implements Function {
             throw new FunctionExecutionException("Argument with index '%s' must be of type '%s', but specified is '%s'",
                     index, classes, value.getClass());
         }
+    }
+
+    protected static void checkTypes(EvalNode node, int index, HistoneType type, Class<?> clazz) {
+        checkTypes(node, index, Collections.singletonList(type), Collections.singletonList(clazz));
     }
 
     protected static void checkMinArgsLength(List<EvalNode> args, int expectedCount) {

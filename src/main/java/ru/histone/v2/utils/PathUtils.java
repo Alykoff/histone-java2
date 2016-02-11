@@ -50,9 +50,9 @@ public class PathUtils {
         URI baseUri = parseURI(baseUrl);
 
         if (StringUtils.isNotEmpty(relUri.getScheme())) {
-            result.append((relUri.getScheme() + COLON));
+            result.append(relUri.getScheme()).append(COLON);
             if (StringUtils.isNotEmpty(relUri.getAuthority())) {
-                result.append((DOUBLE_SLASH + relUri.getAuthority()));
+                result.append(DOUBLE_SLASH).append(relUri.getAuthority());
             }
             appendDotSegments(result, relUri.getPath());
             appendQuery(result, relUri.getQuery());
@@ -118,6 +118,10 @@ public class PathUtils {
     }
 
     private static String removeDotSegments(String path) {
+        if (path == null) {
+            return "";
+        }
+
         String[] splitedPath = path.split(SLASH);
         if (splitedPath.length < 1) {
             return path;
@@ -166,10 +170,11 @@ public class PathUtils {
 
     public static URI parseURI(String uriString) {
         if (uriString == null) {
-            return new URI();
+            return null;
         }
         Pattern parser = Pattern.compile(URL_PARSER_REGEXP);
         Matcher matcher = parser.matcher(uriString);
+
         URI uri = new URI();
 
         if (matcher.find()) {

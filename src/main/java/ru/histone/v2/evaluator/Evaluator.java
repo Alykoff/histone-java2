@@ -424,11 +424,7 @@ public class Evaluator implements Serializable {
                 final boolean isRightNumberNode = isNumberNode(right);
                 if (isLeftNumberNode && isRightNumberNode) {
                     final Double res = getValue(left).orElse(null) + getValue(right).orElse(null);
-                    if (res % 1 == 0 && res <= Long.MAX_VALUE) {
-                        return EvalUtils.getValue(res.longValue());
-                    } else {
-                        return EvalUtils.getValue(res);
-                    }
+                    return EvalUtils.getNumberFuture(res);
                 } else if (isLeftNumberNode || isRightNumberNode) {
                     return EmptyEvalNode.FUTURE_INSTANCE;
                 }
@@ -476,11 +472,7 @@ public class Evaluator implements Serializable {
                 } else {
                     res = leftValue % rightValue;
                 }
-                if (res % 1 == 0 && res <= Long.MAX_VALUE) {
-                    return new LongEvalNode(res.longValue());
-                } else {
-                    return new DoubleEvalNode(res);
-                }
+                return EvalUtils.getNumberNode(res);
             }
             return EmptyEvalNode.INSTANCE;
         });

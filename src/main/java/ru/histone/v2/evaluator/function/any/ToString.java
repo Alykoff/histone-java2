@@ -69,7 +69,7 @@ public class ToString extends AbstractFunction {
                 Number v = (Number) node.getValue();
                 if (v instanceof Double) {
                     Double fv = (Double) v;
-                    if (fv % 1 == 0 && fv <= Long.MAX_VALUE) {
+                    if (EvalUtils.canBeLong(fv)) {
                         return CompletableFuture.completedFuture(String.valueOf(fv.longValue()));
                     } else {
                         String res = new BigDecimal(fv, MathContext.DECIMAL32).stripTrailingZeros().toPlainString();

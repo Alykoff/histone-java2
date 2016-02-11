@@ -38,11 +38,8 @@ public class ToCeil extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.get(0) instanceof DoubleEvalNode) {
-            Float v = (float) Math.ceil(((DoubleEvalNode) args.get(0)).getValue());
-            if (v % 1 == 0 && v <= Long.MAX_VALUE) {
-                return EvalUtils.getValue(v.longValue());
-            }
-            return EvalUtils.getValue(v);
+            Double v = Math.ceil(((DoubleEvalNode) args.get(0)).getValue());
+            return EvalUtils.getNumberFuture(v);
         }
         return CompletableFuture.completedFuture(args.get(0));
     }

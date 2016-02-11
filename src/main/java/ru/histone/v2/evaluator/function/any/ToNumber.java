@@ -19,9 +19,11 @@ package ru.histone.v2.evaluator.function.any;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.evaluator.node.DoubleEvalNode;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
@@ -46,11 +48,7 @@ public class ToNumber extends AbstractFunction {
             return getFromNumberNode(node);
         } else if (node.getType() == HistoneType.T_STRING && EvalUtils.isNumeric((StringEvalNode) node)) {
             Double v = Double.parseDouble(((StringEvalNode) node).getValue());
-            if (v % 1 == 0 && v <= Long.MAX_VALUE) {
-                return EvalUtils.getValue(v.longValue());
-            } else {
-                return EvalUtils.getValue(v);
-            }
+            return EvalUtils.getNumberFuture(v);
         } else if (args.size() > 1) {
             return CompletableFuture.completedFuture(args.get(1));
         }
@@ -60,9 +58,7 @@ public class ToNumber extends AbstractFunction {
     private CompletableFuture<EvalNode> getFromNumberNode(EvalNode node) {
         if (node instanceof DoubleEvalNode) {
             final Double value = ((DoubleEvalNode) node).getValue();
-            if (value % 1 == 0) {
-                return CompletableFuture.completedFuture(new LongEvalNode(value.longValue()));
-            }
+            return EvalUtils.getNumberFuture(value);
         }
         return CompletableFuture.completedFuture(node);
     }

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 28/01/16.
+ * @author alexey.nevinsky
  */
 public class ToBoolean extends AbstractFunction {
     public static final String NAME = "toBoolean";

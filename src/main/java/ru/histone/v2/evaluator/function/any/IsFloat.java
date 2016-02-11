@@ -39,7 +39,7 @@ public class IsFloat extends AbstractFunction {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
         if (node instanceof DoubleEvalNode) {
-            if (((DoubleEvalNode) node).getValue() % 1 == 0 && ((DoubleEvalNode) node).getValue() <= Long.MAX_VALUE) {
+            if (EvalUtils.canBeLong(((DoubleEvalNode) node).getValue())) {
                 return EvalUtils.getValue(false);
             }
             return EvalUtils.getValue(true);

@@ -59,7 +59,7 @@ public class EvalUtils {
         }
         if (node instanceof DoubleEvalNode) {
             final Double value = ((DoubleEvalNode) node).getValue();
-            if (value % 1 == 0) {
+            if (value % 1 == 0 && value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
                 return Optional.of(value).map(Double::intValue);
             } else {
                 return Optional.empty();
@@ -161,6 +161,21 @@ public class EvalUtils {
         } else {
             return Optional.empty();
         }
+    }
+
+    public static boolean canBeLong(Double v) {
+        return v % 1 == 0 && v <= Long.MAX_VALUE && v >= Long.MIN_VALUE;
+    }
+
+    public static EvalNode getNumberNode(Double v) {
+        if (canBeLong(v)) {
+            return EvalUtils.createEvalNode(v.longValue());
+        }
+        return EvalUtils.createEvalNode(v);
+    }
+
+    public static CompletableFuture<EvalNode> getNumberFuture(Double v) {
+        return CompletableFuture.completedFuture(getNumberNode(v));
     }
 
 }

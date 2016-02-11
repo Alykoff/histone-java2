@@ -42,7 +42,7 @@ public class IsInt extends AbstractFunction {
         if (node instanceof LongEvalNode) {
             return EvalUtils.getValue(true);
         } else if (node instanceof DoubleEvalNode) {
-            if (((DoubleEvalNode) node).getValue() % 1 == 0 && ((DoubleEvalNode) node).getValue() <= Long.MAX_VALUE) {
+            if (EvalUtils.canBeLong(((DoubleEvalNode) node).getValue())) {
                 return EvalUtils.getValue(true);
             }
         }

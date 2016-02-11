@@ -35,7 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author alexey.nevinsky
@@ -115,19 +114,12 @@ public class BaseTest {
         Object value = rawValue;
         if (isDouble(value)) {
             Double v = (Double) value;
-            if (v % 1 == 0 && v <= Integer.MAX_VALUE) {
+            if (EvalUtils.canBeLong(v)) {
                 value = v.longValue();
-            } else {
-                value = v.floatValue();
             }
         } else if (value instanceof Integer) {
             value = ((Integer) value).longValue();
         }
-
-        try {
-            return EvalUtils.getValue(value).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return EvalUtils.createEvalNode(value);
     }
 }

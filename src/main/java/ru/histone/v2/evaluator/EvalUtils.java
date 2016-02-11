@@ -21,6 +21,7 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.Map;
 import java.util.Optional;
@@ -92,6 +93,10 @@ public class EvalUtils {
         } else {
             throw new NotImplementedException();
         }
+    }
+
+    public static boolean isStringNode(EvalNode node) {
+        return node.getType() == HistoneType.T_STRING;
     }
 
     public static boolean isNumberNode(EvalNode node) {

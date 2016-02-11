@@ -6,6 +6,7 @@ import ru.histone.v2.evaluator.function.any.ToString;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.AsyncUtils;
+import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -37,7 +38,7 @@ public class ArrayJoin extends AbstractFunction implements Serializable {
                 : null
         );
         final CompletableFuture<String> separatorFuture = separatorOptionalNode.map(separatorNode ->
-                context.call(ToString.NAME, Collections.singletonList(separatorNode))
+                RttiUtils.callToString(context, separatorNode)
                         .thenApply(x -> ((StringEvalNode) x).getValue())
         ).orElse(DEFAULT_DELIMITER_FUTURE);
         final CompletableFuture<List<EvalNode>> valueNodesFuture = separatorFuture.thenCompose(separator -> {
@@ -45,7 +46,7 @@ public class ArrayJoin extends AbstractFunction implements Serializable {
                     .values()
                     .stream()
                     .map(innerValue ->
-                            context.call(ToString.NAME, Collections.singletonList(innerValue))
+                            RttiUtils.callToString(context, innerValue)
                     ).collect(Collectors.toList());
             return AsyncUtils.sequence(nodes);
         });

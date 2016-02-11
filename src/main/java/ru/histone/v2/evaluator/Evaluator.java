@@ -33,6 +33,7 @@ import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
+import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
@@ -61,7 +62,6 @@ public class Evaluator implements Serializable {
     public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     public static final String TO_BOOLEAN = ToBoolean.NAME;
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final String TO_STRING_FUNC_NAME = ToString.NAME;
 
     public String process(ExpAstNode node, Context context) {
         return processInternal(node, context);
@@ -69,9 +69,7 @@ public class Evaluator implements Serializable {
 
     private String processInternal(ExpAstNode node, Context context) {
         EvalNode resEvalNode = evaluateNode(node, context).join();
-        EvalNode stringEvalNode = context.call(
-                resEvalNode, TO_STRING_FUNC_NAME, Collections.singletonList(resEvalNode)
-        ).join();
+        EvalNode stringEvalNode = RttiUtils.callToString(context, resEvalNode).join();
         return ((StringEvalNode) stringEvalNode).getValue();
     }
 
@@ -361,7 +359,7 @@ public class Evaluator implements Serializable {
             }
             EvalNode result = new StringEvalNode(
                     nodesToProcess.stream()
-                            .map(n -> context.call(n, TO_STRING_FUNC_NAME, Collections.singletonList(n)))
+                            .map(n -> RttiUtils.callToString(context, n))
                             .map(CompletableFuture::join)
                             .map(n -> n.getValue() + "")
                             .collect(Collectors.joining())
@@ -436,8 +434,8 @@ public class Evaluator implements Serializable {
             }
 
             CompletableFuture<List<EvalNode>> lrFutures = sequence(
-                    context.call(TO_STRING_FUNC_NAME, Collections.singletonList(left)),
-                    context.call(TO_STRING_FUNC_NAME, Collections.singletonList(right))
+                    RttiUtils.callToString(context, left),
+                    RttiUtils.callToString(context, right)
             );
             return lrFutures.thenCompose(futures -> {
                 StringEvalNode l = (StringEvalNode) futures.get(0);
@@ -526,7 +524,7 @@ public class Evaluator implements Serializable {
     private CompletableFuture<Integer> processRelationToString(
             StringEvalNode left, EvalNode right, Context context, boolean isInvert
     ) {
-        final CompletableFuture<EvalNode> rightFuture = context.call(right, TO_STRING_FUNC_NAME, Collections.emptyList());
+        final CompletableFuture<EvalNode> rightFuture = RttiUtils.callToString(context, right);
         final int inverter = isInvert ? -1 : 1;
         return rightFuture.thenApply(stringRight ->
                 inverter * STRING_EVAL_NODE_COMPARATOR.compare(left, (StringEvalNode) stringRight)
@@ -766,7 +764,15 @@ public class Evaluator implements Serializable {
         return leftRightDone.thenApply(f -> {
             EvalNode left = f.get(0);
             EvalNode right = f.get(1);
+            if (EvalUtils.isStringNode(left) && EvalUtils.isNumberNode(right)) {
+                if (EvalUtils.isNumeric((StringEvalNode) left)) {
+                    ; // TODO
+                } else {
 
+                }
+
+            }
+//            left.getType()
             return new BooleanEvalNode(isEquals == equalityNode(left, right));
         });
     }

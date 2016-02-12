@@ -80,7 +80,7 @@ public class ArraySort extends AbstractFunction implements Serializable {
         }
         int mid = size / 2;
         List<CompletableFuture<Entry<String, EvalNode>>> left = nodes.subList(0, mid);
-        List<CompletableFuture<Entry<String, EvalNode>>> right = nodes.subList(mid + 1, size);
+        List<CompletableFuture<Entry<String, EvalNode>>> right = nodes.subList(mid, size);
 
         return sort(left, macroNode, context).thenCompose(leftSort ->
             sort(right, macroNode, context).thenCompose(rightSort ->

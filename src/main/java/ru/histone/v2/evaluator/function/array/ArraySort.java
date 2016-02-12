@@ -126,17 +126,17 @@ public class ArraySort extends AbstractFunction implements Serializable {
                 new StringEvalNode(valueR.getKey())
         ).thenCompose(macroReturn ->
             RttiUtils.callToBoolean(context, macroReturn)
-        ).thenApply(booleanNodeResult ->
-            !((BooleanEvalNode) booleanNodeResult).getValue()
-        ).thenCompose(isLeftGTRight -> {
-            if(isLeftGTRight) {
-                List<Entry<String, EvalNode>> newL = left.subList(1, left.size());
-                a.addLast(valueL);
-                return mergeHelper(newL, right, macroNode, context, a);
-            } else {
+        ).thenCompose(booleanNodeResult -> {
+//            boolean isNotReturned = !booleanNodeResult.isReturn();
+            boolean isRightLessThenLeft = ((BooleanEvalNode) booleanNodeResult).getValue();
+            if (isRightLessThenLeft) {
                 List<Entry<String, EvalNode>> newR = right.subList(1, right.size());
                 a.addLast(valueR);
                 return mergeHelper(left, newR, macroNode, context, a);
+            } else {
+                List<Entry<String, EvalNode>> newL = left.subList(1, left.size());
+                a.addLast(valueL);
+                return mergeHelper(newL, right, macroNode, context, a);
             }
         });
     }

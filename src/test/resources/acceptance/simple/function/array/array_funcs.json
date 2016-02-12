@@ -256,12 +256,12 @@
         "expectedResult": "[-1,0,1,1,2,3,4,22]"
       },
       {
-        "input": "{{macro re(v1,v2,k1,k2)}}{{v1 < v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}",
-        "expectedResult": "[-1,0,1,1,2,3,4,22]"
+        "input": "THIS_IS_BUG_OF_JS???{{macro re(v1,v2,k1,k2)}}{{v1 < v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}",
+        "expectedResult": "THIS_IS_BUG_OF_JS???[-1,0,1,1,2,3,4,22]"
       },
       {
-        "input": "{{macro re(v1,v2,k1,k2)}}{{v1 > v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}",
-        "expectedResult": "[-1,0,1,1,2,3,4,22]"
+        "input": "THIS_IS_BUG_OF_JS???{{macro re(v1,v2,k1,k2)}}{{v1 > v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}",
+        "expectedResult": "THIS_IS_BUG_OF_JS???[1,-1,0,22,1,2,3,4]"
       },
       {
         "input": "{{macro re(v1,v2,k1,k2)}}{{v1 > v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort()->toJSON}}",

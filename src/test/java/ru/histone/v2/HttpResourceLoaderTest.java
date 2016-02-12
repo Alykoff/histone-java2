@@ -19,17 +19,73 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTestNg;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import ru.histone.HistoneException;
+import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
+import ru.histone.v2.evaluator.resource.loader.DataLoader;
+import ru.histone.v2.evaluator.resource.loader.FileLoader;
+import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
+import ru.histone.v2.support.HistoneTestCase;
+import ru.histone.v2.support.TestRunner;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author alexey.nevinsky
  */
+@RunWith(Parameterized.class)
 public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerMethodTest {
+
+    private static final ExecutorService executor = Executors.newFixedThreadPool(20);
+    private static final RunTimeTypeInfo rtti;
+
+    static {
+        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
+        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
+        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
+        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        rtti = new RunTimeTypeInfo(executor, loader);
+    }
+
+    private String input;
+    private HistoneTestCase.Case expected;
+    private Integer index;
+
+    public HttpResourceLoaderTest(Integer index, Integer testIndex, String testCaseName, String input, HistoneTestCase.Case expected) {
+        this.index = index;
+        this.input = input;
+        this.expected = expected;
+    }
+
+    @Parameterized.Parameters(name = " {0}: {2}[{1}] `{3}` ")
+    public static Collection<Object[]> data() throws IOException, URISyntaxException {
+        final List<Object[]> result = new ArrayList<>();
+        final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCases("http");
+        int i = 1;
+        for (HistoneTestCase histoneTestCase : histoneTestCases) {
+            System.out.println("Run test '" + histoneTestCase.getName() + "'");
+            int j = 1;
+            for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
+                System.out.println("Expression: " + testCase.getInput());
+                String testName = histoneTestCase.getName();
+                result.add(new Object[]{i++, j++, testName, testCase.getInput(), testCase});
+            }
+        }
+        return result;
+    }
 
     @Override
     protected Application configure() {
@@ -41,6 +97,11 @@ public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerMethodTest 
     @Test
     public void doSomething() throws Exception {
 
+    }
+
+    @Test
+    public void test() throws HistoneException {
+        TestRunner.doTest(input, rtti, expected);
     }
 
     @Path("/")

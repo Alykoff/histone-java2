@@ -1,22 +1,5 @@
 [
   {
-    "name": "global.loadText",
-    "cases": [
-      {
-        "input": "a {{loadText('../testresources/txt/DOESNT_EXIST.txt') -> isUndefined()}} b",
-        "expectedResult": "a true b"
-      },
-      {
-        "input": "a {{loadText('../testresources/txt/file_with_markup.txt')}} b",
-        "expectedResult": "a text file {{'test'}} content b"
-      },
-      {
-        "input": "a {{loadText('../testresources/txt/file.txt')}} b",
-        "expectedResult": "a text file content b"
-      }
-    ]
-  },
-  {
     "name": "data URI - wrong format",
     "cases": [
       {

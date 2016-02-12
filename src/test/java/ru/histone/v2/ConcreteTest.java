@@ -54,7 +54,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest(" {{loadText('http://127.0.0.1:4442/', [method: 'PUT', headers: ['content-type': 'foo'], data: ['foo', 'bar']]).headers['content-type']}} ", rtti, testCase);
+        TestRunner.doTest(" {{loadText('data:application/javascript;charset=UTF-8;x=y;foo=bar;base64,e3syICogMn19')}} ", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

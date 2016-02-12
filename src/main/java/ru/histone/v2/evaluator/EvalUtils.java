@@ -23,9 +23,9 @@ import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.rtti.HistoneType;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Created by inv3r on 14/01/16.
@@ -127,7 +127,10 @@ public class EvalUtils {
             return new BooleanEvalNode((Boolean) object);
         }
         if (object instanceof Integer) {
-            return new DoubleEvalNode(((Integer) object).doubleValue());
+            return new LongEvalNode(((Integer) object).longValue());
+        }
+        if (object instanceof Float) {
+            return new DoubleEvalNode(((Float) object).doubleValue());
         }
         if (object instanceof Double) {
             return new DoubleEvalNode((Double) object);
@@ -150,6 +153,31 @@ public class EvalUtils {
         throw new HistoneException("Didn't resolve object class: " + object.getClass());
     }
 
+    public static MapEvalNode constructFromMap(Map<String, Object> map) {
+        Map<String, EvalNode> res = new HashMap<>();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            res.put(entry.getKey(), constructFromObject(entry.getValue()));
+        }
+        return new MapEvalNode(res);
+    }
+
+    public static MapEvalNode constructFromList(List<Object> list) {
+        List<EvalNode> res = new ArrayList<>(list.size());
+        res.addAll(list.stream()
+                .map(EvalUtils::constructFromObject)
+                .collect(Collectors.toList())
+        );
+        return new MapEvalNode(res);
+    }
+
+    public static EvalNode constructFromObject(Object object) {
+        if (object instanceof Map) {
+            return constructFromMap((Map) object);
+        } else if (object instanceof List) {
+            return constructFromList((List) object);
+        }
+        return createEvalNode(object);
+    }
 
     public static CompletableFuture<EvalNode> getValue(Object v) {
         return CompletableFuture.completedFuture(createEvalNode(v));

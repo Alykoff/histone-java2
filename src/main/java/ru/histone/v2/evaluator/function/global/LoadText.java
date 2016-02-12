@@ -15,7 +15,6 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.histone.utils.IOUtils;
 import ru.histone.v2.evaluator.Context;
@@ -34,6 +33,7 @@ import ru.histone.v2.utils.RttiUtils;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,38 +59,47 @@ public class LoadText extends AbstractFunction {
         checkMaxArgsLength(args, 2);
         checkTypes(args.get(0), 0, HistoneType.T_STRING, String.class);
 
-        String path = getValue(args, 0);
-        MapEvalNode requestMap = null;
-        if (args.size() > 1) {
-            checkTypes(args.get(1), 1, HistoneType.T_ARRAY, LinkedHashMap.class);
-            requestMap = (MapEvalNode) args.get(1);
-        }
-
-        Map<String, Object> params = getParamsMap(context, requestMap);
-
-        CompletableFuture<Resource> resourceFuture = resourceLoader.load(path, context.getBaseUri(), params);
-        return resourceFuture
-                .exceptionally(ex -> {
-                    logger.error("Error", ex);
-                    return null;
-                })
-                .thenApply(resource -> {
-                    if (resource == null) {
-                        return EvalUtils.createEvalNode(null);
+        return CompletableFuture.completedFuture(null)
+                .thenCompose(n -> {
+                    String path = getValue(args, 0);
+                    MapEvalNode requestMap = null;
+                    if (args.size() > 1) {
+                        checkTypes(args.get(1), 1, HistoneType.T_ARRAY, LinkedHashMap.class);
+                        requestMap = (MapEvalNode) args.get(1);
                     }
 
-                    String content = readStringFromResource(resource, path, context.getBaseUri());
-                    return EvalUtils.createEvalNode(content);
+                    Map<String, Object> params = getParamsMap(context, requestMap);
+
+                    return resourceLoader.load(path, context.getBaseUri(), params)
+                            .exceptionally(ex -> {
+                                logger.error("Error", ex);
+                                return null;
+                            })
+                            .thenApply(resource -> {
+                                if (resource == null) {
+                                    return EvalUtils.createEvalNode(null);
+                                }
+
+                                String content = readStringFromResource(resource, path, context.getBaseUri());
+                                return EvalUtils.createEvalNode(content);
+                            });
                 });
     }
 
     protected Map<String, Object> getParamsMap(Context context, MapEvalNode requestMap) {
+        if (requestMap == null) {
+            return Collections.emptyMap();
+        }
+
         String json = (String) RttiUtils.callToJSON(context, requestMap).join().getValue();
+        return (Map<String, Object>) fromJSON(json);
+    }
+
+    protected Object fromJSON(String json) {
         ObjectMapper mapper = new ObjectMapper();
-        TypeReference<Map<String, Object>> ref = new TypeReference<Map<String, Object>>() {
-        };
+
         try {
-            return mapper.readValue(json, ref);
+            return mapper.readValue(json, Object.class);
         } catch (IOException e) {
             throw new FunctionExecutionException(e.getMessage(), e);
         }

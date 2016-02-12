@@ -16,6 +16,9 @@
 
 package ru.histone.v2;
 
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTestNg;
+import org.glassfish.jersey.test.TestProperties;
 import org.junit.Test;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
@@ -24,8 +27,10 @@ import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.support.HistoneTestCase;
+import ru.histone.v2.support.JerseyServerResource;
 import ru.histone.v2.support.TestRunner;
 
+import javax.ws.rs.core.Application;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,7 +40,7 @@ import java.util.concurrent.Executors;
 /**
  * @author alexey.nevinsky
  */
-public class ConcreteTest {
+public class HttpConcreteTest extends JerseyTestNg.ContainerPerMethodTest {
     private static final ExecutorService executor = Executors.newFixedThreadPool(20);
     private static final RunTimeTypeInfo rtti;
 
@@ -54,7 +59,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{macro re(v1,v2,k1,k2)}}{{v1 > v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}", rtti, testCase);
+        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: [b:'foo', a: 'bar']]).headers['content-type']}}  ", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {
@@ -67,5 +72,12 @@ public class ConcreteTest {
 
         res.put("this", values);
         return res;
+    }
+
+    @Override
+    protected Application configure() {
+        forceSet(TestProperties.CONTAINER_PORT, "4442");
+
+        return new ResourceConfig(JerseyServerResource.class);
     }
 }

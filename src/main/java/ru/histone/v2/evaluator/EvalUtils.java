@@ -175,6 +175,10 @@ public class EvalUtils {
             return constructFromMap((Map) object);
         } else if (object instanceof List) {
             return constructFromList((List) object);
+        } else if (object instanceof String && object.equals("undefined")) {
+            return createEvalNode(null);
+        } else if (object == null) {
+            createEvalNode(ObjectUtils.NULL);
         }
         return createEvalNode(object);
     }

@@ -12,7 +12,7 @@
       },
       {
         "input": "<div>{{resolveURI('foo')}}</div>",
-        "expectedResult": "<div>http://localhost/histone/foo</div>"
+        "expectedResult": "<div>http://localhost:4442/histone/foo</div>"
       }
     ]
   },

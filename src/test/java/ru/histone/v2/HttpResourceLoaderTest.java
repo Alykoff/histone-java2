@@ -28,12 +28,9 @@ import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.support.HistoneTestCase;
+import ru.histone.v2.support.JerseyServerResource;
 import ru.histone.v2.support.TestRunner;
 
-import javax.inject.Singleton;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -47,7 +44,7 @@ import java.util.concurrent.Executors;
  * @author alexey.nevinsky
  */
 @RunWith(Parameterized.class)
-public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerMethodTest {
+public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerClassTest {
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(20);
     private static final RunTimeTypeInfo rtti;
@@ -91,7 +88,7 @@ public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerMethodTest 
     protected Application configure() {
         forceSet(TestProperties.CONTAINER_PORT, "4442");
 
-        return new ResourceConfig(Resource.class);
+        return new ResourceConfig(JerseyServerResource.class);
     }
 
     @Test
@@ -102,18 +99,5 @@ public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerMethodTest 
     @Test
     public void test() throws HistoneException {
         TestRunner.doTest(input, rtti, expected);
-    }
-
-    @Path("/")
-    @Singleton
-    @Produces("text/plain")
-    public static class Resource {
-
-        private int i = 1;
-
-        @GET
-        public int get() {
-            return i++;
-        }
     }
 }

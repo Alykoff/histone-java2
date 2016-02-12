@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.function.global;
 
+import org.apache.commons.lang.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
@@ -23,6 +24,7 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -46,10 +48,18 @@ public class LoadJson extends LoadText {
         return super.execute(context, args)
                 .thenApply(res -> {
                     String str = (String) res.getValue();
-                    Object json = fromJSON(str);
+                    Object json;
+                    if (StringUtils.isNotEmpty(str)) {
+                        json = fromJSON(str);
+                    } else {
+                        json = new LinkedHashMap<String, EvalNode>();
+                    }
 
                     return EvalUtils.constructFromObject(json);
                 })
-                .exceptionally(ex -> EmptyEvalNode.INSTANCE);
+                .exceptionally(ex -> {
+                    logger.error(ex.getMessage(), ex);
+                    return EmptyEvalNode.INSTANCE;
+                });
     }
 }

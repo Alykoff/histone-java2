@@ -16,6 +16,7 @@
 package ru.histone.v2.evaluator.resource;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author alexey.nevinsky
@@ -24,11 +25,17 @@ public class HistoneStringResource implements Resource<String> {
     private final String baseHref;
     private final String contentType;
     private final String content;
+    private Map<String, Object> additionalParams = null;
 
     public HistoneStringResource(String content, String baseHref, String contentType) {
         this.baseHref = baseHref;
         this.contentType = contentType;
         this.content = content;
+    }
+
+    public HistoneStringResource(String baseHref, String contentType, String content, Map<String, Object> additionalParams) {
+        this(baseHref, content, contentType);
+        this.additionalParams = additionalParams;
     }
 
     @Override

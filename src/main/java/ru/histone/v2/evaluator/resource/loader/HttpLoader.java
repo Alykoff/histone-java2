@@ -17,31 +17,37 @@ package ru.histone.v2.evaluator.resource.loader;
 
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.rx.RxClient;
-import org.glassfish.jersey.client.rx.RxInvocationBuilder;
 import org.glassfish.jersey.client.rx.RxWebTarget;
 import org.glassfish.jersey.client.rx.java8.RxCompletionStage;
 import org.glassfish.jersey.client.rx.java8.RxCompletionStageInvoker;
+import org.glassfish.jersey.message.internal.FormMultivaluedMapProvider;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * @author alexey.nevinsky
  */
 public class HttpLoader implements Loader {
 
-    private static final String[] prohibited = {"accept-charset", "accept-encoding", "access-control-request-headers",
+    private static final String[] PROHIBITED_HEADERS = {"accept-charset", "accept-encoding", "access-control-request-headers",
             "access-control-request-method", "connection", "content-length", "cookie", "cookie2",
             "content-transfer-encoding", "date", "expect", "host", "keep-alive", "origin", "referer", "te", "trailer",
             "transfer-encoding", "upgrade", "user-agent", "via"};
+
+    private static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD");
 
     private final ExecutorService jerseyExecutor;
 
@@ -51,19 +57,52 @@ public class HttpLoader implements Loader {
 
     @Override
     public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
-        RxWebTarget webTarget = getWebTarget(url);
-
-
-        String method = params.containsKey("method") ? (String) params.get("method") : "GET";
-        RxInvocationBuilder builder = webTarget.request();
-
-        CompletableFuture<String> stage = (CompletableFuture<String>) webTarget.request().rx().method(method, Entity.json(params.get("data")), String.class);
-        return stage
+        return doRequest(url, params, String.class)
                 .thenApply(s -> {
                     Resource res = new HistoneStringResource(s, url.toString(), ContentType.TEXT.getId());
                     return res;
                 });
+    }
 
+    protected <T> CompletableFuture<T> doRequest(URI url, Map<String, Object> params, Class<T> clazz) {
+        RxWebTarget webTarget = getWebTarget(url);
+
+        String method = getMethod(params);
+        MultivaluedMap<String, Object> headers = getHeaders(params);
+
+        MediaType type = MediaType.APPLICATION_FORM_URLENCODED_TYPE;
+        if (headers != null && headers.containsKey("Content-Type")) {
+            type = MediaType.valueOf(String.valueOf(headers.containsKey("Content-Type")));
+        }
+        Entity entity = Entity.entity(params.get("data"), type);
+
+        return (CompletableFuture<T>) webTarget
+
+                .request()
+                .headers(headers)
+                .rx()
+                .method(method, entity, clazz);
+    }
+
+    private String getMethod(Map<String, Object> params) {
+        String method = "GET";
+        if (params.containsKey("method")) {
+            Object m = params.get("method");
+            if (m instanceof String && ALLOWED_METHODS.contains(((String) m).toUpperCase())) {
+                method = ((String) m).toUpperCase();
+            }
+        }
+        return method;
+    }
+
+    private MultivaluedMap<String, Object> getHeaders(Map<String, Object> params) {
+        if (!params.containsKey("headers")) {
+            return null;
+        }
+        MultivaluedMap<String, Object> res = new MultivaluedHashMap<>();
+        ((Map<String, Object>) params.get("headers")).forEach(res::putSingle);
+        return res;
+    }
 //        URI newLocation = URI.create(location.toString().replace("#fragment", ""));
 //
 //        StringEvalNode methodNode = (StringEvalNode) args.getProperty("method");
@@ -150,7 +189,6 @@ public class HttpLoader implements Loader {
 //        }
 //        Resource res = new HistoneStreamResource(input, location.toString(), ContentType.TEXT.getId());
 //        return CompletableFuture.completedFuture(res);
-    }
 
 //    private CompletableFuture<Resource> loadHttpResource(URI location, MapEvalNode args) {
 //        URI newLocation = URI.create(location.toString().replace("#fragment", ""));
@@ -241,46 +279,35 @@ public class HttpLoader implements Loader {
 //        return CompletableFuture.completedFuture(res);
 //    }
 
-    protected RxWebTarget getWebTarget(URI url) {
+    protected RxWebTarget<RxCompletionStageInvoker> getWebTarget(URI url) {
         //todo get default and from config
         int connectTimeout = 2000;
         int readTimeout = 4000;
 
-
-        RxWebTarget target = buildClient(connectTimeout, readTimeout)
+        return buildClient(connectTimeout, readTimeout)
                 .target(url);
-        return target;
     }
 
 
-    protected RxClient buildClient(int connectionTimeout, int readTimeout) {
+    protected RxClient<RxCompletionStageInvoker> buildClient(int connectionTimeout, int readTimeout) {
         RxClient<RxCompletionStageInvoker> client = RxCompletionStage.newClient(jerseyExecutor);
-
 
         client.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
         client.property(ClientProperties.READ_TIMEOUT, readTimeout);
 
-        //todo
-//        client.register(new ExecutorServiceProvider{
-//
-//        });
+        client.register(FormMultivaluedMapProvider.class);
         return client;
     }
 
     private Map<String, String> filterRequestHeaders(Map<String, String> requestHeaders) {
-        Map<String, String> headers = new HashMap<String, String>();
-        for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
-            if (entry.getValue() == null)
-                continue;
-            String name = entry.getKey().toLowerCase();
-            if (name.indexOf("sec-") == 0)
-                continue;
-            if (name.indexOf("proxy-") == 0)
-                continue;
-            if (Arrays.asList(prohibited).contains(name))
-                continue;
-            headers.put(entry.getKey(), entry.getValue());
-        }
-        return headers;
+        return requestHeaders.entrySet().stream()
+                .filter(e -> {
+                    String name = e.getKey().toLowerCase();
+                    return e.getValue() != null
+                            && name.indexOf("sec-") != 0
+                            && name.indexOf("proxy-") != 0
+                            && !Arrays.asList(PROHIBITED_HEADERS).contains(name);
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

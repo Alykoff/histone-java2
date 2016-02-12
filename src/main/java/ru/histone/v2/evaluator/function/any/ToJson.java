@@ -39,9 +39,11 @@ import java.util.concurrent.CompletableFuture;
  * @author alexey.nevinsky
  */
 public class ToJson extends AbstractFunction {
+    public static final String NAME = "toJSON";
+
     @Override
     public String getName() {
-        return "toJSON";
+        return NAME;
     }
 
     @Override

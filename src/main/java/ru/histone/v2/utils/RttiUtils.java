@@ -2,6 +2,7 @@ package ru.histone.v2.utils;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.function.any.ToBoolean;
+import ru.histone.v2.evaluator.function.any.ToJson;
 import ru.histone.v2.evaluator.function.any.ToNumber;
 import ru.histone.v2.evaluator.function.any.ToString;
 import ru.histone.v2.evaluator.function.macro.MacroBind;
@@ -21,6 +22,10 @@ import java.util.concurrent.CompletableFuture;
 public class RttiUtils implements Serializable {
     public static CompletableFuture<EvalNode> callToString(Context context, EvalNode node) {
         return context.call(ToString.NAME, Collections.singletonList(node));
+    }
+
+    public static CompletableFuture<EvalNode> callToJSON(Context context, EvalNode node) {
+        return context.call(ToJson.NAME, Collections.singletonList(node));
     }
 
     public static CompletableFuture<EvalNode> callToNumber(Context context, EvalNode node) {

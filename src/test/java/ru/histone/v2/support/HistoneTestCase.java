@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.test.dto;
+package ru.histone.v2.support;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

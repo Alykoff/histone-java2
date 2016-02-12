@@ -705,103 +705,103 @@
     "comment": "make sure that those request headers won't reach the server",
     "cases": [
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['content-Length': 123]])}}{{response.isMap() and response.headers['content-length'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['content-Length': 123]])}}{{response -> isArray() and response.headers['content-length'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['accept-charset': 123]])}}{{response.isMap() and response.headers['accept-charset'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['accept-charset': 123]])}}{{response -> isArray() and response.headers['accept-charset'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['accept-encoding': 123]])}}{{response.isMap() and response.headers['accept-encoding'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['accept-encoding': 123]])}}{{response -> isArray() and response.headers['accept-encoding'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['access-control-request-headers': 123]])}}{{response.isMap() and response.headers['access-control-request-headers'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['access-control-request-headers': 123]])}}{{response -> isArray() and response.headers['access-control-request-headers'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['access-control-request-method': 123]])}}{{response.isMap() and response.headers['access-control-request-method'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['access-control-request-method': 123]])}}{{response -> isArray() and response.headers['access-control-request-method'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['connection': 123]])}}{{response.isMap() and response.headers['connection'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['connection': 123]])}}{{response -> isArray() and response.headers['connection'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['cookie': 123]])}}{{response.isMap() and response.headers['cookie'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['cookie': 123]])}}{{response -> isArray() and response.headers['cookie'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['cookie2': 123]])}}{{response.isMap() and response.headers['cookie2'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['cookie2': 123]])}}{{response -> isArray() and response.headers['cookie2'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['content-transfer-encoding': 123]])}}{{response.isMap() and response.headers['content-transfer-encoding'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['content-transfer-encoding': 123]])}}{{response -> isArray() and response.headers['content-transfer-encoding'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['date': 123]])}}{{response.isMap() and response.headers['date'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['date': 123]])}}{{response -> isArray() and response.headers['date'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['expect': 123]])}}{{response.isMap() and response.headers['expect'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['expect': 123]])}}{{response -> isArray() and response.headers['expect'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['host': 123]])}}{{response.isMap() and response.headers['host'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['host': 123]])}}{{response -> isArray() and response.headers['host'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['keep-alive': 123]])}}{{response.isMap() and response.headers['keep-alive'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['keep-alive': 123]])}}{{response -> isArray() and response.headers['keep-alive'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['origin': 123]])}}{{response.isMap() and response.headers['origin'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['origin': 123]])}}{{response -> isArray() and response.headers['origin'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['referer': 123]])}}{{response.isMap() and response.headers['referer'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['referer': 123]])}}{{response -> isArray() and response.headers['referer'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['te': 123]])}}{{response.isMap() and response.headers['te'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['te': 123]])}}{{response -> isArray() and response.headers['te'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['trailer': 123]])}}{{response.isMap() and response.headers['trailer'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['trailer': 123]])}}{{response -> isArray() and response.headers['trailer'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['transfer-encoding': 123]])}}{{response.isMap() and response.headers['transfer-encoding'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['transfer-encoding': 123]])}}{{response -> isArray() and response.headers['transfer-encoding'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['upgrade': 123]])}}{{response.isMap() and response.headers['upgrade'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['upgrade': 123]])}}{{response -> isArray() and response.headers['upgrade'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['user-agent': 123]])}}{{response.isMap() and response.headers['user-agent'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['user-agent': 123]])}}{{response -> isArray() and response.headers['user-agent'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['via': 123]])}}{{response.isMap() and response.headers['via'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['via': 123]])}}{{response -> isArray() and response.headers['via'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['sec-': 123]])}}{{response.isMap() and response.headers['sec-'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['sec-': 123]])}}{{response -> isArray() and response.headers['sec-'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['proxy-': 123]])}}{{response.isMap() and response.headers['proxy-'] isNot '123'}} b",
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['proxy-': 123]])}}{{response -> isArray() and response.headers['proxy-'] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var header = 'sec-' + uniqueId()}}{{var response = loadJSON('http://127.0.0.1:4442/', [headers: [].set(header, 123)])}}{{response.isMap() and response.headers[header.toLowerCase()] isNot '123'}} b",
+        "input": "a {{var header = 'sec-' + uniqueId()}}{{var response = loadJSON('http://127.0.0.1:4442/', [headers: [].set(header, 123)])}}{{response -> isArray() and response.headers[header.toLowerCase()] != '123'}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{var header = 'proxy-' + uniqueId()}}{{var response = loadJSON('http://127.0.0.1:4442/', [headers: [].set(header, 123)])}}{{response.isMap() and response.headers[header.toLowerCase()] isNot '123'}} b",
+        "input": "a {{var header = 'proxy-' + uniqueId()}}{{var response = loadJSON('http://127.0.0.1:4442/', [headers: [].set(header, 123)])}}{{response -> isArray() and response.headers[header.toLowerCase()] != '123'}} b",
         "expectedResult": "a true b"
       }
     ]
@@ -1078,7 +1078,7 @@
         "expectedResult": "a /redirect:300/redirect:300/redirect:300/redirect:300/redirect:300/redirect:300/redirect:300/redirect:300 b"
       },
       {
-        "input": "a {{for method in ['', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'OPTIONS', 'PATCH']}}{{for code in range(301, 399)}}{{loadJSON('http://127.0.0.1:4442/redirect:' + code, [method: method]).path isNot '/' ? 'NOT'}}{{/for}}{{/for}} b",
+        "input": "a {{for method in ['', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'OPTIONS', 'PATCH']}}{{for code in range(301, 399)}}{{loadJSON('http://127.0.0.1:4442/redirect:' + code, [method: method]).path != '/' ? 'NOT'}}{{/for}}{{/for}} b",
         "expectedResult": "a  b"
       },
       {

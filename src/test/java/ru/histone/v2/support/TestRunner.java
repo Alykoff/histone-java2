@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package ru.histone.v2;
+package ru.histone.v2.support;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.ObjectUtils;
-import org.junit.Assert;
+import org.testng.Assert;
 import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
@@ -27,21 +29,72 @@ import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.ParserException;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
-import ru.histone.v2.test.dto.HistoneTestCase;
 import ru.histone.v2.utils.ParserUtils;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author alexey.nevinsky
  */
-public class BaseTest {
+public class TestRunner {
+    public static List<HistoneTestCase> loadTestCases(String testPath) throws URISyntaxException, IOException {
+        DirectoryStream<Path> stream = Files.newDirectoryStream(
+                Paths.get(TestRunner.class.getResource("/acceptance/" + testPath).toURI())
+        );
 
-    protected void doTest(String input, RunTimeTypeInfo rtti, HistoneTestCase.Case testCase) throws HistoneException {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference type = new TypeReference<List<HistoneTestCase>>() {
+        };
+
+        List<HistoneTestCase> cases = new ArrayList<>();
+        Map<String, Path> tplMap = new HashMap<>();
+        for (Path path : stream) {
+            List<Path> paths = getFiles(path);
+            for (Path p : paths) {
+                if (p.toString().endsWith(".json")) {
+                    Stream<String> stringStream = Files.lines(p);
+                    List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
+                    cases.addAll(histoneCases);
+                } else {
+                    tplMap.put(p.getFileName().toString(), p);
+                }
+
+            }
+        }
+        for (HistoneTestCase test : cases) {
+            for (HistoneTestCase.Case testCase : test.getCases()) {
+                if (testCase.getInputFile() != null) {
+                    testCase.setInput(Files.lines(tplMap.get(testCase.getInputFile())).collect(Collectors.joining()));
+                }
+            }
+        }
+
+        return cases;
+    }
+
+    private static List<Path> getFiles(Path path) throws IOException {
+        List<Path> files = new ArrayList<>();
+        if (Files.isDirectory(path)) {
+            for (Path p : Files.newDirectoryStream(path)) {
+                files.addAll(getFiles(p));
+            }
+        } else {
+            files.add(path);
+        }
+        return files;
+    }
+
+
+    public static void doTest(String input, RunTimeTypeInfo rtti, HistoneTestCase.Case testCase) throws HistoneException {
         Parser parser = new Parser();
 
         Evaluator evaluator = new Evaluator();
@@ -91,7 +144,7 @@ public class BaseTest {
         }
     }
 
-    protected Map<String, CompletableFuture<EvalNode>> convertContext(HistoneTestCase.Case testCase) {
+    public static Map<String, CompletableFuture<EvalNode>> convertContext(HistoneTestCase.Case testCase) {
         Map<String, CompletableFuture<EvalNode>> res = new HashMap<>();
         for (Map.Entry<String, Object> entry : testCase.getContext().entrySet()) {
             if (entry.getValue() == null) {
@@ -117,11 +170,11 @@ public class BaseTest {
         return res;
     }
 
-    protected boolean isDouble(Object value) {
+    public static boolean isDouble(Object value) {
         return value instanceof Double;
     }
 
-    protected EvalNode getObjectValue(Object rawValue) {
+    public static EvalNode getObjectValue(Object rawValue) {
         Object value = rawValue;
         if (isDouble(value)) {
             Double v = (Double) value;

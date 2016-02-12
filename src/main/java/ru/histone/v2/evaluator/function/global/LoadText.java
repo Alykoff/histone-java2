@@ -15,6 +15,8 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.histone.utils.IOUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
@@ -28,9 +30,11 @@ import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.exceptions.ResourceLoadException;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.RttiUtils;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -58,11 +62,13 @@ public class LoadText extends AbstractFunction {
         String path = getValue(args, 0);
         MapEvalNode requestMap = null;
         if (args.size() > 1) {
-            checkTypes(args.get(1), 1, HistoneType.T_ARRAY, Map.class);
+            checkTypes(args.get(1), 1, HistoneType.T_ARRAY, LinkedHashMap.class);
             requestMap = (MapEvalNode) args.get(1);
         }
 
-        CompletableFuture<Resource> resourceFuture = resourceLoader.load(path, context.getBaseUri(), requestMap);
+        Map<String, Object> params = getParamsMap(context, requestMap);
+
+        CompletableFuture<Resource> resourceFuture = resourceLoader.load(path, context.getBaseUri(), params);
         return resourceFuture
                 .exceptionally(ex -> {
                     logger.error("Error", ex);
@@ -76,6 +82,18 @@ public class LoadText extends AbstractFunction {
                     String content = readStringFromResource(resource, path, context.getBaseUri());
                     return EvalUtils.createEvalNode(content);
                 });
+    }
+
+    protected Map<String, Object> getParamsMap(Context context, MapEvalNode requestMap) {
+        String json = (String) RttiUtils.callToJSON(context, requestMap).join().getValue();
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<Map<String, Object>> ref = new TypeReference<Map<String, Object>>() {
+        };
+        try {
+            return mapper.readValue(json, ref);
+        } catch (IOException e) {
+            throw new FunctionExecutionException(e.getMessage(), e);
+        }
     }
 
     private String readStringFromResource(Resource resource, String path, String currentBaseURI) throws ResourceLoadException {

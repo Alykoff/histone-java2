@@ -15,9 +15,9 @@
  */
 package ru.histone.v2.evaluator.resource;
 
-import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.ResourceLoadException;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -38,7 +38,7 @@ public interface HistoneResourceLoader {
      * @return resource object
      * @throws ResourceLoadException if errors occur
      */
-    CompletableFuture<Resource> load(String href, String baseHref, MapEvalNode args) throws ResourceLoadException;
+    CompletableFuture<Resource> load(String href, String baseHref, Map<String, Object> args) throws ResourceLoadException;
 
     /**
      * Return full path for specified resource href and base href

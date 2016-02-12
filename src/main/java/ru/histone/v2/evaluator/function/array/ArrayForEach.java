@@ -22,6 +22,7 @@ public class ArrayForEach extends AbstractFunction implements Serializable {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+
         return null;
     }
 }

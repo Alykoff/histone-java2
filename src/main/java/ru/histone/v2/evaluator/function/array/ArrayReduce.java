@@ -34,16 +34,22 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
         if (valuesList.isEmpty()) {
             return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
         }
+
         final int size = args.size();
-        if (size == 1) {
+        final boolean hasMacroFunc = size == 1;
+        if (hasMacroFunc) {
             return CompletableFuture.completedFuture(valuesList.get(0));
         }
+
         final Queue<EvalNode> values = new LinkedList<>();
-        if (size > 2) {
+        final boolean hasMacroBindingsValues = size > 2;
+        if (hasMacroBindingsValues) {
             values.add(args.get(2));
         }
         values.addAll(valuesList);
-        if (values.size() == 1) {
+
+        final boolean isArgsHasOnlyOneElement = values.size() == 1;
+        if (isArgsHasOnlyOneElement) {
             return CompletableFuture.completedFuture(values.poll());
         }
 
@@ -65,6 +71,7 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
         });
     }
 
+    // TODO this is recursion, may be need `while`
     private static CompletableFuture<EvalNode> reduce(
             Context context, MacroEvalNode macro,
             CompletableFuture<Tuple<EvalNode, Queue<EvalNode>>> accTupleFuture

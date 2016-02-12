@@ -226,6 +226,23 @@
         "expectedResult": "100"
       }
     ]
+  },
+  {
+    "name": "array methods -> sort",
+    "cases": [
+      {
+        "input": "{{macro re(prev, curr)}}{{curr}}{{/macro}}{{[1,2,3]->sort()->toJSON}}",
+        "expectedResult": "[\"1\",\"2\",\"3\"]"
+      },
+      {
+        "input": "{{macro re(prev, curr)}}{{curr}}{{/macro}}{{[1,2,3]->sort(1)->toJSON}}",
+        "expectedResult": "[\"1\",\"2\",\"3\"]"
+      },
+      {
+        "input": "{{macro re(prev, curr)}}{{curr}}{{/macro}}{{[1,2,3]->sort(re)->toJSON}}",
+        "expectedResult": "[3,2,1]"
+      }
+    ]
   }
 ]
 

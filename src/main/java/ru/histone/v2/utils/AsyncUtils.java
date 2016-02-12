@@ -17,6 +17,7 @@
 package ru.histone.v2.utils;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +43,17 @@ public class AsyncUtils {
                 futures.stream().
                         map(CompletableFuture::join).
                         collect(Collectors.<T>toList())
+        );
+    }
+    public static <T> CompletableFuture<LinkedList<T>> sequence(LinkedList<CompletableFuture<T>> futures) {
+        CompletableFuture<Void> allDoneFuture =
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+        return allDoneFuture.thenApply(v ->
+                new LinkedList<>(
+                   futures.stream().
+                        map(CompletableFuture::join).
+                        collect(Collectors.<T>toList())
+                )
         );
     }
 

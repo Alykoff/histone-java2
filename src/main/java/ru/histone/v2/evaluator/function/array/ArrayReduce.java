@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 public class ArrayReduce extends AbstractFunction implements Serializable {
     public static final String NAME = "reduce";
     public static final int CALLABLE_LIST_INDEX = 0;
+    public static final int START_BIND_VARS_INDEX = 3;
 
     @Override
     public String getName() {
@@ -53,22 +54,27 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
             return CompletableFuture.completedFuture(values.poll());
         }
 
-        final CompletableFuture<MacroEvalNode> macroNodeFuture = CompletableFuture
-                .completedFuture((MacroEvalNode) args.get(1))
-                .thenCompose(macroNode -> {
-                    if (size < 3) {
-                        return CompletableFuture.completedFuture(macroNode);
-                    }
-                    final List<EvalNode> bindMacroArgs = args.subList(3, args.size());
-                    return RttiUtils.callMacroBind(context, macroNode, bindMacroArgs)
-                            .thenApply(x -> (MacroEvalNode) x);
-                });
+        final CompletableFuture<MacroEvalNode> macroNodeFuture = getMacroWithBindFuture(context, args, START_BIND_VARS_INDEX);
         return macroNodeFuture.thenCompose(macro -> {
             final EvalNode acc = values.poll();
             final CompletableFuture<Tuple<EvalNode, Queue<EvalNode>>> accTuple =
                     CompletableFuture.completedFuture(new Tuple<>(acc, values));
             return reduce(context, macro, accTuple);
         });
+    }
+
+    public static CompletableFuture<MacroEvalNode> getMacroWithBindFuture(Context context, List<EvalNode> args, int startBindIndex) {
+        final int size = args.size();
+        return CompletableFuture
+                .completedFuture((MacroEvalNode) args.get(1))
+                .thenCompose(macroNode -> {
+                    if (size < startBindIndex) {
+                        return CompletableFuture.completedFuture(macroNode);
+                    }
+                    final List<EvalNode> bindMacroArgs = args.subList(startBindIndex, args.size());
+                    return RttiUtils.callMacroBind(context, macroNode, bindMacroArgs)
+                            .thenApply(x -> (MacroEvalNode) x);
+                });
     }
 
     // TODO this is recursion, may be need `while`

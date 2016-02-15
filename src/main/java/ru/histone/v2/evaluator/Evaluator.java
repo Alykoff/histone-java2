@@ -47,6 +47,7 @@ import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
+import static java.util.concurrent.CompletableFuture.*;
 
 /**
  * The main class for evaluating AST tree.
@@ -173,7 +174,7 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processGlobalNode(ExpAstNode expNode, Context context) {
-        return CompletableFuture.completedFuture(new GlobalEvalNode());
+        return completedFuture(new GlobalEvalNode());
     }
 
     private CompletableFuture<EvalNode> processNotNode(ExpAstNode expNode, Context context) {
@@ -188,7 +189,7 @@ public class Evaluator implements Serializable {
         final int bodyIndex = 0;
         final int startVarIndex = 2;
         final Context cloneContext = context.clone();
-        final CompletableFuture<List<AstNode>> astArgsFuture = CompletableFuture.completedFuture(
+        final CompletableFuture<List<AstNode>> astArgsFuture = completedFuture(
                 node.size() < startVarIndex
                         ? Collections.<AstNode>emptyList()
                         : node.getNodes().subList(startVarIndex, node.size())
@@ -427,7 +428,7 @@ public class Evaluator implements Serializable {
 
                 if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
                     ((MapEvalNode) left).append((MapEvalNode) right);
-                    return CompletableFuture.completedFuture(left);
+                    return completedFuture(left);
                 }
             }
 
@@ -546,7 +547,7 @@ public class Evaluator implements Serializable {
     ) {
         final StringEvalNode stringRight = (StringEvalNode) right;
         final StringEvalNode stringLeft = (StringEvalNode) left;
-        return CompletableFuture.completedFuture(
+        return completedFuture(
                 stringNodeComparator.compare(stringLeft, stringRight)
         );
     }
@@ -556,7 +557,7 @@ public class Evaluator implements Serializable {
     ) {
         final Number rightValue = getNumberValue(right);
         final Number leftValue = getNumberValue(left);
-        return CompletableFuture.completedFuture(
+        return completedFuture(
                 NUMBER_COMPARATOR.compare(leftValue, rightValue)
         );
     }
@@ -639,7 +640,7 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processArrayNode(ExpAstNode node, Context context) {
         if (CollectionUtils.isEmpty(node.getNodes())) {
-            return CompletableFuture.completedFuture(new MapEvalNode(new LinkedHashMap<>(0)));
+            return completedFuture(new MapEvalNode(new LinkedHashMap<>(0)));
         }
         if (node.getNode(0).getType() == AstType.AST_VAR) {
             return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EmptyEvalNode.INSTANCE);
@@ -656,7 +657,7 @@ public class Evaluator implements Serializable {
                     return new MapEvalNode(map);
                 });
             } else {
-                return CompletableFuture.completedFuture(new MapEvalNode(new LinkedHashMap<>()));
+                return completedFuture(new MapEvalNode(new LinkedHashMap<>()));
             }
         }
     }
@@ -678,18 +679,18 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> getValueNode(AstNode node) {
         ValueNode valueNode = (ValueNode) node;
         if (valueNode.getValue() == null) {
-            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+            return completedFuture(NullEvalNode.INSTANCE);
         }
 
         Object val = valueNode.getValue();
         if (val instanceof Boolean) {
-            return CompletableFuture.completedFuture(new BooleanEvalNode((Boolean) val));
+            return completedFuture(new BooleanEvalNode((Boolean) val));
         } else if (val instanceof Long) {
-            return CompletableFuture.completedFuture(new LongEvalNode((Long) val));
+            return completedFuture(new LongEvalNode((Long) val));
         } else if (val instanceof Double) {
-            return CompletableFuture.completedFuture(new DoubleEvalNode((Double) val));
+            return completedFuture(new DoubleEvalNode((Double) val));
         }
-        return CompletableFuture.completedFuture(new StringEvalNode(val + ""));
+        return completedFuture(new StringEvalNode(val + ""));
     }
 
     private CompletableFuture<EvalNode> processReferenceNode(ExpAstNode node, Context context) {
@@ -697,7 +698,7 @@ public class Evaluator implements Serializable {
         CompletableFuture<EvalNode> value = getValueFromParentContext(context, valueNode.getValue());
         return value.thenCompose(v -> {
             if (v != null) {
-                return CompletableFuture.completedFuture(v);
+                return completedFuture(v);
             } else {
                 return EmptyEvalNode.FUTURE_INSTANCE;
             }
@@ -757,14 +758,14 @@ public class Evaluator implements Serializable {
                 if (context.isReturned()) {
                     for (EvalNode n : nodes) {
                         if (n.isReturn()) {
-                            return CompletableFuture.completedFuture(new RequireEvalNode(n));
+                            return completedFuture(new RequireEvalNode(n));
                         }
                     }
-                    return CompletableFuture.completedFuture(new RequireEvalNode(ctx));
+                    return completedFuture(new RequireEvalNode(ctx));
                 }
                 for (EvalNode n : nodes) {
                     if (n.isReturn()) {
-                        return CompletableFuture.completedFuture(n);
+                        return completedFuture(n);
                     }
                 }
                 return getEvaluatedString(ctx, f);

@@ -1,5 +1,22 @@
 [
   {
+    "name": "macro - return",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}a{{return 1}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}a{{1}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}",
+        "expectedResult": "\"a1b\""
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}a{{a > b}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}",
+        "expectedResult": "\"afalseb\""
+      }
+    ]
+  },
+  {
     "name": "macro - call",
     "cases": [
       {

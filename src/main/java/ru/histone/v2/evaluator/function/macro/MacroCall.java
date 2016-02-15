@@ -27,6 +27,7 @@ import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,8 +53,10 @@ public class MacroCall extends AbstractFunction implements Serializable {
         return macroNode.getValue();
     }
 
-    protected static CompletableFuture<EvalNode> processMacro(List<EvalNode> args, HistoneMacro histoneMacro,
-                                                              List<Integer> indexesToIgnore) {
+    protected static CompletableFuture<EvalNode> processMacro(
+            List<EvalNode> args, HistoneMacro histoneMacro,
+            List<Integer> indexesToIgnore
+    ) {
         final AstNode body = histoneMacro.getBody();
         final List<String> namesOfVars = histoneMacro.getArgs();
         final Evaluator evaluator = histoneMacro.getEvaluator();
@@ -74,7 +77,13 @@ public class MacroCall extends AbstractFunction implements Serializable {
                     : EmptyEvalNode.INSTANCE;
             currentContext.put(argName, CompletableFuture.completedFuture(param));
         }
-        return evaluator.evaluateNode(body, currentContext);
+        return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
+            if (res.isReturn()) {
+                return CompletableFuture.completedFuture(res);
+            } else {
+                return RttiUtils.callToString(contextInner, res);
+            }
+        });
     }
 
     private static List<EvalNode> getParams(List<EvalNode> args, List<Integer> indexesToIgnore) {
@@ -106,7 +115,9 @@ public class MacroCall extends AbstractFunction implements Serializable {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(
+            Context context, List<EvalNode> args
+    ) throws FunctionExecutionException {
         return staticExecute(context, args);
     }
 }

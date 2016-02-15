@@ -120,10 +120,12 @@ public class ArraySort extends AbstractFunction implements Serializable {
         Entry<String, EvalNode> valueR = right.get(0);
 
         return RttiUtils.callMacro(
-                context, macroNode, valueL.getValue(),
-                valueR.getValue(),
-                new StringEvalNode(valueL.getKey()),
-                new StringEvalNode(valueR.getKey())
+            context,
+            macroNode,
+            valueL.getValue(),
+            valueR.getValue(),
+            new StringEvalNode(valueL.getKey()),
+            new StringEvalNode(valueR.getKey())
         ).thenCompose(macroReturn ->
             RttiUtils.callToBoolean(context, macroReturn)
         ).thenCompose(booleanNodeResult -> {

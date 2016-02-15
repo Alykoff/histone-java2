@@ -288,6 +288,103 @@
         "expectedResult": "[\"-1\",\"1\",\"2\",\"3\"]"
       }
     ]
+  },
+  {
+    "name": "array methods -> slice",
+    "cases": [
+      {
+        "input": "{{[1,2,3,4]->slice(2)->toJSON}}",
+        "expectedResult": "[3,4]"
+      },
+      {
+        "input": "{{range(1,20)->slice(2,-1)->toJSON}}",
+        "expectedResult": "[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]"
+      },
+      {
+        "input": "{{range(1,20)->slice(2,1)->toJSON}}",
+        "expectedResult": "[3]"
+      },
+      {
+        "input": "{{range(1,20)->slice(2,111111)->toJSON}}",
+        "expectedResult": "[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(-1,111111)->toJSON}}",
+        "expectedResult": "[20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(-11,111111)->toJSON}}",
+        "expectedResult": "[10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(0)->toJSON}}",
+        "expectedResult": "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(0)->toJSON}}",
+        "expectedResult": "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(0, 0)->toJSON}}",
+        "expectedResult": "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(2, -1)->toJSON}}",
+        "expectedResult": "[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]"
+      },
+      {
+        "input": "{{range(1,20)->slice(2, 0)->toJSON}}",
+        "expectedResult": "[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice('df')->toJSON}}",
+        "expectedResult": "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(0,'df')->toJSON}}",
+        "expectedResult": "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice('df',0)->toJSON}}",
+        "expectedResult": "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice('df',1)->toJSON}}",
+        "expectedResult": "[1]"
+      },
+      {
+        "input": "{{range(1,20)->slice('df','df')->toJSON}}",
+        "expectedResult": "[1]"
+      },
+      {
+        "input": "{{range(1,20)->slice(-2,5)->toJSON}}",
+        "expectedResult": "[19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice(-2,5)->toJSON}}",
+        "expectedResult": "[19,20]"
+      },
+      {
+        "input": "{{range(1,20)->slice('2',5)->toJSON}}",
+        "expectedResult": "[3,4,5,6,7]"
+      },
+      {
+        "input": "{{range(1,20)->slice('2.0',5)->toJSON}}",
+        "expectedResult": "[3,4,5,6,7]"
+      },
+      {
+        "input": "IS_JS_BUG???{{range(1,20)->slice('2.12',5)->toJSON}}",
+        "expectedResult": "IS_JS_BUG???[1,2,3,4,5]"
+      },
+      {
+        "input": "{{range(1,20)->slice('255',5)->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{range(1,20)->slice(255,5)->toJSON}}",
+        "expectedResult": "[]"
+      }
+    ]
   }
 ]
 

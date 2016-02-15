@@ -36,8 +36,8 @@ public class RttiUtils implements Serializable {
         return context.call(ToBoolean.NAME, Collections.singletonList(node));
     }
 
-    private static CompletableFuture<EvalNode> callMacro(
-            Context context, MacroEvalNode macroNode, List<EvalNode> argsNodes
+    public static CompletableFuture<EvalNode> callMacro(
+            Context context, EvalNode macroNode, List<EvalNode> argsNodes
     ) {
         final List<EvalNode> macroArgs = new ArrayList<>();
         macroArgs.add(macroNode);
@@ -46,7 +46,7 @@ public class RttiUtils implements Serializable {
     }
 
     public static CompletableFuture<EvalNode> callMacro(
-            Context context, MacroEvalNode macroNode, EvalNode... argsNodes
+            Context context, EvalNode macroNode, EvalNode... argsNodes
     ) {
         final List<EvalNode> macroArgs = new ArrayList<>();
         macroArgs.add(macroNode);

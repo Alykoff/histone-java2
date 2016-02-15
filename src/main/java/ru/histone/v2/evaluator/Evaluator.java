@@ -286,12 +286,9 @@ public class Evaluator implements Serializable {
             if (node.getType() == AST_REF) {
                 final String refName = ((StringEvalNode) functionNameNode).getValue();
                 if (context.contains(refName)) {
-                    return context.getValue(refName).thenCompose(rawMacro -> {
-                        final List<EvalNode> callArgs = new ArrayList<>();
-                        callArgs.add(rawMacro);
-                        callArgs.addAll(args);
-                        return context.call(rawMacro, MacroCall.NAME, callArgs);
-                    });
+                    return context.getValue(refName).thenCompose(rawMacro ->
+                            RttiUtils.callMacro(context, rawMacro, args)
+                    );
                 } else {
                     return context.call(refName, args);
                 }

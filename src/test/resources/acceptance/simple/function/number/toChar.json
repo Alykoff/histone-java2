@@ -13,6 +13,22 @@
       {
         "input": "<div>{{48->toChar}} = 0</div>",
         "expectedResult": "<div>0 = 0</div>"
+      },
+      {
+        "input": "a {{65 -> toChar()}} b",
+        "expectedResult": "a A b"
+      },
+      {
+        "input": "a {{65 -> toChar() -> isString()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{65 -> toChar()}} b",
+        "expectedResult": "a A b"
+      },
+      {
+        "input": "a {{65 -> toChar() -> isNumber()}} b",
+        "expectedResult": "a false b"
       }
     ]
   }

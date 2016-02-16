@@ -73,13 +73,9 @@ public class HttpLoader implements Loader {
         String method = getMethod(params);
         MultivaluedMap<String, Object> headers = getHeaders(params);
 
-        MediaType type = MediaType.APPLICATION_FORM_URLENCODED_TYPE;
+        String type = MediaType.APPLICATION_FORM_URLENCODED;
         if (headers != null && headers.containsKey("Content-Type")) {
-            try {
-                type = MediaType.valueOf(String.valueOf("Content-Type"));
-            } catch (IllegalArgumentException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+            type = String.valueOf(headers.get("Content-Type"));
         }
         MultivaluedMap<String, String> data = getData(params.get("data"));
 

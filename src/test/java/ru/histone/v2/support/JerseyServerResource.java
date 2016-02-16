@@ -23,8 +23,12 @@ import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -63,12 +67,23 @@ public class JerseyServerResource {
         );
         res.put("method", request.getMethod());
         res.put("headers", request.getHeaders().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0))));
-        res.put("body", request.readEntity(MultivaluedMap.class));
+        res.put("body", readBody());
 
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(res);
     }
 
+    private Map<String, String> readBody() {
+        MultivaluedMap<String, String> map = request.readEntity(MultivaluedMap.class);
+        if (map == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> res = new HashMap<>(map.size());
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            res.put(entry.getKey(), entry.getValue() != null ? entry.getValue().get(0) : null);
+        }
+        return res;
+    }
 
     @POST
     public String post() throws JsonProcessingException {
@@ -90,9 +105,44 @@ public class JerseyServerResource {
         return getResString();
     }
 
-
     @HEAD
     public String head() throws JsonProcessingException {
         return getResString();
+    }
+
+    @GET
+    @Path("redirect:200")
+    public Response redirectGET() {
+        return Response.temporaryRedirect(URI.create("/")).build();
+    }
+
+    @OPTIONS
+    @Path("redirect:200")
+    public Response redirectOPTIONS() {
+        return Response.temporaryRedirect(URI.create("/")).build();
+    }
+
+    @POST
+    @Path("redirect:200")
+    public Response redirectPOST() {
+        return Response.temporaryRedirect(URI.create("/")).build();
+    }
+
+    @PUT
+    @Path("redirect:200")
+    public Response redirectPUT() {
+        return Response.temporaryRedirect(URI.create("/")).build();
+    }
+
+    @DELETE
+    @Path("redirect:200")
+    public Response redirectDELETE() {
+        return Response.temporaryRedirect(URI.create("/")).build();
+    }
+
+    @HEAD
+    @Path("redirect:200")
+    public Response redirectHEAD() {
+        return Response.temporaryRedirect(URI.create("/")).build();
     }
 }

@@ -65,6 +65,14 @@
       {
         "input": "a {{@ getDayOfWeek('a',3,1) -> isUndefined()}} b",
         "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{@ getDayOfWeek('a',3,1) -> isUndefined() b",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "b"
+        }
       }
     ]
   }

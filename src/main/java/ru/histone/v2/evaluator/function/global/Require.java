@@ -55,6 +55,7 @@ public class Require extends AbstractFunction {
         String url = getValue(args, 0);
 
         String template = getTemplate(url);
+        //todo get parser and evaluator from context
         Parser p = new Parser();
         ExpAstNode root = p.process(template, context.getBaseUri());
         Evaluator evaluator = new Evaluator();

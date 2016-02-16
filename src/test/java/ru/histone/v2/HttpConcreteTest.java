@@ -59,7 +59,7 @@ public class HttpConcreteTest extends JerseyTestNg.ContainerPerMethodTest {
         testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: [b:'foo', a: 'bar']]).headers['content-type']}}  ", rtti, testCase);
+        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: null]).body}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

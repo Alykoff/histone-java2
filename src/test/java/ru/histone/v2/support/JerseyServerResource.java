@@ -22,6 +22,7 @@ import org.glassfish.jersey.server.ContainerRequest;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +62,8 @@ public class JerseyServerResource {
                 .collect(Collectors.joining("&"))
         );
         res.put("method", request.getMethod());
-        res.put("headers", request.getHeaders());
+        res.put("headers", request.getHeaders().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0))));
+        res.put("body", request.readEntity(MultivaluedMap.class));
 
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(res);

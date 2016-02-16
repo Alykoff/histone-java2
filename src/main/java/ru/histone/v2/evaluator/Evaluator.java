@@ -43,11 +43,11 @@ import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
-import static java.util.concurrent.CompletableFuture.*;
 
 /**
  * The main class for evaluating AST tree.
@@ -360,6 +360,7 @@ public class Evaluator implements Serializable {
                             .map(n -> n.getValue() + "")
                             .collect(Collectors.joining())
             );
+            //well, we processed nodes in return expression, so we need to return this result as RETURNED
             if (rNode.isPresent()) {
                 return result.getReturned();
             }

@@ -21,6 +21,8 @@ import org.glassfish.jersey.client.rx.RxWebTarget;
 import org.glassfish.jersey.client.rx.java8.RxCompletionStage;
 import org.glassfish.jersey.client.rx.java8.RxCompletionStageInvoker;
 import org.glassfish.jersey.message.internal.FormMultivaluedMapProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
@@ -35,12 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
 
 /**
  * @author alexey.nevinsky
  */
 public class HttpLoader implements Loader {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpLoader.class);
 
     private static final String[] PROHIBITED_HEADERS = {"accept-charset", "accept-encoding", "access-control-request-headers",
             "access-control-request-method", "connection", "content-length", "cookie", "cookie2",
@@ -72,12 +75,24 @@ public class HttpLoader implements Loader {
 
         MediaType type = MediaType.APPLICATION_FORM_URLENCODED_TYPE;
         if (headers != null && headers.containsKey("Content-Type")) {
-            type = MediaType.valueOf(String.valueOf(headers.containsKey("Content-Type")));
+            try {
+                type = MediaType.valueOf(String.valueOf("Content-Type"));
+            } catch (IllegalArgumentException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
-        Entity entity = Entity.entity(params.get("data"), type);
+        MultivaluedMap<String, String> data = getData(params.get("data"));
+
+        Entity entity = null;
+        if ("GET".equals(method) || "DELETE".equals(method) || "OPTIONS".equals(method)) {
+            for (Map.Entry<String, List<String>> entry : data.entrySet()) {
+                webTarget = webTarget.queryParam(entry.getKey(), entry.getValue().get(0));
+            }
+        } else {
+            entity = Entity.entity(data, type);
+        }
 
         return (CompletableFuture<T>) webTarget
-
                 .request()
                 .headers(headers)
                 .rx()
@@ -99,54 +114,40 @@ public class HttpLoader implements Loader {
         if (!params.containsKey("headers")) {
             return null;
         }
+
+        Map<String, Object> headerMap = (Map<String, Object>) params.get("headers");
+
         MultivaluedMap<String, Object> res = new MultivaluedHashMap<>();
-        ((Map<String, Object>) params.get("headers")).forEach(res::putSingle);
+        headerMap.entrySet().stream()
+                .filter(e -> {
+                    String name = e.getKey().toLowerCase();
+                    return e.getValue() != null
+                            && name.indexOf("sec-") != 0
+                            && name.indexOf("proxy-") != 0
+                            && !Arrays.asList(PROHIBITED_HEADERS).contains(name);
+                })
+                .forEach(e -> res.putSingle(e.getKey(), e.getValue()));
         return res;
     }
-//        URI newLocation = URI.create(location.toString().replace("#fragment", ""));
-//
-//        StringEvalNode methodNode = (StringEvalNode) args.getProperty("method");
-//        final String method = methodNode != null ? methodNode.getValue() : "GET";
-//
-//        final Map<String, String> headers = new HashMap<>();
-////        if (args.getProperty("headers") != null) {
-////            for (Map.Entry<Object, Node> en : requestMap.get("headers").getAsObject().getElements().entrySet()) {
-////                String value = null;
-////                if (en.getValue().isUndefined())
-////                    value = "undefined";
-////                else
-////                    value = en.getValue().getAsString().getValue();
-////                headers.put(en.getKey().toString(), value);
-////            }
-////        }
-//
-//        final Map<String, String> filteredHeaders = filterRequestHeaders(headers);
-//        final EvalNode data = args.getProperty("data") != null ? args.getProperty("data") : null;
-//
-//        // Prepare request
-//        HttpRequestBase request = new HttpGet(newLocation);
-//        if ("POST".equalsIgnoreCase(method)) {
-//            request = new HttpPost(newLocation);
-//        } else if ("PUT".equalsIgnoreCase(method)) {
-//            request = new HttpPut(newLocation);
-//        } else if ("DELETE".equalsIgnoreCase(method)) {
-//            request = new HttpDelete(newLocation);
-//        } else if ("TRACE".equalsIgnoreCase(method)) {
-//            request = new HttpTrace(newLocation);
-//        } else if ("OPTIONS".equalsIgnoreCase(method)) {
-//            request = new HttpOptions(newLocation);
-//        } else if ("PATCH".equalsIgnoreCase(method)) {
-//            request = new HttpPatch(newLocation);
-//        } else if ("HEAD".equalsIgnoreCase(method)) {
-//            request = new HttpHead(newLocation);
-//        } else if (method != null && !"GET".equalsIgnoreCase(method)) {
-//            Resource res = new HistoneStreamResource(null, location.toString(), ContentType.TEXT.getId());
-//            return CompletableFuture.completedFuture(res);
-//        }
-//
-//        for (Map.Entry<String, String> en : filteredHeaders.entrySet()) {
-//            request.setHeader(en.getKey(), en.getValue());
-//        }
+
+    private MultivaluedMap<String, String> getData(Object data) {
+        MultivaluedMap<String, String> res = new MultivaluedHashMap<>();
+        if (data != null) {
+            if (data instanceof List) {
+                int i = 0;
+                for (Object obj : ((List) data)) {
+                    res.putSingle(i++ + "", String.valueOf(obj));
+                }
+            } else if (data instanceof Map) {
+                for (Map.Entry<String, Object> entry : ((Map<String, Object>) data).entrySet()) {
+                    res.putSingle(entry.getKey(), String.valueOf(entry.getValue()));
+                }
+            } else {
+                res.putSingle("0", String.valueOf(data));
+            }
+        }
+        return res;
+    }
 //
 //        if (("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) && data != null) {
 //            String contentType = filteredHeaders.get("content-type") == null ? "" : filteredHeaders.get("content-type");
@@ -297,17 +298,5 @@ public class HttpLoader implements Loader {
 
         client.register(FormMultivaluedMapProvider.class);
         return client;
-    }
-
-    private Map<String, String> filterRequestHeaders(Map<String, String> requestHeaders) {
-        return requestHeaders.entrySet().stream()
-                .filter(e -> {
-                    String name = e.getKey().toLowerCase();
-                    return e.getValue() != null
-                            && name.indexOf("sec-") != 0
-                            && name.indexOf("proxy-") != 0
-                            && !Arrays.asList(PROHIBITED_HEADERS).contains(name);
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

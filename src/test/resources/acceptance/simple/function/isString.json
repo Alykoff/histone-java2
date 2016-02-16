@@ -19,6 +19,18 @@
         "expectedResult": "<div>false = false</div>"
       },
       {
+        "input": "<div>{{undefined->isString}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{macro re(a)}}a{{/macro}}{{re->isString}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{(-1)->isString}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
         "input": "<div>{{[1, 2, 3]->isString}} = false</div>",
         "expectedResult": "<div>false = false</div>"
       }

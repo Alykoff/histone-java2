@@ -65,6 +65,18 @@
       {
         "input": "a {{[\"foo\": \"bar\"] -> isNull()}} b",
         "expectedResult": "a false b"
+      },
+      {
+        "input": "<div>{{null->isNull}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{UNDEFINED_VALUE->isNull}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{'STRIIING'->isNull}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
       }
     ]
   }

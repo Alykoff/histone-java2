@@ -65,6 +65,14 @@
       {
         "input": "a {{[\"foo\": \"bar\"] -> isUndefined()}} b",
         "expectedResult": "a false b"
+      },
+      {
+        "input": "<div>{{UNDEFINED_VALUE->isUndefined}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{'SOME_STRING'->isUndefined}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
       }
     ]
   }

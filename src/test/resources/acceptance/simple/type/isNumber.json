@@ -69,6 +69,26 @@
       {
         "input": "a {{[\"foo\": \"bar\"] -> isNumber()}} b",
         "expectedResult": "a false b"
+      },
+      {
+        "input": "<div>{{10->isNumber}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{.23->isNumber}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{0->isNumber}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{true->isNumber}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{'fsfsffsfsfs'->isNumber}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
       }
     ]
   }

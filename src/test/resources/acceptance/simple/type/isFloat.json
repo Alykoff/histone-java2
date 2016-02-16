@@ -13,6 +13,18 @@
       {
         "input": "a {{(-3.33) -> isFloat()}} b",
         "expectedResult": "a true b"
+      },
+      {
+        "input": "<div>{{10.3->isFloat}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{42->isFloat}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{14.0->isFloat}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
       }
     ]
   }

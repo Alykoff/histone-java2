@@ -31,10 +31,6 @@ import java.util.stream.Collectors;
  * Created by inv3r on 14/01/16.
  */
 public class EvalUtils {
-    public static boolean equalityNode(EvalNode node1, EvalNode node2) {
-        return ObjectUtils.equals(node1.getValue(), node2.getValue());
-    }
-
     public static boolean nodeAsBoolean(EvalNode node) {
         if (node instanceof NullEvalNode) {
             return false;
@@ -60,7 +56,7 @@ public class EvalUtils {
         }
         if (node instanceof DoubleEvalNode) {
             final Double value = ((DoubleEvalNode) node).getValue();
-            if (value % 1 == 0 && value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
+            if (isInteger(value)) {
                 return Optional.of(value).map(Double::intValue);
             } else {
                 return Optional.empty();
@@ -71,13 +67,24 @@ public class EvalUtils {
         } else if (node instanceof StringEvalNode) {
             try {
                 final double value = Double.parseDouble(((StringEvalNode) node).getValue());
-                return Optional.ofNullable(value).map(Double::intValue);
+                if (isInteger(value)) {
+                    return Optional.of(value).map(Double::intValue);
+                } else {
+                    return Optional.empty();
+                }
             } catch (NumberFormatException e) {
                 return Optional.empty();
             }
         } else {
             return Optional.empty();
         }
+    }
+
+    public static boolean isInteger(Double value) {
+        return value != null
+                && value % 1 == 0
+                && value >= Integer.MIN_VALUE
+                && value <= Integer.MAX_VALUE;
     }
 
     public static Number getNumberValue(EvalNode node) {

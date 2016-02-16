@@ -60,8 +60,12 @@ public class ArraySlice extends AbstractFunction implements Serializable {
         if (length <= 0) {
             return CompletableFuture.completedFuture(new MapEvalNode(Collections.emptyList()));
         }
+        int end = offset + length;
+        if (end > arrayLen) {
+            end = arrayLen;
+        }
 
-        final MapEvalNode result = new MapEvalNode(values.subList(offset, offset + length));
+        final MapEvalNode result = new MapEvalNode(values.subList(offset, end));
         return CompletableFuture.completedFuture(result);
     }
 }

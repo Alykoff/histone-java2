@@ -482,6 +482,48 @@
         "expectedResult": "2"
       }
     ]
+  },
+
+  {
+    "name": "array methods -> find",
+    "cases": [
+      {
+        "input": "{{macro re(v)}}{{return v < 0}}{{/macro}}{{[1,22,3,-4,5,6]->find(re)}}",
+        "expectedResult": "-4"
+      },
+      {
+        "input": "{{macro re(v)}}{{return v > 0}}{{/macro}}{{[1,22,3,-4,5,6]->find(re)}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{macro re(v)}}{{v > 0}}{{/macro}}{{[1,22,3,-4,5,6]->find(re)}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{macro re(v)}}{{v < 0}}{{/macro}}{{[1,22,3,-4,5,6]->find(re)}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{macro re(r, v)}}{{return v > r}}{{/macro}}{{[1,2,3,-4,22,5,6]->find(re, 19)->toJSON}}",
+        "expectedResult": "22"
+      },
+      {
+        "input": "{{macro re(r, v)}}{{return v > r}}{{/macro}}{{[1,2,3,-4,22,5,6]->find(re, 2)->toJSON}}",
+        "expectedResult": "3"
+      },
+      {
+        "input": "{{[1,22,3,-4,5,6]->find()}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{[1,22,3,-4,5,6]->find(1)}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{[1,22,3,-4,5,6]->find(addada)}}",
+        "expectedResult": "null"
+      }
+    ]
   }
 ]
 

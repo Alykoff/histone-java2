@@ -410,6 +410,14 @@
         "expectedResult": "[1,2,3,4]"
       },
       {
+        "input": "{{[1:1,2,3,4]->toJSON}}",
+        "expectedResult": "{\"1\":1,\"2\":2,\"3\":3,\"4\":4}"
+      },
+      {
+        "input": "{{[1:1,5:2,3,4]->toJSON}}",
+        "expectedResult": "{\"1\":1,\"5\":2,\"6\":3,\"7\":4}"
+      },
+      {
         "input": "{{[1,2,3,4][-1]->toJSON}}",
         "expectedResult": "null"
       },

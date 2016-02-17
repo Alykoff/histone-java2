@@ -304,7 +304,6 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) {
         // [KEY_NODE, VAR_NODE, [CONDITIONS_NODES, BODIES_NODES, ...], LIST_NODES]
         final List<AstNode> nodes = expNode.getNodes();
-        System.out.println(ParserUtils.astToString(expNode));
         final AstNode iterator = nodes.get(3);
         return evaluateNode(iterator, context).thenCompose(objToIterate -> {
             if (!(objToIterate instanceof MapEvalNode)) {

@@ -261,14 +261,12 @@ public class Parser {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
             } else {
-                node
-                        .add(new StringAstNode(null)) //add null as key name
-                        .add(new StringAstNode(id.firstValue())); //add value name
+                node.add(new StringAstNode(null)) //add null as key name
+                    .add(new StringAstNode(id.firstValue())); //add value name
             }
         } else {
-            node
-                    .add(new StringAstNode(null)) //add 'null' as key name
-                    .add(new StringAstNode(null));//add 'null' as value name
+            node.add(new StringAstNode(null)) //add 'null' as key name
+                .add(new StringAstNode(null));//add 'null' as value name
         }
 
         if (!next(wrapper, T_IN)) {
@@ -280,7 +278,7 @@ public class Parser {
             if (!next(wrapper, T_BLOCK_END)) {
                 throw buildUnexpectedTokenException(wrapper, "}}");
             }
-            node.add(node2, getNodeList(wrapper));
+            node.add(getNodeList(wrapper), node2);
         } while (next(wrapper, T_ELSEIF));
 
         if (next(wrapper, T_ELSE)) {

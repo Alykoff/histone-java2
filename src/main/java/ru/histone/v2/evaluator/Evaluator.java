@@ -31,6 +31,7 @@ import ru.histone.v2.evaluator.global.StringEvalNodeStrongComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
@@ -301,8 +302,11 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) {
-        CompletableFuture<EvalNode> objToIterateFuture = evaluateNode(expNode.getNode(2), context);
-        return objToIterateFuture.thenCompose(objToIterate -> {
+        // [KEY_NODE, VAR_NODE, [CONDITIONS_NODES, BODIES_NODES, ...], LIST_NODES]
+        final List<AstNode> nodes = expNode.getNodes();
+        System.out.println(ParserUtils.astToString(expNode));
+        final AstNode iterator = nodes.get(3);
+        return evaluateNode(iterator, context).thenCompose(objToIterate -> {
             if (!(objToIterate instanceof MapEvalNode)) {
                 return processNonMapValue(expNode, context);
             } else {
@@ -312,24 +316,24 @@ public class Evaluator implements Serializable {
     }
 
     private CompletionStage<EvalNode> processNonMapValue(ExpAstNode expNode, Context context) {
-        if (expNode.size() == 4) {
+        if (expNode.size() == 3) {
             return EmptyEvalNode.FUTURE_INSTANCE;
         }
-        int i = 0;
-        ExpAstNode expressionNode = expNode.getNode(i + 4);
-        ExpAstNode bodyNode = expNode.getNode(i + 5);
-        while (bodyNode != null) {
+        int i = 4;
+        AstNode expressionNode = expNode.getNode(i + 1);
+        AstNode bodyNode = expNode.getNode(i);
+        while (expressionNode != null) {
             CompletableFuture<EvalNode> conditionFuture = evaluateNode(expressionNode, context);
             EvalNode conditionNode = conditionFuture.join();
             if (nodeAsBoolean(conditionNode)) {
                 return evaluateNode(bodyNode, context);
             }
-            i++;
-            expressionNode = expNode.getNode(i + 4);
-            bodyNode = expNode.getNode(i + 5);
+            i += 2;
+            expressionNode = expNode.getNode(i + 1);
+            bodyNode = expNode.getNode(i);
         }
-        if (expressionNode != null) {
-            return evaluateNode(expressionNode, context);
+        if (bodyNode != null) {
+            return evaluateNode(bodyNode, context);
         }
 
         return EmptyEvalNode.FUTURE_INSTANCE;
@@ -338,12 +342,17 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processMapValue(ExpAstNode expNode, Context context, MapEvalNode objToIterate) {
         CompletableFuture<EvalNode> keyVarName = evaluateNode(expNode.getNode(0), context);
         CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
-
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(keyVarName, valueVarName);
-        return leftRightDone.thenCompose(keyValueNames -> {
-            CompletableFuture<List<EvalNode>> res = iterate(expNode, context, objToIterate, keyValueNames.get(0), keyValueNames.get(1));
-            return getEvaluatedString(context, res);
-        });
+        CompletableFuture<List<EvalNode>> res =  leftRightDone.thenCompose(keyValueNames ->
+            iterate(
+                expNode,
+                context,
+                objToIterate,
+                keyValueNames.get(0),
+                keyValueNames.get(1)
+            )
+        );
+        return getEvaluatedString(context, res);
     }
 
     private CompletableFuture<EvalNode> getEvaluatedString(Context context, CompletableFuture<List<EvalNode>> res) {
@@ -365,25 +374,24 @@ public class Evaluator implements Serializable {
                 return result.getReturned();
             }
             return result;
-
         });
     }
 
-    private CompletableFuture<List<EvalNode>> iterate(ExpAstNode expNode, Context context, MapEvalNode
-            objToIterate, EvalNode keyVarName, EvalNode valueVarName) {
-        List<CompletableFuture<EvalNode>> futures = new ArrayList<>(objToIterate.getValue().size());
+    private CompletableFuture<List<EvalNode>> iterate(
+            ExpAstNode expNode, Context context, MapEvalNode
+            objToIterate, EvalNode keyVarName, EvalNode valueVarName
+    ) {
+        final Map<String, EvalNode> value = objToIterate.getValue();
+        final List<CompletableFuture<EvalNode>> futures = new ArrayList<>(value.size());
         int i = 0;
-        for (Map.Entry<String, EvalNode> entry : objToIterate.getValue().entrySet()) {
-            Context iterableContext = getIterableContext(context, objToIterate, keyVarName, valueVarName, i, entry);
-            futures.add(evaluateNode(expNode.getNode(3), iterableContext));
+        for (Map.Entry<String, EvalNode> entry : value.entrySet()) {
+            Context iterableContext = getIterableContext(
+                    context, objToIterate, keyVarName, valueVarName, i, entry
+            );
+            futures.add(evaluateNode(expNode.getNode(2), iterableContext));
             i++;
         }
-        return CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[futures.size()]))
-                .thenApply(v -> futures.stream()
-                        .map(CompletableFuture::join)
-                        .collect(Collectors.toList())
-                );
+        return AsyncUtils.sequence(futures);
     }
 
     private Context getIterableContext(Context context, MapEvalNode objToIterate, EvalNode keyVarName, EvalNode valueVarName, int i, Map.Entry<String, EvalNode> entry) {
@@ -780,19 +788,19 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processIfNode(ExpAstNode node, Context context) {
+        // [CONDITIONS...,]
         CompletableFuture<EvalNode> conditionFuture = evaluateNode(node.getNode(1), context);
 
-        return conditionFuture
-                .thenCompose(condNode -> {
-                    Context current = context.createNew();
-                    CompletableFuture<EvalNode> result;
-                    if (nodeAsBoolean(condNode)) {
-                        result = evaluateNode(node.getNode(0), current);
-                    } else {
-                        result = evaluateNode(node.getNode(2), current);
-                    }
-                    return result;
-                });
+        return conditionFuture.thenCompose(condNode -> {
+            Context current = context.createNew();
+            CompletableFuture<EvalNode> result;
+            if (nodeAsBoolean(condNode)) {
+                result = evaluateNode(node.getNode(0), current);
+            } else {
+                result = evaluateNode(node.getNode(2), current);
+            }
+            return result;
+        });
     }
 
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {

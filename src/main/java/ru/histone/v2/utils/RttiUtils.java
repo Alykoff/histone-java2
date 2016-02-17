@@ -10,6 +10,7 @@ import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
+import ru.histone.v2.evaluator.node.StringEvalNode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,6 +24,10 @@ import java.util.concurrent.CompletableFuture;
 public class RttiUtils implements Serializable {
     public static CompletableFuture<EvalNode> callToString(Context context, EvalNode node) {
         return context.call(ToString.NAME, Collections.singletonList(node));
+    }
+    public static CompletableFuture<String> callToStringResult(Context context, EvalNode node) {
+        return context.call(ToString.NAME, Collections.singletonList(node))
+                .thenApply(n -> ((StringEvalNode) n).getValue());
     }
 
     public static CompletableFuture<EvalNode> callToJSON(Context context, EvalNode node) {

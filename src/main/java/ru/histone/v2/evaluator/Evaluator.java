@@ -302,7 +302,7 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) {
-        // [KEY_NODE, VAR_NODE, [CONDITIONS_NODES, BODIES_NODES, ...], LIST_NODES]
+        // [KEY_NODE, VAR_NODE, LIST_NODES, [CONDITIONS_NODES, BODIES_NODES, ...], [ELSE_BODIES_NODE]]
         final List<AstNode> nodes = expNode.getNodes();
         final AstNode iterator = nodes.get(3);
         return evaluateNode(iterator, context).thenCompose(objToIterate -> {
@@ -787,19 +787,27 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processIfNode(ExpAstNode node, Context context) {
-        // [CONDITIONS...,]
-        CompletableFuture<EvalNode> conditionFuture = evaluateNode(node.getNode(1), context);
+        // [[BODY, CONDITIONS...], [ELSE_BODY]]
+        final int initStep = 0;
+        return processIfNodeHelper(node, context, initStep);
+    }
 
-        return conditionFuture.thenCompose(condNode -> {
-            Context current = context.createNew();
-            CompletableFuture<EvalNode> result;
-            if (nodeAsBoolean(condNode)) {
-                result = evaluateNode(node.getNode(0), current);
-            } else {
-                result = evaluateNode(node.getNode(2), current);
-            }
-            return result;
-        });
+    private CompletableFuture<EvalNode> processIfNodeHelper(ExpAstNode node, Context context, int i) {
+        final AstNode bodyNode = node.getNode(i);
+        final AstNode conditionNode = node.getNode(i + 1);
+        if (conditionNode == null) {
+            return evaluateNode(bodyNode, context.createNew());
+        }
+
+        return evaluateNode(conditionNode, context).thenCompose(condNode ->
+            RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
+                if (predicate) {
+                    return evaluateNode(bodyNode, context.createNew());
+                } else {
+                    return processIfNodeHelper(node, context, i + 2);
+                }
+            })
+        );
     }
 
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {

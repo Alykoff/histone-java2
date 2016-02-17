@@ -564,8 +564,8 @@
         "expectedResult": "{\"\":[1,2,-4,5,6],\"false\":[16],\"true\":[22]}"
       },
       {
-        "input": "{{for x in [1,2,3,4,5,6,7,8,9,10]}}{{if x > 7}}{{true}} {{elseif false}}{{x > 5}} {{else}}{{\"ha\"}} {{/if}}{{/for}}",
-        "expectedResult": "ha ha ha ha ha false false true true true"
+        "input": "{{for x in [1,2,3,4,5,6,7,8,9,10]}}{{if x > 7}}{{true}} {{elseif x > 5}}{{false}} {{else}}{{\"ha\"}} {{/if}}{{/for}}",
+        "expectedResult": "ha ha ha ha ha false false true true true "
       }
     ]
   }

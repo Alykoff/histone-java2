@@ -20,20 +20,38 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.histone.HistoneException;
-import ru.histone.v2.test.TestRunner;
-import ru.histone.v2.test.dto.HistoneTestCase;
+import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
+import ru.histone.v2.evaluator.resource.loader.DataLoader;
+import ru.histone.v2.evaluator.resource.loader.FileLoader;
+import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
+import ru.histone.v2.support.HistoneTestCase;
+import ru.histone.v2.support.TestRunner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by alexey.nevinsky on 25.12.2015.
  */
 @RunWith(Parameterized.class)
-public class EvaluatorTest extends BaseTest {
+public class EvaluatorTest {
+
+    private static final ExecutorService executor = Executors.newFixedThreadPool(20);
+    private static final RunTimeTypeInfo rtti;
+
+    static {
+        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
+        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
+        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
+        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        rtti = new RunTimeTypeInfo(executor, loader);
+    }
 
     private String input;
     private HistoneTestCase.Case expected;
@@ -48,7 +66,7 @@ public class EvaluatorTest extends BaseTest {
     @Parameterized.Parameters(name = " {0}: {2}[{1}] `{3}` ")
     public static Collection<Object[]> data() throws IOException, URISyntaxException {
         final List<Object[]> result = new ArrayList<>();
-        final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCases();
+        final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCases("simple");
         int i = 1;
         for (HistoneTestCase histoneTestCase : histoneTestCases) {
             System.out.println("Run test '" + histoneTestCase.getName() + "'");
@@ -64,6 +82,6 @@ public class EvaluatorTest extends BaseTest {
 
     @Test
     public void test() throws HistoneException {
-        doTest(input, expected);
+        TestRunner.doTest(input, rtti, expected);
     }
 }

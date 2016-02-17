@@ -16,37 +16,28 @@
 
 package ru.histone.v2.evaluator.function.any;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.Function;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
+import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 28/01/16.
+ * @author alexey.nevinsky
  */
-public class IsUndefined implements Function {
+public class IsUndefined extends AbstractFunction {
     @Override
     public String getName() {
         return "isUndefined";
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
-        boolean res = args.get(0) instanceof EmptyEvalNode;
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        boolean res = args.get(0).getType() == HistoneType.T_UNDEFINED;
         return EvalUtils.getValue(res);
-    }
-
-    @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public boolean isClear() {
-        return false;
     }
 }

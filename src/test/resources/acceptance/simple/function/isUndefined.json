@@ -1,0 +1,79 @@
+[
+  {
+    "name": "type -> isUndefined",
+    "cases": [
+      {
+        "input": "a {{undefined -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{null -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{true -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{false -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{\"string\" -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123 -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123.8 -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{.123 -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{0.123 -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123E-3 -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-123.8) -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-.123) -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-0.123) -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-123E-3) -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{[1, 2, 3] -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{[\"foo\": \"bar\"] -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "<div>{{UNDEFINED_VALUE->isUndefined}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{'SOME_STRING'->isUndefined}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      }
+    ]
+  }
+]

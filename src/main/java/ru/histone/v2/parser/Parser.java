@@ -37,7 +37,12 @@ import static ru.histone.tokenizer.Tokens.*;
 import static ru.histone.v2.parser.node.AstType.*;
 
 /**
- * Created by alexey.nevinsky on 24.12.2015.
+ * Class used for validate and create AST tree from histone template. It doesn't have a state, so it you can create
+ * only one instance.
+ * Parser using {@link Tokenizer} for getting tokens from input string.
+ *
+ * @author alexey.nevinsky
+ * @author gali.alykoff
  */
 public class Parser {
     public static final String IDENTIFIER = "IDENTIFIER";
@@ -47,7 +52,7 @@ public class Parser {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
         ExpAstNode result = getNodeList(wrapper);
-        if (!wrapper.next(T_EOF).isFound())
+        if (!next(wrapper, T_EOF))
             throw buildUnexpectedTokenException(wrapper, "EOF");
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
@@ -114,8 +119,8 @@ public class Parser {
             result = getMacroStatement(wrapper);
         } else if (next(wrapper, T_RETURN)) {
             result = getReturnStatement(wrapper);
-        } else if (next(wrapper, T_SUPRESS)) {
-            result = getSupressStatement(wrapper);
+        } else if (next(wrapper, T_SUPPRESS)) {
+            result = getSuppressStatement(wrapper);
         } else if (next(wrapper, T_LISTEN)) {
             result = getListenStatement(wrapper, AST_LISTEN);
         } else if (next(wrapper, T_TRIGGER)) {
@@ -145,8 +150,12 @@ public class Parser {
         throw new NotImplementedException();
     }
 
-    private ExpAstNode getSupressStatement(TokenizerWrapper wrapper) {
-        throw new NotImplementedException();
+    private ExpAstNode getSuppressStatement(TokenizerWrapper wrapper) {
+        final ExpAstNode result = new ExpAstNode(AST_SUPPRESS, getExpression(wrapper));
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
+        }
+        return result;
     }
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) throws ParserException {
@@ -233,7 +242,7 @@ public class Parser {
                 }
             }
         }
-        if (nested && next(wrapper, T_BLOCK_END)) {
+        if (nested && !next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
         return res;
@@ -534,7 +543,6 @@ public class Parser {
             } else if (next(wrapper, T_SLASH)) {
                 node = new ExpAstNode(AST_DIV);
             } else if (next(wrapper, T_MOD)) {
-                ;// we needed to read next token from buffer for right work
                 node = new ExpAstNode(AST_MOD);
             } else {
                 break;
@@ -627,7 +635,7 @@ public class Parser {
         } else if (test(wrapper, T_HEX)) {
             return new LongAstNode(Long.parseLong(wrapper.next().first().getValue().substring(2), 16));
         } else if (test(wrapper, T_FLOAT)) {
-            return new FloatAstNode(Float.parseFloat(wrapper.next().first().getValue()));
+            return new DoubleAstNode(Double.parseDouble(wrapper.next().first().getValue()));
         } else if (test(wrapper, T_REF)) {
             return new ExpAstNode(AST_REF)
                     .add(new StringAstNode(wrapper.next().first().getValue()));
@@ -646,6 +654,7 @@ public class Parser {
         do {
             while (next(wrapper, T_COMMA)) ;
             if (next(wrapper, T_RBRACKET)) {
+                fillNodeFromMap(result, map);
                 return result;
             }
             final TokenizerResult tokenRes = wrapper.next(T_PROP.getId(), T_COLON.getId());
@@ -668,7 +677,7 @@ public class Parser {
                     if (ParserUtils.isStrongString(val) && ParserUtils.isInt((String) val)) {
                         mapKey = Integer.valueOf((String) val); //todo check this
                     }
-                    Optional<Float> floatVal = ParserUtils.tryFloat(val);
+                    Optional<Double> floatVal = ParserUtils.tryDouble(val);
                     if (floatVal.isPresent()) {
                         int intValue = floatVal.get().intValue();
                         if (intValue < counter) {
@@ -688,16 +697,21 @@ public class Parser {
         if (!next(wrapper, T_RBRACKET)) {
             throw buildUnexpectedTokenException(wrapper, "]");
         }
-        for (Map.Entry<String, AstNode> entry : map.entrySet()) {
-            result.add(new StringAstNode(entry.getKey()))
-                    .add(entry.getValue());
-        }
+        fillNodeFromMap(result, map);
 
         return result;
     }
 
+    private void fillNodeFromMap(ExpAstNode result, Map<String, AstNode> map) {
+        for (Map.Entry<String, AstNode> entry : map.entrySet()) {
+            result.add(new StringAstNode(entry.getKey()))
+                    .add(entry.getValue());
+        }
+    }
+
     private StringAstNode getStringLiteral(TokenizerWrapper wrapper) throws ParserException {
         String start = wrapper.next().first().getValue();
+        wrapper = new TokenizerWrapper(wrapper);
         TokenizerResult fragment;
         final StringBuilder builder = new StringBuilder();
         while ((fragment = wrapper.next()).isFound()) {
@@ -707,8 +721,7 @@ public class Parser {
             if (StringUtils.equals(fragment.first().getValue(), start)) {
                 break;
             } else if (StringUtils.equals(fragment.first().getValue(), "\\")) {
-                builder.append("\\")
-                        .append(wrapper.next().first().getValue());
+                builder.append("\\").append(wrapper.next().first().getValue());
             } else {
                 builder.append(fragment.first().getValue());
             }
@@ -719,7 +732,7 @@ public class Parser {
     private StringAstNode getLiteralStatement(TokenizerWrapper wrapper) throws ParserException {
         wrapper = new TokenizerWrapper(wrapper);
         final StringBuilder builder = new StringBuilder("");
-        while (wrapper.test(T_EOF.getId(), T_LITERAL_END.getId()) == null) {
+        while (!test(wrapper, T_EOF) && !test(wrapper, T_LITERAL_END)) {
             builder.append(wrapper.next().first().getValue());
         }
         if (!next(wrapper, T_LITERAL_END)) {

@@ -1,0 +1,139 @@
+[
+  {
+    "name": "type -> toBoolean",
+    "cases": [
+      {
+        "input": "a {{undefined -> toBoolean()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{null -> toBoolean()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{[] -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{[1, 2, 3] -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{[foo: 'bar'] -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{'' -> toBoolean()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{'foo' -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{' ' -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{true -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{false -> toBoolean()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-10) -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{0 -> toBoolean()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{10 -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-10.3) -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{10.3 -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{0.00000001 -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-0.00000001) -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{10E3 -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{10E+3 -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{10E-3 -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-10E3) -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-10E+3) -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-10E-3) -> toBoolean()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "<div>{{UNDEFINED_VALUE->toBoolean}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{'NOT_EMPTY_STRING'->toBoolean}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{''->toBoolean}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{null->toBoolean}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{true->toBoolean}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{false->toBoolean}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{123->toBoolean}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{0->toBoolean}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{0.00001->toBoolean}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{(-42)->toBoolean}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      }
+    ]
+  }
+]

@@ -17,20 +17,37 @@
 package ru.histone.v2.evaluator.node;
 
 import ru.histone.HistoneException;
+import ru.histone.v2.rtti.HistoneType;
 
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Created by inv3r on 19/01/16.
+ * @author alexey.nevinsky
  */
-public class MapEvalNode extends EvalNode<Map<String, Object>> {
-    public MapEvalNode(Map<String, Object> value) {
+public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasProperties, Serializable {
+
+    public MapEvalNode(List<EvalNode> values) {
+        super(new LinkedHashMap<>());
+        for (int i = 0; i < values.size(); i++) {
+            this.value.put(i + "", values.get(i));
+        }
+    }
+
+    public MapEvalNode(Map<String, EvalNode> value) {
         super(value);
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_ARRAY;
     }
 
     public void append(MapEvalNode node) {
         int maxIndex = getMaxIndex();
-        for (Map.Entry<String, Object> entry : node.getValue().entrySet()) {
+        for (Map.Entry<String, EvalNode> entry : node.getValue().entrySet()) {
             if (convertToIndex(entry.getKey()) != null) {
                 value.put(++maxIndex + "", entry.getValue());
             } else {
@@ -58,20 +75,23 @@ public class MapEvalNode extends EvalNode<Map<String, Object>> {
         }
     }
 
-    public Object getProperty(String propertyName) throws HistoneException {
-        String[] propArray = propertyName.split("\\.");
-
-        Object v = value;
-        Object curr = null;
-        for (String str : propArray) {
-            if (v instanceof Map) {
-                curr = ((Map<String, Object>) v).get(str);
-            } else {
-                throw new HistoneException("Unable to find property '" + str + "'");
+    @Override
+    public EvalNode getProperty(Object propertyName) throws HistoneException {
+        if (propertyName instanceof String) {
+            final String[] propArray = ((String) propertyName).split("\\.");
+            EvalNode curr = this;
+            for (String str : propArray) {
+                if (curr instanceof MapEvalNode) {
+                    curr = ((MapEvalNode) curr).value.get(str);
+                } else {
+                    throw new HistoneException("Unable to find property '" + str + "'");
+                }
             }
-        }
 
-        return curr;
+            return curr;
+        } else {
+            return value.get(propertyName + "");
+        }
     }
 
 }

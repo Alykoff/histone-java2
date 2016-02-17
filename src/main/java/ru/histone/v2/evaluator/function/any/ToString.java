@@ -16,53 +16,96 @@
 
 package ru.histone.v2.evaluator.function.any;
 
+import ru.histone.utils.StringUtils;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.Function;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
-import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.evaluator.node.NullEvalNode;
+import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.AsyncUtils;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Created by inv3r on 27/01/16.
+ * @author alexey.nevinsky
  */
-public class ToString implements Function {
+public class ToString extends AbstractFunction {
+    public static final String NAME = "toString";
+    public static final String ARRAY_HISTONE_VIEW_DELIMITER = " ";
+
     @Override
     public String getName() {
-        return "toString";
+        return NAME;
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
-        EvalNode node = args.get(0);
-        if (node instanceof EmptyEvalNode) {
-            return EvalUtils.getValue("");
-        } else if (node instanceof MapEvalNode) {
-            return EvalUtils.getValue(getMapString((MapEvalNode) node));
-        } else if (node instanceof NullEvalNode) {
-            return EvalUtils.getValue("null");
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return executeHelper(context, args).thenCompose(EvalUtils::getValue);
+    }
+
+    private CompletableFuture<String> executeHelper(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        final EvalNode node = args.get(0);
+        final HistoneType nodeType = node.getType();
+        switch (nodeType) {
+            case T_UNDEFINED: {
+                return CompletableFuture.completedFuture(EmptyEvalNode.HISTONE_VIEW);
+            }
+            case T_ARRAY: {
+                final Map<String, EvalNode> map = ((MapEvalNode) node).getValue();
+                return recurseFlattening(context, map);
+            }
+            case T_NULL: {
+                return CompletableFuture.completedFuture(NullEvalNode.HISTONE_VIEW);
+            }
+            case T_NUMBER: {
+                Number v = (Number) node.getValue();
+                if (v instanceof Double) {
+                    Double fv = (Double) v;
+                    if (EvalUtils.canBeLong(fv)) {
+                        return CompletableFuture.completedFuture(String.valueOf(fv.longValue()));
+                    } else {
+                        String res = new BigDecimal(fv, MathContext.DECIMAL32).stripTrailingZeros().toPlainString();
+                        return CompletableFuture.completedFuture(res);
+                    }
+                }
+                return CompletableFuture.completedFuture(String.valueOf(v));
+            }
+            default: {
+                return CompletableFuture.completedFuture(node.getValue() + "");
+            }
         }
-        return EvalUtils.getValue(node.getValue() + "");
     }
 
-    private String getMapString(MapEvalNode node) {
-        Map<String, Object> map = node.getValue();
-        return map.values().stream().filter(x -> x != null).map(x -> x + "").collect(Collectors.joining(" "));
-    }
-
-    @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public boolean isClear() {
-        return false;
+    private CompletableFuture<String> recurseFlattening(Context context, Map<String, EvalNode> map) {
+        final List<CompletableFuture<String>> valuesRawListFuture = new ArrayList<>();
+        for (EvalNode rawValue : map.values()) {
+            if (rawValue != null) {
+                if (rawValue instanceof Map) {
+                    final Map<String, EvalNode> value = (Map<String, EvalNode>) rawValue;
+                    valuesRawListFuture.add(recurseFlattening(context, value));
+                } else {
+                    final CompletableFuture<EvalNode> executedValue = execute(
+                            context, Collections.singletonList(rawValue)
+                    );
+                    final CompletableFuture<String> value = executedValue
+                            .thenApply(x -> ((StringEvalNode) x).getValue());
+                    valuesRawListFuture.add(value);
+                }
+            }
+        }
+        final CompletableFuture<List<String>> valuesListFuture = AsyncUtils.sequence(valuesRawListFuture);
+        return valuesListFuture.thenApply(x ->
+                x.stream()
+                        .filter(StringUtils::isNotEmpty)
+                        .collect(Collectors.joining(ARRAY_HISTONE_VIEW_DELIMITER))
+        );
     }
 }

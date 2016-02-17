@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.node;
 
 import ru.histone.v2.evaluator.data.HistoneRegex;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
 
@@ -30,5 +31,10 @@ public class RegexEvalNode extends EvalNode<HistoneRegex> implements Serializabl
         if (value == null) {
             throw new NullPointerException();
         }
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_REGEXP;
     }
 }

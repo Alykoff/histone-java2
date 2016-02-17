@@ -16,11 +16,18 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.rtti.HistoneType;
+
 /**
  * Created by inv3r on 28/01/16.
  */
 public class GlobalEvalNode extends EvalNode<Void> {
     public GlobalEvalNode() {
         super(null);
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_GLOBAL;
     }
 }

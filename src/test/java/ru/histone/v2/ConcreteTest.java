@@ -18,34 +18,54 @@ package ru.histone.v2;
 
 import org.junit.Test;
 import ru.histone.HistoneException;
-import ru.histone.v2.test.dto.HistoneTestCase;
+import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
+import ru.histone.v2.evaluator.resource.loader.DataLoader;
+import ru.histone.v2.evaluator.resource.loader.FileLoader;
+import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
+import ru.histone.v2.support.HistoneTestCase;
+import ru.histone.v2.support.TestRunner;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * Created by inv3r on 19/01/16.
+ * @author alexey.nevinsky
  */
-public class ConcreteTest extends BaseTest {
+public class ConcreteTest {
+    private static final ExecutorService executor = Executors.newFixedThreadPool(20);
+    private static final RunTimeTypeInfo rtti;
+
+    static {
+        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
+        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
+        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
+        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        rtti = new RunTimeTypeInfo(executor, loader);
+    }
+
     @Test
     public void concreteTest() throws HistoneException {
+
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("a # b");
+        testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        doTest("a {{var x = 10}}{{for r in range(1, 10)}}{{if r = 5}}{{return 100500}}{{/if}}{{/for}} b", testCase);
+        TestRunner.doTest("{{macro re(v1,v2,k1,k2)}}{{v1 > v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {
         Map<String, Object> res = new HashMap<>();
 
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("0", 1L);
-        values.put("1", 2L);
-        values.put("2", 3L);
+        values.put("foo", 1L);
+        values.put("bar", 2L);
+        values.put("y", 3L);
 
-        res.put("items", values);
+        res.put("this", values);
         return res;
     }
 }

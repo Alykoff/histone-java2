@@ -1,0 +1,20 @@
+[
+  {
+    "name": "array - size",
+    "cases": [
+      {
+        "input": "{{['size': 'XL', 'color': 'gold']->values}}",
+        "expectedResult": "XL gold"
+      },
+      {
+        "input": "{{[\"size\": \"XL\", \"color\": \"gold\"]->values->toJSON}} = [\"XL\",\"gold\"]",
+        "expectedResult": "[\"XL\",\"gold\"] = [\"XL\",\"gold\"]"
+      },
+      {
+        "input": "{{['one', 'two', 'three']->reverse->toJSON}} = [\"three\",\"two\",\"one\"]",
+        "expectedResult": "[\"three\",\"two\",\"one\"] = [\"three\",\"two\",\"one\"]"
+      }
+    ]
+  }
+]
+

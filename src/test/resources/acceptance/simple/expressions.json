@@ -1,0 +1,79 @@
+[
+  {
+    "name": "expressions",
+    "cases": [
+      {
+        "input": "{{if 1 || 2 && 3 | 4 & 2}}{{/if}}",
+        "expectedAST": "[31,[26,[30],[7,1,[6,2,[32,3,[34,4,2]]]]]]"
+      },
+      {
+        "input": "{{ 1+1 ",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{*vjdsnlsnvs",
+        "expectedException": {
+          "line": "1",
+          "expected": "*}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{% {{5*10}} %}}",
+        "expectedResult": " {{5*10}} "
+      },
+      {
+        "input": "{{% {{5*10}} ",
+        "expectedException": {
+          "line": "1",
+          "expected": "%}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{ (5*7 }}",
+        "expectedException": {
+          "line": "1",
+          "expected": ")",
+          "found": "}}"
+        }
+      },
+      {
+        "input": "{{{{}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{ var x = {{%{{5+5}}%}}}}{{x}}",
+        "expectedResult": "{{5+5}}"
+      },
+      {
+        "input": "a {{@ getDayOfWeek('a',3,1) -> isUndefined()}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{@ getDayOfWeek('a',3,1) -> isUndefined() b",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "b"
+        }
+      }
+    ]
+  }
+]

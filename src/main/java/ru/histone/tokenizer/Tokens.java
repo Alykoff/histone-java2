@@ -78,7 +78,7 @@ public enum Tokens {
     T_BXOR(56),
     T_BAND(57),
     T_BIN(58),
-    T_SUPRESS(59),
+    T_SUPPRESS(59),
     T_LISTEN(60),
     T_TRIGGER(61),
     T_ARROW(62),

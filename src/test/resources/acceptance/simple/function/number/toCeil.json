@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Number.toCeil",
+    "cases": [
+      {
+        "input": "<div>{{4.3->toCeil}} = 5</div>",
+        "expectedResult": "<div>5 = 5</div>"
+      },
+      {
+        "input": "<div>{{9.999->toCeil}} = 10</div>",
+        "expectedResult": "<div>10 = 10</div>"
+      },
+      {
+        "input": "<div>{{(-3.14)->toCeil}} = -3</div>",
+        "expectedResult": "<div>-3 = -3</div>"
+      },
+      {
+        "input": "a {{0.60 -> toCeil()}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
+        "input": "a {{0.40 -> toCeil()}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
+        "input": "a {{5 -> toCeil()}} b",
+        "expectedResult": "a 5 b"
+      },
+      {
+        "input": "a {{5.1 -> toCeil()}} b",
+        "expectedResult": "a 6 b"
+      },
+      {
+        "input": "a {{(-5.1) -> toCeil()}} b",
+        "expectedResult": "a -5 b"
+      },
+      {
+        "input": "a {{(-5.9) -> toCeil().isNumber()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-5.9) -> toCeil().isNumber()}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  }
+]

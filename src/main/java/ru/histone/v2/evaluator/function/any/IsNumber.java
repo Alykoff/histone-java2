@@ -16,18 +16,18 @@
 
 package ru.histone.v2.evaluator.function.any;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.FloatEvalNode;
-import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 28/01/16.
+ * @author alexey.nevinsky
  */
 public class IsNumber extends AbstractFunction {
 
@@ -37,8 +37,8 @@ public class IsNumber extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
-        boolean res = args.get(0) instanceof FloatEvalNode || args.get(0) instanceof LongEvalNode;
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        boolean res = args.get(0).getType() == HistoneType.T_NUMBER;
         return EvalUtils.getValue(res);
     }
 }

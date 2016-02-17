@@ -19,11 +19,13 @@ package ru.histone.v2.evaluator;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,15 +37,32 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Context implements Serializable {
     private String baseUri;
+    private Locale locale;
     private RunTimeTypeInfo rttiInfo;
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
-    private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = null;
 
     private Context parent;
+    private boolean isRequired = false;
 
-    private Context(String baseUri, RunTimeTypeInfo rttiInfo) {
+    private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
         this.baseUri = baseUri;
         this.rttiInfo = rttiInfo;
+        this.locale = locale;
+    }
+
+    /**
+     * This method used for create a root node
+     *
+     * @param baseUri  of context
+     * @param locale   environment locale
+     * @param rttiInfo is global run time type info
+     * @return created root context
+     */
+    public static Context createRoot(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
+        Context ctx = new Context(baseUri, locale, rttiInfo);
+        ctx.thisVars = new ConcurrentHashMap<>();
+        return ctx;
     }
 
     /**
@@ -54,7 +73,17 @@ public class Context implements Serializable {
      * @return created root context
      */
     public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo) {
-        return new Context(baseUri, rttiInfo);
+        Context ctx = new Context(baseUri, Locale.getDefault(), rttiInfo);
+        ctx.thisVars = new ConcurrentHashMap<>();
+        return ctx;
+    }
+
+    public Context clone() {
+        final Context that = new Context(baseUri, locale, rttiInfo);
+        that.parent = this.parent;
+        that.thisVars = this.thisVars;
+        that.vars.putAll(this.vars);
+        return that;
     }
 
     /**
@@ -63,7 +92,7 @@ public class Context implements Serializable {
      * @return child context
      */
     public Context createNew() {
-        Context ctx = new Context(baseUri, rttiInfo);
+        Context ctx = new Context(baseUri, locale, rttiInfo);
         ctx.parent = this;
         ctx.thisVars = thisVars;
         return ctx;
@@ -74,7 +103,7 @@ public class Context implements Serializable {
     }
 
     public void put(String key, CompletableFuture<EvalNode> value) {
-        vars.putIfAbsent(key, value);
+        vars.put(key, value);
     }
 
     public boolean contains(String key) {
@@ -86,7 +115,7 @@ public class Context implements Serializable {
             if (thisVars.containsKey(key)) {
                 return thisVars.get(key);
             }
-            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            return EmptyEvalNode.FUTURE_INSTANCE;
         }
         return vars.get(key);
     }
@@ -112,10 +141,31 @@ public class Context implements Serializable {
     }
 
     public CompletableFuture<EvalNode> call(String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(baseUri, HistoneType.T_GLOBAL, name, args);
+        return rttiInfo.callFunction(this, HistoneType.T_GLOBAL, name, args);
     }
 
     public CompletableFuture<EvalNode> call(EvalNode node, String name, List<EvalNode> args) {
-        return rttiInfo.callFunction(baseUri, node, name, args);
+        return rttiInfo.callFunction(this, node, name, args);
+    }
+
+    public boolean findFunction(EvalNode node, String name) {
+        try {
+            return rttiInfo.getFunc(node.getType(), name) != null;
+        } catch (FunctionExecutionException ignore) {
+            // yeah, we couldn't find function with this name
+        }
+        return false;
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public boolean isReturned() {
+        return isRequired;
+    }
+
+    public void setReturned() {
+        isRequired = true;
     }
 }

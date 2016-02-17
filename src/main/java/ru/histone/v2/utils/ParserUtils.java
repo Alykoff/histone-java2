@@ -82,7 +82,7 @@ public class ParserUtils {
         }
 
         String v = (String) value;
-        return tryInt(v).isPresent() || tryFloat(v).isPresent();
+        return tryInt(v).isPresent() || tryDouble(v).isPresent();
     }
 
     public static boolean isInt(String value) {
@@ -97,16 +97,16 @@ public class ParserUtils {
         }
     }
 
-    public static Optional<Float> tryFloat(Object value) {
+    public static Optional<Double> tryDouble(Object value) {
         if (value instanceof Integer) {
-            return Optional.of(new Float((Integer) value));
+            return Optional.of(new Double((Integer) value));
         }
-        if (value instanceof Float) {
-            return Optional.of((Float) value);
+        if (value instanceof Double) {
+            return Optional.of((Double) value);
         }
         if (value instanceof String) {
             try {
-                return Optional.of(Float.parseFloat((String) value));
+                return Optional.of(Double.parseDouble((String) value));
             } catch (Exception ignore) {
                 return Optional.empty();
             }

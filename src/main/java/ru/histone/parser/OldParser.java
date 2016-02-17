@@ -88,7 +88,7 @@ public class OldParser {
             new BaseExpression("\\&&", Tokens.T_AND),
             new BaseExpression("\\&", Tokens.T_BAND),
             new BaseExpression("!", Tokens.T_NOT),
-            new BaseExpression("@", Tokens.T_SUPRESS),
+                new BaseExpression("@", Tokens.T_SUPPRESS),
             new BaseExpression("\"", Tokens.T_DQUOTE),
             new BaseExpression("'", Tokens.T_SQUOTE),
             new BaseExpression("=", Tokens.T_EQ),

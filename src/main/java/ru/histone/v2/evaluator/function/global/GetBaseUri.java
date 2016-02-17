@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -34,7 +35,7 @@ public class GetBaseUri extends AbstractFunction {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
-        return EvalUtils.getValue(baseUri);
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return EvalUtils.getValue(context.getBaseUri());
     }
 }

@@ -18,21 +18,19 @@ package ru.histone.v2.evaluator;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
+import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.rtti.HistoneType;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Created by inv3r on 14/01/16.
  */
 public class EvalUtils {
-    public static boolean equalityNode(EvalNode node1, EvalNode node2) {
-        //todo normal equality logic
-        return ObjectUtils.equals(node1.getValue(), node2.getValue());
-    }
-
     public static boolean nodeAsBoolean(EvalNode node) {
         if (node instanceof NullEvalNode) {
             return false;
@@ -48,33 +46,78 @@ public class EvalUtils {
         return true;
     }
 
-    public static Float parseFloat(String value) throws NumberFormatException {
-        return Float.parseFloat(value);
+    public static Double parseDouble(String value) throws NumberFormatException {
+        return Double.parseDouble(value);
+    }
+
+    public static Optional<Integer> tryPureIntegerValue(EvalNode node) {
+        if (!(isNumberNode(node) || node instanceof StringEvalNode)) {
+            return Optional.empty();
+        }
+        if (node instanceof DoubleEvalNode) {
+            final Double value = ((DoubleEvalNode) node).getValue();
+            if (isInteger(value)) {
+                return Optional.of(value).map(Double::intValue);
+            } else {
+                return Optional.empty();
+            }
+        } else if (node instanceof LongEvalNode) {
+            final Long value = ((LongEvalNode) node).getValue();
+            return Optional.ofNullable(value).map(Long::intValue);
+        } else if (node instanceof StringEvalNode) {
+            try {
+                final double value = Double.parseDouble(((StringEvalNode) node).getValue());
+                if (isInteger(value)) {
+                    return Optional.of(value).map(Double::intValue);
+                } else {
+                    return Optional.empty();
+                }
+            } catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public static boolean isInteger(Double value) {
+        return value != null
+                && value % 1 == 0
+                && value >= Integer.MIN_VALUE
+                && value <= Integer.MAX_VALUE;
     }
 
     public static Number getNumberValue(EvalNode node) {
         if (!(isNumberNode(node) || node instanceof StringEvalNode)) {
             throw new RuntimeException();
         }
-        if (node instanceof FloatEvalNode) {
-            return ((FloatEvalNode) node).getValue();
+        if (node instanceof DoubleEvalNode) {
+            return ((DoubleEvalNode) node).getValue();
         } else if (node instanceof LongEvalNode) {
             return ((LongEvalNode) node).getValue();
         } else if (node instanceof StringEvalNode) {
-            return Float.parseFloat(((StringEvalNode) node).getValue());
+            return Double.parseDouble(((StringEvalNode) node).getValue());
         } else {
             throw new NotImplementedException();
         }
     }
 
+    public static boolean isStringNode(EvalNode node) {
+        return node.getType() == HistoneType.T_STRING;
+    }
+
     public static boolean isNumberNode(EvalNode node) {
-        return node instanceof LongEvalNode || node instanceof FloatEvalNode;
+        return node instanceof LongEvalNode || node instanceof DoubleEvalNode;
     }
 
     public static boolean isNumeric(StringEvalNode evalNode) {
+        return isNumeric(evalNode.getValue());
+    }
+
+    public static boolean isNumeric(String v) {
         try {
-            final Float value = parseFloat(evalNode.getValue());
-            return !Float.isNaN(value) && Float.isFinite(value);
+            final Double value = parseDouble(v);
+            return !Double.isNaN(value) && Double.isFinite(value);
         } catch (NumberFormatException e) {
             return false;
         }
@@ -82,7 +125,7 @@ public class EvalUtils {
 
     public static EvalNode<?> createEvalNode(Object object) {
         if (object == null) {
-            throw new NullPointerException();
+            return EmptyEvalNode.INSTANCE;
         }
         if (object.equals(ObjectUtils.NULL)) {
             return NullEvalNode.INSTANCE;
@@ -90,8 +133,14 @@ public class EvalUtils {
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);
         }
+        if (object instanceof Integer) {
+            return new LongEvalNode(((Integer) object).longValue());
+        }
         if (object instanceof Float) {
-            return new FloatEvalNode((Float) object);
+            return new DoubleEvalNode(((Float) object).doubleValue());
+        }
+        if (object instanceof Double) {
+            return new DoubleEvalNode((Double) object);
         }
         if (object instanceof Long) {
             return new LongEvalNode((Long) object);
@@ -100,17 +149,64 @@ public class EvalUtils {
             return new StringEvalNode((String) object);
         }
         if (object instanceof Map) {
-            return new MapEvalNode((Map<String, Object>) object);
+            return new MapEvalNode((Map<String, EvalNode>) object);
         }
         if (object instanceof HistoneRegex) {
             return new RegexEvalNode((HistoneRegex) object);
         }
-        return new ObjectEvalNode(object);
+        if (object instanceof EvalNode) {
+            return (EvalNode) object;
+        }
+        throw new HistoneException("Didn't resolve object class: " + object.getClass());
     }
 
+    public static MapEvalNode constructFromMap(Map<String, Object> map) {
+        Map<String, EvalNode> res = new HashMap<>();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            res.put(entry.getKey(), constructFromObject(entry.getValue()));
+        }
+        return new MapEvalNode(res);
+    }
+
+    public static MapEvalNode constructFromList(List<Object> list) {
+        List<EvalNode> res = new ArrayList<>(list.size());
+        res.addAll(list.stream()
+                .map(EvalUtils::constructFromObject)
+                .collect(Collectors.toList())
+        );
+        return new MapEvalNode(res);
+    }
+
+    public static EvalNode constructFromObject(Object object) {
+        if (object instanceof Map) {
+            return constructFromMap((Map) object);
+        } else if (object instanceof List) {
+            return constructFromList((List) object);
+        } else if (object instanceof String && object.equals("undefined")) {
+            return createEvalNode(null);
+        } else if (object == null) {
+            createEvalNode(ObjectUtils.NULL);
+        }
+        return createEvalNode(object);
+    }
 
     public static CompletableFuture<EvalNode> getValue(Object v) {
         return CompletableFuture.completedFuture(createEvalNode(v));
+    }
+
+    public static boolean canBeLong(Double v) {
+        return v % 1 == 0 && v <= Long.MAX_VALUE && v >= Long.MIN_VALUE;
+    }
+
+    public static EvalNode getNumberNode(Double v) {
+        if (canBeLong(v)) {
+            return EvalUtils.createEvalNode(v.longValue());
+        }
+        return EvalUtils.createEvalNode(v);
+    }
+
+    public static CompletableFuture<EvalNode> getNumberFuture(Double v) {
+        return CompletableFuture.completedFuture(getNumberNode(v));
     }
 
 }

@@ -23,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Use this interface when you need to implement your own global function
+ *
+ * @author alexey.nevinsky
  */
 public interface Function {
 
@@ -34,16 +36,21 @@ public interface Function {
     String getName();
 
     /**
-     * This method will be run when Histone evaluate function<br/>
+     * Method returns {@link CompletableFuture} with result of execution.
      *
-     * @param args arguments from Histone template
+     *
+     * @param context
+     * @param args   arguments from Histone template
      * @return result as one of Histone types
-     * @throws FunctionExecutionException if your function stops with error and you need to put details into log, then you should use this exception
+     * @throws FunctionExecutionException if your function stops with error and you need to put details into log,
+     *                                    then you should use this exception
      */
-    CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException;
+    CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException;
 
     /**
-     * @return
+     * Return true, if function must be run in own thread, otherwise - false
+     *
+     * @return true if async function
      */
     boolean isAsync();
 

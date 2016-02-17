@@ -58,7 +58,7 @@ public enum AstType {
     AST_BXOR(33),
     AST_BAND(34),
 
-    AST_SUPRESS(35),
+    AST_SUPPRESS(35),
     AST_LISTEN(36),
     AST_TRIGGER(37),
 

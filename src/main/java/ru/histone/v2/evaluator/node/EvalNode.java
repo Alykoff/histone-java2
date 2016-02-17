@@ -16,10 +16,15 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.rtti.HistoneType;
+
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
- * Created by inv3r on 19/01/16.
+ * @author alexey.nevinsky
  */
-public class EvalNode<T> {
+public abstract class EvalNode<T> implements Serializable {
     protected T value;
     protected boolean isReturn = false;
 
@@ -31,18 +36,32 @@ public class EvalNode<T> {
         return value;
     }
 
-    public void setIsReturn() {
+    public EvalNode getReturned() {
         isReturn = true;
+        return this;
     }
 
     public boolean isReturn() {
         return isReturn;
     }
 
+    public abstract HistoneType getType();
+
     @Override
     public String toString() {
-        return "{\"EvalNode\": {" +
-                "\", \"value\": \"" + value +
-                "\"}}";
+        return "{\"EvalNode\": {\"value\": \"" + value + "\", \"type\": \"" + getType() + "\"}}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EvalNode<?> evalNode = (EvalNode<?>) o;
+        return Objects.equals(value, evalNode.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
     }
 }

@@ -17,13 +17,14 @@
 package ru.histone.v2.evaluator.node;
 
 import org.apache.commons.lang.ObjectUtils;
+import ru.histone.v2.rtti.HistoneType;
 
 /**
- * Created by inv3r on 15/01/16.
+ * @author alexey.nevinsky
  */
 public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
-
-    public static final NullEvalNode INSTANCE = new NullEvalNode();
+    public static final String HISTONE_VIEW = "null";
+    public static final NullEvalNode INSTANCE = NullEvalNodeHolder.NULL_EVAL_NODE;
 
     private NullEvalNode() {
         super(ObjectUtils.NULL);
@@ -32,5 +33,15 @@ public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
     @Override
     public ObjectUtils.Null getValue() {
         return ObjectUtils.NULL;
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_NULL;
+    }
+
+
+    private static class NullEvalNodeHolder {
+        private static final NullEvalNode NULL_EVAL_NODE = new NullEvalNode();
     }
 }

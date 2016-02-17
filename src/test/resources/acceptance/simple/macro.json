@@ -1,0 +1,78 @@
+[
+  {
+    "name": "macro - return",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}a{{return 1}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}a{{1}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}",
+        "expectedResult": "\"a1b\""
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}a{{a > b}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}",
+        "expectedResult": "\"afalseb\""
+      }
+    ]
+  },
+  {
+    "name": "macro - call",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([1, 2, 3, 4])}}",
+        "expectedResult": "<div>a = 1</div><div>b = 2</div><div>c = 3</div><div>d = 4</div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([1, 2], [3, 4])}}",
+        "expectedResult": "<div>a = 1</div><div>b = 2</div><div>c = 3</div><div>d = 4</div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([1, 2, 3], [4])}}",
+        "expectedResult": "<div>a = 1</div><div>b = 2</div><div>c = 3</div><div>d = 4</div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([[1, 2]], [3, 4])}}",
+        "expectedResult": "<div>a = 1 2</div><div>b = 3</div><div>c = 4</div><div>d = </div>"
+      }
+    ]
+  },
+  {
+    "name": "macro - bind",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{var bound = myMacro->bind('foo', 'bar')}}{{bound(10, 20)}}",
+        "expectedResult": "<div>a = foo</div><div>b = bar</div><div>c = 10</div><div>d = 20</div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>re - {{re}}{{/macro}}{{var re = 2}}{{var bound = myMacro->bind('foo', 'bar')}}{{bound(10, 20)}}",
+        "expectedResult": "<div>a = foo</div><div>b = bar</div><div>c = 10</div><div>d = 20</div>re - "
+      }
+    ]
+  },
+  {
+    "name": "macro - extend",
+    "cases": [
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
+        "expectedResult": "<input type=\"password\" />"
+      },
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text'],[PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
+        "expectedResult": "<input type=\"\" />"
+      },
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text', PASSWORD: 'password'])}}{{inputWidget(inputWidget.RE)}}",
+        "expectedResult": "<input type=\"\" />"
+      },
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{var inputWidget = inputWidget->extend([PASSWORD: 'ppp'])}}{{inputWidget(inputWidget.PASSWORD)}}",
+        "expectedResult": "<input type=\"password\" />"
+      },
+      {
+        "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{var inputWidget = inputWidget->extend([PPP: 'ppp'])}}{{inputWidget(inputWidget.PPP)}}",
+        "expectedResult": "<input type=\"ppp\" />"
+      }
+    ]
+  }
+]

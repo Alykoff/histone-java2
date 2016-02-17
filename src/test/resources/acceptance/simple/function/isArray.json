@@ -1,0 +1,83 @@
+[
+  {
+    "name": "type -> isArray",
+    "cases": [
+      {
+        "input": "a {{undefined -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{null -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{true -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{false -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{\"string\" -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123 -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123.8 -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{.123 -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{0.123 -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{123E-3 -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-123.8) -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-.123) -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-0.123) -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{(-123E-3) -> isArray()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{[1, 2, 3] -> isArray()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{[\"foo\": \"bar\"] -> isArray()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "<div>{{null->isArray}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{UNDEFINED_VALUE->isArray}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{'STRIIING'->isArray}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      }
+    ]
+  }
+]

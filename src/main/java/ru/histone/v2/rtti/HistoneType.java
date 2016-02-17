@@ -29,15 +29,12 @@ public enum HistoneType {
     T_REGEXP(6),
     T_MACRO(7),
     T_ARRAY(8),
-    T_GLOBAL(9);
+    T_GLOBAL(9),
+    T_REQUIRE(10);
 
     private int id;
 
     HistoneType(int id) {
         this.id = id;
-    }
-
-    public int getId() {
-        return id;
     }
 }

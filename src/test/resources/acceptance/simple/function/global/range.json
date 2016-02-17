@@ -1,0 +1,159 @@
+[
+  {
+    "name": "global -> range",
+    "cases": [
+      {
+        "input": "a {{var x = range(1,1)}} b {{x}} c {{x = [1]}} d",
+        "expectedResult": "a  b 1 c true d"
+      },
+      {
+        "input": "a {{var x = range(1,3)}} b {{x}} c {{x = [1,2,3]}} d",
+        "expectedResult": "a  b 1 2 3 c true d"
+      },
+      {
+        "input": "a {{var x = range(3,1)}} b {{x}} c {{x = [3,2,1]}} d",
+        "expectedResult": "a  b 3 2 1 c true d"
+      },
+      {
+        "input": "a {{var x = range(-10,-10)}} b {{x}} c {{x = [-10]}} d",
+        "expectedResult": "a  b -10 c true d"
+      },
+      {
+        "input": "a {{var x = range(-3,-1)}} b {{x}} c {{x = [-3,-2,-1]}} d",
+        "expectedResult": "a  b -3 -2 -1 c true d"
+      },
+      {
+        "input": "a {{var x = range(-1,-3)}} b {{x}} c {{x = [-1,-2,-3]}} d",
+        "expectedResult": "a  b -1 -2 -3 c true d"
+      },
+      {
+        "input": "a {{var x = range(-2,2)}} b {{x}} c {{x = [-2,-1,0,1,2]}} d",
+        "expectedResult": "a  b -2 -1 0 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range(2,-2)}} b {{x}} c {{x = [2,1,0,-1,-2]}} d",
+        "expectedResult": "a  b 2 1 0 -1 -2 c true d"
+      },
+      {
+        "input": "a {{var x = range('1',2)}} b {{x}} c {{x = [1,2]}} d",
+        "expectedResult": "a  b 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range(1,'2')}} b {{x}} c {{x = [1,2]}} d",
+        "expectedResult": "a  b 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range('1','2')}} b {{x}} c {{x = [1,2]}} d",
+        "expectedResult": "a  b 1 2 c true d"
+      },
+      {
+        "input": "a {{var x = range(1.1)}} b {{x->toJSON}} c",
+        "expectedResult": "a  b [] c"
+      },
+      {
+        "input": "a {{var x = range(1.1,2)}} b {{x->toJSON}} c",
+        "expectedResult": "a  b [] c"
+      },
+      {
+        "input": "a {{var x = range(1.1,2.2)}} b {{x->toJSON}} c",
+        "expectedResult": "a  b [] c"
+      },
+      {
+        "input": "a {{var x = range(1,2.2)}} b {{x->toJSON}} c",
+        "expectedResult": "a  b [] c"
+      },
+      {
+        "input": "a{{var x = range(1,3,'adsfasdfdsf')}}b{{x}}c{{x = [1,2,3]}}d",
+        "expectedResult": "ab1 2 3ctrued"
+      },
+      {
+        "input": "a {{var x = range('aaa',2)}} b {{x->toJSON}} c",
+        "expectedResult": "a  b [] c"
+      },
+      {
+        "input": "a {{var x = range(2,'aaa')}} b {{x->toJSON}} c",
+        "expectedResult": "a  b [] c"
+      },
+      {
+        "input": "a {{var x = range('aaa','bbb')}} b {{x->toJSON}} c",
+        "expectedResult": "a  b [] c"
+      },
+      {
+        "input": "a {{var x = range(1,3,5)}} b {{x = [5,10,15]}} c",
+        "expectedResult": "a  b true c"
+      },
+      {
+        "input": "{{range(1, 3)}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{range(0, 3)}}",
+        "expectedResult": "0 1 2 3"
+      },
+      {
+        "input": "{{range(3, 1)}}",
+        "expectedResult": "3 2 1"
+      },
+      {
+        "input": "{{range(3, 0)}}",
+        "expectedResult": "3 2 1 0"
+      },
+      {
+        "input": "{{range(-3, 1)}}",
+        "expectedResult": "-3 -2 -1 0 1"
+      },
+      {
+        "input": "{{range(-3, -10)}}",
+        "expectedResult": "-3 -4 -5 -6 -7 -8 -9 -10"
+      },
+      {
+        "input": "{{range(-3)}}",
+        "expectedResult": "-2 -1 0"
+      },
+      {
+        "input": "{{range(3)}}",
+        "expectedResult": "0 1 2"
+      },
+      {
+        "input": "{{range(1)}}",
+        "expectedResult": "0"
+      },
+      {
+        "input": "{{range(0)->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{range('sdfdsf')->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{range('sdfdsf', 2)->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{range('sdfdsf', 'sdfsdf')->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{range('sdfdsf', 'sdfsdf', 3)->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{range(1, 'sdfsdf', 3)->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{range(0, 10, -1)->toJSON}}",
+        "expectedResult": "[0,1,2,3,4,5,6,7,8,9,10]"
+      },
+      {
+        "input": "{{range(0, 10, 'sdf')->toJSON}}",
+        "expectedResult": "[0,1,2,3,4,5,6,7,8,9,10]"
+      },
+      {
+        "input": "{{range(0, 10, 1, 'sdfsd')->toJSON}}",
+        "expectedResult": "[0,1,2,3,4,5,6,7,8,9,10]"
+      }
+    ]
+  }
+]

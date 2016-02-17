@@ -32,7 +32,10 @@ import static ru.histone.tokenizer.Tokens.T_EOF;
 import static ru.histone.tokenizer.Tokens.T_ERROR;
 
 /**
- * Created by alexey.nevinsky on 21.12.2015.
+ * Histone template tokenizer<br/>
+ * Tokenizer is based on regular expressions and returns tokens one by one. All tokens are configured in {@link ru.histone.HistoneTokensHolder}
+ *
+ * @author alexey.nevinsky
  */
 public class Tokenizer {
     private final List<Expression> expressions;

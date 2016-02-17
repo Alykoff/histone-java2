@@ -16,15 +16,25 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.rtti.HistoneType;
+
 /**
  * Created by inv3r on 14/01/16.
  */
 public class LongEvalNode extends EvalNode<Long> {
+    public LongEvalNode(Integer value) {
+        this(value.longValue());
+    }
 
     public LongEvalNode(Long value) {
         super(value);
         if (value == null) {
             throw new NullPointerException();
         }
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_NUMBER;
     }
 }

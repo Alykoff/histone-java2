@@ -16,40 +16,50 @@
 
 package ru.histone.v2.evaluator.function.any;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 28/01/16.
+ * @author alexey.nevinsky
  */
 public class ToNumber extends AbstractFunction {
+
+    public static final String NAME = "toNumber";
+
     @Override
     public String getName() {
-        return "toNumber";
+        return NAME;
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
         if (EvalUtils.isNumberNode(node)) {
-            return CompletableFuture.completedFuture(node);
-        } else if (node instanceof StringEvalNode && EvalUtils.isNumeric((StringEvalNode) node)) {
-            Float v = Float.parseFloat(((StringEvalNode) node).getValue());
-            if (v % 1 == 0 && v <= Long.MAX_VALUE) {
-                return EvalUtils.getValue(v.longValue());
-            } else {
-                return EvalUtils.getValue(v);
-            }
+            return getFromNumberNode(node);
+        } else if (node.getType() == HistoneType.T_STRING && EvalUtils.isNumeric((StringEvalNode) node)) {
+            Double v = Double.parseDouble(((StringEvalNode) node).getValue());
+            return EvalUtils.getNumberFuture(v);
         } else if (args.size() > 1) {
             return CompletableFuture.completedFuture(args.get(1));
         }
         return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+    }
+
+    private CompletableFuture<EvalNode> getFromNumberNode(EvalNode node) {
+        if (node instanceof DoubleEvalNode) {
+            final Double value = ((DoubleEvalNode) node).getValue();
+            return EvalUtils.getNumberFuture(value);
+        }
+        return CompletableFuture.completedFuture(node);
     }
 }

@@ -17,18 +17,40 @@
 package ru.histone.v2.evaluator.node;
 
 import ru.histone.v2.evaluator.data.HistoneMacro;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
- *
- * Created by gali.alykoff on 27/01/16.
+ * @author gali.alykoff
  */
-public class MacroEvalNode extends EvalNode<HistoneMacro> implements Serializable {
+public class MacroEvalNode extends PropertiesEvalNode<HistoneMacro> implements HasProperties, Serializable {
+
     public MacroEvalNode(HistoneMacro value) {
         super(value);
         if (value == null) {
             throw new NullPointerException();
         }
+    }
+
+    public MacroEvalNode(HistoneMacro value, Map<String, EvalNode> extArgs) {
+        super(value);
+        if (value == null) {
+            throw new NullPointerException();
+        }
+        this.extArgs.putAll(extArgs);
+    }
+
+    @Override
+    public HistoneType getType() {
+        return HistoneType.T_MACRO;
+    }
+
+    public MacroEvalNode putAllExtArgs(Map<String, EvalNode> extArgs) {
+        for (Map.Entry<String, EvalNode> arg : extArgs.entrySet()) {
+            this.extArgs.putIfAbsent(arg.getKey(), arg.getValue());
+        }
+        return this;
     }
 }

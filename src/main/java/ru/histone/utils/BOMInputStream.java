@@ -1,17 +1,17 @@
 /**
- *    Copyright 2013 MegaFon
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2013 MegaFon
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 /* ____________________________________________________________________________
  * Comment: This file was taken from http://stackoverflow.com/questions/1835430/byte-order-mark-screws-up-file-reading-in-java
@@ -48,96 +48,10 @@ import java.io.PushbackInputStream;
  * <p>Use the {@link #skipBOM()} method to remove the detected BOM from the
  * wrapped <code>InputStream</code> object.</p>
  */
-public class BOMInputStream extends InputStream
-{
-    /**
-     * Type safe enumeration class that describes the different types of Unicode
-     * BOMs.
-     */
-    public static final class BOM
-    {
-        /**
-         * NONE.
-         */
-        public static final BOM NONE = new BOM(new byte[]{},"NONE");
-
-        /**
-         * UTF-8 BOM (EF BB BF).
-         */
-        public static final BOM UTF_8 = new BOM(new byte[]{(byte)0xEF,
-                (byte)0xBB,
-                (byte)0xBF},
-                "UTF-8");
-
-        /**
-         * UTF-16, little-endian (FF FE).
-         */
-        public static final BOM UTF_16_LE = new BOM(new byte[]{ (byte)0xFF,
-                (byte)0xFE},
-                "UTF-16 little-endian");
-
-        /**
-         * UTF-16, big-endian (FE FF).
-         */
-        public static final BOM UTF_16_BE = new BOM(new byte[]{ (byte)0xFE,
-                (byte)0xFF},
-                "UTF-16 big-endian");
-
-        /**
-         * UTF-32, little-endian (FF FE 00 00).
-         */
-        public static final BOM UTF_32_LE = new BOM(new byte[]{ (byte)0xFF,
-                (byte)0xFE,
-                (byte)0x00,
-                (byte)0x00},
-                "UTF-32 little-endian");
-
-        /**
-         * UTF-32, big-endian (00 00 FE FF).
-         */
-        public static final BOM UTF_32_BE = new BOM(new byte[]{ (byte)0x00,
-                (byte)0x00,
-                (byte)0xFE,
-                (byte)0xFF},
-                "UTF-32 big-endian");
-
-        /**
-         * Returns a <code>String</code> representation of this <code>BOM</code>
-         * value.
-         */
-        public final String toString()
-        {
-            return description;
-        }
-
-        /**
-         * Returns the bytes corresponding to this <code>BOM</code> value.
-         */
-        public final byte[] getBytes()
-        {
-            final int     length = bytes.length;
-            final byte[]  result = new byte[length];
-
-            // Make a defensive copy
-            System.arraycopy(bytes,0,result,0,length);
-
-            return result;
-        }
-
-        private BOM(final byte bom[], final String description)
-        {
-            assert(bom != null)               : "invalid BOM: null is not allowed";
-            assert(description != null)       : "invalid description: null is not allowed";
-            assert(description.length() != 0) : "invalid description: empty string is not allowed";
-
-            this.bytes          = bom;
-            this.description  = description;
-        }
-
-        final byte    bytes[];
-        private final String  description;
-
-    } // BOM
+public class BOMInputStream extends InputStream {
+    private final PushbackInputStream in;
+    private final BOM bom;
+    private boolean skipped = false;
 
     /**
      * Constructs a new <code>UnicodeBOMInputStream</code> that wraps the
@@ -150,59 +64,49 @@ public class BOMInputStream extends InputStream
      * @throws IOException on reading from the specified <code>InputStream</code>
      * when trying to detect the Unicode BOM.
      */
-    public BOMInputStream(final InputStream inputStream) throws  NullPointerException,
+    public BOMInputStream(final InputStream inputStream) throws NullPointerException,
             IOException
 
     {
         if (inputStream == null)
             throw new NullPointerException("invalid input stream: null is not allowed");
 
-        in = new PushbackInputStream(inputStream,4);
+        in = new PushbackInputStream(inputStream, 4);
 
-        final byte  bom[] = new byte[4];
-        final int   read  = in.read(bom);
+        final byte bom[] = new byte[4];
+        final int read = in.read(bom);
 
-        switch(read)
-        {
+        switch (read) {
             case 4:
-                if ((bom[0] == (byte)0xFF) &&
-                        (bom[1] == (byte)0xFE) &&
-                        (bom[2] == (byte)0x00) &&
-                        (bom[3] == (byte)0x00))
-                {
+                if ((bom[0] == (byte) 0xFF) &&
+                        (bom[1] == (byte) 0xFE) &&
+                        (bom[2] == (byte) 0x00) &&
+                        (bom[3] == (byte) 0x00)) {
                     this.bom = BOM.UTF_32_LE;
                     break;
-                }
-                else
-                if ((bom[0] == (byte)0x00) &&
-                        (bom[1] == (byte)0x00) &&
-                        (bom[2] == (byte)0xFE) &&
-                        (bom[3] == (byte)0xFF))
-                {
+                } else if ((bom[0] == (byte) 0x00) &&
+                        (bom[1] == (byte) 0x00) &&
+                        (bom[2] == (byte) 0xFE) &&
+                        (bom[3] == (byte) 0xFF)) {
                     this.bom = BOM.UTF_32_BE;
                     break;
                 }
 
             case 3:
-                if ((bom[0] == (byte)0xEF) &&
-                        (bom[1] == (byte)0xBB) &&
-                        (bom[2] == (byte)0xBF))
-                {
+                if ((bom[0] == (byte) 0xEF) &&
+                        (bom[1] == (byte) 0xBB) &&
+                        (bom[2] == (byte) 0xBF)) {
                     this.bom = BOM.UTF_8;
                     break;
                 }
 
             case 2:
-                if ((bom[0] == (byte)0xFF) &&
-                        (bom[1] == (byte)0xFE))
-                {
+                if ((bom[0] == (byte) 0xFF) &&
+                        (bom[1] == (byte) 0xFE)) {
                     this.bom = BOM.UTF_16_LE;
                     break;
-                }
-                else
-                if ((bom[0] == (byte)0xFE) &&
-                        (bom[1] == (byte)0xFF))
-                {
+                } else if ((bom[0] == (byte) 0xFE) &&
+                        (bom[1] == (byte) 0xFF)) {
                     this.bom = BOM.UTF_16_BE;
                     break;
                 }
@@ -213,7 +117,7 @@ public class BOMInputStream extends InputStream
         }
 
         if (read > 0)
-            in.unread(bom,0,read);
+            in.unread(bom, 0, read);
     }
 
     /**
@@ -222,8 +126,7 @@ public class BOMInputStream extends InputStream
      *
      * @return a <code>BOM</code> value.
      */
-    public final BOM getBOM()
-    {
+    public final BOM getBOM() {
         // BOM type is immutable.
         return bom;
     }
@@ -237,10 +140,8 @@ public class BOMInputStream extends InputStream
      * @throws IOException when trying to skip the BOM from the wrapped
      * <code>InputStream</code> object.
      */
-    public final synchronized BOMInputStream skipBOM() throws IOException
-    {
-        if (!skipped)
-        {
+    public final synchronized BOMInputStream skipBOM() throws IOException {
+        if (!skipped) {
             in.skip(bom.bytes.length);
             skipped = true;
         }
@@ -250,18 +151,16 @@ public class BOMInputStream extends InputStream
     /**
      * {@inheritDoc}
      */
-    public int read() throws IOException
-    {
+    public int read() throws IOException {
         return in.read();
     }
 
     /**
      * {@inheritDoc}
      */
-    public int read(final byte b[]) throws  IOException,
-            NullPointerException
-    {
-        return in.read(b,0,b.length);
+    public int read(final byte b[]) throws IOException,
+            NullPointerException {
+        return in.read(b, 0, b.length);
     }
 
     /**
@@ -270,61 +169,134 @@ public class BOMInputStream extends InputStream
     public int read(final byte b[],
                     final int off,
                     final int len) throws IOException,
-            NullPointerException
-    {
-        return in.read(b,off,len);
+            NullPointerException {
+        return in.read(b, off, len);
     }
 
     /**
      * {@inheritDoc}
      */
-    public long skip(final long n) throws IOException
-    {
+    public long skip(final long n) throws IOException {
         return in.skip(n);
     }
 
     /**
      * {@inheritDoc}
      */
-    public int available() throws IOException
-    {
+    public int available() throws IOException {
         return in.available();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         in.close();
     }
 
     /**
      * {@inheritDoc}
      */
-    public synchronized void mark(final int readlimit)
-    {
+    public synchronized void mark(final int readlimit) {
         in.mark(readlimit);
     }
 
     /**
      * {@inheritDoc}
      */
-    public synchronized void reset() throws IOException
-    {
+    public synchronized void reset() throws IOException {
         in.reset();
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean markSupported()
-    {
+    public boolean markSupported() {
         return in.markSupported();
     }
 
-    private final PushbackInputStream in;
-    private final BOM                 bom;
-    private       boolean             skipped = false;
+    /**
+     * Type safe enumeration class that describes the different types of Unicode
+     * BOMs.
+     */
+    public static final class BOM {
+        /**
+         * NONE.
+         */
+        public static final BOM NONE = new BOM(new byte[]{}, "NONE");
+
+        /**
+         * UTF-8 BOM (EF BB BF).
+         */
+        public static final BOM UTF_8 = new BOM(new byte[]{(byte) 0xEF,
+                (byte) 0xBB,
+                (byte) 0xBF},
+                "UTF-8");
+
+        /**
+         * UTF-16, little-endian (FF FE).
+         */
+        public static final BOM UTF_16_LE = new BOM(new byte[]{(byte) 0xFF,
+                (byte) 0xFE},
+                "UTF-16 little-endian");
+
+        /**
+         * UTF-16, big-endian (FE FF).
+         */
+        public static final BOM UTF_16_BE = new BOM(new byte[]{(byte) 0xFE,
+                (byte) 0xFF},
+                "UTF-16 big-endian");
+
+        /**
+         * UTF-32, little-endian (FF FE 00 00).
+         */
+        public static final BOM UTF_32_LE = new BOM(new byte[]{(byte) 0xFF,
+                (byte) 0xFE,
+                (byte) 0x00,
+                (byte) 0x00},
+                "UTF-32 little-endian");
+
+        /**
+         * UTF-32, big-endian (00 00 FE FF).
+         */
+        public static final BOM UTF_32_BE = new BOM(new byte[]{(byte) 0x00,
+                (byte) 0x00,
+                (byte) 0xFE,
+                (byte) 0xFF},
+                "UTF-32 big-endian");
+        final byte bytes[];
+        private final String description;
+
+        private BOM(final byte bom[], final String description) {
+            assert (bom != null) : "invalid BOM: null is not allowed";
+            assert (description != null) : "invalid description: null is not allowed";
+            assert (description.length() != 0) : "invalid description: empty string is not allowed";
+
+            this.bytes = bom;
+            this.description = description;
+        }
+
+        /**
+         * Returns a <code>String</code> representation of this <code>BOM</code>
+         * value.
+         */
+        public final String toString() {
+            return description;
+        }
+
+        /**
+         * Returns the bytes corresponding to this <code>BOM</code> value.
+         */
+        public final byte[] getBytes() {
+            final int length = bytes.length;
+            final byte[] result = new byte[length];
+
+            // Make a defensive copy
+            System.arraycopy(bytes, 0, result, 0, length);
+
+            return result;
+        }
+
+    } // BOM
 
 }

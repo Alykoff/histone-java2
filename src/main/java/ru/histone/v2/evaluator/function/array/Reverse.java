@@ -16,8 +16,40 @@
 
 package ru.histone.v2.evaluator.function.array;
 
+import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.utils.ParserUtils;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+
 /**
- * Created by inv3r on 25/01/16.
+ * @author alexey.nevinsky
  */
-public class Reverse {
+public class Reverse extends AbstractFunction {
+    @Override
+    public String getName() {
+        return "reverse";
+    }
+
+    @Override
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        Map<String, Object> v = getValue(args, 0);
+        List<Map.Entry<String, Object>> list = new ArrayList<>(v.entrySet());
+        Collections.reverse(list);
+
+        Map<String, Object> res = new LinkedHashMap<>();
+        int i = 0;
+        for (Map.Entry<String, Object> entry : list) {
+            if (ParserUtils.isNumber(entry.getKey())) {
+                res.put(i++ + "", entry.getValue());
+            } else {
+                res.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return EvalUtils.getValue(res);
+    }
 }

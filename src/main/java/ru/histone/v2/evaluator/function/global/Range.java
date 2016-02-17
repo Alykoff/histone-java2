@@ -16,22 +16,25 @@
 
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.evaluator.functions.global.GlobalFunctionExecutionException;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.Function;
-import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.function.any.ToNumber;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.AsyncUtils;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by inv3r on 22/01/16.
  */
-public class Range implements Function {
-
+public class Range extends AbstractFunction {
     public static final String NAME = "range";
+    public static final int STEP_BY_DEFAULT = 1;
 
     @Override
     public String getName() {
@@ -39,27 +42,65 @@ public class Range implements Function {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(String baseUri, List<EvalNode> args) throws FunctionExecutionException {
-        if (args.size() != 2) {
-            throw new IllegalArgumentException("Wrong count of arguments. Actual is " + args.size() + ", but expected is 2");
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        final int size = args.size();
+        if (size == 0) {
+            return getEmptyMapNodeFuture();
         }
-        long from = (long) args.get(0).getValue();
-        long to = (long) args.get(1).getValue();
 
-        Map<String, Object> res = new LinkedHashMap<>();
-        for (int i = 0; i < to - from + 1; i++) {
-            res.put(i + "", from + i);
+        for (int i = 0; i < size && i < 2; i++) {
+            final EvalNode node = args.get(i);
+            if (!EvalUtils.tryPureIntegerValue(node).isPresent()) {
+                return getEmptyMapNodeFuture();
+            }
         }
-        return EvalUtils.getValue(res);
+
+        long from = EvalUtils.tryPureIntegerValue(args.get(0)).get();
+        long step = STEP_BY_DEFAULT;
+        Long to = null;
+        if (size > 2) {
+            to = getValue(args.get(1));
+            step = EvalUtils.tryPureIntegerValue(args.get(2))
+                    .filter(s -> s > 0)
+                    .orElse(STEP_BY_DEFAULT);
+
+        } else if (size > 1) {
+            to = getValue(args.get(1));
+        } else if (from < 0) {
+            to = 0L;
+            from = from + 1;
+        } else if (from > 0) {
+            to = from - 1;
+            from = 0L;
+        }
+
+        final List<EvalNode> res = new ArrayList<>();
+        if (to == null) {
+            return CompletableFuture.completedFuture(new MapEvalNode(res));
+        }
+        if (from < to) {
+            while (from <= to) {
+                res.add(EvalUtils.createEvalNode(from));
+                from += step;
+            }
+        } else {
+            while (from >= to) {
+                res.add(EvalUtils.createEvalNode(from));
+                from -= step;
+            }
+        }
+        return CompletableFuture.completedFuture(new MapEvalNode(res));
     }
 
-    @Override
-    public boolean isAsync() {
-        return false;
+    private CompletableFuture<EvalNode> getEmptyMapNodeFuture() {
+        return CompletableFuture.completedFuture(new MapEvalNode(Collections.emptyList()));
     }
 
-    @Override
-    public boolean isClear() {
-        return true;
+    private long getValue(EvalNode node) {
+        Number n = EvalUtils.getNumberValue(node);
+        if (n instanceof Double) {
+            return n.longValue();
+        }
+        return (long) n;
     }
 }

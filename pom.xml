@@ -20,11 +20,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.megafonweblab.histone</groupId>
     <artifactId>histone-java</artifactId>
-    <version>2.0.0.beta.1-SNAPSHOT</version>
+    <version>2.0.0.beta.1</version>
     <packaging>jar</packaging>
     <name>Histone - Java Implementation</name>
     <description>Java implementation for Histone Template Engine</description>
-    <url>https://github.com/MegafonWebLab/histone-java/</url>
+    <url>https://github.com/MegafonWebLab/histone-java2/</url>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -41,29 +41,21 @@
             <organizationUrl>http://www.megafon.ru</organizationUrl>
         </developer>
         <developer>
-            <name>Peter Salnikov</name>
-            <email>peter@salnikov.cc</email>
+            <name>Alexey Nevinsky</name>
+            <email>anevinsky@gmail.com</email>
+            <organization>Megafon</organization>
+            <organizationUrl>http://www.megafon.ru</organizationUrl>
+        </developer>
+        <developer>
+            <name>Gali Alykoff</name>
+            <email>galll-al@yandex.ru</email>
             <organization>Megafon</organization>
             <organizationUrl>http://www.megafon.ru</organizationUrl>
         </developer>
     </developers>
-    <contributors>
-        <contributor>
-            <name>Sergey Nazaryev</name>
-            <email>sergey.nazaryev@gmail.com</email>
-            <organization>Megafon</organization>
-            <organizationUrl>http://www.megafon.ru</organizationUrl>
-        </contributor>
-        <contributor>
-            <name>Kirill Sazonov</name>
-            <email>sazonovkirill@gmail.com</email>
-            <organization>BSC Ideas</organization>
-            <organizationUrl>http://www.bsc-ideas.ru</organizationUrl>
-        </contributor>
-    </contributors>
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/MegafonWebLab/histone-java/issues</url>
+        <url>https://github.com/MegafonWebLab/histone-java2/issues</url>
     </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -400,9 +392,9 @@
         </dependency>
     </dependencies>
     <scm>
-        <url>https://github.com/MegafonWebLab/histone-java</url>
-        <connection>scm:git:https://github.com/MegafonWebLab/histone-java.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/MegafonWebLab/histone-java.git</developerConnection>
+        <url>https://github.com/MegafonWebLab/histone-java2</url>
+        <connection>scm:git:https://github.com/MegafonWebLab/histone-java2.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/MegafonWebLab/histone-java2.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <distributionManagement>

@@ -39,7 +39,7 @@
         "expectedResult": "a  b blablabla c"
       },
       {
-        "input": "{{var ui = [button: => require('/acceptance/simple/tpl/function/button.tpl')->call(self.arguments)}}{{ui.button([value: 'MyButton'])}}{{ui.button([value: 'MyButton'])}}",
+        "input": "{{var ui = [button: => require('/acceptance/simple/tpl/function/button.tpl')->call(self.arguments)]}}{{ui.button([value: 'MyButton'])}}{{ui.button([value: 'MyButton'])}}",
         "expectedResult": "a  b blablabla c"
       }
     ]

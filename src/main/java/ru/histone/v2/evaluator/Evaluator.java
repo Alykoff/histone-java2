@@ -65,17 +65,13 @@ public class Evaluator implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public String process(ExpAstNode node, Context context) {
-        EvalNode stringEvalNode = doInternal(node, context).join();
-        return ((StringEvalNode) stringEvalNode).getValue();
+        return processFuture(node, context).join();
     }
 
-    public CompletableFuture<EvalNode> processFuture(ExpAstNode node, Context context) {
-        return doInternal(node, context);
-    }
-
-    private CompletableFuture<EvalNode> doInternal(ExpAstNode node, Context context) {
+    public CompletableFuture<String> processFuture(ExpAstNode node, Context context) {
         return evaluateNode(node, context)
-                .thenCompose(n -> RttiUtils.callToString(context, n));
+                .thenCompose(n -> RttiUtils.callToString(context, n))
+                .thenApply(n -> ((StringEvalNode) n).getValue());
     }
 
     public CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
@@ -346,14 +342,14 @@ public class Evaluator implements Serializable {
         CompletableFuture<EvalNode> keyVarName = evaluateNode(expNode.getNode(0), context);
         CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(keyVarName, valueVarName);
-        CompletableFuture<List<EvalNode>> res =  leftRightDone.thenCompose(keyValueNames ->
-            iterate(
-                expNode,
-                context,
-                objToIterate,
-                keyValueNames.get(0),
-                keyValueNames.get(1)
-            )
+        CompletableFuture<List<EvalNode>> res = leftRightDone.thenCompose(keyValueNames ->
+                iterate(
+                        expNode,
+                        context,
+                        objToIterate,
+                        keyValueNames.get(0),
+                        keyValueNames.get(1)
+                )
         );
         return getEvaluatedString(context, res);
     }
@@ -806,13 +802,13 @@ public class Evaluator implements Serializable {
         }
 
         return evaluateNode(conditionNode, context).thenCompose(condNode ->
-            RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
-                if (predicate) {
-                    return evaluateNode(bodyNode, context.createNew());
-                } else {
-                    return processIfNodeHelper(node, context, i + 2);
-                }
-            })
+                RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
+                    if (predicate) {
+                        return evaluateNode(bodyNode, context.createNew());
+                    } else {
+                        return processIfNodeHelper(node, context, i + 2);
+                    }
+                })
         );
     }
 

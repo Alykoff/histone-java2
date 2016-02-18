@@ -25,11 +25,7 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
     public static final Comparator<Tuple<Integer, EvalNode>> HISTONE_ARRAY_GROUP_COMPARATOR = (x, y) -> {
         final Integer xKey = x.getLeft();
         final Integer yKey = y.getLeft();
-        if (xKey < 0) {
-            return yKey < 0 ? yKey.compareTo(xKey) : 1;
-        } else {
-            return yKey < 0 ? -1 : xKey.compareTo(yKey);
-        }
+        return xKey.compareTo(yKey);
     };
 
     @Override
@@ -60,26 +56,24 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
         final CompletableFuture<MacroEvalNode> macroFuture =
                 ArrayReduce.getMacroWithBindFuture(context, args, START_BIND_INDEX);
         return macroFuture.thenCompose(macro ->
-            groupBy(context, macro, values, new HashMap<>())
+            groupBy(context, macro, values, new LinkedHashMap<>())
         ).thenApply(acc -> {
-            // TODO maybe we should del this sort
             final Map<String, EvalNode> res = new LinkedHashMap<>();
             final List<Tuple<String, EvalNode>> entrySimpleKeys = new ArrayList<>();
-            final Set<Tuple<Integer, EvalNode>> entryWithNumKeys = new TreeSet<>(HISTONE_ARRAY_GROUP_COMPARATOR);
+            final Set<Tuple<Integer, EvalNode>> entryWithPositiveNumKeys = new TreeSet<>(HISTONE_ARRAY_GROUP_COMPARATOR);
 
             for (Map.Entry<String, List<EvalNode>> groups : acc.entrySet()) {
                 final String key = groups.getKey();
                 final EvalNode groupsObjs = new MapEvalNode(groups.getValue());
                 final Optional<Integer> intKey = ParserUtils.tryInt(key);
-                if (intKey.isPresent()) {
-                    entryWithNumKeys.add(new Tuple<>(intKey.get(), groupsObjs));
+                if (intKey.isPresent() && intKey.get() > -1) {
+                    entryWithPositiveNumKeys.add(new Tuple<>(intKey.get(), groupsObjs));
                 } else {
                     entrySimpleKeys.add(new Tuple<>(key, groupsObjs));
                 }
             }
 
-            for (Tuple<Integer, EvalNode> key : entryWithNumKeys) {
-                System.out.println(key);
+            for (Tuple<Integer, EvalNode> key : entryWithPositiveNumKeys) {
                 res.put(key.getLeft().toString(), key.getRight());
             }
             for (Tuple<String, EvalNode> key : entrySimpleKeys) {

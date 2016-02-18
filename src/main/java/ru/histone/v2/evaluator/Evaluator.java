@@ -725,12 +725,13 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
         return leftRightDone.thenApply(f -> {
-            if (f.get(0).getType() == HistoneType.T_UNDEFINED
-                    || f.get(0).getType() == HistoneType.T_NULL
-                    || !nodeAsBoolean(f.get(0))) {
+            final EvalNode evalNode = f.get(0);
+            if (evalNode.getType() == HistoneType.T_UNDEFINED
+                    || evalNode.getType() == HistoneType.T_NULL
+                    || !nodeAsBoolean(evalNode)) {
                 return f.get(1);
             }
-            return f.get(0);
+            return evalNode;
         });
     }
 

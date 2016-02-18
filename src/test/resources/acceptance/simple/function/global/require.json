@@ -37,6 +37,10 @@
       {
         "input": "a {{var x = require('/acceptance/simple/tpl/function/test_for_require_return.tpl')}} b {{x -> param('parameter')}} c",
         "expectedResult": "a  b blablabla c"
+      },
+      {
+        "input": "{{var ui = [button: => require('/acceptance/simple/tpl/function/button.tpl')->call(self.arguments)}}{{ui.button([value: 'MyButton'])}}{{ui.button([value: 'MyButton'])}}",
+        "expectedResult": "a  b blablabla c"
       }
     ]
   }

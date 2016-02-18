@@ -65,13 +65,17 @@ public class Evaluator implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public String process(ExpAstNode node, Context context) {
-        return processInternal(node, context);
+        EvalNode stringEvalNode = doInternal(node, context).join();
+        return ((StringEvalNode) stringEvalNode).getValue();
     }
 
-    private String processInternal(ExpAstNode node, Context context) {
-        EvalNode resEvalNode = evaluateNode(node, context).join();
-        EvalNode stringEvalNode = RttiUtils.callToString(context, resEvalNode).join();
-        return ((StringEvalNode) stringEvalNode).getValue();
+    public CompletableFuture<EvalNode> processFuture(ExpAstNode node, Context context) {
+        return doInternal(node, context);
+    }
+
+    private CompletableFuture<EvalNode> doInternal(ExpAstNode node, Context context) {
+        return evaluateNode(node, context)
+                .thenCompose(n -> RttiUtils.callToString(context, n));
     }
 
     public CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
@@ -487,6 +491,7 @@ public class Evaluator implements Serializable {
             return Optional.of(Double.valueOf(node.getValue() + ""));
         }
     }
+
     // ==============================
     // =========== Relation =========
     // ==============================
@@ -574,9 +579,9 @@ public class Evaluator implements Serializable {
         final CompletableFuture<EvalNode> rightF = RttiUtils.callToBoolean(context, right);
 
         return leftF.thenCompose(leftBooleanRaw -> rightF.thenApply(rightBooleanRaw ->
-            BOOLEAN_EVAL_NODE_COMPARATOR.compare(
-                (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
-            )
+                BOOLEAN_EVAL_NODE_COMPARATOR.compare(
+                        (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
+                )
         ));
     }
 
@@ -597,6 +602,7 @@ public class Evaluator implements Serializable {
         }
         throw new RuntimeException("Unknown type for this case");
     }
+
     // ==============================
     // ======= End Relation =========
     // ==============================

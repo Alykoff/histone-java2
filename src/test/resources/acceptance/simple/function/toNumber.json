@@ -19,7 +19,7 @@
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{\"\\r\\n\\t 1 \\n\\t\\r\" -> toNumber()}} b",
+        "input": "a {{\"\r\n\t 1 \n\t\r\" -> toNumber()}} b",
         "expectedResult": "a 1 b"
       },
       {

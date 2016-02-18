@@ -647,55 +647,69 @@ public class Parser {
     private ExpAstNode getArrayExpression(TokenizerWrapper wrapper) throws ParserException {
         int counter = 0;
         ExpAstNode result = new ExpAstNode(AST_ARRAY);
-        Map<String, AstNode> map = new LinkedHashMap<>();
+        String key = null;
+        AstNode value;
+        Set<String> values = new LinkedHashSet<>();
+        Map<String, AstNode> rawResult = new LinkedHashMap<>();
 
         do {
-            while (next(wrapper, T_COMMA)) ;
+            while (next(wrapper, T_COMMA));
             if (next(wrapper, T_RBRACKET)) {
-                fillNodeFromMap(result, map);
+                fillNodeFromMap(result, rawResult);
                 return result;
             }
             final TokenizerResult tokenRes = wrapper.next(T_PROP.getId(), T_COLON.getId());
             if (tokenRes.isFound()) {
-                map.put(tokenRes.firstValue(), getExpression(wrapper));
+                key = tokenRes.firstValue();
+                value = getExpression(wrapper);
             } else {
-                AstNode key = getExpression(wrapper);
-                final Optional<Object> valueObject = Optional.of(key)
+                final AstNode rawKey = getExpression(wrapper);
+                final Optional<Object> rawKeyOption = Optional.of(rawKey)
                         .filter(AstNode::hasValue)
                         .map(node -> ((ValueNode) node).getValue());
 
-                final boolean isStringOrNumberValue = valueObject.isPresent()
-                        && (ParserUtils.isStrongString(valueObject.get()) || ParserUtils.isNumber(valueObject.get()))
+                final boolean isStringOrNumberValue = rawKeyOption.isPresent()
+                        && (ParserUtils.isStrongString(rawKeyOption.get()) || ParserUtils.isNumber(rawKeyOption.get()))
                         && next(wrapper, T_COLON);
-
                 if (isStringOrNumberValue) {
-                    final Object val = valueObject.get();
-                    AstNode value = getExpression(wrapper);
-                    Object mapKey = val;
-                    if (ParserUtils.isStrongString(val) && ParserUtils.isInt((String) val)) {
-                        mapKey = Integer.valueOf((String) val); //todo check this
-                    }
-                    Optional<Double> floatVal = ParserUtils.tryDouble(val);
-                    if (floatVal.isPresent()) {
-                        int intValue = floatVal.get().intValue();
-                        if (intValue < counter) {
-                            mapKey = intValue + "";
+                    final Object keyObject = rawKeyOption.get();
+                    value = getExpression(wrapper);
+                    if (ParserUtils.isStrongString(keyObject)) {
+                        if (ParserUtils.isInt((String) keyObject)) {
+                            key = Integer.valueOf((String) keyObject).toString();
                         } else {
-                            counter = intValue;
-                            mapKey = (counter++) + "";
+                            key = (String) keyObject;
                         }
                     }
-                    map.put(mapKey + "", value);
+
+                    Optional<Double> floatKeyValue = ParserUtils.tryDouble(keyObject);
+                    if (floatKeyValue.isPresent()) {
+                        int intKeyValue = floatKeyValue.get().intValue();
+                        if (intKeyValue < counter) {
+                            key = intKeyValue + "";
+                        } else {
+                            counter = intKeyValue;
+                            key = (counter++) + "";
+                        }
+                    }
                 } else {
-                    map.put((counter++) + "", key);
+                    value = rawKey;
+                    key = String.valueOf(counter++);
                 }
+            }
+
+            if (values.contains(key)) {
+                rawResult.put(key, value);
+            } else {
+                values.add(key);
+                rawResult.put(key, value);
             }
         } while (next(wrapper, T_COMMA));
 
         if (!next(wrapper, T_RBRACKET)) {
             throw buildUnexpectedTokenException(wrapper, "]");
         }
-        fillNodeFromMap(result, map);
+        fillNodeFromMap(result, rawResult);
 
         return result;
     }

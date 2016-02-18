@@ -5,6 +5,7 @@ import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 import ru.histone.v2.utils.Tuple;
 
@@ -21,6 +22,15 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
     public static final int ARRAY_INDEX = 0;
     private static final int MACRO_INDEX = 1;
     public static final int START_BIND_INDEX = 2;
+    public static final Comparator<Tuple<Integer, EvalNode>> HISTONE_ARRAY_GROUP_COMPARATOR = (x, y) -> {
+        final Integer xKey = x.getLeft();
+        final Integer yKey = y.getLeft();
+        if (xKey < 0) {
+            return yKey < 0 ? yKey.compareTo(xKey) : 1;
+        } else {
+            return yKey < 0 ? -1 : xKey.compareTo(yKey);
+        }
+    };
 
     @Override
     public String getName() {
@@ -52,10 +62,30 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
         return macroFuture.thenCompose(macro ->
             groupBy(context, macro, values, new HashMap<>())
         ).thenApply(acc -> {
-            final Map<String, EvalNode> res = new LinkedHashMap<>(acc.size());
-            for (Map.Entry<String, List<EvalNode>> val : acc.entrySet()) {
-                res.put(val.getKey(), new MapEvalNode(val.getValue()));
+            // TODO maybe we should del this sort
+            final Map<String, EvalNode> res = new LinkedHashMap<>();
+            final List<Tuple<String, EvalNode>> entrySimpleKeys = new ArrayList<>();
+            final Set<Tuple<Integer, EvalNode>> entryWithNumKeys = new TreeSet<>(HISTONE_ARRAY_GROUP_COMPARATOR);
+
+            for (Map.Entry<String, List<EvalNode>> groups : acc.entrySet()) {
+                final String key = groups.getKey();
+                final EvalNode groupsObjs = new MapEvalNode(groups.getValue());
+                final Optional<Integer> intKey = ParserUtils.tryInt(key);
+                if (intKey.isPresent()) {
+                    entryWithNumKeys.add(new Tuple<>(intKey.get(), groupsObjs));
+                } else {
+                    entrySimpleKeys.add(new Tuple<>(key, groupsObjs));
+                }
             }
+
+            for (Tuple<Integer, EvalNode> key : entryWithNumKeys) {
+                System.out.println(key);
+                res.put(key.getLeft().toString(), key.getRight());
+            }
+            for (Tuple<String, EvalNode> key : entrySimpleKeys) {
+                res.put(key.getLeft(), key.getRight());
+            }
+
             return new MapEvalNode(res);
         });
     }
@@ -64,26 +94,27 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
             Context context,
             MacroEvalNode macro,
             List<Map.Entry<String, EvalNode>> nodes,
-            Map<String, List<EvalNode>> acc
+            Map<String, List<EvalNode>> accNumber
     ) {
         if (nodes.isEmpty()) {
-            return CompletableFuture.completedFuture(acc);
+            return CompletableFuture.completedFuture(accNumber);
         }
         final Map.Entry<String, EvalNode> first = nodes.get(0);
         final EvalNode firstValue = first.getValue();
         final EvalNode firstKey = new StringEvalNode(first.getKey());
         return RttiUtils.callMacro(context, macro, firstValue, firstKey).thenCompose(macroResult ->
             RttiUtils.callToStringResult(context, macroResult).thenCompose(group -> {
-                System.out.println(macroResult);
-                final List<EvalNode> listOfGroup = acc.get(group);
+                final List<EvalNode> listOfGroup = accNumber.get(group);
                 if (listOfGroup == null) {
                     List<EvalNode> list = new ArrayList<>();
                     list.add(firstValue);
-                    acc.put(group, list);
+                    accNumber.put(group, list);
                 } else {
                     listOfGroup.add(firstValue);
                 }
-                return groupBy(context, macro, nodes.subList(1, nodes.size()), acc);
+                return groupBy(
+                    context, macro, nodes.subList(1, nodes.size()), accNumber
+                );
             }));
     }
 }

@@ -41,19 +41,27 @@ public class StringEvalNode extends EvalNode<String> implements HasProperties {
     @Override
     public EvalNode getProperty(Object propertyName) throws HistoneException {
         final int size = value.length();
-        if (propertyName instanceof Double) {
-            final int index = ((Double) propertyName).intValue();
-            if (index >= size) {
-                return EmptyEvalNode.INSTANCE;
-            }
-            return EvalUtils.createEvalNode(value.charAt(index) + "");
-        } else if (propertyName instanceof Long) {
-            final int index = ((Long) propertyName).intValue();
-            if (index >= size) {
-                return EmptyEvalNode.INSTANCE;
-            }
-            return EvalUtils.createEvalNode(value.charAt(index) + "");
+        if (!(propertyName instanceof Double) && !(propertyName instanceof Long)) {
+            return null;
         }
-        return null;
+        int index;
+        if (propertyName instanceof Double) {
+            index = ((Double) propertyName).intValue();
+        } else { // Long
+            index = ((Long) propertyName).intValue();
+        }
+
+        if (index >= size) {
+            return EmptyEvalNode.INSTANCE;
+        }
+
+        if (size + index <= 0) {
+            return EmptyEvalNode.INSTANCE;
+        }
+
+        if (index < 0) {
+            index = size + index;
+        }
+        return EvalUtils.createEvalNode(value.charAt(index) + "");
     }
 }

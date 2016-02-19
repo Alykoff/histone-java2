@@ -148,6 +148,10 @@
       {
         "input": "{{'12345667'[5]}}",
         "expectedResult": "6"
+      },
+      {
+        "input": "{{'12345667'[-1]}}",
+        "expectedResult": "7"
       }
     ]
   }

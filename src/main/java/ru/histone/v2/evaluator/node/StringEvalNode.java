@@ -20,6 +20,8 @@ import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.rtti.HistoneType;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author alexey.nevinsky
  */
@@ -38,10 +40,19 @@ public class StringEvalNode extends EvalNode<String> implements HasProperties {
 
     @Override
     public EvalNode getProperty(Object propertyName) throws HistoneException {
+        final int size = value.length();
         if (propertyName instanceof Double) {
-            return EvalUtils.createEvalNode(value.charAt(((Double) propertyName).intValue()) + "");
+            final int index = ((Double) propertyName).intValue();
+            if (index >= size) {
+                return EmptyEvalNode.INSTANCE;
+            }
+            return EvalUtils.createEvalNode(value.charAt(index) + "");
         } else if (propertyName instanceof Long) {
-            return EvalUtils.createEvalNode(value.charAt(((Long) propertyName).intValue()) + "");
+            final int index = ((Long) propertyName).intValue();
+            if (index >= size) {
+                return EmptyEvalNode.INSTANCE;
+            }
+            return EvalUtils.createEvalNode(value.charAt(index) + "");
         }
         return null;
     }

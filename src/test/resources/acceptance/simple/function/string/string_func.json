@@ -129,6 +129,27 @@
         "expectedResult": "2345667"
       }
     ]
+  },
+  {
+    "name": "String.[]",
+    "cases": [
+      {
+        "input": "{{'12345667'[0]}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{'12345667'[99]}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'12345667'[99]->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{'12345667'[5]}}",
+        "expectedResult": "6"
+      }
+    ]
   }
 
 ]

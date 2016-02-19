@@ -1,7 +1,8 @@
-package ru.histone.v2.evaluator.function.any;
+package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.function.string.StringHtmlEntities;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.evaluator.node.NullEvalNode;
@@ -9,7 +10,6 @@ import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
-import ru.histone.v2.utils.RttiUtils;
 import ru.histone.v2.utils.Tuple;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author gali.alykoff on 19/02/16.
  */
-public class HtmlEntities extends AbstractFunction {
+public class ArrayHtmlEntities extends AbstractFunction {
     public static final String NAME = "htmlentities";
 
     @Override
@@ -61,14 +61,7 @@ public class HtmlEntities extends AbstractFunction {
                 return new MapEvalNode(result);
             });
         } else if (type == HistoneType.T_STRING) {
-            final String value = ((StringEvalNode) node).getValue();
-            final String result = value
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll("\"", "&quot;")
-                .replaceAll("'", "&#039;");
-            return CompletableFuture.completedFuture(new StringEvalNode(result));
+            return StringHtmlEntities.htmlEntities(node);
         } else {
             return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
         }

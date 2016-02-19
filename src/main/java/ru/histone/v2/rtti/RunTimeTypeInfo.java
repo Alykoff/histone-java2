@@ -29,6 +29,7 @@ import ru.histone.v2.evaluator.function.macro.RequireCall;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.Case;
+import ru.histone.v2.evaluator.function.string.StringHtmlEntities;
 import ru.histone.v2.evaluator.function.string.StringLength;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.NullEvalNode;
@@ -108,7 +109,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArrayGroup());
         registerCommon(T_ARRAY, new ArraySort());
         registerCommon(T_ARRAY, new ArraySlice());
-        registerCommon(T_ARRAY, new HtmlEntities());
+        registerCommon(T_ARRAY, new ArrayHtmlEntities());
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor, loader));
@@ -133,7 +134,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_STRING, new StringLength());
         registerCommon(T_STRING, new Case(false));
         registerCommon(T_STRING, new Case(true));
-        registerCommon(T_STRING, new HtmlEntities());
+        registerCommon(T_STRING, new StringHtmlEntities());
 
         registerCommon(T_MACRO, new MacroCall());
         registerCommon(T_MACRO, new MacroBind());

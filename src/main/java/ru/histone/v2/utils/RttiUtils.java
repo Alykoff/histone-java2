@@ -44,10 +44,6 @@ public class RttiUtils implements Serializable {
                 .thenApply(toBooleanResult -> ((BooleanEvalNode)toBooleanResult).getValue());
     }
 
-    public static CompletableFuture<EvalNode> callHtmlEntities(Context context, EvalNode node) {
-        return context.call(HtmlEntities.NAME, Collections.singletonList(node));
-    }
-
     public static CompletableFuture<EvalNode> callMacro(
             Context context, EvalNode macroNode, List<EvalNode> argsNodes
     ) {

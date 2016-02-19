@@ -154,6 +154,16 @@
         "expectedResult": "7"
       }
     ]
+  },
+
+  {
+    "name": "String.toNumber",
+    "cases": [
+      {
+        "input": "{{'12345667'->toNumber}}",
+        "expectedResult": "12345667"
+      }
+    ]
   }
 
 ]

@@ -1,10 +1,7 @@
 package ru.histone.v2.utils;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.function.any.ToBoolean;
-import ru.histone.v2.evaluator.function.any.ToJson;
-import ru.histone.v2.evaluator.function.any.ToNumber;
-import ru.histone.v2.evaluator.function.any.ToString;
+import ru.histone.v2.evaluator.function.any.*;
 import ru.histone.v2.evaluator.function.macro.MacroBind;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
@@ -41,9 +38,14 @@ public class RttiUtils implements Serializable {
     public static CompletableFuture<EvalNode> callToBoolean(Context context, EvalNode node) {
         return context.call(ToBoolean.NAME, Collections.singletonList(node));
     }
+
     public static CompletableFuture<Boolean> callToBooleanResult(Context context, EvalNode node) {
         return context.call(ToBoolean.NAME, Collections.singletonList(node))
                 .thenApply(toBooleanResult -> ((BooleanEvalNode)toBooleanResult).getValue());
+    }
+
+    public static CompletableFuture<EvalNode> callHtmlEntities(Context context, EvalNode node) {
+        return context.call(HtmlEntities.NAME, Collections.singletonList(node));
     }
 
     public static CompletableFuture<EvalNode> callMacro(

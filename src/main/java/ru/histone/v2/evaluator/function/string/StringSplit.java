@@ -17,6 +17,8 @@ import java.util.concurrent.CompletableFuture;
 public class StringSplit extends AbstractFunction {
     public static final String NAME = "split";
     public static final String DEFAULT_SEPARATOR = "";
+    public static final int ELEMENT_INDEX = 0;
+    public static final int SEPARATOR_INDEX = 1;
 
     @Override
     public String getName() {
@@ -25,10 +27,10 @@ public class StringSplit extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        final String value = ((StringEvalNode) args.get(0)).getValue();
+        final String value = ((StringEvalNode) args.get(ELEMENT_INDEX)).getValue();
         final String separator;
-        if (args.size() > 1 && EvalUtils.isStringNode(args.get(1))) {
-            separator = ((StringEvalNode) args.get(1)).getValue();
+        if (args.size() > SEPARATOR_INDEX && EvalUtils.isStringNode(args.get(1))) {
+            separator = ((StringEvalNode) args.get(SEPARATOR_INDEX)).getValue();
         } else {
             separator = DEFAULT_SEPARATOR;
         }

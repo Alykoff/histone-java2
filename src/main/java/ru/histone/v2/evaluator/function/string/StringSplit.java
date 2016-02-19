@@ -10,6 +10,7 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 /**
  * @author gali.alykoff on 19/02/16.
@@ -36,7 +37,7 @@ public class StringSplit extends AbstractFunction {
         }
         return CompletableFuture.completedFuture(
                 EvalUtils.constructFromList(
-                        Arrays.asList(value.split(separator))
+                        Arrays.asList(value.split(Pattern.quote(separator)))
                 )
         );
     }

@@ -99,6 +99,19 @@
         "expectedResult": "--\thistone  \ta"
       }
     ]
+  },
+  {
+    "name": "String.split",
+    "cases": [
+      {
+        "input": "{{'ab1safsd1sdfsdf1sdfsdf1dfdfs'->split('1')->toJSON}}",
+        "expectedResult": "[\"ab\",\"safsd\",\"sdfsdf\",\"sdfsdf\",\"dfdfs\"]"
+      },
+      {
+        "input": "{{'ab1safsd1sdfsdf1sdfsdf1dfdfs'->split()->toJSON}}",
+        "expectedResult": "[\"a\",\"b\",\"1\",\"s\",\"a\",\"f\",\"s\",\"d\",\"1\",\"s\",\"d\",\"f\",\"s\",\"d\",\"f\",\"1\",\"s\",\"d\",\"f\",\"s\",\"d\",\"f\",\"1\",\"d\",\"f\",\"d\",\"f\",\"s\"]"
+      }
+    ]
   }
 
 ]

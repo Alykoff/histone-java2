@@ -262,11 +262,11 @@ public class Parser {
                 }
             } else {
                 node.add(new StringAstNode(null)) //add null as key name
-                    .add(new StringAstNode(id.firstValue())); //add value name
+                        .add(new StringAstNode(id.firstValue())); //add value name
             }
         } else {
             node.add(new StringAstNode(null)) //add 'null' as key name
-                .add(new StringAstNode(null));//add 'null' as value name
+                    .add(new StringAstNode(null));//add 'null' as value name
         }
 
         if (!next(wrapper, T_IN)) {
@@ -645,6 +645,7 @@ public class Parser {
     }
 
     private ExpAstNode getArrayExpression(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         int counter = 0;
         ExpAstNode result = new ExpAstNode(AST_ARRAY);
         String key = null;
@@ -653,7 +654,7 @@ public class Parser {
         Map<String, AstNode> rawResult = new LinkedHashMap<>();
 
         do {
-            while (next(wrapper, T_COMMA));
+            while (next(wrapper, T_COMMA)) ;
             if (next(wrapper, T_RBRACKET)) {
                 fillNodeFromMap(result, rawResult);
                 return result;

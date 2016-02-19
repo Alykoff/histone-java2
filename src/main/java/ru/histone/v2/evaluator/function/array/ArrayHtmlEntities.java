@@ -34,36 +34,33 @@ public class ArrayHtmlEntities extends AbstractFunction {
 
     private static CompletableFuture<EvalNode> htmlEntities(Context context, EvalNode node) {
         final HistoneType type = node.getType();
-        if (type == HistoneType.T_ARRAY) {
-            final MapEvalNode mapNode = (MapEvalNode) node;
-            final Set<Map.Entry<String, EvalNode>> keyValues = mapNode.getValue().entrySet();
-            final List<CompletableFuture<Tuple<String, EvalNode>>> accFutures = new LinkedList<>();
-            for (Map.Entry<String, EvalNode> entry : keyValues) {
-                final String key = entry.getKey();
-                final EvalNode value = entry.getValue();
-                final boolean isCheckingValuesInArray = value.getType() == HistoneType.T_ARRAY
-                        || value.getType() == HistoneType.T_STRING;
-                if (isCheckingValuesInArray) {
-                    accFutures.add(htmlEntities(context, value).thenApply(newValue ->
-                            new Tuple<>(key, newValue)
-                    ));
-                } else {
-                    accFutures.add(CompletableFuture.completedFuture(
-                            new Tuple<>(key, value))
-                    );
-                }
-            }
-            return AsyncUtils.sequence(accFutures).thenApply(acc -> {
-                Map<String, EvalNode> result = new LinkedHashMap<>();
-                for (Tuple<String, EvalNode> tuple : acc) {
-                    result.put(tuple.getLeft(), tuple.getRight());
-                }
-                return new MapEvalNode(result);
-            });
-        } else if (type == HistoneType.T_STRING) {
+        if (type == HistoneType.T_STRING) {
             return StringHtmlEntities.htmlEntities(node);
-        } else {
-            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
         }
+        final MapEvalNode mapNode = (MapEvalNode) node;
+        final Set<Map.Entry<String, EvalNode>> keyValues = mapNode.getValue().entrySet();
+        final List<CompletableFuture<Tuple<String, EvalNode>>> accFutures = new LinkedList<>();
+        for (Map.Entry<String, EvalNode> entry : keyValues) {
+            final String key = entry.getKey();
+            final EvalNode value = entry.getValue();
+            final boolean isCheckingValuesInArray = value.getType() == HistoneType.T_ARRAY
+                    || value.getType() == HistoneType.T_STRING;
+            if (isCheckingValuesInArray) {
+                accFutures.add(htmlEntities(context, value).thenApply(newValue ->
+                        new Tuple<>(key, newValue)
+                ));
+            } else {
+                accFutures.add(CompletableFuture.completedFuture(
+                        new Tuple<>(key, value))
+                );
+            }
+        }
+        return AsyncUtils.sequence(accFutures).thenApply(acc -> {
+            Map<String, EvalNode> result = new LinkedHashMap<>();
+            for (Tuple<String, EvalNode> tuple : acc) {
+                result.put(tuple.getLeft(), tuple.getRight());
+            }
+            return new MapEvalNode(result);
+        });
     }
 }

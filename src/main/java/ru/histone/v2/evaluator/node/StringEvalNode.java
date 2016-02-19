@@ -44,7 +44,7 @@ public class StringEvalNode extends EvalNode<String> implements HasProperties {
         if (!(propertyName instanceof Double) && !(propertyName instanceof Long)) {
             return null;
         }
-        int indexRaw;
+        final int indexRaw;
         if (propertyName instanceof Double) {
             indexRaw = ((Double) propertyName).intValue();
         } else { // Long

@@ -46,12 +46,44 @@
     "name": "String.charCodeAt",
     "cases": [
       {
-        "input": "<div>{{'histone'->toUpperCase}} = HISTONE</div>",
-        "expectedResult": "<div>HISTONE = HISTONE</div>"
+        "input": "{{'histone'->charCodeAt(-1)}}",
+        "expectedResult": "101"
       },
       {
-        "input": "<div>{{'фубар'->toUpperCase}} = ФУБАР</div>",
-        "expectedResult": "<div>ФУБАР = ФУБАР</div>"
+        "input": "{{'histone'->charCodeAt(0)}}",
+        "expectedResult": "104"
+      },
+      {
+        "input": "{{'histone'->charCodeAt(5)}}",
+        "expectedResult": "110"
+      },
+      {
+        "input": "{{'histone'->charCodeAt(6)}}",
+        "expectedResult": "101"
+      },
+      {
+        "input": "{{'histone'->charCodeAt(a)->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{'histone'->charCodeAt('a')->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{'histone'->charCodeAt('1.0')->toJSON}}",
+        "expectedResult": "105"
+      },
+      {
+        "input": "{{'histone'->charCodeAt('1.1')->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{'histone'->charCodeAt('-1')->toJSON}}",
+        "expectedResult": "101"
+      },
+      {
+        "input": "{{'histone'->charCodeAt(1, 2)->toJSON}}",
+        "expectedResult": "105"
       }
     ]
   }

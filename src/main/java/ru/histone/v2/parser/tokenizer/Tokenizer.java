@@ -130,7 +130,7 @@ public class Tokenizer {
 
         do {
             Token token = getTokenFromBuffer(count++, ignored);
-            if (compareToken(token, selector[index])) {
+            if (!token.isIgnored() && compareToken(token, selector[index])) {
                 result.add(token);
                 index++;
             } else if (!token.isIgnored()) {

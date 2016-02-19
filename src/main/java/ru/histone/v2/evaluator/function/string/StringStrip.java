@@ -11,8 +11,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author gali.alykoff on 19/02/16.
  */
-public class StringReplace extends AbstractFunction {
-    public static final String NAME = "replace";
+public class StringStrip extends AbstractFunction {
+    public static final String NAME = "strip";
 
     @Override
     public String getName() {

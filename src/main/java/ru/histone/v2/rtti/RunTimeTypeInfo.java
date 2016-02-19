@@ -28,9 +28,7 @@ import ru.histone.v2.evaluator.function.macro.MacroExtend;
 import ru.histone.v2.evaluator.function.macro.RequireCall;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
-import ru.histone.v2.evaluator.function.string.Case;
-import ru.histone.v2.evaluator.function.string.StringHtmlEntities;
-import ru.histone.v2.evaluator.function.string.StringLength;
+import ru.histone.v2.evaluator.function.string.*;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
@@ -75,13 +73,13 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new ToJson());
         registerForAlltypes(new ToString());
         registerForAlltypes(new ToBoolean());
+        registerForAlltypes(new ToNumber());
         registerForAlltypes(new IsUndefined());
         registerForAlltypes(new IsNull());
         registerForAlltypes(new IsBoolean());
         registerForAlltypes(new IsNumber());
         registerForAlltypes(new IsInt());
-        registerForAlltypes(new IsFloat());
-        registerForAlltypes(new ToNumber());
+        registerForAlltypes(new IsFloat());;
         registerForAlltypes(new IsString());
         registerForAlltypes(new IsArray());
         registerForAlltypes(new IsMacro());
@@ -135,6 +133,11 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_STRING, new Case(false));
         registerCommon(T_STRING, new Case(true));
         registerCommon(T_STRING, new StringHtmlEntities());
+        registerCommon(T_STRING, new StringCharCodeAt());
+        registerCommon(T_STRING, new StringReplace());
+        registerCommon(T_STRING, new StringSlice());
+        registerCommon(T_STRING, new StringSplit());
+        registerCommon(T_STRING, new StringStrip());
 
         registerCommon(T_MACRO, new MacroCall());
         registerCommon(T_MACRO, new MacroBind());

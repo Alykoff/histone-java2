@@ -160,7 +160,7 @@
     "name": "String.toNumber",
     "cases": [
       {
-        "input": "{{'12345667'->toNumber}}",
+        "input": "{{'12345667'->toNumber->toJSON}}",
         "expectedResult": "12345667"
       }
     ]

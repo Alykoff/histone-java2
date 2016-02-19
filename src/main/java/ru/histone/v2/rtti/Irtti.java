@@ -21,13 +21,14 @@ import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.EvalNode;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author gali.alykoff
  */
 public interface Irtti {
-    Function getFunc(HistoneType type, String funcName);
+    Optional<Function> getFunc(HistoneType type, String funcName);
 
     void register(HistoneType type, String funcName, Function func);
 

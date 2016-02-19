@@ -31,13 +31,14 @@ import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.Case;
 import ru.histone.v2.evaluator.function.string.StringLength;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
-import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -83,7 +84,6 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new IsString());
         registerForAlltypes(new IsArray());
         registerForAlltypes(new IsMacro());
-        registerForAlltypes(new HtmlEntities());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
@@ -108,6 +108,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArrayGroup());
         registerCommon(T_ARRAY, new ArraySort());
         registerCommon(T_ARRAY, new ArraySlice());
+        registerCommon(T_ARRAY, new HtmlEntities());
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor, loader));
@@ -132,6 +133,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_STRING, new StringLength());
         registerCommon(T_STRING, new Case(false));
         registerCommon(T_STRING, new Case(true));
+        registerCommon(T_STRING, new HtmlEntities());
 
         registerCommon(T_MACRO, new MacroCall());
         registerCommon(T_MACRO, new MacroBind());
@@ -151,15 +153,16 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     }
 
     @Override
-    public Function getFunc(HistoneType type, String funcName) {
+    public Optional<Function> getFunc(HistoneType type, String funcName) {
         Function f = userTypes.get(type).get(funcName);
         if (f == null) {
             f = typeMembers.get(type).get(funcName);
             if (f == null) {
-                throw new FunctionExecutionException("Couldn't find function '" + funcName + "' for type " + type);
+//                throw new FunctionExecutionException("Couldn't find function '" + funcName + "' for type " + type);
+                return Optional.empty();
             }
         }
-        return f;
+        return Optional.of(f);
     }
 
     @Override
@@ -174,8 +177,13 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     @Override
     public CompletableFuture<EvalNode> callFunction(Context context, HistoneType type, String funcName, List<EvalNode> args) {
-        final Function f = getFunc(type, funcName);
+        final Optional<Function> fRaw = getFunc(type, funcName);
+        if (!fRaw.isPresent()) {
+            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+        }
+        final Function f = fRaw.get();
         if (f.isAsync()) {
+            // TODO it should be more compact
             return CompletableFuture
                     .completedFuture(null)
                     .thenComposeAsync((x) -> f.execute(context, args), executor);

@@ -29,6 +29,10 @@ public class HtmlEntities extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final EvalNode node = args.get(0);
+        return htmlEntities(context, node);
+    }
+
+    private static CompletableFuture<EvalNode> htmlEntities(Context context, EvalNode node) {
         final HistoneType type = node.getType();
         if (type == HistoneType.T_ARRAY) {
             final MapEvalNode mapNode = (MapEvalNode) node;
@@ -40,7 +44,7 @@ public class HtmlEntities extends AbstractFunction {
                 final boolean isCheckingValuesInArray = value.getType() == HistoneType.T_ARRAY
                         || value.getType() == HistoneType.T_STRING;
                 if (isCheckingValuesInArray) {
-                    accFutures.add(RttiUtils.callHtmlEntities(context, value).thenApply(newValue ->
+                    accFutures.add(htmlEntities(context, value).thenApply(newValue ->
                             new Tuple<>(key, newValue)
                     ));
                 } else {

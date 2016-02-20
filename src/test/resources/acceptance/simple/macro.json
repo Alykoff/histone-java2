@@ -34,6 +34,10 @@
       {
         "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([[1, 2]], [3, 4])}}",
         "expectedResult": "<div>a = 1 2</div><div>b = 3</div><div>c = 4</div><div>d = </div>"
+      },
+      {
+        "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee -> call(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",
+        "expectedResult": "3210"
       }
     ]
   },
@@ -93,15 +97,6 @@
       {
         "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{var inputWidget = inputWidget->extend([PPP: 'ppp'])}}{{inputWidget(inputWidget.PPP)}}",
         "expectedResult": "<input type=\"ppp\" />"
-      }
-    ]
-  },
-  {
-    "name": "macro - call",
-    "cases": [
-      {
-        "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee -> call(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",
-        "expectedResult": "3210"
       }
     ]
   }

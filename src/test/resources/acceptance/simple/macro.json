@@ -122,6 +122,22 @@
       {
         "input": "{{var x = 2}}{{macro myMacro(a, b, c = (x + 2.222222), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}",
         "expectedResult": "a = 1 b = 2 c = 4.222222 d = 222222"
+      },
+      {
+        "input": "{{macro macroName(value = 10)}}{{value}}{{/macro}}{{macroName(UNDEFINED)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{macro macroName(value = 10)}}{{value}}{{/macro}}{{macroName()}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{macro macroName(value = 10)}}{{value}}{{/macro}}{{macroName('FOO')}}",
+        "expectedResult": "FOO"
+      },
+      {
+        "input": "{{macro macroName(value = 10, x = value)}{{x->isUndefined}}{{/macro}}{{macroName()}}",
+        "expectedResult": "true"
       }
     ]
   }

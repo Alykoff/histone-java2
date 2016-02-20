@@ -42,20 +42,22 @@ import java.util.stream.Collectors;
 public class MacroCall extends AbstractFunction implements Serializable {
     public final static String NAME = "call";
     public static final int MACRO_NODE_INDEX = 0;
+    public static final boolean IS_UNWRAP_ARGS_ARRAYS = true;
 
     public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final HistoneMacro histoneMacro = getMacro(args);
-        return processMacro(args, histoneMacro, MACRO_NODE_INDEX);
+        return processMacro(args, histoneMacro, MACRO_NODE_INDEX, IS_UNWRAP_ARGS_ARRAYS);
     }
 
-    private static HistoneMacro getMacro(List<EvalNode> args) {
+    public static HistoneMacro getMacro(List<EvalNode> args) {
         final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
         return macroNode.getValue();
     }
 
-    protected static CompletableFuture<EvalNode> processMacro(
+    public static CompletableFuture<EvalNode> processMacro(
             List<EvalNode> args, HistoneMacro histoneMacro,
-            int startIndex
+            int startIndex,
+            boolean isUnwrapArgsArrays
     ) {
         final AstNode body = histoneMacro.getBody();
         final List<String> namesOfVars = histoneMacro.getArgs();
@@ -64,7 +66,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
         final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
 
-        final List<EvalNode> paramsInput = getParams(args, startIndex);
+        final List<EvalNode> paramsInput = getParams(args, startIndex, isUnwrapArgsArrays);
         final List<EvalNode> params = new ArrayList<>(bindArgs.size() + paramsInput.size());
         params.addAll(bindArgs);
         params.addAll(paramsInput);
@@ -86,11 +88,11 @@ public class MacroCall extends AbstractFunction implements Serializable {
         });
     }
 
-    private static List<EvalNode> getParams(List<EvalNode> args, int startIndex) {
+    private static List<EvalNode> getParams(List<EvalNode> args, int startIndex, boolean isUnwrapArgsArrays) {
         final List<EvalNode> params = new ArrayList<>();
         for (int i = startIndex + 1; i < args.size(); i++) {
             final EvalNode rawNode = args.get(i);
-            if (rawNode instanceof MapEvalNode) {
+            if (isUnwrapArgsArrays && rawNode instanceof MapEvalNode) {
                 final MapEvalNode node = (MapEvalNode) rawNode;
                 final List<EvalNode> innerArgs = node.getValue()
                         .values()

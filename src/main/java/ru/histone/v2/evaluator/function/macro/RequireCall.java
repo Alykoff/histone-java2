@@ -32,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class RequireCall extends MacroCall {
 
+    public static final boolean IS_UNWRAP_ARGS_ARRAYS = true;
+
     private static HistoneMacro getMainMacro(RequireEvalNode macroNode, List<EvalNode> args) {
         if (args.size() > 1) {
             String macroName = (String) args.get(1).getValue();
@@ -52,6 +54,6 @@ public class RequireCall extends MacroCall {
             return EmptyEvalNode.FUTURE_INSTANCE;
         }
 
-        return processMacro(args, histoneMacro, 1);
+        return processMacro(args, histoneMacro, 1, IS_UNWRAP_ARGS_ARRAYS);
     }
 }

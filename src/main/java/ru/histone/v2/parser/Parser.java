@@ -755,6 +755,7 @@ public class Parser {
     }
 
     private AstNode getParenthesizedExpression(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         AstNode node = getExpression(wrapper);
         if (!next(wrapper, T_RPAREN)) {
             throw buildUnexpectedTokenException(wrapper, ")");

@@ -48,11 +48,12 @@ public class RequireCall extends MacroCall {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final RequireEvalNode macroNode = (RequireEvalNode) args.get(0);
         return processRequire(
-                args, macroNode, START_ARGS_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS
+                context.getBaseUri(), args, macroNode, START_ARGS_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS
         );
     }
 
     public static CompletableFuture<EvalNode> processRequire(
+            String baseURI,
             List<EvalNode> args,
             RequireEvalNode macroNode,
             Optional<Integer> startArgsIndex,
@@ -68,7 +69,7 @@ public class RequireCall extends MacroCall {
         }
 
         return processMacro(
-                args, histoneMacro, startArgsIndex, isUnwrapArgsArrays
+                baseURI, args, histoneMacro, startArgsIndex, isUnwrapArgsArrays
         );
     }
 }

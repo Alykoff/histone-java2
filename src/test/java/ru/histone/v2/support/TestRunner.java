@@ -63,6 +63,7 @@ public class TestRunner {
                 if (p.toString().endsWith(".json")) {
                     Stream<String> stringStream = Files.lines(p);
                     List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
+                    histoneCases.forEach(histoneTestCase -> histoneTestCase.getCases().forEach(c -> c.setBaseURI("file://" + p.toString())));
                     cases.addAll(histoneCases);
                 } else {
                     tplMap.put(p.getFileName().toString(), p);
@@ -105,7 +106,7 @@ public class TestRunner {
                 Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
             }
             if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot("http://localhost:4442/histone/", rtti);
+                Context context = Context.createRoot(testCase.getBaseURI(), rtti);
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {

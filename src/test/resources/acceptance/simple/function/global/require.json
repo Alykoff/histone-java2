@@ -3,14 +3,14 @@
     "name": "global -> require - variables",
     "cases": [
       {
-        "input": "a {{require('/acceptance/simple/tpl/function/DOESNT_EXISTS.tpl') -> isUndefined()}} b",
+        "input": "a {{require('../../tpl/function/DOESNT_EXISTS.tpl') -> isUndefined()}} b",
         "expectedException": {
           "line": "1",
-          "message": "/acceptance/simple/tpl/function/DOESNT_EXISTS.tpl"
+          "message": "../../tpl/function/DOESNT_EXISTS.tpl"
         }
       },
       {
-        "input": "a {{var x = require('/acceptance/simple/tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e",
+        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e",
         "expectedResult": "a  b 10 c 111 d 222 e"
       }
     ]
@@ -19,27 +19,27 @@
     "name": "global -> require - macros",
     "cases": [
       {
-        "input": "a {{var x = require('/acceptance/simple/tpl/function/test_for_require.tpl')}} b {{x -> macro_name()}} c",
+        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x -> macro_name()}} c",
         "expectedResult": "a  b inner macro output c"
       },
       {
-        "input": "a {{var x = require('/acceptance/simple/tpl/function/test_for_require.tpl')}} b {{x()}} c",
+        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x()}} c",
         "expectedResult": "a  b  c"
       },
       {
-        "input": "a {{var x = require('/acceptance/simple/tpl/function/test_for_require.tpl')}} b {{x -> param('parameter')}} c",
+        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x -> param('parameter')}} c",
         "expectedResult": "a  b parameter c"
       },
       {
-        "input": "a {{var x = require('/acceptance/simple/tpl/function/test_for_require1.tpl')}} b {{x -> param('parameter')}} c",
+        "input": "a {{var x = require('../../tpl/function/test_for_require1.tpl')}} b {{x -> param('parameter')}} c",
         "expectedResult": "a  b parameter c"
       },
       {
-        "input": "a {{var x = require('/acceptance/simple/tpl/function/test_for_require_return.tpl')}} b {{x -> param('parameter')}} c",
+        "input": "a {{var x = require('../../tpl/function/test_for_require_return.tpl')}} b {{x -> param('parameter')}} c",
         "expectedResult": "a  b blablabla c"
       },
       {
-        "input": "{{var ui = [button: => require('/acceptance/simple/tpl/function/button.tpl')->call(self.arguments)]}}{{ui.button([value: 'MyButton'])}}{{ui.button([value: 'MyButton'])}}",
+        "input": "{{var ui = [button: => require('../../tpl/function/button.tpl')->call(self.arguments)]}}{{ui.button([value: 'MyButton'])}}{{ui.button([value: 'MyButton'])}}",
         "expectedResult": "a  b blablabla c"
       }
     ]

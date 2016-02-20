@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.function.macro;
 
+import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -48,7 +50,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
     public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final HistoneMacro histoneMacro = getMacro(args);
-        return processMacro(args, histoneMacro, MACRO_NODE_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS);
+        return processMacro(context.getBaseUri(), args, histoneMacro, MACRO_NODE_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS);
     }
 
     public static HistoneMacro getMacro(List<EvalNode> args) {
@@ -57,6 +59,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
     }
 
     public static CompletableFuture<EvalNode> processMacro(
+            String baseURI,
             List<EvalNode> args,
             HistoneMacro histoneMacro,
             Optional<Integer> startArgsIndex,
@@ -75,13 +78,16 @@ public class MacroCall extends AbstractFunction implements Serializable {
         params.addAll(paramsInput);
 
         final Context currentContext = contextInner.createNew();
+        List<EvalNode> arguments = new ArrayList<>();
         for (int i = 0; i < namesOfVars.size(); i++) {
             final String argName = namesOfVars.get(i);
             final EvalNode param = (i < params.size())
                     ? params.get(i)
                     : EmptyEvalNode.INSTANCE;
+            arguments.add(param);
             currentContext.put(argName, CompletableFuture.completedFuture(param));
         }
+        currentContext.put(Constants.SELF_CONTEXT_NAME, createSelfObject(new MacroEvalNode(histoneMacro), baseURI, arguments));
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {
                 return CompletableFuture.completedFuture(res);
@@ -91,11 +97,16 @@ public class MacroCall extends AbstractFunction implements Serializable {
         });
     }
 
-    private static List<EvalNode> getParams(
-            List<EvalNode> args,
-            Optional<Integer> startArgsIndex,
-            boolean isUnwrapArgsArrays
-    ) {
+    private static CompletableFuture<EvalNode> createSelfObject(MacroEvalNode macro, String baseURI, List<EvalNode> args) {
+        Map<String, EvalNode> res = new HashMap<>();
+        res.put(Constants.SELF_CONTEXT_CALLEE, macro);
+        res.put(Constants.SELF_CONTEXT_CALLER, EvalUtils.createEvalNode(baseURI));
+        res.put(Constants.SELF_CONTEXT_ARGUMENTS, EvalUtils.constructFromObject(args));
+
+        return EvalUtils.getValue(res);
+    }
+
+    private static List<EvalNode> getParams(List<EvalNode> args, Optional<Integer> startArgsIndex, boolean isUnwrapArgsArrays) {
         final List<EvalNode> params = new ArrayList<>();
         final int start = startArgsIndex.isPresent()
                 ? startArgsIndex.get() + 1

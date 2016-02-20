@@ -11,8 +11,8 @@
         "expectedResult": "<div>http://abc.com/123</div>"
       },
       {
-        "input": "<div>{{resolveURI('foo')}}</div>",
-        "expectedResult": "<div>http://localhost:4442/histone/foo</div>"
+        "input": "<div>{{resolveURI('foo') -> isString()}}</div>",
+        "expectedResult": "<div>true</div>"
       }
     ]
   },

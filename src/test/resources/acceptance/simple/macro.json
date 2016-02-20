@@ -95,5 +95,14 @@
         "expectedResult": "<input type=\"ppp\" />"
       }
     ]
+  },
+  {
+    "name": "macro - call",
+    "cases": [
+      {
+        "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee -> call(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",
+        "expectedResult": "3210"
+      }
+    ]
   }
 ]

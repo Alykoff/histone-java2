@@ -291,6 +291,7 @@ public class Evaluator implements Serializable {
                     return context.getValue(refName).thenCompose(rawMacro -> {
                         if (rawMacro.getType() == HistoneType.T_MACRO) {
                             return MacroCall.processMacro(
+                                    context.getBaseUri(),
                                     args,
                                     ((MacroEvalNode) rawMacro).getValue(),
                                     Optional.empty(),
@@ -298,6 +299,7 @@ public class Evaluator implements Serializable {
                             );
                         } else {
                             return RequireCall.processRequire(
+                                    context.getBaseUri(),
                                     args,
                                     (RequireEvalNode) rawMacro,
                                     Optional.empty(),
@@ -729,7 +731,7 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> getValueFromParentContext(Context context, String valueName) {
         while (context != null) {
-            if (context.contains(valueName)) {
+            if (context.getVars().containsKey(valueName)) {
                 return context.getValue(valueName);
             }
             context = context.getParent();

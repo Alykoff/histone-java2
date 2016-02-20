@@ -25,6 +25,9 @@ public final class Constants {
     public static final String SELF_CONTEXT_LAST_INDEX = "last";
     public static final String SELF_CONTEXT_KEY = "key";
     public static final String SELF_CONTEXT_VALUE = "value";
+    public static final String SELF_CONTEXT_CALLEE = "callee";
+    public static final String SELF_CONTEXT_ARGUMENTS = "arguments";
+    public static final String SELF_CONTEXT_CALLER = "caller";
     public static final String THIS_CONTEXT_VALUE = "this";
 
     private Constants() {

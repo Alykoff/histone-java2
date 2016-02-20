@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 public interface Irtti {
     Optional<Function> getFunc(HistoneType type, String funcName);
 
-    void register(HistoneType type, String funcName, Function func);
+    void register(HistoneType type, Function func);
 
     void unregistered(HistoneType type, String funcName);
 

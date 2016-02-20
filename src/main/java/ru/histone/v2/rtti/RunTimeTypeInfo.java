@@ -125,7 +125,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetDate());
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());
-        registerCommon(T_GLOBAL, new Require());
+        registerCommon(T_GLOBAL, new Require(executor, loader));
 
         registerCommon(T_REGEXP, new Test());
 
@@ -170,8 +170,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     }
 
     @Override
-    public void register(HistoneType type, String funcName, Function func) {
-        throw new NotImplementedException();
+    public void register(HistoneType type, Function func) {
+        userTypes.get(type).put(func.getName(), func);
     }
 
     @Override

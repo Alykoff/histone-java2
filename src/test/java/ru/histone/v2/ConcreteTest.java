@@ -54,7 +54,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("{{5+5}}");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{macro re(v1,v2,k1,k2)}}{{v1 > v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}", rtti, testCase);
+        TestRunner.doTest("{{macro do1(x)}}{{self.arguments}}{{if x > 0}}{{self.callee -> call(x-1)}}{{/if}}{{/macro}}{{do1(3)}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

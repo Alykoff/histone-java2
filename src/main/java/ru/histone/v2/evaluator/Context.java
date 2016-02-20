@@ -107,7 +107,14 @@ public class Context implements Serializable {
     }
 
     public boolean contains(String key) {
-        return vars.containsKey(key);
+        Context ctx = this;
+        while (ctx != null) {
+            if (ctx.vars.containsKey(key)) {
+                return true;
+            }
+            ctx = ctx.getParent();
+        }
+        return false;
     }
 
     public CompletableFuture<EvalNode> getValue(String key) {

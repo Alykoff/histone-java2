@@ -106,7 +106,7 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
         if (baseLocation != null) {
             baseLocation = baseLocation.replace("\\", "/");
-            baseLocation = baseLocation.replace("file://", "file:/");
+//            baseLocation = baseLocation.replace("file://", "file:/");
         }
         URI baseLocationURI = (baseLocation != null) ? URI.create(baseLocation) : null;
 

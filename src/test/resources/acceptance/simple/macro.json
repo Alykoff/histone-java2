@@ -36,10 +36,6 @@
         "expectedResult": "<div>a = 1 2</div><div>b = 3</div><div>c = 4</div><div>d = </div>"
       },
       {
-        "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee -> call(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",
-        "expectedResult": "3210"
-      },
-      {
         "input": "{{macro blaBla(value)}} {{value}}{{if value}}{{self.callee(value - 1)}}{{/if}}{{/macro}}{{blaBla(10)}}",
         "expectedResult": " 10 9 8 7 6 5 4 3 2 1 0"
       }
@@ -105,7 +101,7 @@
     ]
   },
   {
-    "name": "macro - call",
+    "name": "macro - recursion",
     "cases": [
       {
         "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",

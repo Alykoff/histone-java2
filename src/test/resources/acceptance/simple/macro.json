@@ -103,5 +103,26 @@
         "expectedResult": "<input type=\"ppp\" />"
       }
     ]
+  },
+  {
+    "name": "macro - default values",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c = (10000 + 1), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}",
+        "expectedResult": "a = 1 b = 2 c = 10001 d = 222222"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c = 10000, d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}",
+        "expectedResult": "a = 1 b = 2 c = 10000 d = 222222"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c = 10000, d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2, 3)}}",
+        "expectedResult": "a = 1 b = 2 c = 3 d = 222222"
+      },
+      {
+        "input": "{{var x = 2}}{{macro myMacro(a, b, c = (x + 2.222222), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}",
+        "expectedResult": "a = 1 b = 2 c = 4.222222 d = 222222"
+      }
+    ]
   }
 ]

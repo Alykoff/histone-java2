@@ -45,7 +45,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
     public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final HistoneMacro histoneMacro = getMacro(args);
-        return processMacro(args, histoneMacro, Collections.singletonList(MACRO_NODE_INDEX));
+        return processMacro(args, histoneMacro, MACRO_NODE_INDEX);
     }
 
     private static HistoneMacro getMacro(List<EvalNode> args) {
@@ -55,7 +55,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
     protected static CompletableFuture<EvalNode> processMacro(
             List<EvalNode> args, HistoneMacro histoneMacro,
-            List<Integer> indexesToIgnore
+            int startIndex
     ) {
         final AstNode body = histoneMacro.getBody();
         final List<String> namesOfVars = histoneMacro.getArgs();
@@ -64,7 +64,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
         final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
 
-        final List<EvalNode> paramsInput = getParams(args, indexesToIgnore);
+        final List<EvalNode> paramsInput = getParams(args, startIndex);
         final List<EvalNode> params = new ArrayList<>(bindArgs.size() + paramsInput.size());
         params.addAll(bindArgs);
         params.addAll(paramsInput);
@@ -86,13 +86,9 @@ public class MacroCall extends AbstractFunction implements Serializable {
         });
     }
 
-    private static List<EvalNode> getParams(List<EvalNode> args, List<Integer> indexesToIgnore) {
+    private static List<EvalNode> getParams(List<EvalNode> args, int startIndex) {
         final List<EvalNode> params = new ArrayList<>();
-        for (int i = 0; i < args.size(); i++) {
-            if (indexesToIgnore.contains(i)) {
-                continue;
-            }
-
+        for (int i = startIndex + 1; i < args.size(); i++) {
             final EvalNode rawNode = args.get(i);
             if (rawNode instanceof MapEvalNode) {
                 final MapEvalNode node = (MapEvalNode) rawNode;

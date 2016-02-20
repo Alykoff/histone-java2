@@ -52,6 +52,6 @@ public class RequireCall extends MacroCall {
             return EmptyEvalNode.FUTURE_INSTANCE;
         }
 
-        return processMacro(args, histoneMacro, Arrays.asList(0, 1));
+        return processMacro(args, histoneMacro, 1);
     }
 }

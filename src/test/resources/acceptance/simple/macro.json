@@ -105,6 +105,15 @@
     ]
   },
   {
+    "name": "macro - call",
+    "cases": [
+      {
+        "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",
+        "expectedResult": "3210"
+      }
+    ]
+  },
+  {
     "name": "macro - default values",
     "cases": [
       {

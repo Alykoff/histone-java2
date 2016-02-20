@@ -246,6 +246,14 @@ public class Evaluator implements Serializable {
                 argsNodes.addAll(args);
                 return context.call(valueNode, MacroCall.NAME, argsNodes);
             }
+
+            if (valueNode instanceof HasProperties && !context.findFunction(valueNode, methodNode.getValue())) {
+                EvalNode newValue = ((HasProperties) valueNode).getProperty(methodNode.getValue());
+                if (newValue != null) {
+                    argsNodes.set(0, newValue);
+                    return context.call(newValue, MacroCall.NAME, argsNodes);
+                }
+            }
             return context.call(valueNode, methodNode.getValue(), argsNodes);
         });
     }

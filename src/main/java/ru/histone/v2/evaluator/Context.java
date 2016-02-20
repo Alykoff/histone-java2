@@ -157,7 +157,7 @@ public class Context implements Serializable {
 
     public boolean findFunction(EvalNode node, String name) {
         try {
-            return rttiInfo.getFunc(node.getType(), name) != null;
+            return rttiInfo.getFunc(node.getType(), name).isPresent();
         } catch (FunctionExecutionException ignore) {
             // yeah, we couldn't find function with this name
         }

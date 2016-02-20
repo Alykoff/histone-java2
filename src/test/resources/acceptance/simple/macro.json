@@ -145,7 +145,7 @@
         "expectedResult": "FOO"
       },
       {
-        "input": "{{macro macroName(value = 10, x = value)}{{x->isUndefined}}{{/macro}}{{macroName()}}",
+        "input": "{{macro macroName(value = 10, x = value)}}{{x->isUndefined}}{{/macro}}{{macroName()}}",
         "expectedResult": "true"
       }
     ]

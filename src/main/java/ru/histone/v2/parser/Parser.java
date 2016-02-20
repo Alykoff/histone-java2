@@ -335,7 +335,7 @@ public class Parser {
                 final String nameOfVar = nameOfVarToken.firstValue();
                 final ExpAstNode nopNode;
                 if (next(wrapper, T_EQ)) {
-                    nopNode = ParserUtils.createNopNode(nameOfVar, getStatement(wrapper));
+                    nopNode = ParserUtils.createNopNode(nameOfVar, getExpression(wrapper));
                 } else {
                     nopNode = ParserUtils.createNopNode(nameOfVar);
                 }

@@ -41,7 +41,7 @@
       },
       {
         "input": "{{macro blaBla(value)}} {{value}}{{if value}}{{self.callee(value - 1)}}{{/if}}{{/macro}}{{blaBla(10)}}",
-        "expectedResult": "10 9 8 7 6 5 4 3 2 1 0"
+        "expectedResult": " 10 9 8 7 6 5 4 3 2 1 0"
       }
     ]
   },

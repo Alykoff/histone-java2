@@ -196,17 +196,23 @@ public class Evaluator implements Serializable {
                         ? Collections.<AstNode>emptyList()
                         : node.getNodes().subList(startVarIndex, node.size())
         );
-        final CompletableFuture<List<String>> argsFuture = astArgsFuture.thenApply(astNodes ->
-                astNodes.stream()
-                        .map(x -> {
-                            final StringAstNode nameNode = ((ExpAstNode) x).getNode(0);
-                            return nameNode.getValue();
-                        })
-                        .collect(Collectors.toList())
-        );
-        return argsFuture.thenApply(args -> {
+        return astArgsFuture.thenApply(astNodes -> {
+            final List<String> args = astNodes.stream().map(x -> {
+                final ExpAstNode varNode = (ExpAstNode) x;
+                final StringAstNode nameNode = varNode.getNode(0);
+                return nameNode.getValue();
+            }).collect(Collectors.toList());
+            final Map<String, CompletableFuture<EvalNode>> argsDefaultValues = astNodes.stream()
+                    .map(varNode -> (ExpAstNode) varNode)
+                    .filter(varNode -> varNode.size() == 2)
+                    .collect(Collectors.toMap(
+                            varNode -> ((StringAstNode) varNode.getNode(0)).getValue(),
+                            varNode -> evaluateNode(varNode.getNode(1), context)
+                    ));
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(args, body, cloneContext, Evaluator.this));
+            return new MacroEvalNode(new HistoneMacro(
+                    args, body, cloneContext, Evaluator.this, argsDefaultValues
+            ));
         });
     }
 

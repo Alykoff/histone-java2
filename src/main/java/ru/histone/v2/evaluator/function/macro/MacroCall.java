@@ -28,11 +28,12 @@ import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.*;
@@ -69,25 +70,32 @@ public class MacroCall extends AbstractFunction implements Serializable {
         final List<String> namesOfVars = histoneMacro.getArgs();
         final Evaluator evaluator = histoneMacro.getEvaluator();
         final Context contextInner = histoneMacro.getContext();
-
+        final Map<String, CompletableFuture<EvalNode>> defaultsVars = histoneMacro.getDefaultValues();
         final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
-
         final List<EvalNode> paramsInput = getParams(args, startArgsIndex, isUnwrapArgsArrays);
         final List<EvalNode> params = new ArrayList<>(bindArgs.size() + paramsInput.size());
         params.addAll(bindArgs);
         params.addAll(paramsInput);
 
         final Context currentContext = contextInner.createNew();
-        List<EvalNode> arguments = new ArrayList<>();
+        final List<CompletableFuture<EvalNode>> argumentsFutures = new ArrayList<>();
         for (int i = 0; i < namesOfVars.size(); i++) {
             final String argName = namesOfVars.get(i);
-            final EvalNode param = (i < params.size())
-                    ? params.get(i)
-                    : EmptyEvalNode.INSTANCE;
-            arguments.add(param);
-            currentContext.put(argName, CompletableFuture.completedFuture(param));
+            final CompletableFuture<EvalNode> param;
+            if (i < params.size() && params.get(i).getType() != HistoneType.T_UNDEFINED) {
+                param = CompletableFuture.completedFuture(params.get(i));
+            } else if (defaultsVars.containsKey(argName)) {
+                param = defaultsVars.get(argName);
+            } else {
+                param = CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            }
+            argumentsFutures.add(param);
+            currentContext.put(argName, param);
         }
-        currentContext.put(Constants.SELF_CONTEXT_NAME, createSelfObject(new MacroEvalNode(histoneMacro), baseURI, arguments));
+        final CompletableFuture<EvalNode> selfObject = AsyncUtils.sequence(argumentsFutures).thenCompose(arguments ->
+                createSelfObject(new MacroEvalNode(histoneMacro), baseURI, arguments)
+        );
+        currentContext.put(Constants.SELF_CONTEXT_NAME, selfObject);
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {
                 return CompletableFuture.completedFuture(res);

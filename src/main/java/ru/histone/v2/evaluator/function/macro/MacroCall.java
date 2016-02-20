@@ -33,6 +33,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -42,11 +43,12 @@ import java.util.stream.Collectors;
 public class MacroCall extends AbstractFunction implements Serializable {
     public final static String NAME = "call";
     public static final int MACRO_NODE_INDEX = 0;
+    public static final Optional<Integer> MACRO_NODE_INDEX_OPTIONAL = Optional.of(MACRO_NODE_INDEX);
     public static final boolean IS_UNWRAP_ARGS_ARRAYS = true;
 
     public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final HistoneMacro histoneMacro = getMacro(args);
-        return processMacro(args, histoneMacro, MACRO_NODE_INDEX, IS_UNWRAP_ARGS_ARRAYS);
+        return processMacro(args, histoneMacro, MACRO_NODE_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS);
     }
 
     public static HistoneMacro getMacro(List<EvalNode> args) {
@@ -55,8 +57,9 @@ public class MacroCall extends AbstractFunction implements Serializable {
     }
 
     public static CompletableFuture<EvalNode> processMacro(
-            List<EvalNode> args, HistoneMacro histoneMacro,
-            int startIndex,
+            List<EvalNode> args,
+            HistoneMacro histoneMacro,
+            Optional<Integer> startArgsIndex,
             boolean isUnwrapArgsArrays
     ) {
         final AstNode body = histoneMacro.getBody();
@@ -66,7 +69,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
         final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
 
-        final List<EvalNode> paramsInput = getParams(args, startIndex, isUnwrapArgsArrays);
+        final List<EvalNode> paramsInput = getParams(args, startArgsIndex, isUnwrapArgsArrays);
         final List<EvalNode> params = new ArrayList<>(bindArgs.size() + paramsInput.size());
         params.addAll(bindArgs);
         params.addAll(paramsInput);
@@ -88,9 +91,16 @@ public class MacroCall extends AbstractFunction implements Serializable {
         });
     }
 
-    private static List<EvalNode> getParams(List<EvalNode> args, int startIndex, boolean isUnwrapArgsArrays) {
+    private static List<EvalNode> getParams(
+            List<EvalNode> args,
+            Optional<Integer> startArgsIndex,
+            boolean isUnwrapArgsArrays
+    ) {
         final List<EvalNode> params = new ArrayList<>();
-        for (int i = startIndex + 1; i < args.size(); i++) {
+        final int start = startArgsIndex.isPresent()
+                ? startArgsIndex.get() + 1
+                : 0;
+        for (int i = start; i < args.size(); i++) {
             final EvalNode rawNode = args.get(i);
             if (isUnwrapArgsArrays && rawNode instanceof MapEvalNode) {
                 final MapEvalNode node = (MapEvalNode) rawNode;

@@ -38,6 +38,27 @@
     ]
   },
   {
+    "name": "macro - call-2",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([1, 2, 3, 4])}}",
+        "expectedResult": "<div>a = 1 2 3 4</div><div>b = </div><div>c = </div><div>d = </div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([1, 2], [3, 4])}}",
+        "expectedResult": "<div>a = 1 2</div><div>b = 3 4</div><div>c = </div><div>d = </div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([1, 2, 3], [4])}}",
+        "expectedResult": "<div>a = 1 2 3</div><div>b = 4</div><div>c = </div><div>d = </div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([[1, 2]], [3, 4])}}",
+        "expectedResult": "<div>a = 1 2</div><div>b = 3 4</div><div>c = </div><div>d = </div>"
+      }
+    ]
+  },
+  {
     "name": "macro - bind",
     "cases": [
       {

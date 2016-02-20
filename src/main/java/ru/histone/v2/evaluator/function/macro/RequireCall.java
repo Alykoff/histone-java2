@@ -23,8 +23,8 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.RequireEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,6 +33,8 @@ import java.util.concurrent.CompletableFuture;
 public class RequireCall extends MacroCall {
 
     public static final boolean IS_UNWRAP_ARGS_ARRAYS = true;
+    public static final int START_ARGS_INDEX = 1;
+    public static final Optional<Integer> START_ARGS_INDEX_OPTIONAL = Optional.of(START_ARGS_INDEX);
 
     private static HistoneMacro getMainMacro(RequireEvalNode macroNode, List<EvalNode> args) {
         if (args.size() > 1) {
@@ -45,6 +47,17 @@ public class RequireCall extends MacroCall {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final RequireEvalNode macroNode = (RequireEvalNode) args.get(0);
+        return processRequire(
+                args, macroNode, START_ARGS_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS
+        );
+    }
+
+    public static CompletableFuture<EvalNode> processRequire(
+            List<EvalNode> args,
+            RequireEvalNode macroNode,
+            Optional<Integer> startArgsIndex,
+            boolean isUnwrapArgsArrays
+    ) {
         if (macroNode.getMainValue() != null) {
             return EvalUtils.getValue(macroNode.getMainValue().getValue());
         }
@@ -54,6 +67,8 @@ public class RequireCall extends MacroCall {
             return EmptyEvalNode.FUTURE_INSTANCE;
         }
 
-        return processMacro(args, histoneMacro, 1, IS_UNWRAP_ARGS_ARRAYS);
+        return processMacro(
+                args, histoneMacro, startArgsIndex, isUnwrapArgsArrays
+        );
     }
 }

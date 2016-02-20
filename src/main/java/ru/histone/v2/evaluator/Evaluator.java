@@ -24,6 +24,7 @@ import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
+import ru.histone.v2.evaluator.function.macro.RequireCall;
 import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.global.StringEvalNodeLenComparator;
@@ -287,9 +288,23 @@ public class Evaluator implements Serializable {
             if (node.getType() == AST_REF) {
                 final String refName = ((StringEvalNode) functionNameNode).getValue();
                 if (context.contains(refName)) {
-                    return context.getValue(refName).thenCompose(rawMacro ->
-                            RttiUtils.callMacro(context, rawMacro, args)
-                    );
+                    return context.getValue(refName).thenCompose(rawMacro -> {
+                        if (rawMacro.getType() == HistoneType.T_MACRO) {
+                            return MacroCall.processMacro(
+                                    args,
+                                    ((MacroEvalNode) rawMacro).getValue(),
+                                    Optional.empty(),
+                                    false
+                            );
+                        } else {
+                            return RequireCall.processRequire(
+                                    args,
+                                    (RequireEvalNode) rawMacro,
+                                    Optional.empty(),
+                                    false
+                            );
+                        }
+                    });
                 } else {
                     return context.call(refName, args);
                 }

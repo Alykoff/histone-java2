@@ -106,6 +106,10 @@
       {
         "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",
         "expectedResult": "3210"
+      },
+      {
+        "input": "{{macro do1(x,y,z)}}{{[x,y,z]}}{{if x > 0}}{{self.callee(x-1,y,z)}}{{/if}}{{/macro}}{{do1(3)}}",
+        "expectedResult": "3210"
       }
     ]
   },

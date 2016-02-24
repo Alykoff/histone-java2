@@ -98,10 +98,6 @@ public class Context implements Serializable {
         return ctx;
     }
 
-    public void release() {
-        parent = null;
-    }
-
     public void put(String key, CompletableFuture<EvalNode> value) {
         vars.put(key, value);
     }

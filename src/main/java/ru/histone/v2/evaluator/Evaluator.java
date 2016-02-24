@@ -257,7 +257,13 @@ public class Evaluator implements Serializable {
                 EvalNode newValue = ((HasProperties) valueNode).getProperty(methodNode.getValue());
                 if (newValue != null) {
                     argsNodes.set(0, newValue);
-                    return context.call(newValue, MacroCall.NAME, argsNodes);
+                    return MacroCall.processMacro(
+                            context.getBaseUri(),
+                            args,
+                            ((MacroEvalNode) newValue).getValue(),
+                            Optional.empty(),
+                            false
+                    );
                 }
             }
             return context.call(valueNode, methodNode.getValue(), argsNodes);
@@ -302,7 +308,7 @@ public class Evaluator implements Serializable {
             if (node.getType() == AST_REF) {
                 final String refName = ((StringEvalNode) functionNameNode).getValue();
                 if (context.contains(refName)) {
-                    return context.getValue(refName).thenCompose(rawMacro -> {
+                    return getValueFromParentContext(context, refName).thenCompose(rawMacro -> {
                         if (rawMacro.getType() == HistoneType.T_MACRO) {
                             return MacroCall.processMacro(
                                     context.getBaseUri(),

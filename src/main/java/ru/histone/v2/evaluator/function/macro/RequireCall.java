@@ -22,6 +22,7 @@ import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.RequireEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,14 +45,6 @@ public class RequireCall extends MacroCall {
         return null;
     }
 
-    @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        final RequireEvalNode macroNode = (RequireEvalNode) args.get(0);
-        return processRequire(
-                context.getBaseUri(), args, macroNode, START_ARGS_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS
-        );
-    }
-
     public static CompletableFuture<EvalNode> processRequire(
             String baseURI,
             List<EvalNode> args,
@@ -60,6 +53,12 @@ public class RequireCall extends MacroCall {
             boolean isUnwrapArgsArrays
     ) {
         if (macroNode.getMainValue() != null) {
+            if (macroNode.getMainValue().getType() == HistoneType.T_MACRO) {
+                HistoneMacro macro = (HistoneMacro) macroNode.getMainValue().getValue();
+                return processMacro(
+                        baseURI, args, macro, startArgsIndex, isUnwrapArgsArrays
+                );
+            }
             return EvalUtils.getValue(macroNode.getMainValue().getValue());
         }
 
@@ -70,6 +69,14 @@ public class RequireCall extends MacroCall {
 
         return processMacro(
                 baseURI, args, histoneMacro, startArgsIndex, isUnwrapArgsArrays
+        );
+    }
+
+    @Override
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        final RequireEvalNode macroNode = (RequireEvalNode) args.get(0);
+        return processRequire(
+                context.getBaseUri(), args, macroNode, START_ARGS_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS
         );
     }
 }

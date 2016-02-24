@@ -39,8 +39,12 @@
         "expectedResult": "a  b blablabla c"
       },
       {
-        "input": "{{var ui = [button: => require('../../tpl/function/button.tpl')->call(self.arguments)]}}{{ui.button([value: 'MyButton'])}}{{ui.button([value: 'MyButton'])}}",
-        "expectedResult": "a  b blablabla c"
+        "input": "{{var ui = [button: => require('../../tpl/function/button.tpl')->call(self.arguments)]}}{{ui.button([value: 'MyButton'])}}",
+        "expectedResult": "<div class=\"ui-button\">MyButton</div>"
+      },
+      {
+        "input": "{{var x = require('../../tpl/function/test_for_require.tpl')}}{{x.mainMacro(4)}}",
+        "expectedResult": "45"
       }
     ]
   }

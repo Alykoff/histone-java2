@@ -29,13 +29,9 @@ import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -92,9 +88,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
             argumentsFutures.add(param);
             currentContext.put(argName, param);
         }
-        final CompletableFuture<EvalNode> selfObject = AsyncUtils.sequence(argumentsFutures).thenCompose(arguments ->
-                createSelfObject(new MacroEvalNode(histoneMacro), baseURI, arguments)
-        );
+        final CompletableFuture<EvalNode> selfObject = createSelfObject(new MacroEvalNode(histoneMacro), baseURI, paramsInput);
         currentContext.put(Constants.SELF_CONTEXT_NAME, selfObject);
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {

@@ -56,10 +56,10 @@ public class HttpConcreteTest extends JerseyTestNg.ContainerPerMethodTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("{{5+5}}");
+        testCase.setExpectedResult("GET");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: null]).body}}", rtti, testCase);
+        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'GET']).method}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

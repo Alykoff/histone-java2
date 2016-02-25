@@ -18,7 +18,7 @@ package ru.histone.v2.exceptions;
 
 /**
  *
- * Created by alexey.nevinsky on 24.12.2015.
+ * @author alexey.nevinsky
  */
 public class ParserException extends HistoneException {
     protected final String baseURI;

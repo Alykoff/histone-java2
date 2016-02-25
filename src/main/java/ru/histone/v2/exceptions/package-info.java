@@ -12,7 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *//**
+ */
+/**
+ * Exceptions from this package uses for represents errors witch may occurs in paring or evaluating histone 2 templates
+ *
  * @author alexey.nevinsky
  */
 package ru.histone.v2.exceptions;

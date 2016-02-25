@@ -12,7 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *//**
+ */
+/**
+ * Classes from this package uses to evaluating AST-tree and getting result in string representation
+ *
  * @author alexey.nevinsky
  */
 package ru.histone.v2.evaluator;

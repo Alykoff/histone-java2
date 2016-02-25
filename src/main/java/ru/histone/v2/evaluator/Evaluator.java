@@ -285,6 +285,7 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
+                    checkHasPropertiesInterface(futures.get(0));
                     final HasProperties mapEvalNode = (HasProperties) futures.get(0);
                     final Object value = futures.get(1).getValue();
                     final EvalNode obj = mapEvalNode.getProperty(value);
@@ -293,6 +294,13 @@ public class Evaluator implements Serializable {
                     }
                     return EmptyEvalNode.INSTANCE;
                 });
+    }
+
+    private void checkHasPropertiesInterface(EvalNode v) {
+        if (!(v instanceof HasProperties)) {
+            throw new HistoneException("Value '" + v.getValue() + "' has type '" + v.getType() + "', but expected types" +
+                    " are: 'T_ARRAY', 'T_MACRO', 'T_STRING', 'T_REQUIRE'");
+        }
     }
 
     private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) {

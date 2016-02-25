@@ -18,23 +18,19 @@ package ru.histone.v2.parser;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import ru.histone.tokenizer.Token;
-import ru.histone.tokenizer.Tokens;
 import ru.histone.v2.exceptions.HistoneException;
+import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.exceptions.SyntaxErrorException;
 import ru.histone.v2.exceptions.UnexpectedTokenException;
 import ru.histone.v2.parser.node.*;
-import ru.histone.v2.parser.tokenizer.ExpressionList;
-import ru.histone.v2.parser.tokenizer.Tokenizer;
-import ru.histone.v2.parser.tokenizer.TokenizerResult;
-import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
+import ru.histone.v2.parser.tokenizer.*;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static ru.histone.tokenizer.Tokens.*;
 import static ru.histone.v2.parser.node.AstType.*;
+import static ru.histone.v2.parser.tokenizer.Tokens.*;
 
 /**
  * Class used for validate and create AST tree from histone template. It doesn't have a state, so it you can create

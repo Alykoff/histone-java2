@@ -17,7 +17,6 @@
 package ru.histone.v2.parser.tokenizer;
 
 import org.apache.commons.collections.CollectionUtils;
-import ru.histone.tokenizer.Token;
 
 import java.util.Arrays;
 import java.util.List;

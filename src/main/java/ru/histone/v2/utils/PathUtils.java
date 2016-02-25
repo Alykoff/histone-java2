@@ -16,8 +16,7 @@
 package ru.histone.v2.utils;
 
 
-import ru.histone.evaluator.functions.global.URI;
-import ru.histone.utils.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Created by inv3r on 14/01/16.
+ * @author alexey.nevinsky
  */
 public class EvalUtils {
     public static boolean nodeAsBoolean(EvalNode node) {

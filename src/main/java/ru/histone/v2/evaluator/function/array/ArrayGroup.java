@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016 MegaFon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
@@ -20,13 +36,41 @@ import java.util.stream.Collectors;
 public class ArrayGroup extends AbstractFunction implements Serializable {
     public static final String NAME = "group";
     public static final int ARRAY_INDEX = 0;
-    private static final int MACRO_INDEX = 1;
     public static final int START_BIND_INDEX = 2;
     public static final Comparator<Tuple<Integer, EvalNode>> HISTONE_ARRAY_GROUP_COMPARATOR = (x, y) -> {
         final Integer xKey = x.getLeft();
         final Integer yKey = y.getLeft();
         return xKey.compareTo(yKey);
     };
+    private static final int MACRO_INDEX = 1;
+
+    public static CompletableFuture<Map<String, List<EvalNode>>> groupBy(
+            Context context,
+            MacroEvalNode macro,
+            List<Map.Entry<String, EvalNode>> nodes,
+            Map<String, List<EvalNode>> accNumber
+    ) {
+        if (nodes.isEmpty()) {
+            return CompletableFuture.completedFuture(accNumber);
+        }
+        final Map.Entry<String, EvalNode> first = nodes.get(0);
+        final EvalNode firstValue = first.getValue();
+        final EvalNode firstKey = new StringEvalNode(first.getKey());
+        return RttiUtils.callMacro(context, macro, firstValue, firstKey).thenCompose(macroResult ->
+                RttiUtils.callToStringResult(context, macroResult).thenCompose(group -> {
+                    final List<EvalNode> listOfGroup = accNumber.get(group);
+                    if (listOfGroup == null) {
+                        List<EvalNode> list = new ArrayList<>();
+                        list.add(firstValue);
+                        accNumber.put(group, list);
+                    } else {
+                        listOfGroup.add(firstValue);
+                    }
+                    return groupBy(
+                            context, macro, nodes.subList(1, nodes.size()), accNumber
+                    );
+                }));
+    }
 
     @Override
     public String getName() {
@@ -82,33 +126,5 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
 
             return new MapEvalNode(res);
         });
-    }
-
-    public static CompletableFuture<Map<String, List<EvalNode>>> groupBy(
-            Context context,
-            MacroEvalNode macro,
-            List<Map.Entry<String, EvalNode>> nodes,
-            Map<String, List<EvalNode>> accNumber
-    ) {
-        if (nodes.isEmpty()) {
-            return CompletableFuture.completedFuture(accNumber);
-        }
-        final Map.Entry<String, EvalNode> first = nodes.get(0);
-        final EvalNode firstValue = first.getValue();
-        final EvalNode firstKey = new StringEvalNode(first.getKey());
-        return RttiUtils.callMacro(context, macro, firstValue, firstKey).thenCompose(macroResult ->
-            RttiUtils.callToStringResult(context, macroResult).thenCompose(group -> {
-                final List<EvalNode> listOfGroup = accNumber.get(group);
-                if (listOfGroup == null) {
-                    List<EvalNode> list = new ArrayList<>();
-                    list.add(firstValue);
-                    accNumber.put(group, list);
-                } else {
-                    listOfGroup.add(firstValue);
-                }
-                return groupBy(
-                    context, macro, nodes.subList(1, nodes.size()), accNumber
-                );
-            }));
     }
 }

@@ -37,7 +37,7 @@ public class IOUtils {
             if (resource instanceof HistoneStringResource) {
                 content = ((HistoneStringResource) resource).getContent();
             } else if (resource instanceof HistoneStreamResource) {
-                content = ru.histone.utils.IOUtils.toString(((HistoneStreamResource) resource).getContent());
+                content = org.apache.commons.io.IOUtils.toString(((HistoneStreamResource) resource).getContent());
             } else {
                 throw new ResourceLoadException(MessageFormat.format("Unsupported resource class: {0}", resource.getClass()));
             }

@@ -17,8 +17,7 @@
 package ru.histone.v2.parser.tokenizer;
 
 import org.apache.commons.lang.ArrayUtils;
-import ru.histone.expression.Expression;
-import ru.histone.tokenizer.Token;
+import ru.histone.v2.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,8 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static ru.histone.tokenizer.Tokens.T_EOF;
-import static ru.histone.tokenizer.Tokens.T_ERROR;
+import static ru.histone.v2.parser.tokenizer.Tokens.T_EOF;
+import static ru.histone.v2.parser.tokenizer.Tokens.T_ERROR;
 
 /**
  * Histone template tokenizer<br/>

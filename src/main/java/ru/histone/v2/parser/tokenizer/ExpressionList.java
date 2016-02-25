@@ -16,9 +16,8 @@
 
 package ru.histone.v2.parser.tokenizer;
 
-import ru.histone.expression.BaseExpression;
-import ru.histone.expression.Expression;
-import ru.histone.tokenizer.Tokens;
+import ru.histone.v2.expression.BaseExpression;
+import ru.histone.v2.expression.Expression;
 
 import java.util.Arrays;
 import java.util.List;

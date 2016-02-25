@@ -16,17 +16,16 @@
 
 package ru.histone.v2.evaluator.function.global;
 
-import ru.histone.evaluator.functions.global.GlobalFunctionExecutionException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.function.any.ToNumber;
-import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.AsyncUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**

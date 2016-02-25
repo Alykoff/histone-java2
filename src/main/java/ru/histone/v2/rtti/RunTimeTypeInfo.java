@@ -51,11 +51,11 @@ import static ru.histone.v2.rtti.HistoneType.*;
  * @author gali.alykoff on 22/01/16.
  */
 public class RunTimeTypeInfo implements Irtti, Serializable {
-    private final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
-    private final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
+    protected final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
+    protected final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 
-    private final Executor executor;
-    private final HistoneResourceLoader loader;
+    protected final Executor executor;
+    protected final HistoneResourceLoader loader;
 
     public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader) {
         this.executor = executor;
@@ -187,12 +187,17 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         }
         final Function f = fRaw.get();
         if (f.isAsync()) {
-            // TODO it should be more compact
-            return CompletableFuture
-                    .completedFuture(null)
-                    .thenComposeAsync((x) -> f.execute(context, args), executor);
+            return runAsync(context, args, f);
+
         }
         return f.execute(context, args);
+    }
+
+    protected CompletableFuture<EvalNode> runAsync(Context context, List<EvalNode> args, Function f) {
+        // TODO it should be more compact
+        return CompletableFuture
+                .completedFuture(null)
+                .thenComposeAsync((x) -> f.execute(context, args), executor);
     }
 
     @Override

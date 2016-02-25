@@ -136,9 +136,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(
-            Context context, List<EvalNode> args
-    ) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         return staticExecute(context, args);
     }
 }

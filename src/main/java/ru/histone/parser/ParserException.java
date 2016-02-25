@@ -15,7 +15,7 @@
  */
 package ru.histone.parser;
 
-import ru.histone.HistoneException;
+import ru.histone.v2.exceptions.HistoneException;
 
 /**
  * Parse exception, provides detailed information about parse error

@@ -17,10 +17,10 @@ package ru.histone.optimizer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import ru.histone.HistoneException;
 import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.parser.AstNodeType;
 import ru.histone.utils.Assert;
+import ru.histone.v2.exceptions.HistoneException;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

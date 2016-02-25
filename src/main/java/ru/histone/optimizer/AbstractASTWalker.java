@@ -17,12 +17,12 @@ package ru.histone.optimizer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import ru.histone.HistoneException;
 import ru.histone.evaluator.nodes.AstNode;
 import ru.histone.evaluator.nodes.Node;
 import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.parser.AstNodeType;
 import ru.histone.utils.Assert;
+import ru.histone.v2.exceptions.HistoneException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,7 +60,58 @@ import java.util.Set;
  * Date: 08.01.13
  */
 public abstract class AbstractASTWalker {
+    public static final String KEYWORD_SELF = "self";
+    /**
+     * AST node types, that represent constants.
+     */
+    protected final static Set<Integer> CONSTANTS = new HashSet<Integer>(Arrays.asList(
+            AstNodeType.TRUE,
+            AstNodeType.FALSE,
+            AstNodeType.NULL,
+            AstNodeType.INT,
+            AstNodeType.DOUBLE,
+            AstNodeType.STRING
+    ));
+    /**
+     * AST node types, that represent binary operations.
+     */
+    protected final static Set<Integer> BINARY_OPERATIONS = new HashSet<Integer>(Arrays.asList(
+            AstNodeType.ADD,
+            AstNodeType.SUB,
+            AstNodeType.MUL,
+            AstNodeType.DIV,
+            AstNodeType.MOD,
+            AstNodeType.OR,
+            AstNodeType.AND,
+            AstNodeType.NOT,
+            AstNodeType.EQUAL,
+            AstNodeType.NOT_EQUAL,
+            AstNodeType.LESS_OR_EQUAL,
+            AstNodeType.LESS_THAN,
+            AstNodeType.GREATER_OR_EQUAL,
+            AstNodeType.GREATER_THAN
+    ));
+    /**
+     * AST node types, that represent unary operations.
+     */
+    protected final static Set<Integer> UNARY_OPERATIONS = new HashSet<Integer>(Arrays.asList(
+            AstNodeType.NEGATE,
+            AstNodeType.NOT
+    ));
+    /**
+     * AST node types, that represent ternary operations.
+     */
+    protected final static Set<Integer> TERNARY_OPERATIONS = new HashSet<Integer>(Arrays.asList(
+            AstNodeType.NEGATE
+    ));
+
+
+    //<editor-fold desc="Functions for context support">
     protected final NodeFactory nodeFactory;
+
+    protected AbstractASTWalker(NodeFactory nodeFactory) {
+        this.nodeFactory = nodeFactory;
+    }
 
     /**
      * Removes HISTONE signature and returns AST tree:
@@ -80,6 +131,94 @@ public abstract class AbstractASTWalker {
             // Otherwise there is no signature, and it's an actual AST
             return ast;
         }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Recursive processing different types of nodes">
+
+    public static boolean isStatements(ArrayNode arr) {
+        int nodeType = getNodeType(arr);
+        return nodeType == AstNodeType.STATEMENTS;
+    }
+
+    public static boolean isConstant(ArrayNode arr) {
+        int nodeType = getNodeType(arr);
+        return nodeType == AstNodeType.TRUE ||
+                nodeType == AstNodeType.FALSE ||
+                nodeType == AstNodeType.NULL ||
+                nodeType == AstNodeType.INT ||
+                nodeType == AstNodeType.DOUBLE ||
+                nodeType == AstNodeType.STRING;
+    }
+
+    public static boolean isMap(ArrayNode arr) {
+        int nodeType = getNodeType(arr);
+        return nodeType == AstNodeType.MAP;
+    }
+
+    /**
+     * Returns true if all items in this map are constants (recursive). Accepts only map AST nodes, otherwise returns false.
+     *
+     * @see {@link #getNodeType(com.fasterxml.jackson.databind.node.ArrayNode)}
+     */
+    public static boolean isMapOfConstants(ArrayNode arr) {
+        int nodeType = getNodeType(arr);
+        if (nodeType != AstNodeType.MAP) return false;
+
+        boolean result = true;
+        ArrayNode mapEntries = (ArrayNode) arr.get(1);
+        for (JsonNode mapEntry : mapEntries) {
+            JsonNode entryKey = mapEntry.get(0);
+            ArrayNode entryValue = (ArrayNode) mapEntry.get(1);
+
+            result = result && (isConstant(entryValue) || isMapOfConstants(entryValue));
+        }
+        return result;
+    }
+
+    /**
+     * Returns {@link AstNodeType} value for the input node.
+     */
+    public static int getNodeType(ArrayNode astArray) {
+        return astArray.get(0).isInt() ? astArray.get(0).asInt() : 0;
+    }
+
+    /**
+     * Computes hash value for the input AST node. That value is used only for comparing two AST nodes (if they are equal or not).
+     */
+    public static long hash(JsonNode arr) {
+        long result = 0;
+
+        if (arr.isContainerNode()) {
+            for (JsonNode node : arr) {
+                result += hash(node);
+            }
+        }
+
+        if (arr.isValueNode()) {
+            result += arr.asText().hashCode();
+        }
+
+        return result;
+    }
+
+    /**
+     * Counts child nodes of the input one (recursive).
+     */
+    public static long countNodes(JsonNode arr) {
+        long result = 0;
+
+        if (arr.isContainerNode()) {
+            for (JsonNode node : arr) {
+                result += countNodes(node) + 1;
+            }
+        }
+
+        if (arr.isValueNode()) {
+            result += 1;
+        }
+
+        return result;
     }
 
     /**
@@ -178,8 +317,7 @@ public abstract class AbstractASTWalker {
         }
     }
 
-
-    //<editor-fold desc="Functions for context support">
+    //</editor-fold>
 
     /**
      * If a subclass wants to deal with context it's important for handle frame push/pop events (when entering and leaving
@@ -197,9 +335,6 @@ public abstract class AbstractASTWalker {
         ast = removeHistoneAstSignature(ast);
         return processAST(ast);
     }
-    //</editor-fold>
-
-    //<editor-fold desc="Recursive processing different types of nodes">
 
     protected JsonNode processCall(ArrayNode ast) throws HistoneException {
         int type = ast.get(0).asInt();
@@ -269,6 +404,9 @@ public abstract class AbstractASTWalker {
         String resource = ast.get(1).asText();
         return ast;
     }
+
+
+    //<editor-fold desc="Helper functions">
 
     protected JsonNode processVariable(ArrayNode ast) throws HistoneException {
         int type = ast.get(0).asInt();
@@ -377,55 +515,6 @@ public abstract class AbstractASTWalker {
         return nodeFactory.jsonArray(type, nodeFactory.jsonArray(tokensOut));
     }
 
-    //</editor-fold>
-
-    /**
-     * AST node types, that represent constants.
-     */
-    protected final static Set<Integer> CONSTANTS = new HashSet<Integer>(Arrays.asList(
-            AstNodeType.TRUE,
-            AstNodeType.FALSE,
-            AstNodeType.NULL,
-            AstNodeType.INT,
-            AstNodeType.DOUBLE,
-            AstNodeType.STRING
-    ));
-
-    /**
-     * AST node types, that represent binary operations.
-     */
-    protected final static Set<Integer> BINARY_OPERATIONS = new HashSet<Integer>(Arrays.asList(
-            AstNodeType.ADD,
-            AstNodeType.SUB,
-            AstNodeType.MUL,
-            AstNodeType.DIV,
-            AstNodeType.MOD,
-            AstNodeType.OR,
-            AstNodeType.AND,
-            AstNodeType.NOT,
-            AstNodeType.EQUAL,
-            AstNodeType.NOT_EQUAL,
-            AstNodeType.LESS_OR_EQUAL,
-            AstNodeType.LESS_THAN,
-            AstNodeType.GREATER_OR_EQUAL,
-            AstNodeType.GREATER_THAN
-    ));
-
-    /**
-     * AST node types, that represent unary operations.
-     */
-    protected final static Set<Integer> UNARY_OPERATIONS = new HashSet<Integer>(Arrays.asList(
-            AstNodeType.NEGATE,
-            AstNodeType.NOT
-    ));
-
-    /**
-     * AST node types, that represent ternary operations.
-     */
-    protected final static Set<Integer> TERNARY_OPERATIONS = new HashSet<Integer>(Arrays.asList(
-            AstNodeType.NEGATE
-    ));
-
     /**
      * @return Codes of binary operations.
      */
@@ -458,49 +547,6 @@ public abstract class AbstractASTWalker {
         return result;
     }
 
-
-    //<editor-fold desc="Helper functions">
-
-    public static boolean isStatements(ArrayNode arr) {
-        int nodeType = getNodeType(arr);
-        return nodeType == AstNodeType.STATEMENTS;
-    }
-
-    public static boolean isConstant(ArrayNode arr) {
-        int nodeType = getNodeType(arr);
-        return nodeType == AstNodeType.TRUE ||
-                nodeType == AstNodeType.FALSE ||
-                nodeType == AstNodeType.NULL ||
-                nodeType == AstNodeType.INT ||
-                nodeType == AstNodeType.DOUBLE ||
-                nodeType == AstNodeType.STRING;
-    }
-
-    public static boolean isMap(ArrayNode arr) {
-        int nodeType = getNodeType(arr);
-        return nodeType == AstNodeType.MAP;
-    }
-
-    /**
-     * Returns true if all items in this map are constants (recursive). Accepts only map AST nodes, otherwise returns false.
-     *
-     * @see {@link #getNodeType(com.fasterxml.jackson.databind.node.ArrayNode)}
-     */
-    public static boolean isMapOfConstants(ArrayNode arr) {
-        int nodeType = getNodeType(arr);
-        if (nodeType != AstNodeType.MAP) return false;
-
-        boolean result = true;
-        ArrayNode mapEntries = (ArrayNode) arr.get(1);
-        for (JsonNode mapEntry : mapEntries) {
-            JsonNode entryKey = mapEntry.get(0);
-            ArrayNode entryValue = (ArrayNode) mapEntry.get(1);
-
-            result = result && (isConstant(entryValue) || isMapOfConstants(entryValue));
-        }
-        return result;
-    }
-
     /**
      * Returns true if all AST nodes in input collection are constant nodes.
      *
@@ -514,13 +560,7 @@ public abstract class AbstractASTWalker {
         }
         return true;
     }
-
-    /**
-     * Returns {@link AstNodeType} value for the input node.
-     */
-    public static int getNodeType(ArrayNode astArray) {
-        return astArray.get(0).isInt() ? astArray.get(0).asInt() : 0;
-    }
+    //</editor-fold>
 
     /**
      * The most problematic function of this class; After evaluating of constant expression (expression, that contains
@@ -556,49 +596,4 @@ public abstract class AbstractASTWalker {
 
         throw new IllegalStateException(String.format("Can't convert node %s to AST element", node));
     }
-
-    protected AbstractASTWalker(NodeFactory nodeFactory) {
-        this.nodeFactory = nodeFactory;
-    }
-
-    /**
-     * Computes hash value for the input AST node. That value is used only for comparing two AST nodes (if they are equal or not).
-     */
-    public static long hash(JsonNode arr) {
-        long result = 0;
-
-        if (arr.isContainerNode()) {
-            for (JsonNode node : arr) {
-                result += hash(node);
-            }
-        }
-
-        if (arr.isValueNode()) {
-            result += arr.asText().hashCode();
-        }
-
-        return result;
-    }
-
-    /**
-     * Counts child nodes of the input one (recursive).
-     */
-    public static long countNodes(JsonNode arr) {
-        long result = 0;
-
-        if (arr.isContainerNode()) {
-            for (JsonNode node : arr) {
-                result += countNodes(node) + 1;
-            }
-        }
-
-        if (arr.isValueNode()) {
-            result += 1;
-        }
-
-        return result;
-    }
-    //</editor-fold>
-
-    public static final String KEYWORD_SELF = "self";
 }

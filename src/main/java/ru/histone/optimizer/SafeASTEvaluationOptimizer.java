@@ -17,11 +17,11 @@ package ru.histone.optimizer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import ru.histone.HistoneException;
 import ru.histone.evaluator.Evaluator;
 import ru.histone.evaluator.nodes.Node;
 import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.parser.AstNodeType;
+import ru.histone.v2.exceptions.HistoneException;
 
 /**
  * This optimization unit evaluates constant AST branches and replaces them by evaluation result (string constant AST node).

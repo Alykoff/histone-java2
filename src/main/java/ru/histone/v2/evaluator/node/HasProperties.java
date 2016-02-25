@@ -1,6 +1,6 @@
 package ru.histone.v2.evaluator.node;
 
-import ru.histone.HistoneException;
+import ru.histone.v2.exceptions.HistoneException;
 
 /**
  * @author gali.alykoff on 08/02/16.

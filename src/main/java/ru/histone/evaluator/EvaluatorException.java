@@ -15,7 +15,7 @@
  */
 package ru.histone.evaluator;
 
-import ru.histone.HistoneException;
+import ru.histone.v2.exceptions.HistoneException;
 
 /**
  * Evaluator exception, provides detailed information about evaluation error

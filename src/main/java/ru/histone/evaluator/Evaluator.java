@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.GlobalProperty;
 import ru.histone.Histone;
-import ru.histone.HistoneException;
 import ru.histone.HistoneStopTheWorldException;
 import ru.histone.evaluator.functions.global.*;
 import ru.histone.evaluator.functions.node.*;
@@ -39,6 +38,7 @@ import ru.histone.resourceloaders.*;
 import ru.histone.utils.ArrayUtils;
 import ru.histone.utils.IOUtils;
 import ru.histone.utils.StringUtils;
+import ru.histone.v2.exceptions.HistoneException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -164,7 +164,7 @@ public class Evaluator {
 //     * @param input   template content
 //     * @param jsonCtx json object for evaluator context
 //     * @return evaluation result
-//     * @throws ru.histone.HistoneException in case of eny errors
+//     * @throws ru.histone.v2.exceptions.HistoneException in case of eny errors
 //     */
 //    public String process(URI baseURI, String input, JsonNode jsonCtx) throws HistoneException {
 //        ArrayNode ast = parser.parse(input);
@@ -177,7 +177,7 @@ public class Evaluator {
 //     * @param input   template content
 //     * @param jsonCtx json object for evaluator context
 //     * @return evaluation result
-//     * @throws ru.histone.HistoneException in case of eny errors
+//     * @throws ru.histone.v2.exceptions.HistoneException in case of eny errors
 //     */
 //    public String process(String input, JsonNode jsonCtx) throws HistoneException {
 //        ArrayNode ast = parser.parse(input);
@@ -190,7 +190,7 @@ public class Evaluator {
 //     * @param input   template content
 //     * @param context special context object for evaluator context
 //     * @return evaluation result
-//     * @throws ru.histone.HistoneException in case of eny errors
+//     * @throws ru.histone.v2.exceptions.HistoneException in case of eny errors
 //     */
 //    public String process(URI baseURI, String input, EvaluatorContext context) throws HistoneException {
 //        ArrayNode ast = parser.parse(input);
@@ -203,7 +203,7 @@ public class Evaluator {
 //     * @param input   template content
 //     * @param context special context object for evaluator context
 //     * @return evaluation result
-//     * @throws ru.histone.HistoneException in case of eny errors
+//     * @throws ru.histone.v2.exceptions.HistoneException in case of eny errors
 //     */
 //    public String process(String input, EvaluatorContext context) throws HistoneException {
 //        ArrayNode ast = parser.parse(input);
@@ -216,7 +216,7 @@ public class Evaluator {
 //     * @param ast     tempalte AST in json representation
 //     * @param jsonCtx json object for evaluator context
 //     * @return evaluation result
-//     * @throws ru.histone.HistoneException in case of eny errors
+//     * @throws ru.histone.v2.exceptions.HistoneException in case of eny errors
 //     */
 //    public String process(ArrayNode ast, JsonNode jsonCtx) throws HistoneException {
 //        return process(ast, EvaluatorContext.createFromJson(nodeFactory, global, jsonCtx));
@@ -228,7 +228,7 @@ public class Evaluator {
      * @param ast         tempalte AST in json representation
      * @param jsonContext special context object for evaluator context
      * @return evaluation result
-     * @throws ru.histone.HistoneException in case of eny errors
+     * @throws HistoneException in case of eny errors
      */
     public String process(String baseURI, ArrayNode ast, JsonNode jsonContext) throws HistoneException {
         EvaluatorContext context = EvaluatorContext.createFromJson(nodeFactory, global, jsonContext);

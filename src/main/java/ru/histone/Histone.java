@@ -30,6 +30,7 @@ import ru.histone.parser.OldParser;
 import ru.histone.parser.ParserException;
 import ru.histone.resourceloaders.*;
 import ru.histone.utils.IOUtils;
+import ru.histone.v2.exceptions.HistoneException;
 
 import java.io.IOException;
 import java.io.Reader;

@@ -18,9 +18,9 @@ package ru.histone.v2.parser;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import ru.histone.HistoneException;
 import ru.histone.tokenizer.Token;
 import ru.histone.tokenizer.Tokens;
+import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.SyntaxErrorException;
 import ru.histone.v2.exceptions.UnexpectedTokenException;
 import ru.histone.v2.parser.node.*;

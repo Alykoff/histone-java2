@@ -16,7 +16,7 @@
 
 package ru.histone.v2.parser;
 
-import ru.histone.HistoneException;
+import ru.histone.v2.exceptions.HistoneException;
 
 /**
  *

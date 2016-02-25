@@ -17,10 +17,10 @@ package ru.histone.optimizer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import ru.histone.HistoneException;
 import ru.histone.evaluator.nodes.NodeFactory;
 import ru.histone.parser.AstNodeType;
 import ru.histone.utils.Assert;
+import ru.histone.v2.exceptions.HistoneException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -97,6 +97,16 @@ public class UselessVariables extends AbstractASTWalker {
         }
     }
 
+    @Override
+    public void pushContext() {
+        // There is no context to push in this optimizer
+    }
+
+    @Override
+    public void popContext() {
+        // There is no context to pop in this optimizer
+    }
+
     /**
      * Optimization unit traverses AST twice: first time for collecting selectors, second - for removing useless variables.
      */
@@ -110,15 +120,5 @@ public class UselessVariables extends AbstractASTWalker {
          * Removing useless variables
          */
         REMOVE_VARIABLES
-    }
-
-    @Override
-    public void pushContext() {
-        // There is no context to push in this optimizer
-    }
-
-    @Override
-    public void popContext() {
-        // There is no context to pop in this optimizer
     }
 }

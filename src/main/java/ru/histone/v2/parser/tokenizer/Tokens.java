@@ -82,6 +82,9 @@ public enum Tokens {
     T_LISTEN(60),
     T_TRIGGER(61),
     T_ARROW(62),
+    T_AS(63),
+    T_BREAK(64),
+    T_CONTINUE(65),
 
     T_EOF(-1),
     T_ERROR(-2),

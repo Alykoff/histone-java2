@@ -395,5 +395,18 @@
         "expectedResult": "    <div style=\"color: black\">{\"key\":\"0\",\"value\":0,\"index\":0,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"1\",\"value\":1,\"index\":1,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"2\",\"value\":2,\"index\":2,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"3\",\"value\":3,\"index\":3,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"4\",\"value\":4,\"index\":4,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"5\",\"value\":5,\"index\":5,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"6\",\"value\":6,\"index\":6,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"7\",\"value\":7,\"index\":7,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"8\",\"value\":8,\"index\":8,\"last\":9}</div>    <div style=\"color: blue\">{\"key\":\"9\",\"value\":9,\"index\":9,\"last\":9}</div>"
       }
     ]
+  },
+  {
+    "name": "expression.for: break and continue",
+    "cases": [
+      {
+        "input": "{{for i in range(0, 10)}}{{if i = 5}}{{continue}}{{else}}{{i}}{{/if}}{{/for}}",
+        "expectedResult": "01234678910"
+      },
+      {
+        "input": "{{for i in range(0, 10)}}{{if i = 5}}{{break}}{{else}}{{i}}{{/if}}{{/for}}",
+        "expectedResult": "01234"
+      }
+    ]
   }
 ]

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by alexey.nevinsky on 12.01.2016.
+ * @author alexey.nevinsky
  */
 public class Optimizer {
     public AstNode mergeStrings(AstNode rawNode) {

@@ -30,7 +30,9 @@ public enum HistoneType {
     T_MACRO(7),
     T_ARRAY(8),
     T_GLOBAL(9),
-    T_REQUIRE(10);
+    T_REQUIRE(10),
+    T_BREAK(11),
+    T_CONTINUE(12);
 
     private int id;
 

@@ -54,7 +54,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("1 2 3");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{macro button(settings)}}{{settings.value}}{{/macro}}{{var ui = => button -> call(self.arguments)}}{{ui(['value':[1,2,3]])}}", rtti, testCase);
+        TestRunner.doTest("{{var x = {{%5+5%}}}}{{x}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

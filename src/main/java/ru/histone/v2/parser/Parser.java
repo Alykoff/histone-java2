@@ -48,10 +48,16 @@ public class Parser {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
         ExpAstNode result = getNodeList(wrapper);
-        if (!next(wrapper, T_EOF))
+        if (!next(wrapper, T_EOF)) {
             throw buildUnexpectedTokenException(wrapper, "EOF");
+        }
+
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
+
+        final SSAEvaluator ssaEvaluator = new SSAEvaluator();
+        ssaEvaluator.processTree(result);
+
         final Marker marker = new Marker();
 //        marker.markReferences(result);
         return result;
@@ -117,6 +123,10 @@ public class Parser {
             result = getReturnStatement(wrapper);
         } else if (next(wrapper, T_SUPPRESS)) {
             result = getSuppressStatement(wrapper);
+        } else if (next(wrapper, T_BREAK)) {
+            result = getBreakContinueStatement(wrapper, true);
+        } else if (next(wrapper, T_CONTINUE)) {
+            result = getBreakContinueStatement(wrapper, false);
         } else if (next(wrapper, T_LISTEN)) {
             result = getListenStatement(wrapper, AST_LISTEN);
         } else if (next(wrapper, T_TRIGGER)) {
@@ -127,6 +137,26 @@ public class Parser {
             result = new ExpAstNode(AST_T_BREAK);
         } else {
             result = getExpressionStatement(wrapper);
+        }
+        return result;
+    }
+
+    private AstNode getBreakContinueStatement(TokenizerWrapper wrapper, boolean isBreak) {
+        if (!wrapper.isFor()) {
+            throw buildSyntaxErrorException(wrapper, (isBreak ? "Break" : "Continue") + " statement must be only in circle!");
+        }
+
+        final ExpAstNode result = new ExpAstNode(isBreak ? AST_BREAK : AST_CONTINUE);
+//        TokenizerResult label = wrapper.next(T_ID);
+//        if (label.isFound()) {
+//            if (!wrapper.labelExists(label.firstValue())) {
+//                throw buildSyntaxErrorException(wrapper, "Label '" + label.firstValue() + "' not found!");
+//            }
+//            result.add(new StringAstNode(label.firstValue()));
+//        }
+
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
         }
         return result;
     }
@@ -245,6 +275,9 @@ public class Parser {
     }
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper.setFor(true);
+        String labelString = null;
+
         final ExpAstNode node = new ExpAstNode(AST_FOR);
         final TokenizerResult id = wrapper.next(T_ID);
         if (id.isFound()) {
@@ -269,11 +302,27 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "in");
         }
 
+        boolean firstLoop = true;
         do {
             final AstNode node2 = getExpression(wrapper);
+            if (firstLoop) {
+//                if (next(wrapper, T_AS)) {
+//                    final TokenizerResult label = wrapper.next(T_ID);
+//                    if (label.isFound()) {
+//                        labelString = label.firstValue();
+//                        node.add(new StringAstNode(labelString)); //add label name
+//                        wrapper.addLabel(labelString);
+//                    } else {
+//                        throw buildUnexpectedTokenException(wrapper, "EXPRESSION");
+//                    }
+//                } else {
+                node.add(new StringAstNode(null)); //add 'null' as for-label name
+//                }
+            }
             if (!next(wrapper, T_BLOCK_END)) {
                 throw buildUnexpectedTokenException(wrapper, "}}");
             }
+            firstLoop = false;
             node.add(getNodeList(wrapper), node2);
         } while (next(wrapper, T_ELSEIF));
 
@@ -287,6 +336,11 @@ public class Parser {
         if (!next(wrapper, T_SLASH, T_FOR, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "{{/for}}");
         }
+
+        if (labelString != null) {
+            wrapper.removeLabel(labelString);
+        }
+        wrapper.setFor(false);
         return node;
     }
 

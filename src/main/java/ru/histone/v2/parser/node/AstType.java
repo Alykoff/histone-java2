@@ -17,8 +17,7 @@
 package ru.histone.v2.parser.node;
 
 /**
- *
- * Created by alexey.nevinsky on 24.12.2015.
+ * @author alexey.nevinsky
  */
 public enum AstType {
     AST_NOP(0),
@@ -61,6 +60,9 @@ public enum AstType {
     AST_SUPPRESS(35),
     AST_LISTEN(36),
     AST_TRIGGER(37),
+
+    AST_BREAK(38),
+    AST_CONTINUE(39),
 
     AST_T_NOP(-1),
     AST_T_BREAK(-2),

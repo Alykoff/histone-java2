@@ -58,6 +58,7 @@ public class HistoneMacro implements Serializable, Cloneable {
         this.bindArgs.addAll(bindArgs);
     }
 
+    @Override
     public HistoneMacro clone() {
         final ArrayList<String> copyArgs = new ArrayList<>(this.args.size());
         copyArgs.addAll(this.args);

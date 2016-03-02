@@ -78,6 +78,7 @@ public class Context implements Serializable {
         return ctx;
     }
 
+    @Override
     public Context clone() {
         final Context that = new Context(baseUri, locale, rttiInfo);
         that.parent = this.parent;

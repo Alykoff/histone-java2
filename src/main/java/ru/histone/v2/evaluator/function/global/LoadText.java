@@ -128,9 +128,4 @@ public class LoadText extends AbstractFunction {
             throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
         }
     }
-
-    @Override
-    public boolean isAsync() {
-        return true;
-    }
 }

@@ -51,7 +51,7 @@ public class ConcreteTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("1 2 3");
+        testCase.setExpectedResult("5+5");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
         TestRunner.doTest("{{var x = {{%5+5%}}}}{{x}}", rtti, testCase);

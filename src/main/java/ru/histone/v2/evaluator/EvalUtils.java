@@ -18,6 +18,7 @@ package ru.histone.v2.evaluator;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
@@ -207,6 +208,10 @@ public class EvalUtils {
 
     public static CompletableFuture<EvalNode> getNumberFuture(Double v) {
         return CompletableFuture.completedFuture(getNumberNode(v));
+    }
+
+    public static String escape(String str) {
+        return StringEscapeUtils.escapeHtml(str);
     }
 
 }

@@ -28,16 +28,16 @@ import ru.histone.v2.evaluator.function.macro.MacroExtend;
 import ru.histone.v2.evaluator.function.macro.RequireCall;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
-import ru.histone.v2.evaluator.function.string.Case;
-import ru.histone.v2.evaluator.function.string.StringLength;
+import ru.histone.v2.evaluator.function.string.*;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
-import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -51,11 +51,11 @@ import static ru.histone.v2.rtti.HistoneType.*;
  * @author gali.alykoff on 22/01/16.
  */
 public class RunTimeTypeInfo implements Irtti, Serializable {
-    private final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
-    private final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
+    protected final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
+    protected final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 
-    private final Executor executor;
-    private final HistoneResourceLoader loader;
+    protected final Executor executor;
+    protected final HistoneResourceLoader loader;
 
     public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader) {
         this.executor = executor;
@@ -73,13 +73,13 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new ToJson());
         registerForAlltypes(new ToString());
         registerForAlltypes(new ToBoolean());
+        registerForAlltypes(new ToNumber());
         registerForAlltypes(new IsUndefined());
         registerForAlltypes(new IsNull());
         registerForAlltypes(new IsBoolean());
         registerForAlltypes(new IsNumber());
         registerForAlltypes(new IsInt());
-        registerForAlltypes(new IsFloat());
-        registerForAlltypes(new ToNumber());
+        registerForAlltypes(new IsFloat());;
         registerForAlltypes(new IsString());
         registerForAlltypes(new IsArray());
         registerForAlltypes(new IsMacro());
@@ -107,10 +107,13 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArrayGroup());
         registerCommon(T_ARRAY, new ArraySort());
         registerCommon(T_ARRAY, new ArraySlice());
+        registerCommon(T_ARRAY, new ArrayHtmlEntities());
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor, loader));
         registerCommon(T_GLOBAL, new LoadText(executor, loader));
+        registerCommon(T_GLOBAL, new AsyncLoadText(executor, loader));
+        registerCommon(T_GLOBAL, new AsyncLoadJson(executor, loader));
         registerCommon(T_GLOBAL, new GetBaseUri());
         registerCommon(T_GLOBAL, new GetUniqueId());
         registerCommon(T_GLOBAL, new ResolveURI());
@@ -124,13 +127,19 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetDate());
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());
-        registerCommon(T_GLOBAL, new Require());
+        registerCommon(T_GLOBAL, new Require(executor, loader));
 
         registerCommon(T_REGEXP, new Test());
 
         registerCommon(T_STRING, new StringLength());
         registerCommon(T_STRING, new Case(false));
         registerCommon(T_STRING, new Case(true));
+        registerCommon(T_STRING, new StringHtmlEntities());
+        registerCommon(T_STRING, new StringCharCodeAt());
+        registerCommon(T_STRING, new StringReplace());
+        registerCommon(T_STRING, new StringSlice());
+        registerCommon(T_STRING, new StringSplit());
+        registerCommon(T_STRING, new StringStrip());
 
         registerCommon(T_MACRO, new MacroCall());
         registerCommon(T_MACRO, new MacroBind());
@@ -150,20 +159,21 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     }
 
     @Override
-    public Function getFunc(HistoneType type, String funcName) {
+    public Optional<Function> getFunc(HistoneType type, String funcName) {
         Function f = userTypes.get(type).get(funcName);
         if (f == null) {
             f = typeMembers.get(type).get(funcName);
             if (f == null) {
-                throw new FunctionExecutionException("Couldn't find function '" + funcName + "' for type " + type);
+//                throw new FunctionExecutionException("Couldn't find function '" + funcName + "' for type " + type);
+                return Optional.empty();
             }
         }
-        return f;
+        return Optional.of(f);
     }
 
     @Override
-    public void register(HistoneType type, String funcName, Function func) {
-        throw new NotImplementedException();
+    public void register(HistoneType type, Function func) {
+        userTypes.get(type).put(func.getName(), func);
     }
 
     @Override
@@ -173,13 +183,23 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     @Override
     public CompletableFuture<EvalNode> callFunction(Context context, HistoneType type, String funcName, List<EvalNode> args) {
-        final Function f = getFunc(type, funcName);
+        final Optional<Function> fRaw = getFunc(type, funcName);
+        if (!fRaw.isPresent()) {
+            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+        }
+        final Function f = fRaw.get();
         if (f.isAsync()) {
-            return CompletableFuture
-                    .completedFuture(null)
-                    .thenComposeAsync((x) -> f.execute(context, args), executor);
+            return runAsync(context, args, f);
+
         }
         return f.execute(context, args);
+    }
+
+    protected CompletableFuture<EvalNode> runAsync(Context context, List<EvalNode> args, Function f) {
+        // TODO it should be more compact
+        return CompletableFuture
+                .completedFuture(null)
+                .thenComposeAsync((x) -> f.execute(context, args), executor);
     }
 
     @Override

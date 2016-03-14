@@ -439,7 +439,7 @@
       },
       {
         "input": "{{['1.0':1,1:2,3,3:4,5,6]->toJSON}}",
-        "expectedResult": "{\"1.0\":1,\"1\":2,\"2\":3,\"3\":4,\"4\":5,\"5\":6}"
+        "expectedResult": "{\"1\":2,\"2\":3,\"3\":4,\"4\":5,\"5\":6}"
       },
       {
         "input": "{{[1,2,3,4][-1]->toJSON}}",
@@ -455,11 +455,11 @@
       },
       {
         "input": "{{[0:1,2,3,4]['1']->toJSON}}",
-        "expectedResult": "3"
+        "expectedResult": "2"
       },
       {
         "input": "{{[0:1,2,3,4][1]->toJSON}}",
-        "expectedResult": "3"
+        "expectedResult": "2"
       },
       {
         "input": "{{['d':1,2,3,4][1]->toJSON}}",
@@ -537,7 +537,7 @@
       },
       {
         "input": "{{macro re(v)}}{{if (v > 20)}}{{return 'd'}}{{else}}{{v}}{{/if}}{{/macro}}{{[1,2,16,-4,22,5,6]->group(re)->toJSON}}",
-        "expectedResult": "{\"1\":[1],\"2\":[2],\"5\":[5],\"6\":[6],\"16\":[16],\"-4\":[-4],\"\":[22]}"
+        "expectedResult": "{\"1\":[1],\"2\":[2],\"5\":[5],\"6\":[6],\"16\":[16],\"-4\":[-4],\"d\":[22]}"
       },
       {
         "input": "{{macro re(v)}}{{if (v > 20)}}{{return d}}{{else}}{{v + ___}}{{/if}}{{/macro}}{{[1,2,16,-4,22,5,6]->group(re)->toJSON}}",
@@ -552,12 +552,24 @@
         "expectedResult": "{\"v\":[1,2,16,-4,22,5,6]}"
       },
       {
+        "input": "{{macro re(v,k)}}{{if (v > 20)}}{{return true}}{{else}}v{{/if}}{{/macro}}{{[1,2,16,-4,22,5,6]->group(re)->toJSON}}",
+        "expectedResult": "{\"v\":[1,2,16,-4,5,6],\"true\":[22]}"
+      },
+      {
         "input": "{{macro re(v)}}{{if (v > 20)}}{{return true}}{{elseif (v > 15)}}{{return dd}}{{else}}{{d2}}{{/if }}{{/macro}}{{[1,2,16,-4,22,5,6]->group(re)->toJSON}}",
-        "expectedResult": "\"\":[1,2,16,-4,5,6],\"true\":[22]}"
+        "expectedResult": "{\"\":[1,2,16,-4,5,6],\"true\":[22]}"
       },
       {
         "input": "{{macro re(v)}}{{if (v > 20)}}{{return true}}{{elseif (v > 15)}}{{return false}}{{else}}{{d2}}{{/if }}{{/macro}}{{[1,2,16,-4,22,5,6]->group(re)->toJSON}}",
         "expectedResult": "{\"\":[1,2,-4,5,6],\"false\":[16],\"true\":[22]}"
+      },
+      {
+        "input": "{{for x in [1,2,3,4,5,6,7,8,9,10]}}{{if x > 7}}{{true}} {{elseif x > 5}}{{false}} {{else}}{{\"ha\"}} {{/if}}{{/for}}",
+        "expectedResult": "ha ha ha ha ha false false true true true "
+      },
+      {
+        "input": "{{macro re(v)}}{{if (v > 20)}}{{return \"d\"}}{{else}}{{v}}{{/if}}{{/macro}}{{[7,1,2,-1,16,-4,22,-10,5,6]->group(re)->toJSON}}",
+        "expectedResult": "{\"1\":[1],\"2\":[2],\"5\":[5],\"6\":[6],\"7\":[7],\"16\":[16],\"-1\":[-1],\"-4\":[-4],\"d\":[22],\"-10\":[-10]}"
       }
     ]
   }

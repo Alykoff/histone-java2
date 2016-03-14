@@ -18,23 +18,19 @@ package ru.histone.v2.parser;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import ru.histone.HistoneException;
-import ru.histone.tokenizer.Token;
-import ru.histone.tokenizer.Tokens;
+import ru.histone.v2.exceptions.HistoneException;
+import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.exceptions.SyntaxErrorException;
 import ru.histone.v2.exceptions.UnexpectedTokenException;
 import ru.histone.v2.parser.node.*;
-import ru.histone.v2.parser.tokenizer.ExpressionList;
-import ru.histone.v2.parser.tokenizer.Tokenizer;
-import ru.histone.v2.parser.tokenizer.TokenizerResult;
-import ru.histone.v2.parser.tokenizer.TokenizerWrapper;
+import ru.histone.v2.parser.tokenizer.*;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static ru.histone.tokenizer.Tokens.*;
 import static ru.histone.v2.parser.node.AstType.*;
+import static ru.histone.v2.parser.tokenizer.Tokens.*;
 
 /**
  * Class used for validate and create AST tree from histone template. It doesn't have a state, so it you can create
@@ -52,10 +48,16 @@ public class Parser {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
         TokenizerWrapper wrapper = new TokenizerWrapper(tokenizer);
         ExpAstNode result = getNodeList(wrapper);
-        if (!next(wrapper, T_EOF))
+        if (!next(wrapper, T_EOF)) {
             throw buildUnexpectedTokenException(wrapper, "EOF");
+        }
+
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
+
+        final SSAEvaluator ssaEvaluator = new SSAEvaluator();
+        ssaEvaluator.processTree(result);
+
         final Marker marker = new Marker();
 //        marker.markReferences(result);
         return result;
@@ -121,6 +123,10 @@ public class Parser {
             result = getReturnStatement(wrapper);
         } else if (next(wrapper, T_SUPPRESS)) {
             result = getSuppressStatement(wrapper);
+        } else if (next(wrapper, T_BREAK)) {
+            result = getBreakContinueStatement(wrapper, true);
+        } else if (next(wrapper, T_CONTINUE)) {
+            result = getBreakContinueStatement(wrapper, false);
         } else if (next(wrapper, T_LISTEN)) {
             result = getListenStatement(wrapper, AST_LISTEN);
         } else if (next(wrapper, T_TRIGGER)) {
@@ -131,6 +137,26 @@ public class Parser {
             result = new ExpAstNode(AST_T_BREAK);
         } else {
             result = getExpressionStatement(wrapper);
+        }
+        return result;
+    }
+
+    private AstNode getBreakContinueStatement(TokenizerWrapper wrapper, boolean isBreak) {
+        if (!wrapper.isFor()) {
+            throw buildSyntaxErrorException(wrapper, (isBreak ? "Break" : "Continue") + " statement must be only in circle!");
+        }
+
+        final ExpAstNode result = new ExpAstNode(isBreak ? AST_BREAK : AST_CONTINUE);
+//        TokenizerResult label = wrapper.next(T_ID);
+//        if (label.isFound()) {
+//            if (!wrapper.labelExists(label.firstValue())) {
+//                throw buildSyntaxErrorException(wrapper, "Label '" + label.firstValue() + "' not found!");
+//            }
+//            result.add(new StringAstNode(label.firstValue()));
+//        }
+
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
         }
         return result;
     }
@@ -249,6 +275,9 @@ public class Parser {
     }
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper.setFor(true);
+        String labelString = null;
+
         final ExpAstNode node = new ExpAstNode(AST_FOR);
         final TokenizerResult id = wrapper.next(T_ID);
         if (id.isFound()) {
@@ -261,13 +290,11 @@ public class Parser {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
             } else {
-                node
-                        .add(new StringAstNode(null)) //add null as key name
+                node.add(new StringAstNode(null)) //add null as key name
                         .add(new StringAstNode(id.firstValue())); //add value name
             }
         } else {
-            node
-                    .add(new StringAstNode(null)) //add 'null' as key name
+            node.add(new StringAstNode(null)) //add 'null' as key name
                     .add(new StringAstNode(null));//add 'null' as value name
         }
 
@@ -275,12 +302,28 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "in");
         }
 
+        boolean firstLoop = true;
         do {
             final AstNode node2 = getExpression(wrapper);
+            if (firstLoop) {
+//                if (next(wrapper, T_AS)) {
+//                    final TokenizerResult label = wrapper.next(T_ID);
+//                    if (label.isFound()) {
+//                        labelString = label.firstValue();
+//                        node.add(new StringAstNode(labelString)); //add label name
+//                        wrapper.addLabel(labelString);
+//                    } else {
+//                        throw buildUnexpectedTokenException(wrapper, "EXPRESSION");
+//                    }
+//                } else {
+                node.add(new StringAstNode(null)); //add 'null' as for-label name
+//                }
+            }
             if (!next(wrapper, T_BLOCK_END)) {
                 throw buildUnexpectedTokenException(wrapper, "}}");
             }
-            node.add(node2, getNodeList(wrapper));
+            firstLoop = false;
+            node.add(getNodeList(wrapper), node2);
         } while (next(wrapper, T_ELSEIF));
 
         if (next(wrapper, T_ELSE)) {
@@ -293,6 +336,11 @@ public class Parser {
         if (!next(wrapper, T_SLASH, T_FOR, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "{{/for}}");
         }
+
+        if (labelString != null) {
+            wrapper.removeLabel(labelString);
+        }
+        wrapper.setFor(false);
         return node;
     }
 
@@ -337,7 +385,7 @@ public class Parser {
                 final String nameOfVar = nameOfVarToken.firstValue();
                 final ExpAstNode nopNode;
                 if (next(wrapper, T_EQ)) {
-                    nopNode = ParserUtils.createNopNode(nameOfVar, getStatement(wrapper));
+                    nopNode = ParserUtils.createNopNode(nameOfVar, getExpression(wrapper));
                 } else {
                     nopNode = ParserUtils.createNopNode(nameOfVar);
                 }
@@ -647,57 +695,72 @@ public class Parser {
     }
 
     private ExpAstNode getArrayExpression(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         int counter = 0;
         ExpAstNode result = new ExpAstNode(AST_ARRAY);
-        Map<String, AstNode> map = new LinkedHashMap<>();
+        String key = null;
+        AstNode value;
+        Set<String> values = new LinkedHashSet<>();
+        Map<String, AstNode> rawResult = new LinkedHashMap<>();
 
         do {
             while (next(wrapper, T_COMMA)) ;
             if (next(wrapper, T_RBRACKET)) {
-                fillNodeFromMap(result, map);
+                fillNodeFromMap(result, rawResult);
                 return result;
             }
             final TokenizerResult tokenRes = wrapper.next(T_PROP.getId(), T_COLON.getId());
             if (tokenRes.isFound()) {
-                map.put(tokenRes.firstValue(), getExpression(wrapper));
+                key = tokenRes.firstValue();
+                value = getExpression(wrapper);
             } else {
-                AstNode key = getExpression(wrapper);
-                final Optional<Object> valueObject = Optional.of(key)
+                final AstNode rawKey = getExpression(wrapper);
+                final Optional<Object> rawKeyOption = Optional.of(rawKey)
                         .filter(AstNode::hasValue)
                         .map(node -> ((ValueNode) node).getValue());
 
-                final boolean isStringOrNumberValue = valueObject.isPresent()
-                        && (ParserUtils.isStrongString(valueObject.get()) || ParserUtils.isNumber(valueObject.get()))
+                final boolean isStringOrNumberValue = rawKeyOption.isPresent()
+                        && (ParserUtils.isStrongString(rawKeyOption.get()) || ParserUtils.isNumber(rawKeyOption.get()))
                         && next(wrapper, T_COLON);
-
                 if (isStringOrNumberValue) {
-                    final Object val = valueObject.get();
-                    AstNode value = getExpression(wrapper);
-                    Object mapKey = val;
-                    if (ParserUtils.isStrongString(val) && ParserUtils.isInt((String) val)) {
-                        mapKey = Integer.valueOf((String) val); //todo check this
-                    }
-                    Optional<Double> floatVal = ParserUtils.tryDouble(val);
-                    if (floatVal.isPresent()) {
-                        int intValue = floatVal.get().intValue();
-                        if (intValue < counter) {
-                            mapKey = intValue + "";
+                    final Object keyObject = rawKeyOption.get();
+                    value = getExpression(wrapper);
+                    if (ParserUtils.isStrongString(keyObject)) {
+                        if (ParserUtils.isInt((String) keyObject)) {
+                            key = Integer.valueOf((String) keyObject).toString();
                         } else {
-                            counter = intValue;
-                            mapKey = (counter++) + "";
+                            key = (String) keyObject;
                         }
                     }
-                    map.put(mapKey + "", value);
+
+                    Optional<Double> floatKeyValue = ParserUtils.tryDouble(keyObject);
+                    if (floatKeyValue.isPresent()) {
+                        int intKeyValue = floatKeyValue.get().intValue();
+                        if (intKeyValue < counter) {
+                            key = intKeyValue + "";
+                        } else {
+                            counter = intKeyValue;
+                            key = (counter++) + "";
+                        }
+                    }
                 } else {
-                    map.put((counter++) + "", key);
+                    value = rawKey;
+                    key = String.valueOf(counter++);
                 }
+            }
+
+            if (values.contains(key)) {
+                rawResult.put(key, value);
+            } else {
+                values.add(key);
+                rawResult.put(key, value);
             }
         } while (next(wrapper, T_COMMA));
 
         if (!next(wrapper, T_RBRACKET)) {
             throw buildUnexpectedTokenException(wrapper, "]");
         }
-        fillNodeFromMap(result, map);
+        fillNodeFromMap(result, rawResult);
 
         return result;
     }
@@ -742,6 +805,7 @@ public class Parser {
     }
 
     private AstNode getParenthesizedExpression(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         AstNode node = getExpression(wrapper);
         if (!next(wrapper, T_RPAREN)) {
             throw buildUnexpectedTokenException(wrapper, ")");

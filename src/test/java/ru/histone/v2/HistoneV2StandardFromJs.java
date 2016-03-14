@@ -16,10 +16,10 @@
 
 package ru.histone.v2;
 
-import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
+import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -45,7 +45,7 @@ public class HistoneV2StandardFromJs {
 
     public static void main(String[] args) throws IOException {
         final String baseURI = "";
-        final String tpl = "abs {{for x in 'xyz'}}{{x}}{{/for}} b";
+        final String tpl = "{{macro myMacro(a, b, c = (10000 + 1), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}";
         System.out.println(getNodes(tpl));
         System.out.println(getTpl(tpl));
         System.out.println("--------");
@@ -68,7 +68,7 @@ public class HistoneV2StandardFromJs {
     public static String getNodes(String tpl) throws IOException {
         tpl = tpl.replaceAll("\"", "\"");
         final ProcessBuilder processBuilder = new ProcessBuilder(
-                "node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl=\"" + tpl + "\"", "-n"
+                "/usr/local/bin/node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl=\"" + tpl + "\"", "-n"
         );
         return getProcessResult(processBuilder);
     }
@@ -76,7 +76,7 @@ public class HistoneV2StandardFromJs {
     public static String getTpl(String tpl) throws IOException {
         tpl = tpl.replaceAll("\"", "\"");
         final ProcessBuilder processBuilder = new ProcessBuilder(
-                "node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl=\"" + tpl + "\""
+                "/usr/local/bin/node", PATH_TO_HISTONE2_JS_RUNNER, "--tpl=\"" + tpl + "\""
         );
         return getProcessResult(processBuilder);
     }

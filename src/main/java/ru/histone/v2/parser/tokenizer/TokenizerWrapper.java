@@ -16,8 +16,7 @@
 
 package ru.histone.v2.parser.tokenizer;
 
-import ru.histone.tokenizer.Tokens;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,6 +29,8 @@ import java.util.List;
 public class TokenizerWrapper {
     private Tokenizer tokenizer;
     private List<Integer> ignored;
+    private boolean isFor = false;
+    private List<String> labels = new ArrayList<>();
 
     /**
      * Construct wrapper without tokens for ignoring
@@ -58,6 +59,8 @@ public class TokenizerWrapper {
      */
     public TokenizerWrapper(TokenizerWrapper wrapper, List<Integer> ignored) {
         this.tokenizer = wrapper.tokenizer;
+        this.isFor = wrapper.isFor;
+        this.labels = wrapper.labels;
         this.ignored = ignored;
     }
 
@@ -69,7 +72,6 @@ public class TokenizerWrapper {
     }
 
     /**
-     *
      * @param selector
      * @return
      */
@@ -87,5 +89,25 @@ public class TokenizerWrapper {
 
     public int getLineNumber(long index) {
         return tokenizer.getLineNumber(index);
+    }
+
+    public boolean isFor() {
+        return isFor;
+    }
+
+    public void setFor(boolean aFor) {
+        this.isFor = aFor;
+    }
+
+    public void addLabel(String labelString) {
+        labels.add(labelString);
+    }
+
+    public void removeLabel(String labelString) {
+        labels.remove(labelString);
+    }
+
+    public boolean labelExists(String labelString) {
+        return labels.contains(labelString);
     }
 }

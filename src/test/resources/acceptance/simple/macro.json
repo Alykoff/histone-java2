@@ -34,6 +34,31 @@
       {
         "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro->call([[1, 2]], [3, 4])}}",
         "expectedResult": "<div>a = 1 2</div><div>b = 3</div><div>c = 4</div><div>d = </div>"
+      },
+      {
+        "input": "{{macro blaBla(value)}} {{value}}{{if value}}{{self.callee(value - 1)}}{{/if}}{{/macro}}{{blaBla(10)}}",
+        "expectedResult": " 10 9 8 7 6 5 4 3 2 1 0"
+      }
+    ]
+  },
+  {
+    "name": "macro - ()",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([1, 2, 3, 4])}}",
+        "expectedResult": "<div>a = 1 2 3 4</div><div>b = </div><div>c = </div><div>d = </div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([1, 2], [3, 4])}}",
+        "expectedResult": "<div>a = 1 2</div><div>b = 3 4</div><div>c = </div><div>d = </div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([1, 2, 3], [4])}}",
+        "expectedResult": "<div>a = 1 2 3</div><div>b = 4</div><div>c = </div><div>d = </div>"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>{{/macro}}{{myMacro([[1, 2]], [3, 4])}}",
+        "expectedResult": "<div>a = 1 2</div><div>b = 3 4</div><div>c = </div><div>d = </div>"
       }
     ]
   },
@@ -72,6 +97,60 @@
       {
         "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{var inputWidget = inputWidget->extend([PPP: 'ppp'])}}{{inputWidget(inputWidget.PPP)}}",
         "expectedResult": "<input type=\"ppp\" />"
+      }
+    ]
+  },
+  {
+    "name": "macro - recursion",
+    "cases": [
+      {
+        "input": "{{macro do1(x)}}{{x}}{{if x > 0}}{{self.callee(x-1)}}{{/if}}{{/macro}}{{do1(3)}}",
+        "expectedResult": "3210"
+      },
+      {
+        "input": "{{macro do1(x,y,z)}}{{[x,y,z]}}{{if x > 0}}{{self.callee(x-1,y,z)}}{{/if}}{{/macro}}{{do1(3)}}",
+        "expectedResult": "3210"
+      }
+    ]
+  },
+  {
+    "name": "macro - default values",
+    "cases": [
+      {
+        "input": "{{macro myMacro(a, b, c = (10000 + 1), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}",
+        "expectedResult": "a = 1 b = 2 c = 10001 d = 222222"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c = 10000, d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}",
+        "expectedResult": "a = 1 b = 2 c = 10000 d = 222222"
+      },
+      {
+        "input": "{{macro myMacro(a, b, c = 10000, d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2, 3)}}",
+        "expectedResult": "a = 1 b = 2 c = 3 d = 222222"
+      },
+      {
+        "input": "{{var x = 2}}{{macro myMacro(a, b, c = (x + 2.222222), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}",
+        "expectedResult": "a = 1 b = 2 c = 4.222222 d = 222222"
+      },
+      {
+        "input": "{{macro macroName(value = 10)}}{{value}}{{/macro}}{{macroName(UNDEFINED)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{macro macroName(value = 10)}}{{value}}{{/macro}}{{macroName()}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{macro macroName(value = 10)}}{{value}}{{/macro}}{{macroName('FOO')}}",
+        "expectedResult": "FOO"
+      },
+      {
+        "input": "{{macro macroName(value = 10, x = value)}}{{x->isUndefined}}{{/macro}}{{macroName()}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var v = 10}}{{macro macroName(value = 10, x = value)}}{{v}}{{/macro}}{{var v =20}}{{macroName()}}",
+        "expectedResult": "10"
       }
     ]
   }

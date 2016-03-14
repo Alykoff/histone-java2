@@ -49,7 +49,9 @@ public class LoadJson extends LoadText {
                 .thenApply(res -> {
                     String str = (String) res.getValue();
                     Object json;
-                    if (StringUtils.isNotEmpty(str)) {
+                    if (StringUtils.isEmpty(str)) {
+                        return EvalUtils.constructFromObject(null);
+                    } else if (StringUtils.isNotEmpty(str)) {
                         json = fromJSON(str);
                     } else {
                         json = new LinkedHashMap<String, EvalNode>();

@@ -3,8 +3,8 @@
     "name": "global -> getBaseURI",
     "cases": [
       {
-        "input": "{{global->getBaseURI()}}",
-        "expectedResult": "http://localhost:4442/histone/"
+        "input": "{{global->getBaseURI()-> isString()}}",
+        "expectedResult": "true"
       }
     ]
   }

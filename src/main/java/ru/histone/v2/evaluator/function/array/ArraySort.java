@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016 MegaFon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
@@ -10,10 +26,14 @@ import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import static java.util.Map.*;
+
+import static java.util.Map.Entry;
 
 /**
  * @author gali.alykoff on 11/02/16.
@@ -22,52 +42,6 @@ public class ArraySort extends AbstractFunction implements Serializable {
     public static final String NAME = "sort";
     public static final StringEvalNodeStrongComparator STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
     public static final int START_BIND_INDEX = 2;
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        // [LIST, MACRO_SORT, MACRO_BINDINGS...]
-        // MACRO_SORT is function:
-        // Function(
-        //  left_value:node, right_value:node, left_key:string_node, right_key:string_node
-        // )->boolean_node
-        final MapEvalNode array = (MapEvalNode) args.get(0);
-        final Map<String, EvalNode> values = array.getValue();
-        final int argsSize = args.size();
-        final boolean isMacroNotPresent = argsSize == 1
-                || (argsSize > 1 && args.get(1).getType() != HistoneType.T_MACRO);
-        if (isMacroNotPresent) {
-            final List<EvalNode> vls = new ArrayList<>(values.values());
-            final List<CompletableFuture<EvalNode>> valuesStringFutures = vls.stream()
-                    .map(value -> RttiUtils.callToString(context, value))
-                    .collect(Collectors.toList());
-            return AsyncUtils.sequence(valuesStringFutures).thenApply(unsortedResult ->
-                unsortedResult.stream()
-                        .map(x -> (StringEvalNode) x)
-                        .sorted(STRING_EVAL_NODE_STRONG_COMPARATOR)
-                        .map(x -> (EvalNode) x)
-                        .collect(Collectors.toList())
-            ).thenApply(MapEvalNode::new);
-        }
-        final List<CompletableFuture<Entry<String, EvalNode>>> nodes =
-            values.entrySet()
-                .stream()
-                .map(CompletableFuture::completedFuture)
-                .collect(Collectors.toList());
-
-        final CompletableFuture<MacroEvalNode> macroNodeFuture = ArrayReduce.getMacroWithBindFuture(context, args, START_BIND_INDEX);
-        return macroNodeFuture.thenCompose(macroNode ->
-            sort(nodes, macroNode, context)
-        ).thenApply(sortedPairs ->
-            new MapEvalNode(sortedPairs.stream()
-                    .map(Entry::getValue)
-                    .collect(Collectors.toList())
-        ));
-    }
 
     public static CompletableFuture<List<Entry<String, EvalNode>>> sort(
             List<CompletableFuture<Entry<String, EvalNode>>> nodes,
@@ -141,5 +115,51 @@ public class ArraySort extends AbstractFunction implements Serializable {
                 return mergeHelper(newL, right, macroNode, context, a);
             }
         });
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        // [LIST, MACRO_SORT, MACRO_BINDINGS...]
+        // MACRO_SORT is function:
+        // Function(
+        //  left_value:node, right_value:node, left_key:string_node, right_key:string_node
+        // )->boolean_node
+        final MapEvalNode array = (MapEvalNode) args.get(0);
+        final Map<String, EvalNode> values = array.getValue();
+        final int argsSize = args.size();
+        final boolean isMacroNotPresent = argsSize == 1
+                || (argsSize > 1 && args.get(1).getType() != HistoneType.T_MACRO);
+        if (isMacroNotPresent) {
+            final List<EvalNode> vls = new ArrayList<>(values.values());
+            final List<CompletableFuture<EvalNode>> valuesStringFutures = vls.stream()
+                    .map(value -> RttiUtils.callToString(context, value))
+                    .collect(Collectors.toList());
+            return AsyncUtils.sequence(valuesStringFutures).thenApply(unsortedResult ->
+                    unsortedResult.stream()
+                            .map(x -> (StringEvalNode) x)
+                            .sorted(STRING_EVAL_NODE_STRONG_COMPARATOR)
+                            .map(x -> (EvalNode) x)
+                            .collect(Collectors.toList())
+            ).thenApply(MapEvalNode::new);
+        }
+        final List<CompletableFuture<Entry<String, EvalNode>>> nodes =
+                values.entrySet()
+                        .stream()
+                        .map(CompletableFuture::completedFuture)
+                        .collect(Collectors.toList());
+
+        final CompletableFuture<MacroEvalNode> macroNodeFuture = ArrayReduce.getMacroWithBindFuture(context, args, START_BIND_INDEX);
+        return macroNodeFuture.thenCompose(macroNode ->
+                sort(nodes, macroNode, context)
+        ).thenApply(sortedPairs ->
+                new MapEvalNode(sortedPairs.stream()
+                        .map(Entry::getValue)
+                        .collect(Collectors.toList())
+                ));
     }
 }

@@ -121,6 +121,14 @@
       {
         "input": "a {{if [foo: 1]}} true {{else}} false {{/if}} b",
         "expectedResult": "a  true  b"
+      },
+      {
+        "input": "{{for x in [1,2,3,4,5,6,7,8,9,10]}}{{if x > 7}}{{true}} {{elseif x > 5}}{{false}} {{else}}{{\"ha\"}} {{/if}}{{/for}}",
+        "expectedResult": "ha ha ha ha ha false false true true true "
+      },
+      {
+        "input": "{{var x = 1}}{{if x > 7}}{{true}} {{elseif x > 5}}{{x > 5}} {{else}}{{\"ha\"}}{{/if}}",
+        "expectedResult": "ha"
       }
     ]
   }

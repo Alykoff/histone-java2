@@ -7,11 +7,11 @@
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{loadText('./acceptance/simple/tpl/txt/file_with_markup.txt')}} b",
+        "input": "a {{loadText('../simple/tpl/txt/file_with_markup.txt')}} b",
         "expectedResult": "a text file {{'test'}} content b"
       },
       {
-        "input": "a {{loadText('./acceptance/simple/tpl/txt/text.txt')}} b",
+        "input": "a {{loadText('../simple/tpl/txt/file.txt')}} b",
         "expectedResult": "a text file content b"
       }
     ]

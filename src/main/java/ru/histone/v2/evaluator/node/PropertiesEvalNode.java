@@ -15,7 +15,7 @@
  */
 package ru.histone.v2.evaluator.node;
 
-import ru.histone.HistoneException;
+import ru.histone.v2.exceptions.HistoneException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

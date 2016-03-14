@@ -16,8 +16,8 @@
 
 package ru.histone.v2.parser;
 
-import ru.histone.HistoneException;
 import ru.histone.v2.Constants;
+import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.utils.ParserUtils;
 

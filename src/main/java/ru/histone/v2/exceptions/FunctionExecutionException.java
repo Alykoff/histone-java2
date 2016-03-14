@@ -18,7 +18,7 @@ package ru.histone.v2.exceptions;
 /**
  * This exception is used to provide detailed error information from custom global function to Histone evaluator
  */
-public class FunctionExecutionException extends RuntimeException {
+public class FunctionExecutionException extends HistoneException {
     public FunctionExecutionException(String message) {
         super(message);
     }

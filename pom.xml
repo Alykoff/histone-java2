@@ -19,8 +19,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.megafonweblab.histone</groupId>
-    <artifactId>histone-java</artifactId>
-    <version>2.0.0.beta.1</version>
+    <artifactId>histone-java-v2</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Histone - Java Implementation</name>
     <description>Java implementation for Histone Template Engine</description>
@@ -60,8 +60,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <histone-acceptance-test.version>1.2.16</histone-acceptance-test.version>
-
         <!-- deps versions -->
         <jackson.version>2.4.4</jackson.version>
         <apache.httpcomponents.version>4.3.6</apache.httpcomponents.version>
@@ -100,9 +98,6 @@
             <testResource>
                 <directory>src/test/resources</directory>
             </testResource>
-            <testResource>
-                <directory>target/acceptance-test-cases</directory>
-            </testResource>
         </testResources>
         <plugins>
             <plugin>
@@ -116,31 +111,6 @@
                     <meminitial>64m</meminitial>
                     <maxmem>256m</maxmem>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.github.megafonweblab.histone</groupId>
-                                    <artifactId>histone-acceptance-test-cases</artifactId>
-                                    <version>${histone-acceptance-test.version}</version>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/acceptance-test-cases/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -174,34 +144,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-            <!--<groupId>com.mycila</groupId>-->
-            <!--<artifactId>license-maven-plugin</artifactId>-->
-            <!--<version>2.5</version>-->
-            <!--<configuration>-->
-            <!--<header>src/etc/HEADER.txt</header>-->
-            <!--<properties>-->
-            <!--<year>${project.inceptionYear}</year>-->
-            <!--</properties>-->
-            <!--<excludes>-->
-            <!--<exclude>**/pom.xml</exclude>-->
-            <!--<exclude>**/README</exclude>-->
-            <!--<exclude>**/NOTICE.txt</exclude>-->
-            <!--<exclude>**/LICENSE.txt</exclude>-->
-            <!--<exclude>src/test/resources/**</exclude>-->
-            <!--<exclude>src/main/resources/**</exclude>-->
-            <!--<exclude>src/assembly/**</exclude>-->
-            <!--</excludes>-->
-            <!--</configuration>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>compile</phase>-->
-            <!--<goals>-->
-            <!--<goal>check</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -222,23 +164,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.5</version>
+                <version>1.6.6</version>
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>
@@ -248,6 +176,36 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
         <!-- Jackson -->

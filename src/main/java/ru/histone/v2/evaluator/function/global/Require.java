@@ -20,20 +20,17 @@ import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.RequireEvalNode;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.IOUtils;
 
-import java.io.FileNotFoundException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.concurrent.Executor;
 
 /**
  * Function loads histone template from specified file and evaluating it.
@@ -41,49 +38,44 @@ import java.util.stream.Stream;
  * @author alexey.nevinsky
  */
 public class Require extends AbstractFunction {
+    public Require(Executor executor, HistoneResourceLoader resourceLoader) {
+        super(executor, resourceLoader);
+    }
+
     @Override
     public String getName() {
         return "require";
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+    public CompletableFuture<EvalNode> execute(final Context context, List<EvalNode> args) throws FunctionExecutionException {
         checkMinArgsLength(args, 1);
         checkMaxArgsLength(args, 1);
         checkTypes(args.get(0), 0, Collections.singletonList(HistoneType.T_STRING), Collections.singletonList(String.class));
 
-        String url = getValue(args, 0);
+        final String url = getValue(args, 0);
 
-        String template = getTemplate(url);
-        //todo get parser and evaluator from context
-        Parser p = new Parser();
-        ExpAstNode root = p.process(template, context.getBaseUri());
-        Evaluator evaluator = new Evaluator();
+        return resourceLoader.load(url, context.getBaseUri(), Collections.emptyMap())
+                .thenCompose(res -> {
+                    String template = IOUtils.readStringFromResource(res, url);
 
-        Context macroCtx = context.clone();
+                    //todo get parser and evaluator from context
+                    Parser p = new Parser();
+                    ExpAstNode root = p.process(template, context.getBaseUri());
+                    Evaluator evaluator = new Evaluator();
 
-        CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
+                    Context macroCtx = context.clone();
 
-        EvalNode rNode = nodeFuture.join();
-        if (rNode.getType() == HistoneType.T_REQUIRE) {
-            return nodeFuture;
-        } else if (rNode.isReturn()) {
-            return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
-        } else {
-            return CompletableFuture.completedFuture(new RequireEvalNode(macroCtx));
-        }
-    }
+                    CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
-    private String getTemplate(String url) {
-        try {
-            URL resourceUrl = Require.class.getResource(url);
-            if (resourceUrl == null) {
-                throw new FileNotFoundException(url);
-            }
-            Stream<String> stringStream = Files.lines(Paths.get(resourceUrl.toURI()));
-            return stringStream.collect(Collectors.joining());
-        } catch (Exception e) {
-            throw new FunctionExecutionException(e);
-        }
+                    EvalNode rNode = nodeFuture.join();
+                    if (rNode.getType() == HistoneType.T_REQUIRE) {
+                        return nodeFuture;
+                    } else if (rNode.isReturn()) {
+                        return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
+                    } else {
+                        return CompletableFuture.completedFuture(new RequireEvalNode(macroCtx));
+                    }
+                });
     }
 }

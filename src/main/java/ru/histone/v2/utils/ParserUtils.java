@@ -101,6 +101,9 @@ public class ParserUtils {
         if (value instanceof Integer) {
             return Optional.of(new Double((Integer) value));
         }
+        if (value instanceof Long) {
+            return Optional.of(new Double((Long) value));
+        }
         if (value instanceof Double) {
             return Optional.of((Double) value);
         }

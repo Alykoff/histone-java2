@@ -22,12 +22,8 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.parser.node.AstNode;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -37,35 +33,40 @@ public class HistoneMacro implements Serializable, Cloneable {
     private AstNode body;
     private Context context;
     private List<String> args = new ArrayList<>();
+    private Map<String, CompletableFuture<EvalNode>> defaultValues = new LinkedHashMap<>();
     private List<EvalNode> bindArgs = new ArrayList<>();
     private Evaluator evaluator;
 
-    public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator) {
+    public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator, Map<String, CompletableFuture<EvalNode>> defaultValues) {
         this.args.addAll(args);
         this.body = body;
         this.context = context;
         this.evaluator = evaluator;
+        this.defaultValues = defaultValues;
     }
 
-    public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator, List<EvalNode> bindArgs) {
+    public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator, List<EvalNode> bindArgs, Map<String, CompletableFuture<EvalNode>> defaultValues) {
         this.args.addAll(args);
         this.body = body;
         this.context = context;
         this.evaluator = evaluator;
         this.bindArgs = bindArgs;
+        this.defaultValues = defaultValues;
     }
 
     public void addBindArgs(List<EvalNode> bindArgs) {
         this.bindArgs.addAll(bindArgs);
     }
 
+    @Override
     public HistoneMacro clone() {
         final ArrayList<String> copyArgs = new ArrayList<>(this.args.size());
         copyArgs.addAll(this.args);
+        final Map<String, CompletableFuture<EvalNode>> copyValues = new LinkedHashMap<>(this.defaultValues);
 
         final ArrayList<EvalNode> copyBindArgs = new ArrayList<>(this.bindArgs.size());
         copyBindArgs.addAll(this.bindArgs);
-        return new HistoneMacro(copyArgs, this.body, this.context.clone(), this.evaluator, copyBindArgs);
+        return new HistoneMacro(copyArgs, this.body, this.context.clone(), this.evaluator, copyBindArgs, copyValues);
     }
 
     @Override
@@ -77,12 +78,13 @@ public class HistoneMacro implements Serializable, Cloneable {
                 Objects.equals(context, that.context) &&
                 Objects.equals(args, that.args) &&
                 Objects.equals(bindArgs, that.bindArgs) &&
-                Objects.equals(evaluator, that.evaluator);
+                Objects.equals(evaluator, that.evaluator) &&
+                Objects.equals(defaultValues, that.defaultValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(body, context, args, bindArgs, evaluator);
+        return Objects.hash(body, context, args, bindArgs, evaluator, defaultValues);
     }
 
     @Override
@@ -92,6 +94,14 @@ public class HistoneMacro implements Serializable, Cloneable {
                 ", \"context\":" + context +
                 ", \"args\":[" + args + "]\"" +
                 ", \"bindArgs\":[" + bindArgs + "]\"}}";
+    }
+
+    public Map<String, CompletableFuture<EvalNode>> getDefaultValues() {
+        return defaultValues;
+    }
+
+    public void setDefaultValues(Map<String, CompletableFuture<EvalNode>> defaultValues) {
+        this.defaultValues = defaultValues;
     }
 
     public AstNode getBody() {

@@ -15,7 +15,7 @@
  */
 package ru.histone.v2.evaluator.resource;
 
-import ru.histone.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

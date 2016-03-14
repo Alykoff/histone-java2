@@ -78,6 +78,7 @@ public class Context implements Serializable {
         return ctx;
     }
 
+    @Override
     public Context clone() {
         final Context that = new Context(baseUri, locale, rttiInfo);
         that.parent = this.parent;
@@ -98,16 +99,19 @@ public class Context implements Serializable {
         return ctx;
     }
 
-    public void release() {
-        parent = null;
-    }
-
     public void put(String key, CompletableFuture<EvalNode> value) {
         vars.put(key, value);
     }
 
     public boolean contains(String key) {
-        return vars.containsKey(key);
+        Context ctx = this;
+        while (ctx != null) {
+            if (ctx.vars.containsKey(key)) {
+                return true;
+            }
+            ctx = ctx.getParent();
+        }
+        return false;
     }
 
     public CompletableFuture<EvalNode> getValue(String key) {
@@ -150,7 +154,7 @@ public class Context implements Serializable {
 
     public boolean findFunction(EvalNode node, String name) {
         try {
-            return rttiInfo.getFunc(node.getType(), name) != null;
+            return rttiInfo.getFunc(node.getType(), name).isPresent();
         } catch (FunctionExecutionException ignore) {
             // yeah, we couldn't find function with this name
         }

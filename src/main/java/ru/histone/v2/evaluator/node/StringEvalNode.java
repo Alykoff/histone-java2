@@ -16,8 +16,8 @@
 
 package ru.histone.v2.evaluator.node;
 
-import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
 
 /**
@@ -38,11 +38,27 @@ public class StringEvalNode extends EvalNode<String> implements HasProperties {
 
     @Override
     public EvalNode getProperty(Object propertyName) throws HistoneException {
-        if (propertyName instanceof Double) {
-            return EvalUtils.createEvalNode(value.charAt(((Double) propertyName).intValue()) + "");
-        } else if (propertyName instanceof Long) {
-            return EvalUtils.createEvalNode(value.charAt(((Long) propertyName).intValue()) + "");
+        final int size = value.length();
+        if (!(propertyName instanceof Double) && !(propertyName instanceof Long)) {
+            return null;
         }
-        return null;
+        final int indexRaw;
+        if (propertyName instanceof Double) {
+            indexRaw = ((Double) propertyName).intValue();
+        } else { // Long
+            indexRaw = ((Long) propertyName).intValue();
+        }
+
+        if (indexRaw >= size || size + indexRaw <= 0) {
+            return EmptyEvalNode.INSTANCE;
+        }
+
+        final int index;
+        if (indexRaw < 0) {
+            index = size + indexRaw;
+        } else {
+            index = indexRaw;
+        }
+        return EvalUtils.createEvalNode(value.charAt(index) + "");
     }
 }

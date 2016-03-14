@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ru.histone.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
@@ -127,10 +127,5 @@ public class LoadText extends AbstractFunction {
         } catch (IOException e) {
             throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
         }
-    }
-
-    @Override
-    public boolean isAsync() {
-        return true;
     }
 }

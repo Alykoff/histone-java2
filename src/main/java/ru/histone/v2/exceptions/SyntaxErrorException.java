@@ -16,8 +16,6 @@
 
 package ru.histone.v2.exceptions;
 
-import ru.histone.v2.parser.ParserException;
-
 /**
  *
  * Created by gali.alykoff on 21/01/16.

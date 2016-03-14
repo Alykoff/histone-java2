@@ -17,11 +17,11 @@
 package ru.histone.v2;
 
 import org.junit.Test;
-import ru.histone.HistoneException;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.support.HistoneTestCase;
 import ru.histone.v2.support.TestRunner;
@@ -51,10 +51,10 @@ public class ConcreteTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("{{5+5}}");
+        testCase.setExpectedResult("5+5");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{macro re(v1,v2,k1,k2)}}{{v1 > v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}", rtti, testCase);
+        TestRunner.doTest("{{var x = {{%5+5%}}}}{{x}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

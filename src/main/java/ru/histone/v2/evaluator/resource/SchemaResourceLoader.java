@@ -66,7 +66,7 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
         return CompletableFuture.completedFuture(null)
                 .thenCompose(x -> {
                     String fullLocation = PathUtils.resolveUrl(href, baseHref);
-                    ru.histone.evaluator.functions.global.URI uri = PathUtils.parseURI(fullLocation);
+                    ru.histone.v2.utils.URI uri = PathUtils.parseURI(fullLocation);
 
                     if (baseHref == null && uri.getScheme() == null) {
                         throw new ResourceLoadException("Base HREF is empty and resource location is not absolute!");
@@ -106,7 +106,7 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
         if (baseLocation != null) {
             baseLocation = baseLocation.replace("\\", "/");
-            baseLocation = baseLocation.replace("file://", "file:/");
+//            baseLocation = baseLocation.replace("file://", "file:/");
         }
         URI baseLocationURI = (baseLocation != null) ? URI.create(baseLocation) : null;
 

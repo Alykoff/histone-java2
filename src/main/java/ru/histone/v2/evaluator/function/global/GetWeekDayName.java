@@ -46,6 +46,10 @@ public class GetWeekDayName extends LocaleFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(context, clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         Properties properties = getCurrentProperties(context.getLocale());
 
         long id = getValue(args, 0);

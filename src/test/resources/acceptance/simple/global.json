@@ -7,7 +7,15 @@
         "expectedResult": "Mo Tu We Th Fr Sa Su "
       },
       {
+        "input": "{{for day in range(1, 7)}}{{global->getWeekDayNameShort(day)}} {{/for}}",
+        "expectedResult": "Mo Tu We Th Fr Sa Su "
+      },
+      {
         "input": "{{for day in range(1, 7)}}{{getWeekDayNameLong(day)}} {{/for}}",
+        "expectedResult": "Monday Tuesday Wednesday Thursday Friday Saturday Sunday "
+      },
+      {
+        "input": "{{for day in range(1, 7)}}{{global->getWeekDayNameLong(day)}} {{/for}}",
         "expectedResult": "Monday Tuesday Wednesday Thursday Friday Saturday Sunday "
       },
       {
@@ -15,7 +23,15 @@
         "expectedResult": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec "
       },
       {
+        "input": "{{for day in range(1, 12)}}{{global->getMonthNameShort(day)}} {{/for}}",
+        "expectedResult": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec "
+      },
+      {
         "input": "{{for day in range(1, 12)}}{{getMonthNameLong(day)}} {{/for}}",
+        "expectedResult": "January February March April May June July August September October November December "
+      },
+      {
+        "input": "{{for day in range(1, 12)}}{{global->getMonthNameLong(day)}} {{/for}}",
         "expectedResult": "January February March April May June July August September October November December "
       }
     ]

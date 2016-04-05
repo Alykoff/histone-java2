@@ -55,6 +55,10 @@ public class LoadText extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(context, clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         checkMinArgsLength(args, 1);
         checkMaxArgsLength(args, 2);
         checkTypes(args.get(0), 0, HistoneType.T_STRING, String.class);

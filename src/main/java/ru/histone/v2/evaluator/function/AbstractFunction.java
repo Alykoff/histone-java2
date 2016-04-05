@@ -88,7 +88,23 @@ public abstract class AbstractFunction implements Function {
     }
 
     protected <T> T getValue(List<EvalNode> args, int index) {
-        return index > args.size() - 1 ? null : (T) args.get(index).getValue();
+        return getValue(args, index, null);
+    }
+
+    protected <T> T getValue(List<EvalNode> args, int index, T defValue) {
+        return index > args.size() - 1 ? defValue : (T) args.get(index).getValue();
+    }
+
+    protected List<EvalNode> clearGlobal(List<EvalNode> args) {
+        if (args.size() == 0) {
+            return args;
+        }
+
+        if (args.get(0).getType() == HistoneType.T_GLOBAL) {
+            List<EvalNode> localNodes = args.subList(1, args.size());
+            return localNodes;
+        }
+        return args;
     }
 
     @Override

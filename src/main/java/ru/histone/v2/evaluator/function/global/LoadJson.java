@@ -45,7 +45,7 @@ public class LoadJson extends LoadText {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return super.execute(context, args)
+        return super.execute(context, clearGlobal(args))
                 .thenApply(res -> {
                     String str = (String) res.getValue();
                     Object json;

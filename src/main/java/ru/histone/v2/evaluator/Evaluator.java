@@ -775,10 +775,13 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processReferenceNode(ExpAstNode node, Context context) {
-        StringAstNode valueNode = node.getNode(0);
+        final StringAstNode valueNode = node.getNode(0);
         CompletableFuture<EvalNode> value = getValueFromParentContext(context, valueNode.getValue());
         return value.thenCompose(v -> {
             if (v != null) {
+                if (v.getType() == HistoneType.T_UNDEFINED && context.findFunction(valueNode.getValue())) {
+                    return context.call(valueNode.getValue(), Collections.singletonList(new StringEvalNode(valueNode.getValue())));
+                }
                 return completedFuture(v);
             } else {
                 return EmptyEvalNode.FUTURE_INSTANCE;

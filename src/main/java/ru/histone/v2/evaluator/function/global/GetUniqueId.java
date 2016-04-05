@@ -26,7 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 02/02/16.
+ * @author Alexey Nevinsky
  */
 public class GetUniqueId extends AbstractFunction {
     @Override

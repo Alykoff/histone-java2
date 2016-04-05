@@ -20,15 +20,19 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class GetRand extends AbstractFunction {
+
+    private static final long MAX = Integer.toUnsignedLong(Integer.MAX_VALUE);
+    private static final long MIN = 0;
+
     @Override
     public String getName() {
         return "getRand";
@@ -36,7 +40,25 @@ public class GetRand extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        Random random = new Random();
-        return EvalUtils.getValue(random.nextLong());
+        if (args.size() == 0) {
+            return getRandom(MIN, MAX);
+        }
+
+        List<EvalNode> argsToProcess = args;
+        if (args.get(0).getType() != HistoneType.T_NUMBER) {
+            argsToProcess = args.subList(1, args.size());
+        }
+
+        long min = getValue(argsToProcess, 0, 0L);
+        Long max = getValue(argsToProcess, 1, Integer.toUnsignedLong(Integer.MAX_VALUE));
+        if (min > max) {
+            return getRandom(max, min);
+        }
+        return getRandom(min, max);
+    }
+
+    private CompletableFuture<EvalNode> getRandom(long min, long max) {
+        Double res = Math.floor(Math.random() * (max - min + 1)) + min;
+        return EvalUtils.getValue(res.longValue());
     }
 }

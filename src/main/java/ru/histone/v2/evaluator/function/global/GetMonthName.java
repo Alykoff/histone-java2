@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class GetMonthName extends LocaleFunction {
 
@@ -44,6 +44,10 @@ public class GetMonthName extends LocaleFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return process(context, clearGlobal(args));
+    }
+
+    protected CompletableFuture<EvalNode> process(Context context, List<EvalNode> args) {
         Properties properties = getCurrentProperties(context.getLocale());
 
         long id = getValue(args, 0);

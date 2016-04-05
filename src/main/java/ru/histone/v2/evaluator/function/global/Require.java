@@ -49,6 +49,10 @@ public class Require extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(final Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(context, clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         checkMinArgsLength(args, 1);
         checkMaxArgsLength(args, 1);
         checkTypes(args.get(0), 0, Collections.singletonList(HistoneType.T_STRING), Collections.singletonList(String.class));

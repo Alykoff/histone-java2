@@ -37,6 +37,10 @@ public class ResolveURI extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(context, clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         if (args.size() > 0) {
             String baseUri = context.getBaseUri();
             if (getValue(args, 1) != null) {

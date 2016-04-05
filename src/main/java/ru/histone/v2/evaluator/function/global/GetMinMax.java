@@ -48,6 +48,10 @@ public class GetMinMax extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         if (args.isEmpty()) {
             return EmptyEvalNode.FUTURE_INSTANCE;
         }

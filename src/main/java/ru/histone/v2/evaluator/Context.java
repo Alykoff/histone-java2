@@ -161,6 +161,15 @@ public class Context implements Serializable {
         return false;
     }
 
+    public boolean findFunction(String name) {
+        try {
+            return rttiInfo.getFunc(HistoneType.T_GLOBAL, name).isPresent();
+        } catch (FunctionExecutionException ignore) {
+            // yeah, we couldn't find function with this name
+        }
+        return false;
+    }
+
     public Locale getLocale() {
         return locale;
     }

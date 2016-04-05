@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class GetDaysInMonth extends AbstractFunction {
     @Override
@@ -40,6 +40,10 @@ public class GetDaysInMonth extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(clearGlobal(args));
+    }
+
+    protected CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         checkMinArgsLength(args, 2);
         checkMaxArgsLength(args, 2);
         checkTypes(args.get(0), 0, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));

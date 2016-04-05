@@ -39,6 +39,10 @@ public class GetDayOfWeek extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         checkMinArgsLength(args, 3);
         checkMaxArgsLength(args, 3);
         checkTypes(args.get(0), 0, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));

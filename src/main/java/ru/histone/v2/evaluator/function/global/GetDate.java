@@ -38,6 +38,10 @@ public class GetDate extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         checkMaxArgsLength(args, 0);
 
         Calendar c = Calendar.getInstance();

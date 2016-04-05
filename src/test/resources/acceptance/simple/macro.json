@@ -195,5 +195,14 @@
         "expectedResult": "10"
       }
     ]
+  },
+  {
+    "name": "macro - custom cases",
+    "cases": [
+      {
+        "input": "{{macro foo}}{{return 'x'}}{{/macro}}{{foo()}}-{{foo()}}",
+        "expectedResult": "x-x"
+      }
+    ]
   }
 ]

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -104,6 +105,13 @@ public class ToJson extends AbstractFunction {
             public void serialize(EvalNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 JsonSerializer<Object> serializer = provider.findValueSerializer(value.getValue().getClass(), null);
                 serializer.serialize(value.getValue(), jgen, provider);
+            }
+        });
+        module.addSerializer(Evaluator.class, new JsonSerializer<Evaluator>() {
+            @Override
+            public void serialize(Evaluator value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
+                serializer.serialize("$EVALUATOR$", jgen, provider);
             }
         });
         module.addSerializer(ObjectUtils.Null.class, new JsonSerializer<ObjectUtils.Null>() {

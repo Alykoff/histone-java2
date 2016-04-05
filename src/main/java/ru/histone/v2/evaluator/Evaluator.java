@@ -720,7 +720,13 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> valueNameFuture = evaluateNode(node.getNode(1), context);
-        CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context);
+        CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context)
+                .thenApply(value -> {
+                    if (value.isReturn()) {
+                        return value.clearReturned();
+                    }
+                    return value;
+                });
 
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueNameFuture);
         return leftRightDone.thenApply(f -> {

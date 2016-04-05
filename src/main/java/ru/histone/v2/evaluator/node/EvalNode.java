@@ -41,6 +41,11 @@ public abstract class EvalNode<T> implements Serializable {
         return this;
     }
 
+    public EvalNode clearReturned() {
+        isReturn = false;
+        return this;
+    }
+
     public boolean isReturn() {
         return isReturn;
     }

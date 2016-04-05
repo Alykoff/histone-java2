@@ -154,7 +154,6 @@
       }
     ]
   },
-
   {
     "name": "macro - anonymous",
     "cases": [
@@ -218,6 +217,26 @@
       {
         "input": "{{[()=> 10]->toJSON}}",
         "expectedResult": "[null]"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->map(x => x * 10)->toJSON}}",
+        "expectedResult": "[10,20,30,40]"
+      },
+      {
+        "input": "xxx{{var f}}{{for in [1, 2, 3, 4]}}{{self->toJSON}}{{return 3}}{{/for}}{{/var}}{{f}}{{f}}",
+        "expectedResult": "xxx33"
+      },
+      {
+        "input": "{{macro foo(a)}}{{return 3}}{{/macro}}{{[1, 2, 3, 4]->filter(foo)->toJSON}}",
+        "expectedResult": "[1,2,3,4]"
+      },
+      {
+        "input": "{{macro foo}}{{var f = getRand}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x().isString()}}{{x().length()>=9}}",
+        "expectedResult": "truetrue"
+      },
+      {
+        "input": "{{macro foo(a)}}a = {{self->toJSON}}{{/macro}}xx{{foo(10).isString()}}{{foo().isString()}}",
+        "expectedResult": "xxtruetrue"
       }
     ]
   }

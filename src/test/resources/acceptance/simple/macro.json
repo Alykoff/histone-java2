@@ -214,6 +214,10 @@
       {
         "input": "{{macro foo}}{{return 'x'}}{{/macro}}{{foo()}}-{{foo()}}",
         "expectedResult": "x-x"
+      },
+      {
+        "input": "{{[()=> 10]->toJSON}}",
+        "expectedResult": "[null]"
       }
     ]
   }

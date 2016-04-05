@@ -28,6 +28,7 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
@@ -89,6 +90,13 @@ public class ToJson extends AbstractFunction {
             public void serialize(EvalNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
                 serializer.serialize("undefined", jgen, provider);
+            }
+        });
+        module.addSerializer(MacroEvalNode.class, new JsonSerializer<EvalNode>() {
+            @Override
+            public void serialize(EvalNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                serializer.serialize(null, jgen, provider);
             }
         });
         module.addSerializer(EvalNode.class, new JsonSerializer<EvalNode>() {

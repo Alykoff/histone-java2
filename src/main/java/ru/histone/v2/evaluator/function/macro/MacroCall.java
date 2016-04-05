@@ -92,7 +92,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
         currentContext.put(Constants.SELF_CONTEXT_NAME, selfObject);
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {
-                return CompletableFuture.completedFuture(res);
+                return EvalUtils.getValue(res.getValue());
             } else {
                 return RttiUtils.callToString(contextInner, res);
             }

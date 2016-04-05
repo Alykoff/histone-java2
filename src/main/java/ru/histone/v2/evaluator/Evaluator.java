@@ -311,8 +311,10 @@ public class Evaluator implements Serializable {
 
     private void checkHasPropertiesInterface(EvalNode v) {
         if (!(v instanceof HasProperties)) {
-            throw new HistoneException("Value '" + v.getValue() + "' has type '" + v.getType() + "', but expected types" +
-                    " are: 'T_ARRAY', 'T_MACRO', 'T_STRING', 'T_REQUIRE'");
+            throw new HistoneException("Value '" + v.getValue() + "' has type '"
+                    + v.getType() + "', but expected types"
+                    + " are: 'T_ARRAY', 'T_MACRO', 'T_STRING', 'T_REQUIRE'"
+            );
         }
     }
 
@@ -353,6 +355,14 @@ public class Evaluator implements Serializable {
                 }
             } else if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);
+            } else if (node.getType() == AstType.AST_MACRO) {
+                return processMacroNode(node, context).thenCompose(rawMacro -> MacroCall.processMacro(
+                        context.getBaseUri(),
+                        args,
+                        ((MacroEvalNode) rawMacro).getValue(),
+                        Optional.empty(),
+                        false
+                ));
             } else {
                 return processMethod(node, context, args);
             }

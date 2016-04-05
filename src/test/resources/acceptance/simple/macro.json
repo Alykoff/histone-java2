@@ -187,6 +187,18 @@
         "expectedResult": "10"
       },
       {
+        "input": "{{((x) => 10)(12, 11)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x, y) => 10)(12, 11)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x, y) => x + y)(12, 11)}}",
+        "expectedResult": "23"
+      },
+      {
         "input": "{{((x) => 10)()}}",
         "expectedResult": "10"
       },

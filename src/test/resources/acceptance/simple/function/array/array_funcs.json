@@ -64,6 +64,14 @@
       {
         "input": "<div>{{[]->keys->toJSON}} = []</div>",
         "expectedResult": "<div>[] = []</div>"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->keys}}",
+        "expectedResult": "0 1 2 3"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->keys->toString}}",
+        "expectedResult": "0 1 2 3"
       }
     ]
   },

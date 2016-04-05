@@ -450,11 +450,14 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "=>");
         }
 
-        if (varNodes.size() > 0) {
-            varNodes.add(new LongAstNode(varNodes.size()));
-        }
 
-        return createMacroNode(wrapper, varNodes);
+        final List<AstNode> result = new ArrayList<>();
+        if (varNodes.size() > 0) {
+            result.add(new LongAstNode(varNodes.size()));
+        }
+        result.addAll(varNodes);
+
+        return createMacroNode(wrapper, result);
     }
 
     private ExpAstNode createMacroNode(

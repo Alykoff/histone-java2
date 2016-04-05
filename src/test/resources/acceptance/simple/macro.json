@@ -153,5 +153,47 @@
         "expectedResult": "10"
       }
     ]
+  },
+
+  {
+    "name": "macro - anonymous",
+    "cases": [
+      {
+        "input": "{{((x) => 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(x => 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(=> 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(=> 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(=> 10)->call(12)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{(=> 10)(12)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x) => 10)(12)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x) => 10)()}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{(=> 10)()}}",
+        "expectedResult": "10"
+      }
+    ]
   }
 ]

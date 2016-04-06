@@ -54,7 +54,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("12");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("START:{{var x = require('../../tpl/function/this_must_be_undefined.tpl')}}:END", rtti, testCase);
+        TestRunner.doTest("12", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

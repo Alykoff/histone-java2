@@ -277,7 +277,7 @@
       },
       {
         "input": "---{{for in []}}??{{/for}}",
-        "expectedResult": "--HELLO"
+        "expectedResult": "---"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",

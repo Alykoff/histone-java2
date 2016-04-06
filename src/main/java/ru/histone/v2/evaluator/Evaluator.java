@@ -359,7 +359,7 @@ public class Evaluator implements Serializable {
         // [KEY_NODE, VAR_NODE, LABEL_NODE, LIST_NODES, ARRAY_NODE, [CONDITIONS_NODES, BODIES_NODES, ...], [ELSE_BODIES_NODE]]
         final AstNode iterator = expNode.getNode(4); // get array for iterate it in loop
         return evaluateNode(iterator, context).thenCompose(objToIterate -> {
-            if (!(objToIterate instanceof MapEvalNode)) {
+            if (!(objToIterate instanceof MapEvalNode) || ((MapEvalNode) objToIterate).getValue().size() == 0) {
                 return processNonMapValue(expNode, context);
             } else {
                 return processMapValue(expNode, context, (MapEvalNode) objToIterate);

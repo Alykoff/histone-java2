@@ -67,26 +67,13 @@ public class Require extends AbstractFunction {
                     ExpAstNode root = p.process(template, context.getBaseUri());
                     Evaluator evaluator = new Evaluator();
 
-                    Context macroCtx = context.clone();
+                    Context macroCtx = context.cloneEmpty();
+//                    Context macroCtx = context.clone();
 
                     CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
                     EvalNode rNode = nodeFuture.join();
                     return CompletableFuture.completedFuture(rNode.clearReturned());
-
-//                    if (!rNode.isReturn()) {
-//                        return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
-//                    } else {
-//
-//                    }
-
-//                    if (rNode.getType() == HistoneType.T_REQUIRE) {
-//                        return nodeFuture;
-//                    } else if (rNode.isReturn()) {
-//                        return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
-//                    } else {
-//                        return CompletableFuture.completedFuture(new RequireEvalNode(macroCtx));
-//                    }
                 });
     }
 }

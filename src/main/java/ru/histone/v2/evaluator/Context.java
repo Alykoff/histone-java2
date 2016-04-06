@@ -87,6 +87,10 @@ public class Context implements Serializable {
         return that;
     }
 
+    public Context cloneEmpty() {
+        return new Context(baseUri, locale, rttiInfo);
+    }
+
     /**
      * This method used for create a child context
      *

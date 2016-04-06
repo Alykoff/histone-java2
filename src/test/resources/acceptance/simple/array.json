@@ -45,6 +45,10 @@
       {
         "input": "{{[,,,,1, 2, 3,,,,]}}",
         "expectedResult": "1 2 3"
+      },
+      {
+        "input": "---{{[1, 2, 3, 4]->filter(getRand)->toJSON}}",
+        "expectedResult": "1 2 3"
       }
     ]
   }

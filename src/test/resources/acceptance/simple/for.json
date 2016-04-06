@@ -272,6 +272,14 @@
         "expectedResult": "a # b"
       },
       {
+        "input": "--{{for in []}}??{{else}}HELLO{{/for}}",
+        "expectedResult": "--HELLO"
+      },
+      {
+        "input": "---{{for in []}}??{{/for}}",
+        "expectedResult": "--HELLO"
+      },
+      {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
         "context": {
           "items": null

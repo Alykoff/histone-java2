@@ -59,6 +59,10 @@
           "line": "1",
           "message": "../../tpl/function/DOESNT_EXISTS.tpl"
         }
+      },
+      {
+        "input": "{{var f = 100}}{{var mac = require('../../tpl/function/customFunction.tpl')}}{{mac.x}}",
+        "expectedResult": ""
       }
     ]
   }

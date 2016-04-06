@@ -25,7 +25,6 @@ import ru.histone.v2.evaluator.function.global.*;
 import ru.histone.v2.evaluator.function.macro.MacroBind;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.function.macro.MacroExtend;
-import ru.histone.v2.evaluator.function.macro.RequireCall;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.*;
@@ -79,7 +78,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new IsBoolean());
         registerForAlltypes(new IsNumber());
         registerForAlltypes(new IsInt());
-        registerForAlltypes(new IsFloat());;
+        registerForAlltypes(new IsFloat());
+        ;
         registerForAlltypes(new IsString());
         registerForAlltypes(new IsArray());
         registerForAlltypes(new IsMacro());
@@ -144,8 +144,6 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_MACRO, new MacroCall());
         registerCommon(T_MACRO, new MacroBind());
         registerCommon(T_MACRO, new MacroExtend());
-
-        registerCommon(T_REQUIRE, new RequireCall());
     }
 
     private void registerForAlltypes(Function function) {

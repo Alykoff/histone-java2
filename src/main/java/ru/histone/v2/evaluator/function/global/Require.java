@@ -19,7 +19,6 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.RequireEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
@@ -73,13 +72,21 @@ public class Require extends AbstractFunction {
                     CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
                     EvalNode rNode = nodeFuture.join();
-                    if (rNode.getType() == HistoneType.T_REQUIRE) {
-                        return nodeFuture;
-                    } else if (rNode.isReturn()) {
-                        return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
-                    } else {
-                        return CompletableFuture.completedFuture(new RequireEvalNode(macroCtx));
-                    }
+                    return CompletableFuture.completedFuture(rNode.clearReturned());
+
+//                    if (!rNode.isReturn()) {
+//                        return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
+//                    } else {
+//
+//                    }
+
+//                    if (rNode.getType() == HistoneType.T_REQUIRE) {
+//                        return nodeFuture;
+//                    } else if (rNode.isReturn()) {
+//                        return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
+//                    } else {
+//                        return CompletableFuture.completedFuture(new RequireEvalNode(macroCtx));
+//                    }
                 });
     }
 }

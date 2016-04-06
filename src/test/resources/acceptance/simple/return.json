@@ -7,6 +7,18 @@
         "expectedResult": "5"
       },
       {
+        "input": "{{return}}5{{2 * 2}}{{/return}}",
+        "expectedResult": "54"
+      },
+      {
+        "input": "{{return}}{{macro b}}a{{/macro}}{{var b = b()}}[text: blabla, b:{{b}}]{{/return}}",
+        "expectedResult": "[text: blabla, b:a]"
+      },
+      {
+        "input": "{{macro a}}{{macro b}}a{{/macro}}{{var b = b()}}{{var res = [text: 'blabla', b:b]}}{{return res}}{{/macro}}{{a() -> toJSON}}",
+        "expectedResult": "{\"text\":\"blabla\",\"b\":\"a\"}"
+      },
+      {
         "input": "{{return}}bla{{/return}}",
         "expectedResult": "bla"
       },

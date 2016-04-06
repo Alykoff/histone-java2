@@ -21,7 +21,7 @@ import ru.histone.v2.rtti.HistoneType;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 19/01/16.
+ * @author Alexey Nevinsky
  */
 public class EmptyEvalNode extends EvalNode<Void> {
     public static final String HISTONE_VIEW = "";

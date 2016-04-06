@@ -3,6 +3,50 @@
     "name": "global -> require - variables",
     "cases": [
       {
+        "input": "START:{{require('../../tpl/function/template.tpl')}}:END",
+        "expectedResult": "START:hidden:END"
+      },
+      {
+        "input": "START:{{require('../../tpl/function/export_template.tpl')}}:END",
+        "expectedResult": "START:ret10foobar:END"
+      },
+      {
+        "input": "START:{{require('../../tpl/function/export_var.tpl')}}:END",
+        "expectedResult": "START:10:END"
+      },
+      {
+        "input": "START:{{require('../../tpl/function/export_arr.tpl')}}:END",
+        "expectedResult": "START:10:END"
+      },
+      {
+        "input": "START:{{require('../../tpl/function/export_arr.tpl') -> toJSON}}:END",
+        "expectedResult": "START:{\"a\":10,\"foo\":null}:END"
+      },
+      {
+        "input": "START:{{require('../../tpl/function/export_macro.tpl')}}:END",
+        "expectedResult": "START::END"
+      },
+      {
+        "input": "START:{{var r = require('../../tpl/function/template.tpl')}}{{r}}{{r -> isString}}:END",
+        "expectedResult": "START:hiddentrue:END"
+      },
+      {
+        "input": "START:{{var r = require('../../tpl/function/export_template.tpl')}}{{r}}{{r -> isString}}:END",
+        "expectedResult": "START:ret10foobartrue:END"
+      },
+      {
+        "input": "START:{{var r = require('../../tpl/function/export_var.tpl')}}{{r}}{{r -> isNumber}}:END",
+        "expectedResult": "START:10true:END"
+      },
+      {
+        "input": "START:{{var r = require('../../tpl/function/export_arr.tpl')}}{{r -> toJSON}}{{r.a}}{{r.foo()}}{{r -> isArray}}:END",
+        "expectedResult": "START:{\"a\":10,\"foo\":null}10footrue:END"
+      },
+      {
+        "input": "START:{{var r = require('../../tpl/function/export_macro.tpl')}}{{r()}}{{r -> isMacro}}:END",
+        "expectedResult": "START:footrue:END"
+      },
+      {
         "input": "a {{require('../../tpl/function/DOESNT_EXISTS.tpl') -> isUndefined()}} b",
         "expectedException": {
           "line": "1",
@@ -11,40 +55,10 @@
       },
       {
         "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e",
-        "expectedResult": "a  b 10 c 111 d 222 e"
-      }
-    ]
-  },
-  {
-    "name": "global -> require - macros",
-    "cases": [
-      {
-        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x -> macro_name()}} c",
-        "expectedResult": "a  b inner macro output c"
-      },
-      {
-        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x()}} c",
-        "expectedResult": "a  b  c"
-      },
-      {
-        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x -> param('parameter')}} c",
-        "expectedResult": "a  b parameter c"
-      },
-      {
-        "input": "a {{var x = require('../../tpl/function/test_for_require1.tpl')}} b {{x -> param('parameter')}} c",
-        "expectedResult": "a  b parameter c"
-      },
-      {
-        "input": "a {{var x = require('../../tpl/function/test_for_require_return.tpl')}} b {{x -> param('parameter')}} c",
-        "expectedResult": "a  b blablabla c"
-      },
-      {
-        "input": "{{var ui = [button: => require('../../tpl/function/button.tpl')->call(self.arguments)]}}{{ui.button([value: 'MyButton'])}}",
-        "expectedResult": "<div class=\"ui-button\">MyButton</div>"
-      },
-      {
-        "input": "{{var x = require('../../tpl/function/test_for_require.tpl')}}{{x.mainMacro(4)}}",
-        "expectedResult": "45"
+        "expectedException": {
+          "line": "1",
+          "message": "../../tpl/function/DOESNT_EXISTS.tpl"
+        }
       }
     ]
   }

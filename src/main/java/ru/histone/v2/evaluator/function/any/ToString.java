@@ -78,6 +78,9 @@ public class ToString extends AbstractFunction {
                 }
                 return CompletableFuture.completedFuture(String.valueOf(v));
             }
+            case T_MACRO: {
+                return CompletableFuture.completedFuture(EmptyEvalNode.HISTONE_VIEW);
+            }
             default: {
                 return CompletableFuture.completedFuture(node.getValue() + "");
             }

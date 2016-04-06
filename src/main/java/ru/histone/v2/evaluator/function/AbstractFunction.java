@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public abstract class AbstractFunction implements Function {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -37,9 +37,14 @@ public abstract class AbstractFunction implements Function {
     protected final Executor executor;
     protected final HistoneResourceLoader resourceLoader;
 
+//    protected final Evaluator evaluator;
+//    protected final Parser parser;
+
     protected AbstractFunction() {
         executor = null;
         resourceLoader = null;
+//        evaluator = null;
+//        parser = null;
     }
 
     protected AbstractFunction(Executor executor, HistoneResourceLoader resourceLoader) {

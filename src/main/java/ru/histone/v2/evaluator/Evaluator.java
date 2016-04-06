@@ -23,7 +23,6 @@ import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
-import ru.histone.v2.evaluator.function.macro.RequireCall;
 import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.global.StringEvalNodeLenComparator;
@@ -206,7 +205,7 @@ public class Evaluator implements Serializable {
         final Context cloneContext = context.clone();
         final CompletableFuture<List<AstNode>> astArgsFuture = completedFuture(
                 node.size() < startVarIndex
-                        ? Collections.<AstNode>emptyList()
+                        ? Collections.emptyList()
                         : node.getNodes().subList(startVarIndex, node.size())
         );
         return astArgsFuture.thenApply(astNodes -> {
@@ -331,25 +330,15 @@ public class Evaluator implements Serializable {
             if (node.getType() == AST_REF) {
                 final String refName = ((StringEvalNode) functionNameNode).getValue();
                 if (context.contains(refName)) {
-                    return getValueFromParentContext(context, refName).thenCompose(rawMacro -> {
-                        if (rawMacro.getType() == HistoneType.T_MACRO) {
-                            return MacroCall.processMacro(
+                    //todo add normal exception then we do call macro, but node is string
+                    return getValueFromParentContext(context, refName)
+                            .thenCompose(rawMacro -> MacroCall.processMacro(
                                     context.getBaseUri(),
                                     args,
                                     ((MacroEvalNode) rawMacro).getValue(),
                                     Optional.empty(),
                                     false
-                            );
-                        } else {
-                            return RequireCall.processRequire(
-                                    context.getBaseUri(),
-                                    args,
-                                    (RequireEvalNode) rawMacro,
-                                    Optional.empty(),
-                                    false
-                            );
-                        }
-                    });
+                            ));
                 } else {
                     return context.call(refName, args);
                 }
@@ -871,10 +860,7 @@ public class Evaluator implements Serializable {
             }
             return res.thenApply(n -> {
                 if (context.isReturned()) {
-                    if (n.isReturn()) {
-                        return new RequireEvalNode(n);
-                    }
-                    return new RequireEvalNode(ctx);
+                    return n.clearReturned();
                 }
                 if (n.isReturn()) {
                     return n;

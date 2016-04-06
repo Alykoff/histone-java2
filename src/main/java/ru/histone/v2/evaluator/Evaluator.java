@@ -251,6 +251,7 @@ public class Evaluator implements Serializable {
         final CompletableFuture<List<EvalNode>> processNodes = sequence(Arrays.asList(
                 evaluateNode(expNode.getNode(valueIndex), context),
                 evaluateNode(expNode.getNode(methodIndex), context)
+                        .thenCompose(node -> RttiUtils.callToString(context, node))
         ));
         return processNodes.thenCompose(methodNodes -> {
             final EvalNode valueNode = methodNodes.get(valueIndex);

@@ -1,4 +1,4 @@
-{var x = getRand}}
+{{var x = getRand}}
 
 {{macro foo}}
     RETURN
@@ -11,5 +11,9 @@
 
 {{return [
     foo: foo,
-    x: f
+    x: f,
+    thisParam: this[0],
+    a:this.a,
+    b:this.b,
+    c:this.c()
 ]}}

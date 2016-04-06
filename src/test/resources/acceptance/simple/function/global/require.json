@@ -61,8 +61,16 @@
         }
       },
       {
-        "input": "{{var f = 100}}{{var mac = require('../../tpl/function/customFunction.tpl')}}{{mac.x}}",
+        "input": "{{var f = 100}}{{var mac = require('../../tpl/function/customFunction.tpl')}}{{mac.x}}{{mac.thisParam}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{var f = 100}}{{var mac = require('../../tpl/function/customFunction.tpl', 10)}}{{mac.x}}{{mac.thisParam}}{{mac.thisParam -> isNumber}}",
+        "expectedResult": "10true"
+      },
+      {
+        "input": "{{macro c}}c{{/macro}}{{var f = [a:'a', b:'b', c: c]}}{{var mac = require('../../tpl/function/customFunction.tpl', f)}}{{mac -> toJSON}}",
+        "expectedResult": "{\"foo\":null,\"x\":\"undefined\",\"thisParam\":\"undefined\",\"a\":\"a\",\"b\":\"b\",\"c\":\"c\"}"
       }
     ]
   }

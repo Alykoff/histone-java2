@@ -259,12 +259,6 @@ public class Evaluator implements Serializable {
             argsNodes.add(valueNode);
             argsNodes.addAll(args);
 
-            if (valueNode.getType() == HistoneType.T_REQUIRE) {
-                argsNodes = new ArrayList<>(Arrays.asList(valueNode, methodNode));
-                argsNodes.addAll(args);
-                return context.call(valueNode, MacroCall.NAME, argsNodes);
-            }
-
             if (valueNode instanceof HasProperties && !context.findFunction(valueNode, methodNode.getValue())) {
                 EvalNode newValue = ((HasProperties) valueNode).getProperty(methodNode.getValue());
                 if (newValue != null) {
@@ -297,6 +291,10 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
+                    if (futures.get(0).getType() == HistoneType.T_UNDEFINED || futures.get(0).getType() == HistoneType.T_NULL) {
+                        return EmptyEvalNode.INSTANCE;
+                    }
+
                     checkHasPropertiesInterface(futures.get(0));
                     final HasProperties mapEvalNode = (HasProperties) futures.get(0);
                     final Object value = futures.get(1).getValue();
@@ -311,8 +309,7 @@ public class Evaluator implements Serializable {
     private void checkHasPropertiesInterface(EvalNode v) {
         if (!(v instanceof HasProperties)) {
             throw new HistoneException("Value '" + v.getValue() + "' has type '"
-                    + v.getType() + "', but expected types"
-                    + " are: 'T_ARRAY', 'T_MACRO', 'T_STRING', 'T_REQUIRE'"
+                    + v.getType() + "', but expected types are: 'T_ARRAY', 'T_MACRO', 'T_STRING'"
             );
         }
     }

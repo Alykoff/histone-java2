@@ -240,11 +240,11 @@
       },
       {
         "input": "{{macro foo}}{{var f = getRand}}{{macro bar}}{{f}}{{/macro}}{{return bar + getRand}}{{/macro}}{{var x = foo()}}---{{x}}{{x}}{{x}}",
-        "expectedResult": "xxtruetrue"
+        "expectedResult": "---"
       },
       {
         "input": "---{{[ => 10 ][0]()}}",
-        "expectedResult": "---10"
+        "expectedResult": "--- 10"
       },
       {
         "input": "{{var foo = => => 10 * 2}}--{{foo()()}}",

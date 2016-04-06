@@ -88,7 +88,9 @@ public class Context implements Serializable {
     }
 
     public Context cloneEmpty() {
-        return new Context(baseUri, locale, rttiInfo);
+        Context ctx = new Context(baseUri, locale, rttiInfo);
+        ctx.thisVars = new ConcurrentHashMap<>();
+        return ctx;
     }
 
     /**

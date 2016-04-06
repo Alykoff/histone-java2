@@ -43,10 +43,6 @@ public class Range extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        if (args.size() == 0) {
-            return getEmptyMapNodeFuture();
-        }
-
         if (args.get(0).getType() == HistoneType.T_GLOBAL) {
             List<EvalNode> localArgs = args.subList(1, args.size());
             return processRange(localArgs);
@@ -57,6 +53,9 @@ public class Range extends AbstractFunction {
 
     protected CompletableFuture<EvalNode> processRange(List<EvalNode> args) {
         final int size = args.size();
+        if (args.size() == 0) {
+            return getEmptyMapNodeFuture();
+        }
 
         for (int i = 0; i < size && i < 2; i++) {
             final EvalNode node = args.get(i);

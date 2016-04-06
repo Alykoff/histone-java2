@@ -3,6 +3,10 @@
     "name": "Global.functions",
     "cases": [
       {
+        "input": "{{global -> range}}",
+        "expectedResult": ""
+      },
+      {
         "input": "{{for day in range(1, 7)}}{{getWeekDayNameShort(day)}} {{/for}}",
         "expectedResult": "Mo Tu We Th Fr Sa Su "
       },

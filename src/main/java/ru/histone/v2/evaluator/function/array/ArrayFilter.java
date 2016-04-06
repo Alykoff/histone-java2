@@ -24,7 +24,9 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
+import ru.histone.v2.utils.RttiUtils;
 import ru.histone.v2.utils.Tuple;
 
 import java.io.Serializable;
@@ -46,7 +48,11 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
 
     public static CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        final MacroEvalNode macro = (MacroEvalNode) args.get(MACRO_INDEX);
+        final EvalNode macroRaw = args.get(MACRO_INDEX);
+        if (macroRaw.getType() != HistoneType.T_MACRO) {
+            return CompletableFuture.completedFuture(Collections.emptyList());
+        }
+        final MacroEvalNode macro = (MacroEvalNode) macroRaw;
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
         final List<CompletableFuture<Tuple<EvalNode, Boolean>>> mapResultWithPredicate = mapEvalNode.getValue()

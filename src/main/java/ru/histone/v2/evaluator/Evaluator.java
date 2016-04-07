@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.parser.node.AstType.AST_CALL;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 
@@ -350,6 +351,17 @@ public class Evaluator implements Serializable {
                         Optional.empty(),
                         false
                 ));
+            } else if (node.getType() == AstType.AST_CALL) {
+                return processCall(node, context).thenCompose(macroResult -> {
+                    final MacroEvalNode macro = (MacroEvalNode) macroResult;
+                    return MacroCall.processMacro(
+                            context.getBaseUri(),
+                            args,
+                            macro.getValue(),
+                            Optional.empty(),
+                            false
+                    );
+                });
             } else {
                 return processMethod(node, context, args);
             }

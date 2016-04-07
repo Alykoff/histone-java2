@@ -20,13 +20,14 @@ import ru.histone.v2.expression.BaseExpression;
 import ru.histone.v2.expression.Expression;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author alexey.nevinsky
  */
 public final class ExpressionList {
-    public static final List<Expression> VALUES = Arrays.asList(
+    public static final List<Expression> VALUES = Collections.unmodifiableList(Arrays.asList(
             new BaseExpression("null\\b", Tokens.T_PROP, Tokens.T_NULL),
             new BaseExpression("true\\b", Tokens.T_PROP, Tokens.T_TRUE),
             new BaseExpression("false\\b", Tokens.T_PROP, Tokens.T_FALSE),
@@ -91,7 +92,7 @@ public final class ExpressionList {
             new BaseExpression("\\)", Tokens.T_RPAREN),
             new BaseExpression("\\[", Tokens.T_LBRACKET),
             new BaseExpression("\\]", Tokens.T_RBRACKET)
-    );
+    ));
 
     private ExpressionList() {
     }

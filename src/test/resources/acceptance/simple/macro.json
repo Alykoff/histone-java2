@@ -208,6 +208,18 @@
       {
         "input": "{{(=> 10)()}}",
         "expectedResult": "10"
+      },
+      {
+        "input": "{{var foo = => => (x) => 10 * x}}{{foo()(12)(11)}}",
+        "expectedResult": "110"
+      },
+      {
+        "input": "{{var foo = => => (x) => 10 * x}}{{foo(12)(11)}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{(=> => (x) => 10 * x)()(12)(11)}}",
+        "expectedResult": "110"
       }
     ]
   },

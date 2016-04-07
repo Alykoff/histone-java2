@@ -125,4 +125,12 @@ public class ParserUtils {
             return Optional.empty();
         });
     }
+    public static Optional<Long> tryLongNumber(Object value) {
+        return tryDouble(value).flatMap(doubleValue -> {
+            if ((doubleValue == Math.floor(doubleValue)) && !Double.isInfinite(doubleValue)) {
+                return Optional.of(doubleValue.longValue());
+            }
+            return Optional.empty();
+        });
+    }
 }

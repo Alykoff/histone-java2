@@ -47,6 +47,9 @@ import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
+import static ru.histone.v2.utils.ParserUtils.tryDouble;
+import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
+import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 
 /**
  * The main class for evaluating AST tree.
@@ -768,11 +771,22 @@ public class Evaluator implements Serializable {
         CompletableFuture<EvalNode> res = evaluateNode(node.getNode(0), context);
         return res.thenApply(n -> {
             if (n instanceof LongEvalNode) {
-                Long value = ((LongEvalNode) n).getValue();
+                final Long value = ((LongEvalNode) n).getValue();
                 return new LongEvalNode(-value);
             } else if (n instanceof DoubleEvalNode) {
-                Double value = ((DoubleEvalNode) n).getValue();
+                final Double value = ((DoubleEvalNode) n).getValue();
                 return new DoubleEvalNode(-value);
+            } else if (n instanceof StringEvalNode) {
+                final String stringValue = ((StringEvalNode) n).getValue();
+                final Optional<Long> longOptional = tryLongNumber(stringValue);
+                if (longOptional.isPresent()) {
+                    return new LongEvalNode(-longOptional.get());
+                }
+
+                final Optional<Double> doubleOptional = tryDouble(stringValue);
+                if (doubleOptional.isPresent()) {
+                    return new DoubleEvalNode(-doubleOptional.get());
+                }
             }
             return EmptyEvalNode.INSTANCE;
         });

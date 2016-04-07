@@ -16,9 +16,14 @@
 
 package ru.histone.v2.evaluator.function.array;
 
+import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MacroEvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
+import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
@@ -94,7 +99,7 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
         if (rawMacroNode.getType() != HistoneType.T_MACRO) {
             return RttiUtils.callToBooleanResult(context, rawMacroNode)
                     .thenApply(predicate ->
-                            predicate ? values.get(0).getValue() : NullEvalNode.INSTANCE
+                            predicate ? values.get(0).getValue() : EvalUtils.createEvalNode(ObjectUtils.NULL)
                     );
         }
         final CompletableFuture<MacroEvalNode> macroFuture =

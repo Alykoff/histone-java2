@@ -22,7 +22,6 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -87,7 +86,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
             } else if (defaultsVars.containsKey(argName)) {
                 param = defaultsVars.get(argName);
             } else {
-                param = CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+                param = EvalUtils.getValue(null);
             }
             argumentsFutures.add(param);
             currentContext.put(argName, param);

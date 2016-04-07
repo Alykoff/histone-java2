@@ -16,12 +16,13 @@
 
 package ru.histone.v2.evaluator.function.array;
 
+import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
@@ -46,7 +47,7 @@ public class ArrayFind extends AbstractFunction implements Serializable {
             List<EvalNode> nodes
     ) {
         if (nodes.size() == 0) {
-            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+            return EvalUtils.getValue(ObjectUtils.NULL);
         }
         final EvalNode first = nodes.get(0);
         return RttiUtils.callMacro(context, macro, first).thenCompose(resultMacro ->
@@ -73,14 +74,14 @@ public class ArrayFind extends AbstractFunction implements Serializable {
                 .stream()
                 .collect(Collectors.toList());
         if (args.size() <= MACRO_INDEX || values.size() == 0) {
-            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+            return EvalUtils.getValue(ObjectUtils.NULL);
         }
 
         final EvalNode rawMacroNode = args.get(MACRO_INDEX);
         if (rawMacroNode.getType() != HistoneType.T_MACRO) {
             return RttiUtils.callToBooleanResult(context, rawMacroNode)
                     .thenApply(predicate ->
-                            predicate ? values.get(0) : NullEvalNode.INSTANCE
+                            predicate ? values.get(0) : EvalUtils.createEvalNode(ObjectUtils.NULL)
                     );
         }
         final CompletableFuture<MacroEvalNode> macroFuture =

@@ -19,7 +19,6 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.global.NumberComparator;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -53,7 +52,7 @@ public class GetMinMax extends AbstractFunction {
 
     private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         if (args.isEmpty()) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
 
         Number max = null;
@@ -78,7 +77,7 @@ public class GetMinMax extends AbstractFunction {
             }
         }
         if (max == null) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
 
         return EvalUtils.getValue(max);

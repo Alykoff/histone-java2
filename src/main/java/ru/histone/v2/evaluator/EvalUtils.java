@@ -128,10 +128,10 @@ public class EvalUtils {
 
     public static EvalNode<?> createEvalNode(Object object) {
         if (object == null) {
-            return EmptyEvalNode.INSTANCE;
+            return new EmptyEvalNode();
         }
         if (object.equals(ObjectUtils.NULL)) {
-            return NullEvalNode.INSTANCE;
+            return new NullEvalNode();
         }
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);

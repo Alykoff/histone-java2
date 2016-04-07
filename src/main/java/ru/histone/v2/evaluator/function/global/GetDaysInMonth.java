@@ -18,7 +18,6 @@ package ru.histone.v2.evaluator.function.global;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -58,7 +57,7 @@ public class GetDaysInMonth extends AbstractFunction {
         try {
             c.getTimeInMillis();
         } catch (IllegalArgumentException e) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
 
         int dayOfWeek = c.getActualMaximum(Calendar.DAY_OF_MONTH);

@@ -18,7 +18,6 @@ package ru.histone.v2.evaluator.function.global;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -51,7 +50,7 @@ public class GetDayOfWeek extends AbstractFunction {
             checkTypes(args.get(2), 1, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
         } catch (FunctionExecutionException e) {
             logger.error(e.getMessage(), e);
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
 
         Calendar c = Calendar.getInstance();
@@ -64,7 +63,7 @@ public class GetDayOfWeek extends AbstractFunction {
         try {
             c.getTimeInMillis();
         } catch (IllegalArgumentException e) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
 
         int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - 1;

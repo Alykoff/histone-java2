@@ -16,12 +16,13 @@
 
 package ru.histone.v2.evaluator.function.array;
 
+import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.RttiUtils;
 import ru.histone.v2.utils.Tuple;
@@ -86,7 +87,7 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
         final MapEvalNode array = (MapEvalNode) args.get(CALLABLE_LIST_INDEX);
         final List<EvalNode> valuesList = new ArrayList<>(array.getValue().values());
         if (valuesList.isEmpty()) {
-            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+            return EvalUtils.getValue(ObjectUtils.NULL);
         }
 
         final int size = args.size();

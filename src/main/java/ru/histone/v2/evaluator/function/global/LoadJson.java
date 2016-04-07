@@ -19,7 +19,6 @@ package ru.histone.v2.evaluator.function.global;
 import org.apache.commons.lang.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -61,7 +60,7 @@ public class LoadJson extends LoadText {
                 })
                 .exceptionally(ex -> {
                     logger.error(ex.getMessage(), ex);
-                    return EmptyEvalNode.INSTANCE;
+                    return EvalUtils.createEvalNode(null);
                 });
     }
 }

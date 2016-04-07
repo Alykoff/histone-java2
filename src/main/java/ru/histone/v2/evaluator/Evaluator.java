@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.Constants;
@@ -76,7 +77,7 @@ public class Evaluator implements Serializable {
 
     public CompletableFuture<EvalNode> evaluateNode(AstNode node, Context context) {
         if (node == null) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
 
         if (node.hasValue()) {
@@ -176,9 +177,9 @@ public class Evaluator implements Serializable {
         return evaluateNode(expNode.getNode(0), context)
                 .exceptionally(e -> {
                     LOG.error(e.getMessage(), e);
-                    return EmptyEvalNode.INSTANCE;
+                    return EvalUtils.createEvalNode(null);
                 })
-                .thenApply(node -> EmptyEvalNode.INSTANCE);
+                .thenApply(node -> EvalUtils.createEvalNode(null));
     }
 
     private CompletableFuture<EvalNode> processThisNode(ExpAstNode expNode, Context context) {
@@ -289,7 +290,7 @@ public class Evaluator implements Serializable {
             } else if (expNode.getNode(2) != null) {
                 return evaluateNode(expNode.getNode(2), context);
             }
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         });
     }
 
@@ -297,7 +298,7 @@ public class Evaluator implements Serializable {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
                     if (futures.get(0).getType() == HistoneType.T_UNDEFINED || futures.get(0).getType() == HistoneType.T_NULL) {
-                        return EmptyEvalNode.INSTANCE;
+                        return EvalUtils.createEvalNode(null);
                     }
 
                     checkHasPropertiesInterface(futures.get(0));
@@ -307,7 +308,7 @@ public class Evaluator implements Serializable {
                     if (obj != null) {
                         return obj;
                     }
-                    return EmptyEvalNode.INSTANCE;
+                    return EvalUtils.createEvalNode(null);
                 });
     }
 
@@ -336,7 +337,7 @@ public class Evaluator implements Serializable {
                     return getValueFromParentContext(context, refName)
                             .thenCompose(rawMacro -> {
                                 if (rawMacro.getType() != HistoneType.T_MACRO) {
-                                    return EmptyEvalNode.FUTURE_INSTANCE;
+                                    return EvalUtils.getValue(null);
                                 }
                                 return MacroCall.processMacro(
                                         context.getBaseUri(),
@@ -349,7 +350,7 @@ public class Evaluator implements Serializable {
                 } else if (context.findFunction(refName)) {
                     return context.call(refName, args);
                 }
-                return EmptyEvalNode.FUTURE_INSTANCE;
+                return EvalUtils.getValue(null);
             } else if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);
             } else if (node.getType() == AstType.AST_MACRO) {
@@ -391,7 +392,7 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processNonMapValue(ExpAstNode expNode, Context context) {
         if (expNode.size() == 4) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
         int i = 5;
         AstNode expressionNode = expNode.getNode(i + 1);
@@ -410,7 +411,7 @@ public class Evaluator implements Serializable {
             return evaluateNode(bodyNode, context);
         }
 
-        return EmptyEvalNode.FUTURE_INSTANCE;
+        return EvalUtils.getValue(null);
     }
 
     private CompletableFuture<EvalNode> processMapValue(ExpAstNode expNode, Context context, MapEvalNode objToIterate) {
@@ -496,10 +497,10 @@ public class Evaluator implements Serializable {
     private Context getIterableContext(Context context, MapEvalNode objToIterate, EvalNode keyVarName,
                                        EvalNode valueVarName, int i, Map.Entry<String, EvalNode> entry) {
         Context iterableContext = context.createNew();
-        if (valueVarName != NullEvalNode.INSTANCE) {
+        if (valueVarName.getValue() != ObjectUtils.NULL) {
             iterableContext.put(valueVarName.getValue() + "", EvalUtils.getValue(entry.getValue()));
         }
-        if (keyVarName != NullEvalNode.INSTANCE) {
+        if (keyVarName.getValue() != ObjectUtils.NULL) {
             iterableContext.put(keyVarName.getValue() + "", EvalUtils.getValue(entry.getKey()));
         }
         iterableContext.put(SELF_CONTEXT_NAME, EvalUtils.getValue(constructSelfValue(
@@ -529,7 +530,7 @@ public class Evaluator implements Serializable {
                     final Double res = getValue(left).orElse(null) + getValue(right).orElse(null);
                     return EvalUtils.getNumberFuture(res);
                 } else if (isLeftNumberNode || isRightNumberNode) {
-                    return EmptyEvalNode.FUTURE_INSTANCE;
+                    return EvalUtils.getValue(null);
                 }
 
                 if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
@@ -561,7 +562,7 @@ public class Evaluator implements Serializable {
                 Double leftValue = getValue(left).orElse(null);
                 Double rightValue = getValue(right).orElse(null);
                 if (leftValue == null || rightValue == null) {
-                    return EmptyEvalNode.INSTANCE;
+                    return EvalUtils.createEvalNode(null);
                 }
 
                 Double res;
@@ -577,7 +578,7 @@ public class Evaluator implements Serializable {
                 }
                 return EvalUtils.getNumberNode(res);
             }
-            return EmptyEvalNode.INSTANCE;
+            return EvalUtils.createEvalNode(null);
         });
     }
 
@@ -748,7 +749,7 @@ public class Evaluator implements Serializable {
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueNameFuture);
         return leftRightDone.thenApply(f -> {
             context.put(f.get(0).getValue() + "", valueNodeFuture);
-            return EmptyEvalNode.INSTANCE;
+            return EvalUtils.createEvalNode(null);
         });
     }
 
@@ -757,7 +758,7 @@ public class Evaluator implements Serializable {
             return completedFuture(new MapEvalNode(new LinkedHashMap<>(0)));
         }
         if (node.getNode(0).getType() == AstType.AST_VAR) {
-            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EmptyEvalNode.INSTANCE);
+            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EvalUtils.createEvalNode(null));
         } else {
             if (node.size() > 0) {
                 CompletableFuture<List<EvalNode>> futures = evalAllNodesOfCurrent(node, context);
@@ -797,14 +798,14 @@ public class Evaluator implements Serializable {
                     return new DoubleEvalNode(-doubleOptional.get());
                 }
             }
-            return EmptyEvalNode.INSTANCE;
+            return EvalUtils.createEvalNode(null);
         });
     }
 
     private CompletableFuture<EvalNode> getValueNode(AstNode node) {
         ValueNode valueNode = (ValueNode) node;
         if (valueNode.getValue() == null) {
-            return completedFuture(NullEvalNode.INSTANCE);
+            return EvalUtils.getValue(ObjectUtils.NULL);
         }
 
         Object val = valueNode.getValue();
@@ -828,7 +829,7 @@ public class Evaluator implements Serializable {
                 }
                 return completedFuture(v);
             } else {
-                return EmptyEvalNode.FUTURE_INSTANCE;
+                return EvalUtils.getValue(null);
             }
         });
     }
@@ -840,7 +841,7 @@ public class Evaluator implements Serializable {
             }
             context = context.getParent();
         }
-        return EmptyEvalNode.FUTURE_INSTANCE;
+        return EvalUtils.getValue(null);
     }
 
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {

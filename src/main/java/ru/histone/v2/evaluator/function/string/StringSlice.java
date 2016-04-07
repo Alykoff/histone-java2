@@ -19,7 +19,6 @@ package ru.histone.v2.evaluator.function.string;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -52,7 +51,7 @@ public class StringSlice extends AbstractFunction {
                 ? EvalUtils.tryPureIntegerValue(args.get(2))
                 : Optional.of(strLen);
         if (!startRaw.isPresent() || !lengthRaw.isPresent()) {
-            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            return EvalUtils.getValue(null);
         }
         int start = startRaw.get();
         int length = lengthRaw.get();

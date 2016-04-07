@@ -17,7 +17,6 @@
 package ru.histone.v2.evaluator;
 
 import ru.histone.v2.Constants;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -125,7 +124,7 @@ public class Context implements Serializable {
             if (thisVars.containsKey(key)) {
                 return thisVars.get(key);
             }
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
         return vars.get(key);
     }

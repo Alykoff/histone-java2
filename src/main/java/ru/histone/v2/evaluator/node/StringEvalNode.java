@@ -50,7 +50,7 @@ public class StringEvalNode extends EvalNode<String> implements HasProperties {
         }
 
         if (indexRaw >= size || size + indexRaw <= 0) {
-            return EmptyEvalNode.INSTANCE;
+            return EvalUtils.createEvalNode(null);
         }
 
         final int index;

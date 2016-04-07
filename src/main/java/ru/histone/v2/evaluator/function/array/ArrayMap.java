@@ -17,7 +17,6 @@
 package ru.histone.v2.evaluator.function.array;
 
 import org.apache.commons.lang.ObjectUtils;
-import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
@@ -32,7 +31,6 @@ import ru.histone.v2.utils.AsyncUtils;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * @author gali.alykoff on 08/02/16.
@@ -55,26 +53,30 @@ public class ArrayMap extends AbstractFunction implements Serializable {
         final EvalNode node = args.size() > MACRO_INDEX ? args.get(MACRO_INDEX) : null;
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
-        final List<CompletableFuture<EvalNode>> mapResultRaw = mapEvalNode.getValue()
-                .values().stream()
-                .map(arg -> {
-                    if (node == null) {
-                        return EvalUtils.getValue(ObjectUtils.NULL);
-                    }
+        final List<CompletableFuture<EvalNode>> mapResultRaw = new ArrayList<>(mapEvalNode.getValue().size());
+        int index = 0;
+        for (EvalNode arg : mapEvalNode.getValue().values()) {
+            if (node == null) {
+                mapResultRaw.add(EvalUtils.getValue(ObjectUtils.NULL));
+                continue;
+            }
 
-                    if (node.getType() != HistoneType.T_MACRO) {
-                        return CompletableFuture.completedFuture(node);
-                    }
+            if (node.getType() != HistoneType.T_MACRO) {
+                mapResultRaw.add(CompletableFuture.completedFuture(node));
+                continue;
+            }
 
-                    MacroEvalNode macro = (MacroEvalNode) node;
-                    final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
-                    if (param != null) {
-                        arguments.add(param);
-                    }
-                    arguments.add(arg);
-                    return MacroCall.staticExecute(context, arguments);
-                })
-                .collect(Collectors.toList());
+            MacroEvalNode macro = (MacroEvalNode) node;
+            final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
+            if (param != null) {
+                arguments.add(param);
+            }
+            arguments.add(arg);
+            arguments.add(EvalUtils.createEvalNode(index + ""));
+            arguments.add(mapEvalNode);
+            mapResultRaw.add(MacroCall.staticExecute(context, arguments, false));
+            index++;
+        }
         return AsyncUtils.sequence(mapResultRaw).thenApply(nodes -> {
             Object[] keys = mapEvalNode.getValue().keySet().toArray();
             Map<String, EvalNode> map = new LinkedHashMap<>();
@@ -83,14 +85,5 @@ public class ArrayMap extends AbstractFunction implements Serializable {
             }
             return new MapEvalNode(map);
         });
-    }
-
-    private static CompletableFuture<EvalNode> createSelfObject(MacroEvalNode macro, String baseURI, List<EvalNode> args) {
-        Map<String, EvalNode> res = new HashMap<>();
-        res.put(Constants.SELF_CONTEXT_CALLEE, macro);
-        res.put(Constants.SELF_CONTEXT_CALLER, EvalUtils.createEvalNode(baseURI));
-        res.put(Constants.SELF_CONTEXT_ARGUMENTS, EvalUtils.constructFromObject(args));
-
-        return EvalUtils.getValue(res);
     }
 }

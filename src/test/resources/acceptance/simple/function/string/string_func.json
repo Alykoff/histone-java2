@@ -177,7 +177,7 @@
       },
       {
         "input": "{{[  x: {{%  BLA  {{if true}}  {{/if}}  %}}]}}",
-        "expectedResult": "\"  LITERAL    20    \""
+        "expectedResult": "  BLA  {{if true}}  {{/if}}  "
       },
       {
         "input": "{{[  x: {{    BLA  {{if true}}  {{return 300}}  {{/if}}}}]->toJSON}}",

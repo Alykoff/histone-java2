@@ -75,7 +75,7 @@
       },
       {
         "input": "{{macro foo}}{{self->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')}}{{foo(30, 40)}}",
-        "expectedResult": "{\"callee\":null,\"caller\":\"/Users/inv3r/Development/public/histone-javascript2/main.js\",\"arguments\":[null,null,null,30,40]}"
+        "expectedResult": "{\"callee\":null,\"caller\":\"file:///Users/inv3r/Development/public/histone-java/target/test-classes/acceptance/simple/macro.json\",\"arguments\":[\"A\",\"B\",\"C\",30,40]}"
       }
     ]
   },
@@ -295,12 +295,12 @@
         "expectedResult": "--{\"foo\":3,\"x\":3}"
       },
       {
-        "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}--{{[0, 1, 2, 3, 4, 5]->map(mapper)->toJSON}}",
-        "expectedResult": "--[[0,\"0\",[0,1,2,3,4,5]],[1,\"1\",[0,1,2,3,4,5]],[2,\"2\",[0,1,2,3,4,5]],[3,\"3\",[0,1,2,3,4,5]],[4,\"4\",[0,1,2,3,4,5]],[5,\"5\",[0,1,2,3,4,5]]]"
+        "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}--{{['!', 'A', 'B', 'C', 4, 5]->map(mapper)->toJSON}}",
+        "expectedResult": "--[[\"!\",\"0\",[\"!\",\"A\",\"B\",\"C\",4,5]],[\"A\",\"1\",[\"!\",\"A\",\"B\",\"C\",4,5]],[\"B\",\"2\",[\"!\",\"A\",\"B\",\"C\",4,5]],[\"C\",\"3\",[\"!\",\"A\",\"B\",\"C\",4,5]],[4,\"4\",[\"!\",\"A\",\"B\",\"C\",4,5]],[5,\"5\",[\"!\",\"A\",\"B\",\"C\",4,5]]]"
       },
       {
-        "input": "{{macro mapper(a)}}{{return self.arguments}}{{/macro}}--{{[0, 1, 2, 3, 4, 5]->map(mapper->bind(40))->toJSON}}",
-        "expectedResult": "--[[40,0,\"0\",[0,1,2,3,4,5]],[40,1,\"1\",[0,1,2,3,4,5]],[40,2,\"2\",[0,1,2,3,4,5]],[40,3,\"3\",[0,1,2,3,4,5]],[40,4,\"4\",[0,1,2,3,4,5]],[40,5,\"5\",[0,1,2,3,4,5]]]"
+        "input": "{{macro mapper(a)}}{{return self.arguments}}{{/macro}}--{{['!', 'A', 'B', 'C', 4, 5]->map(mapper->bind(40))->toJSON}}",
+        "expectedResult": "--[[40,\"!\",\"0\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,\"A\",\"1\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,\"B\",\"2\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,\"C\",\"3\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,4,\"4\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,5,\"5\",[\"!\",\"A\",\"B\",\"C\",4,5]]]"
       },
       {
         "input": "{{macro foo(a, a, a)}}{{a}}{{/macro}}",

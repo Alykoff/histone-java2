@@ -54,7 +54,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{macro foo(a, a, a)}}{{a}}{{/macro}}", rtti, testCase);
+        TestRunner.doTest("{{macro foo}}{{self->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')}}{{foo(30, 40)}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

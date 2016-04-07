@@ -49,8 +49,8 @@ public class GetRand extends AbstractFunction {
             argsToProcess = args.subList(1, args.size());
         }
 
-        long min = getValue(argsToProcess, 0, 0L);
-        Long max = getValue(argsToProcess, 1, Integer.toUnsignedLong(Integer.MAX_VALUE));
+        long min = getLongValue(argsToProcess, 0, MIN);
+        long max = getLongValue(argsToProcess, 1, MAX);
         if (min > max) {
             return getRandom(max, min);
         }

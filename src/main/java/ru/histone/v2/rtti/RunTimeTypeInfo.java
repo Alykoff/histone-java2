@@ -28,8 +28,8 @@ import ru.histone.v2.evaluator.function.macro.MacroExtend;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.*;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 
 import java.io.Serializable;
@@ -183,7 +183,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     public CompletableFuture<EvalNode> callFunction(Context context, HistoneType type, String funcName, List<EvalNode> args) {
         final Optional<Function> fRaw = getFunc(type, funcName);
         if (!fRaw.isPresent()) {
-            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
         }
         final Function f = fRaw.get();
         if (f.isAsync()) {

@@ -247,7 +247,7 @@
         "expectedResult": "[1,2,3,4]"
       },
       {
-        "input": "{{macro foo}}{{var f = getRand}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x().isString()}}{{x().length()>=9}}",
+        "input": "{{macro foo}}{{var f = 20}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x().isString()}}{{x().length()>=2}}",
         "expectedResult": "truetrue"
       },
       {
@@ -264,7 +264,7 @@
       },
       {
         "input": "{{var foo = => => 10 * 2}}--{{foo()()}}",
-        "expectedResult": "---20"
+        "expectedResult": "--20"
       },
       {
         "input": "--{{getRand(-10.3, 0)}}",
@@ -276,7 +276,7 @@
       },
       {
         "input": "--{{'sss'->wtf}}",
-        "expectedResult": ""
+        "expectedResult": "--"
       },
       {
         "input": "--{{[0, 1, 2, 3, 4, 5]->map->toJSON}}",

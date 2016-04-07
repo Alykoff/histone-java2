@@ -16,7 +16,10 @@
 
 package ru.histone.v2.evaluator.function.array;
 
+import org.apache.commons.lang.ObjectUtils;
+import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -49,12 +52,16 @@ public class ArrayMap extends AbstractFunction implements Serializable {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         // [MAP, MACROS, ARGS...]
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        final EvalNode node = args.get(MACRO_INDEX);
+        final EvalNode node = args.size() > MACRO_INDEX ? args.get(MACRO_INDEX) : null;
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
         final List<CompletableFuture<EvalNode>> mapResultRaw = mapEvalNode.getValue()
                 .values().stream()
                 .map(arg -> {
+                    if (node == null) {
+                        return EvalUtils.getValue(ObjectUtils.NULL);
+                    }
+
                     if (node.getType() != HistoneType.T_MACRO) {
                         return CompletableFuture.completedFuture(node);
                     }
@@ -76,5 +83,14 @@ public class ArrayMap extends AbstractFunction implements Serializable {
             }
             return new MapEvalNode(map);
         });
+    }
+
+    private static CompletableFuture<EvalNode> createSelfObject(MacroEvalNode macro, String baseURI, List<EvalNode> args) {
+        Map<String, EvalNode> res = new HashMap<>();
+        res.put(Constants.SELF_CONTEXT_CALLEE, macro);
+        res.put(Constants.SELF_CONTEXT_CALLER, EvalUtils.createEvalNode(baseURI));
+        res.put(Constants.SELF_CONTEXT_ARGUMENTS, EvalUtils.constructFromObject(args));
+
+        return EvalUtils.getValue(res);
     }
 }

@@ -27,6 +27,7 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
@@ -128,6 +129,13 @@ public class ToJson extends AbstractFunction {
             public void serialize(HistoneRegex value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 JsonSerializer<String> serializer = new RawSerializer<>(String.class);
                 serializer.serialize(value.toString(), jgen, provider);
+            }
+        });
+        module.addSerializer(HistoneMacro.class, new JsonSerializer<HistoneMacro>() {
+            @Override
+            public void serialize(HistoneMacro value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                serializer.serialize(null, jgen, provider);
             }
         });
         mapper.registerModule(module);

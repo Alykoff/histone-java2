@@ -18,7 +18,9 @@ package ru.histone.v2.evaluator.function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Function;
+import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -98,6 +100,24 @@ public abstract class AbstractFunction implements Function {
 
     protected <T> T getValue(List<EvalNode> args, int index, T defValue) {
         return index > args.size() - 1 ? defValue : (T) args.get(index).getValue();
+    }
+
+    protected Long getLongValue(List<EvalNode> args, int index, Long defValue) {
+        if (index > args.size() - 1) {
+            return defValue;
+        }
+
+        EvalNode node = args.get(index);
+        if (node.getType() != HistoneType.T_STRING && node.getType() != HistoneType.T_NUMBER) {
+            return defValue;
+        }
+
+        if (node instanceof DoubleEvalNode && !EvalUtils.isInteger(((DoubleEvalNode) node).getValue())) {
+            return defValue;
+        }
+
+        Number number = EvalUtils.getNumberValue(node);
+        return number.longValue();
     }
 
     protected List<EvalNode> clearGlobal(List<EvalNode> args) {

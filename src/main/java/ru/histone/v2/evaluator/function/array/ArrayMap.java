@@ -23,12 +23,11 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -50,12 +49,17 @@ public class ArrayMap extends AbstractFunction implements Serializable {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         // [MAP, MACROS, ARGS...]
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        final MacroEvalNode macro = (MacroEvalNode) args.get(MACRO_INDEX);
+        final EvalNode node = args.get(MACRO_INDEX);
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
         final List<CompletableFuture<EvalNode>> mapResultRaw = mapEvalNode.getValue()
                 .values().stream()
                 .map(arg -> {
+                    if (node.getType() != HistoneType.T_MACRO) {
+                        return CompletableFuture.completedFuture(node);
+                    }
+
+                    MacroEvalNode macro = (MacroEvalNode) node;
                     final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
                     if (param != null) {
                         arguments.add(param);
@@ -64,6 +68,13 @@ public class ArrayMap extends AbstractFunction implements Serializable {
                     return MacroCall.staticExecute(context, arguments);
                 })
                 .collect(Collectors.toList());
-        return AsyncUtils.sequence(mapResultRaw).thenApply(MapEvalNode::new);
+        return AsyncUtils.sequence(mapResultRaw).thenApply(nodes -> {
+            Object[] keys = mapEvalNode.getValue().keySet().toArray();
+            Map<String, EvalNode> map = new LinkedHashMap<>();
+            for (int i = 0; i < nodes.size(); i++) {
+                map.put((String) keys[i], nodes.get(i));
+            }
+            return new MapEvalNode(map);
+        });
     }
 }

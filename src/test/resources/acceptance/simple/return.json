@@ -48,11 +48,11 @@
       },
       {
         "input": "{{@getRand}}{{return getRandx}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{'xxxx'}}sadfadsf{{return sdfsadf}}",
-        "expectedResult": "undefined"
+        "expectedResult": ""
       },
       {
         "input": "{{'xxxx'}}sadfadsf{{return 10}}",

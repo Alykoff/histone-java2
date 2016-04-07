@@ -48,7 +48,6 @@ import static ru.histone.v2.evaluator.EvalUtils.*;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
-import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 
 /**
@@ -347,9 +346,10 @@ public class Evaluator implements Serializable {
                                         false
                                 );
                             });
-                } else {
+                } else if (context.findFunction(refName)) {
                     return context.call(refName, args);
                 }
+                return EmptyEvalNode.FUTURE_INSTANCE;
             } else if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);
             } else if (node.getType() == AstType.AST_MACRO) {

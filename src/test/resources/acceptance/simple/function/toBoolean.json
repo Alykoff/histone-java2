@@ -133,6 +133,10 @@
       {
         "input": "<div>{{(-42)->toBoolean}} = true</div>",
         "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "{{0.00000->toBoolean}}",
+        "expectedResult": "false"
       }
     ]
   }

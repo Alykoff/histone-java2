@@ -249,6 +249,10 @@
       {
         "input": "{{var foo = => => 10 * 2}}--{{foo()()}}",
         "expectedResult": "---20"
+      },
+      {
+        "input": "--{{getRand(-10.3, 0)}}",
+        "expectedResult": "--0"
       }
     ]
   }

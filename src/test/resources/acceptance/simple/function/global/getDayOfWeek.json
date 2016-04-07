@@ -82,6 +82,14 @@
           "line": "1",
           "message": "For input string: \"a\""
         }
+      },
+      {
+        "input": "{{global->getDayOfWeek(2016, 12, 10)}}",
+        "expectedResult": "6"
+      },
+      {
+        "input": "{{getDayOfWeek(2016, 2.3, 1)}}",
+        "expectedResult": ""
       }
     ]
   }

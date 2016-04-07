@@ -5,6 +5,10 @@
       {
         "input": "{{for day in range(1, 12)}}{{getMonthNameLong(day)}} {{/for}}",
         "expectedResult": "January February March April May June July August September October November December "
+      },
+      {
+        "input": "--{{getMonthNameLong(1.2)}}",
+        "expectedResult": "--"
       }
     ]
   }

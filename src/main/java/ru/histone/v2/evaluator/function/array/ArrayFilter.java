@@ -26,7 +26,6 @@ import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
-import ru.histone.v2.utils.RttiUtils;
 import ru.histone.v2.utils.Tuple;
 
 import java.io.Serializable;
@@ -48,26 +47,29 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
 
     public static CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        final EvalNode macroRaw = args.get(MACRO_INDEX);
-        if (macroRaw.getType() != HistoneType.T_MACRO) {
-            return CompletableFuture.completedFuture(Collections.emptyList());
-        }
-        final MacroEvalNode macro = (MacroEvalNode) macroRaw;
+        final EvalNode valueNode = args.get(MACRO_INDEX);
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
         final List<CompletableFuture<Tuple<EvalNode, Boolean>>> mapResultWithPredicate = mapEvalNode.getValue()
                 .values().stream()
                 .map(arg -> {
-                    final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
-                    if (param != null) {
-                        arguments.add(param);
+                    if (valueNode.getType() == HistoneType.T_MACRO) {
+                        final MacroEvalNode macro = (MacroEvalNode) valueNode;
+
+                        final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
+                        if (param != null) {
+                            arguments.add(param);
+                        }
+                        arguments.add(arg);
+                        final CompletableFuture<EvalNode> predicateFuture = MacroCall.staticExecute(context, arguments);
+                        return predicateFuture.thenApply(predicateNode -> {
+                            final Boolean predicate = EvalUtils.nodeAsBoolean(predicateNode);
+                            return Tuple.create(arg, predicate);
+                        });
+                    } else {
+                        final Boolean predicate = EvalUtils.nodeAsBoolean(valueNode);
+                        return CompletableFuture.completedFuture(Tuple.create(arg, predicate));
                     }
-                    arguments.add(arg);
-                    final CompletableFuture<EvalNode> predicateFuture = MacroCall.staticExecute(context, arguments);
-                    return predicateFuture.thenApply(predicateNode -> {
-                        final Boolean predicate = EvalUtils.nodeAsBoolean(predicateNode);
-                        return Tuple.create(arg, predicate);
-                    });
                 }).collect(Collectors.toList());
         return AsyncUtils.sequence(mapResultWithPredicate);
     }

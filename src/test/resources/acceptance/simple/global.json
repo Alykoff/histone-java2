@@ -37,6 +37,14 @@
       {
         "input": "{{for day in range(1, 12)}}{{global->getMonthNameLong(day)}} {{/for}}",
         "expectedResult": "January February March April May June July August September October November December "
+      },
+      {
+        "input": "{{global->toString}}",
+        "expectedResult": "(Global)"
+      },
+      {
+        "input": "{{toString}}",
+        "expectedResult": "(Global)"
       }
     ]
   }

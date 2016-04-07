@@ -47,6 +47,34 @@
       {
         "input": "{{/^[0-9.]+$/->test(0.42)}}",
         "expectedResult": "true"
+      },
+      {
+        "input": "{{null->isRegExp}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true->isRegExp}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/reg/->isRegExp}} ",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/reg/->toString}}",
+        "expectedResult": "/reg/"
+      },
+      {
+        "input": "{{/reg/im->toString}}",
+        "expectedResult": "/reg/im"
+      },
+      {
+        "input": "{{/reg/->toJSON}}",
+        "expectedResult": "/reg/"
+      },
+      {
+        "input": "{{57.323->isRegExp}}",
+        "expectedResult": "false"
       }
     ]
   }

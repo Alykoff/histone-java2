@@ -43,6 +43,14 @@
         "expectedResult": "4444"
       },
       {
+        "input": "{{[a: [x: 1]]['a.x']}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{[a: [x: 1]].a.x}}",
+        "expectedResult": "1"
+      },
+      {
         "input": "{{[,,,,1, 2, 3,,,,]}}",
         "expectedResult": "1 2 3"
       },

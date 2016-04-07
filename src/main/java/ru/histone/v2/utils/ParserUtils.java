@@ -116,4 +116,13 @@ public class ParserUtils {
         }
         return Optional.empty();
     }
+
+    public static Optional<Integer> tryIntNumber(Object value) {
+        return tryDouble(value).flatMap(doubleValue -> {
+            if ((doubleValue == Math.floor(doubleValue)) && !Double.isInfinite(doubleValue)) {
+                return Optional.of(doubleValue.intValue());
+            }
+            return Optional.empty();
+        });
+    }
 }

@@ -18,11 +18,15 @@ package ru.histone.v2.evaluator.node;
 
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.ParserUtils;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
 
 /**
  * @author alexey.nevinsky
@@ -77,21 +81,20 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasP
 
     @Override
     public EvalNode getProperty(Object propertyName) throws HistoneException {
+        final String property;
         if (propertyName instanceof String) {
-            final String[] propArray = ((String) propertyName).split("\\.");
-            EvalNode curr = this;
-            for (String str : propArray) {
-                if (curr instanceof MapEvalNode) {
-                    curr = ((MapEvalNode) curr).value.get(str);
-                } else {
-                    throw new HistoneException("Unable to find property '" + str + "'");
-                }
-            }
-
-            return curr;
+            property = (String) propertyName;
         } else {
-            return value.get(propertyName + "");
+            property = propertyName + "";
         }
-    }
 
+        if (value.containsKey(property)) {
+            return value.get(property);
+        }
+        final Optional<Integer> propertyIntOptional = tryIntNumber(property);
+        if (propertyIntOptional.isPresent()) {
+            return value.get(propertyIntOptional.get().toString());
+        }
+        return null;
+    }
 }

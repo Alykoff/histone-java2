@@ -824,7 +824,7 @@ public class Evaluator implements Serializable {
         return value.thenCompose(v -> {
             if (v != null) {
                 if (v.getType() == HistoneType.T_UNDEFINED && context.findFunction(valueNode.getValue())) {
-                    return context.call(valueNode.getValue(), Collections.singletonList(new StringEvalNode(valueNode.getValue())));
+                    return context.call(valueNode.getValue(), Collections.emptyList());
                 }
                 return completedFuture(v);
             } else {

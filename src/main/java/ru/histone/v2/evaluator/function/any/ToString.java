@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 public class ToString extends AbstractFunction {
     public static final String NAME = "toString";
     public static final String ARRAY_HISTONE_VIEW_DELIMITER = " ";
+    public static final String GLOBAL_OBJECT_STRING_REPRESENTATION = "(Global)";
 
     @Override
     public String getName() {
@@ -53,6 +54,11 @@ public class ToString extends AbstractFunction {
     }
 
     private CompletableFuture<String> executeHelper(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        //toString called as {{toString}}
+        if (args.size() == 0) {
+            return CompletableFuture.completedFuture(GLOBAL_OBJECT_STRING_REPRESENTATION);
+        }
+
         final EvalNode node = args.get(0);
         final HistoneType nodeType = node.getType();
         switch (nodeType) {
@@ -83,7 +89,7 @@ public class ToString extends AbstractFunction {
                 return CompletableFuture.completedFuture(EmptyEvalNode.HISTONE_VIEW);
             }
             case T_GLOBAL: {
-                return CompletableFuture.completedFuture("(Global)");
+                return CompletableFuture.completedFuture(GLOBAL_OBJECT_STRING_REPRESENTATION);
             }
             case T_REGEXP: {
                 HistoneRegex regex = (HistoneRegex) node.getValue();

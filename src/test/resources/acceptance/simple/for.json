@@ -428,6 +428,10 @@
         "expectedResult": "HELLO1_HELLO2_HELLO3_HELLO4_"
       },
       {
+        "input": "{{for value in [1, 2, 3, 4]}}HELLO{{value}}_{{continue}}!!!{{/for}}",
+        "expectedResult": "HELLO1_HELLO2_HELLO3_HELLO4_"
+      },
+      {
         "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{break}}{{/return}}{{/for}}",
         "expectedResult": "MUS BE EXCEPTION HERE, THAT BREAK IS NOT IN LOOP"
       },

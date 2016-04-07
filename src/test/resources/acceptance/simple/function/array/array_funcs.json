@@ -597,11 +597,15 @@
       },
       {
         "input": "--{{['A', 1, 2, 3, 4, 1]->reduce('B')->toJSON}}",
-        "expectedResult": "--B"
+        "expectedResult": "--\"B\""
       },
       {
         "input": "--{{['A', 1, 2, 3, 4, 1]->reduce(1.01)->toJSON}}",
         "expectedResult": "--1.01"
+      },
+      {
+        "input": "--{{['A', 1, 2, 3, 4, 1]->reduce(99, 88)->toJSON}}",
+        "expectedResult": "--99"
       },
       {
         "input": "{{macro filter(prev, curr)}}{{return prev + curr}}{{/macro}}--{{[0, 1, 2, 3, 4]->reduce(filter)->toJSON}}",

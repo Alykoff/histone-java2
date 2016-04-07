@@ -24,6 +24,7 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
 import ru.histone.v2.utils.Tuple;
 
@@ -39,8 +40,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ArrayReduce extends AbstractFunction implements Serializable {
     public static final String NAME = "reduce";
-    public static final int CALLABLE_LIST_INDEX = 0;
-    public static final int START_BIND_VARS_INDEX = 3;
+    private static final int CALLABLE_LIST_INDEX = 0;
+    private static final int MACRO_INDEX = 1;
+    private static final int START_BIND_VARS_INDEX = 3;
 
     public static CompletableFuture<MacroEvalNode> getMacroWithBindFuture(Context context, List<EvalNode> args, int startBindIndex) {
         final int size = args.size();
@@ -91,9 +93,14 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
         }
 
         final int size = args.size();
-        final boolean hasMacroFunc = size == 1;
-        if (hasMacroFunc) {
+        final boolean hasNotMacroFunc = size == 1;
+        if (hasNotMacroFunc) {
             return CompletableFuture.completedFuture(valuesList.get(0));
+        }
+
+        final boolean isBadMacroFunc = size > 1 && args.get(MACRO_INDEX).getType() != HistoneType.T_MACRO;
+        if (isBadMacroFunc) {
+            return CompletableFuture.completedFuture(args.get(MACRO_INDEX));
         }
 
         final Queue<EvalNode> values = new LinkedList<>();

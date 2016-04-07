@@ -473,7 +473,16 @@ public class Evaluator implements Serializable {
                 return fNode;
             }
             if (fNode.getType() == HistoneType.T_CONTINUE || fNode.getType() == HistoneType.T_BREAK) {
-                return new BreakContinueEvalNode((BreakContinueEvalNode) fNode, (String) node.getValue());
+                if (node == null) {
+                    return fNode;
+                }
+                final String value;
+                if (fNode.getValue() != null) {
+                    value = (String) node.getValue() + fNode.getValue();
+                } else {
+                    value = (String) node.getValue();
+                }
+                return new BreakContinueEvalNode((BreakContinueEvalNode) fNode, value);
             }
             StringEvalNode second = (StringEvalNode) RttiUtils.callToString(ctx, fNode).join();
             if (node == null) {

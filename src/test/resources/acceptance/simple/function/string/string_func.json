@@ -155,7 +155,6 @@
       }
     ]
   },
-
   {
     "name": "String.toNumber",
     "cases": [
@@ -164,6 +163,31 @@
         "expectedResult": "12345667"
       }
     ]
+  },
+  {
+    "name": "String literal",
+    "cases": [
+      {
+        "input": "{{var x = {{%   LITERAL   %}}}}{{x->toJSON}}",
+        "expectedResult": "\"   LITERAL   \""
+      },
+      {
+        "input": "{{var x = {{  LITERAL    {{10 * 2}}    }}}}{{x->toJSON}}",
+        "expectedResult": "\"  LITERAL    20    \""
+      },
+      {
+        "input": "{{[  x: {{%  BLA  {{if true}}  {{/if}}  %}}]}}",
+        "expectedResult": "\"  LITERAL    20    \""
+      },
+      {
+        "input": "{{[  x: {{    BLA  {{if true}}  {{return 300}}  {{/if}}}}]->toJSON}}",
+        "expectedResult": "{\"x\":300}"
+      },
+      {
+        "input": "--{{* ываыва *}} sdfsdaf",
+        "expectedResult": "-- sdfsdaf"
+      }
+    ]
   }
-
 ]
+

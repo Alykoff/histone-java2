@@ -41,6 +41,22 @@
           "expected": "{{/return}}",
           "found": "EOF"
         }
+      },
+      {
+        "input": "{{@getRand}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{@getRand}}{{return getRandx}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{'xxxx'}}sadfadsf{{return sdfsadf}}",
+        "expectedResult": "undefined"
+      },
+      {
+        "input": "{{'xxxx'}}sadfadsf{{return 10}}",
+        "expectedResult": "10"
       }
     ]
   }

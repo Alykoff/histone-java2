@@ -143,7 +143,7 @@ public class Parser {
 
     private AstNode getBreakContinueStatement(TokenizerWrapper wrapper, boolean isBreak) {
         if (!wrapper.isFor()) {
-            throw buildSyntaxErrorException(wrapper, (isBreak ? "Break" : "Continue") + " statement must be only in circle!");
+            throw buildSyntaxErrorException(wrapper, (isBreak ? "Break" : "Continue") + " statement must be only in loop!");
         }
 
         final ExpAstNode result = new ExpAstNode(isBreak ? AST_BREAK : AST_CONTINUE);

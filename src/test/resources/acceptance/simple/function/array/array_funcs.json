@@ -581,11 +581,31 @@
       },
       {
         "input": "{{[1,2]->some(true)}}",
-        "expectedResult": "false"
+        "expectedResult": "true"
       },
       {
         "input": "{{[1,2]->some(false)}}",
         "expectedResult": "false"
+      },
+      {
+        "input": "{{['A', 1, 2, 3, 4]->every(false)->toJSON}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "--{{['A', 1, 2, 3, 4, 1]->reduce(1)->toJSON}}",
+        "expectedResult": "--1"
+      },
+      {
+        "input": "{{macro filter(prev, curr)}}{{return prev + curr}}{{/macro}}--{{[0, 1, 2, 3, 4]->reduce(filter)->toJSON}}",
+        "expectedResult": "--10"
+      },
+      {
+        "input": "--{{[x:[a:1]]['x.a']}}--",
+        "expectedResult": "----"
+      },
+      {
+        "input": "--{{[x:[a:1]].x.a}}--",
+        "expectedResult": "--1--"
       }
     ]
   }

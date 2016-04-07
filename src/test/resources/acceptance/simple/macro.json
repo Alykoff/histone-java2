@@ -72,6 +72,10 @@
       {
         "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>re - {{re}}{{/macro}}{{var re = 2}}{{var bound = myMacro->bind('foo', 'bar')}}{{bound(10, 20)}}",
         "expectedResult": "<div>a = foo</div><div>b = bar</div><div>c = 10</div><div>d = 20</div>re - "
+      },
+      {
+        "input": "{{macro foo}}{{self->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')}}{{foo(30, 40)}}",
+        "expectedResult": "{\"callee\":null,\"caller\":\"/Users/inv3r/Development/public/histone-javascript2/main.js\",\"arguments\":[null,null,null,30,40]}"
       }
     ]
   },
@@ -253,10 +257,40 @@
       {
         "input": "--{{getRand(-10.3, 0)}}",
         "expectedResult": "--0"
+      },
+      {
+        "input": "{{macro foo}}{{/macro}}{{foo->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "--{{'sss'->wtf}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "--{{[0, 1, 2, 3, 4, 5]->map->toJSON}}",
+        "expectedResult": "--[null,null,null,null,null,null]"
+      },
+      {
+        "input": "--{{[0, 1, 2, 3, 4, 5]->map(3)->toJSON}}",
+        "expectedResult": "--[3,3,3,3,3,3]"
+      },
+      {
+        "input": "--{{[0, 1, 2, 3, 4, 5]->map('FOO')->toJSON}}",
+        "expectedResult": "--[\"FOO\",\"FOO\",\"FOO\",\"FOO\",\"FOO\",\"FOO\"]"
+      },
+      {
+        "input": "{{macro mapper}}{{return 3}}{{/macro}}--{{[foo: 'bar', 'x': 'yyy']->map(mapper)->toJSON}}",
+        "expectedResult": "--{\"foo\":3,\"x\":3}"
+      },
+      {
+        "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}--{{[0, 1, 2, 3, 4, 5]->map(mapper)->toJSON}}",
+        "expectedResult": "--[[0,\"0\",[0,1,2,3,4,5]],[1,\"1\",[0,1,2,3,4,5]],[2,\"2\",[0,1,2,3,4,5]],[3,\"3\",[0,1,2,3,4,5]],[4,\"4\",[0,1,2,3,4,5]],[5,\"5\",[0,1,2,3,4,5]]]"
+      },
+      {
+        "input": "{{macro mapper(a)}}{{return self.arguments}}{{/macro}}--{{[0, 1, 2, 3, 4, 5]->map(mapper->bind(40))->toJSON}}",
+        "expectedResult": "--[[40,0,\"0\",[0,1,2,3,4,5]],[40,1,\"1\",[0,1,2,3,4,5]],[40,2,\"2\",[0,1,2,3,4,5]],[40,3,\"3\",[0,1,2,3,4,5]],[40,4,\"4\",[0,1,2,3,4,5]],[40,5,\"5\",[0,1,2,3,4,5]]]"
       }
     ]
   }
 ]
-
-
 

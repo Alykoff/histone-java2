@@ -1,0 +1,23 @@
+[
+  {
+    "name": "String -> replace",
+    "cases": [
+      {
+        "input": "--{{\"foobar\"->replace}}",
+        "expectedResult": "--foobar"
+      },
+      {
+        "input": "--{{\"foobar\"->replace('o')}}",
+        "expectedResult": "--fbar"
+      },
+      {
+        "input": "--{{\"foobar\"->replace(/[a-z]/, \"O\")}}",
+        "expectedResult": "--Ooobar"
+      },
+      {
+        "input": "--{{\"foobar\"->replace(\"o\", => 10)}}",
+        "expectedResult": "--f1010"
+      }
+    ]
+  }
+]

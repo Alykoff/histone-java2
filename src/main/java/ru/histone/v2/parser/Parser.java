@@ -281,17 +281,22 @@ public class Parser {
         final ExpAstNode node = new ExpAstNode(AST_FOR);
         final TokenizerResult id = wrapper.next(T_ID);
         if (id.isFound()) {
+            final String keyName = id.firstValue();
             if (next(wrapper, T_COLON)) {
-                node.add(new StringAstNode(id.firstValue())); //add key name
+                node.add(new StringAstNode(keyName)); //add key name
                 final TokenizerResult valueName = wrapper.next(T_ID);
                 if (valueName.isFound()) {
-                    node.add(new StringAstNode(valueName.firstValue())); //add value name
+                    final String value = valueName.firstValue();
+                    if (value.equals(keyName)) {
+                        throw buildSyntaxErrorException(wrapper, "key and value must differ");
+                    }
+                    node.add(new StringAstNode(value)); //add value name
                 } else {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
             } else {
                 node.add(new StringAstNode(null)) //add null as key name
-                        .add(new StringAstNode(id.firstValue())); //add value name
+                        .add(new StringAstNode(keyName)); //add value name
             }
         } else {
             node.add(new StringAstNode(null)) //add 'null' as key name

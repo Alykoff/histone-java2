@@ -3,8 +3,8 @@
     "name": "String -> slice",
     "cases": [
       {
-        "input": "--{{'foobar'->slice('5', '3.0')->isUndefined}}",
-        "expectedResult": "--false"
+        "input": "--{{'foobar'->slice('5', '3.0')}}",
+        "expectedResult": "--r"
       },
       {
         "input": "--{{'foobar'->slice(2, 1)}}",

@@ -74,8 +74,8 @@
         "expectedResult": "<div>a = foo</div><div>b = bar</div><div>c = 10</div><div>d = 20</div>re - "
       },
       {
-        "input": "{{macro foo}}{{self->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')}}{{foo(30, 40)}}",
-        "expectedResult": "{\"callee\":null,\"caller\":\"file:///Users/inv3r/Development/public/histone-java/target/test-classes/acceptance/simple/macro.json\",\"arguments\":[\"A\",\"B\",\"C\",30,40]}"
+        "input": "{{macro foo}}{{self.callee->toJSON}}{{self.arguments->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')}}{{foo(30, 40)}}",
+        "expectedResult": "null[\"A\",\"B\",\"C\",30,40]"
       }
     ]
   },

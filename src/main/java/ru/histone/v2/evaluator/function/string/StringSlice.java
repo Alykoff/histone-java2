@@ -53,9 +53,8 @@ public class StringSlice extends AbstractFunction {
         if (!startRaw.isPresent() || !lengthRaw.isPresent()) {
             return EvalUtils.getValue(null);
         }
-        int start = startRaw.get();
-        int length = lengthRaw.get();
 
+        int start = startRaw.get();
         if (start < 0) {
             start = strLen + start;
         }
@@ -66,21 +65,20 @@ public class StringSlice extends AbstractFunction {
             return EMPTY_RESULT;
         }
 
+        int length = lengthRaw.get();
+        int end = start + length;
         if (length == 0) {
-            length = strLen - start;
-        }
-        if (length < 0) {
-            length = strLen - start + length;
+            end = strLen - start;
         }
         if (length <= 0) {
             return EMPTY_RESULT;
         }
-        if (length > strLen) {
-            length = strLen;
+        if (start + length > strLen) {
+            end = strLen;
         }
 
         return CompletableFuture.completedFuture(
-                EvalUtils.createEvalNode(value.substring(start, length))
+                EvalUtils.createEvalNode(value.substring(start, end))
         );
     }
 }

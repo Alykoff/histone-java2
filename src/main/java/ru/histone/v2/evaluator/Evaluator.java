@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
-import static ru.histone.v2.parser.node.AstType.AST_CALL;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 
@@ -172,10 +171,12 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processSuppressNode(ExpAstNode expNode, Context context) {
-        return evaluateNode(expNode.getNode(0), context).exceptionally(e -> {
-            LOG.error(e.getMessage(), e);
-            return EmptyEvalNode.INSTANCE;
-        });
+        return evaluateNode(expNode.getNode(0), context)
+                .exceptionally(e -> {
+                    LOG.error(e.getMessage(), e);
+                    return EmptyEvalNode.INSTANCE;
+                })
+                .thenApply(node -> EmptyEvalNode.INSTANCE);
     }
 
     private CompletableFuture<EvalNode> processThisNode(ExpAstNode expNode, Context context) {
@@ -331,13 +332,18 @@ public class Evaluator implements Serializable {
                 if (context.contains(refName)) {
                     //todo add normal exception then we do call macro, but node is string
                     return getValueFromParentContext(context, refName)
-                            .thenCompose(rawMacro -> MacroCall.processMacro(
-                                    context.getBaseUri(),
-                                    args,
-                                    ((MacroEvalNode) rawMacro).getValue(),
-                                    Optional.empty(),
-                                    false
-                            ));
+                            .thenCompose(rawMacro -> {
+                                if (rawMacro.getType() != HistoneType.T_MACRO) {
+                                    return EmptyEvalNode.FUTURE_INSTANCE;
+                                }
+                                return MacroCall.processMacro(
+                                        context.getBaseUri(),
+                                        args,
+                                        ((MacroEvalNode) rawMacro).getValue(),
+                                        Optional.empty(),
+                                        false
+                                );
+                            });
                 } else {
                     return context.call(refName, args);
                 }

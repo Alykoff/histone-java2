@@ -371,6 +371,7 @@ public class Parser {
         final ExpAstNode result = new ExpAstNode(AST_MACRO);
         final TokenizerResult nameTokenResult = wrapper.next(T_ID);
         final List<AstNode> inputVars = new ArrayList<>();
+        final List<String> nameOfVars = new ArrayList<>();
         if (!nameTokenResult.isFound()) {
             throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
         }
@@ -383,6 +384,12 @@ public class Parser {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
                 final String nameOfVar = nameOfVarToken.firstValue();
+                if (nameOfVars.contains(nameOfVar)) {
+                    throw buildSyntaxErrorException(wrapper, "duplicate argument name \"" + nameOfVar + "\"");
+                } else {
+                    nameOfVars.add(nameOfVar);
+                }
+
                 final ExpAstNode nopNode;
                 if (next(wrapper, T_EQ)) {
                     nopNode = ParserUtils.createNopNode(nameOfVar, getExpression(wrapper));

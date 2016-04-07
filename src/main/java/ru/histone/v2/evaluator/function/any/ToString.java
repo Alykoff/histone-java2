@@ -87,17 +87,7 @@ public class ToString extends AbstractFunction {
             }
             case T_REGEXP: {
                 HistoneRegex regex = (HistoneRegex) node.getValue();
-                String res = "/" + regex.getPattern().pattern() + "/";
-                if (regex.isIgnoreCase()) {
-                    res += "i";
-                }
-                if (regex.isMultiline()) {
-                    res += "m";
-                }
-                if (regex.isGlobal()) {
-                    res += "g";
-                }
-                return CompletableFuture.completedFuture(res);
+                return CompletableFuture.completedFuture(regex.toString());
             }
             default: {
                 return CompletableFuture.completedFuture(node.getValue() + "");

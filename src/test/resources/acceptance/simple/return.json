@@ -57,6 +57,10 @@
       {
         "input": "{{'xxxx'}}sadfadsf{{return 10}}",
         "expectedResult": "10"
+      },
+      {
+        "input": "{{macro a}}{{'xxxx'}}sadfadsf{{return sdfsadf}}{{/macro}}{{a()->isUndefined}}",
+        "expectedResult": "true"
       }
     ]
   }

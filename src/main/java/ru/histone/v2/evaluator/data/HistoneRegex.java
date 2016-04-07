@@ -60,10 +60,17 @@ public class HistoneRegex implements Serializable {
 
     @Override
     public String toString() {
-        return "HistoneRegex{" +
-                "isGlobal=" + isGlobal +
-                ", pattern=" + pattern +
-                '}';
+        String res = "/" + pattern.pattern() + "/";
+        if (isGlobal()) {
+            res += "g";
+        }
+        if (isIgnoreCase()) {
+            res += "i";
+        }
+        if (isMultiline()) {
+            res += "m";
+        }
+        return res;
     }
 
     public boolean isGlobal() {

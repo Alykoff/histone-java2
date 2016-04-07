@@ -22,10 +22,12 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.RawSerializer;
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -121,7 +123,13 @@ public class ToJson extends AbstractFunction {
                 serializer.serialize(null, jgen, provider);
             }
         });
-
+        module.addSerializer(HistoneRegex.class, new JsonSerializer<HistoneRegex>() {
+            @Override
+            public void serialize(HistoneRegex value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<String> serializer = new RawSerializer<>(String.class);
+                serializer.serialize(value.toString(), jgen, provider);
+            }
+        });
         mapper.registerModule(module);
 
         try {

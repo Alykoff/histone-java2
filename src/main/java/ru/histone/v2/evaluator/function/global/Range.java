@@ -22,7 +22,6 @@ import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,12 +42,7 @@ public class Range extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        if (args.get(0).getType() == HistoneType.T_GLOBAL) {
-            List<EvalNode> localArgs = args.subList(1, args.size());
-            return processRange(localArgs);
-        }
-
-        return processRange(args);
+        return processRange(clearGlobal(args));
     }
 
     protected CompletableFuture<EvalNode> processRange(List<EvalNode> args) {

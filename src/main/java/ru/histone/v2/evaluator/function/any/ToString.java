@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator.function.any;
 import org.apache.commons.lang.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -80,6 +81,23 @@ public class ToString extends AbstractFunction {
             }
             case T_MACRO: {
                 return CompletableFuture.completedFuture(EmptyEvalNode.HISTONE_VIEW);
+            }
+            case T_GLOBAL: {
+                return CompletableFuture.completedFuture("(Global)");
+            }
+            case T_REGEXP: {
+                HistoneRegex regex = (HistoneRegex) node.getValue();
+                String res = "/" + regex.getPattern().pattern() + "/";
+                if (regex.isIgnoreCase()) {
+                    res += "i";
+                }
+                if (regex.isMultiline()) {
+                    res += "m";
+                }
+                if (regex.isGlobal()) {
+                    res += "g";
+                }
+                return CompletableFuture.completedFuture(res);
             }
             default: {
                 return CompletableFuture.completedFuture(node.getValue() + "");

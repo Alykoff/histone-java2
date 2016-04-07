@@ -56,7 +56,7 @@
       },
       {
         "input": "{{range()->isArray}}",
-        "expectedResult": ""
+        "expectedResult": "true"
       },
       {
         "input": "{{range(-10.3, 0)}}",

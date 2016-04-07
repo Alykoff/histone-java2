@@ -57,7 +57,7 @@
         "expectedResult": "false"
       },
       {
-        "input": "{{/reg/->isRegExp}} ",
+        "input": "{{/reg/->isRegExp}}",
         "expectedResult": "true"
       },
       {

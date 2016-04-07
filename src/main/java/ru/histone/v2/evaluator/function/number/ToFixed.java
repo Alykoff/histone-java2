@@ -20,6 +20,7 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -46,7 +47,13 @@ public class ToFixed extends AbstractFunction {
 
         long count = 0;
         if (args.size() > 1) {
-            count = ((LongEvalNode) args.get(1)).getValue();
+            if (args.get(1) instanceof DoubleEvalNode && EvalUtils.isInteger(((DoubleEvalNode) args.get(1)).getValue())) {
+                count = ((DoubleEvalNode) args.get(1)).getValue().intValue();
+            } else if (args.get(1) instanceof LongEvalNode) {
+                count = ((LongEvalNode) args.get(1)).getValue();
+            } else {
+                return EmptyEvalNode.FUTURE_INSTANCE;
+            }
         }
         if (count < 0) {
             count = 0;

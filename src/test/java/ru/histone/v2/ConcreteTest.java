@@ -51,10 +51,10 @@ public class ConcreteTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("12");
+        testCase.setExpectedResult("");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("12", rtti, testCase);
+        TestRunner.doTest("{{/reg/im->toString}}", rtti, testCase);
     }
 
     private Map<String, Object> getMap() {

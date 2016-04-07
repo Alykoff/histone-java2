@@ -45,7 +45,14 @@ public class GetDayOfWeek extends AbstractFunction {
     private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         checkMinArgsLength(args, 3);
         checkMaxArgsLength(args, 3);
-        checkTypes(args.get(0), 0, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
+        try {
+            checkTypes(args.get(0), 0, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
+            checkTypes(args.get(1), 1, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
+            checkTypes(args.get(2), 1, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
+        } catch (FunctionExecutionException e) {
+            logger.error(e.getMessage(), e);
+            return EmptyEvalNode.FUTURE_INSTANCE;
+        }
 
         Calendar c = Calendar.getInstance();
         c.setFirstDayOfWeek(Calendar.MONDAY);

@@ -18,9 +18,12 @@ package ru.histone.v2.evaluator.function.global;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.LocaleFunction;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -50,6 +53,13 @@ public class GetWeekDayName extends LocaleFunction {
     }
 
     private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
+        try {
+            checkTypes(args.get(0), 0, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
+        } catch (FunctionExecutionException e) {
+            logger.error(e.getMessage(), e);
+            return EmptyEvalNode.FUTURE_INSTANCE;
+        }
+
         Properties properties = getCurrentProperties(context.getLocale());
 
         long id = getValue(args, 0);

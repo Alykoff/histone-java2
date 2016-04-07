@@ -22,7 +22,6 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.RegexEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
@@ -54,7 +53,7 @@ public class StringReplace extends AbstractFunction {
         if (searchNode.getType() == HistoneType.T_STRING) {
             String searchStr = EvalUtils.escape((String) searchNode.getValue());
             final Pattern pattern = Pattern.compile(searchStr);
-            searchNode = new RegexEvalNode(new HistoneRegex(true, pattern));
+//            searchNode = new RegexEvalNode(new HistoneRegex(true, isIgnoreCase, isMUltiline, pattern));
         }
 
         if (searchNode.getType() != HistoneType.T_REGEXP) {

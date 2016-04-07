@@ -41,6 +41,8 @@ public class EvalUtils {
             return (Boolean) node.getValue();
         } else if (node instanceof LongEvalNode) {
             return ((Long) node.getValue()) != 0;
+        } else if (node instanceof DoubleEvalNode) {
+            return ((Double) node.getValue()) != 0;
         } else if (node instanceof StringEvalNode) {
             return !node.getValue().equals("");
         }

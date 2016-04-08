@@ -35,9 +35,9 @@ import java.util.regex.Pattern;
 public class GetDate extends AbstractFunction {
     private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([+-])(\\d+)([dmyDMY])");
     private static final String NEGATIVE_SIGN = "-";
-    private static final String DAY_SIMBOL = "d";
-    private static final String MONTH_SIMBOL = "m";
-    private static final String YEAR_SIMBOL = "y";
+    private static final String DAY_SYMBOL = "d";
+    private static final String MONTH_SYMBOL = "m";
+    private static final String YEAR_SYMBOL = "y";
 
     @Override
     public String getName() {
@@ -60,13 +60,13 @@ public class GetDate extends AbstractFunction {
                 final Integer num = Integer.parseInt(matcher.group(2)) * (sign.equals(NEGATIVE_SIGN) ? -1 : 1);
                 final String period = matcher.group(3).toLowerCase();
                 switch (period) {
-                    case DAY_SIMBOL:
+                    case DAY_SYMBOL:
                         calendar.add(Calendar.DAY_OF_MONTH, num);
                         break;
-                    case MONTH_SIMBOL:
+                    case MONTH_SYMBOL:
                         calendar.add(Calendar.MONTH, num);
                         break;
-                    case YEAR_SIMBOL:
+                    case YEAR_SYMBOL:
                         calendar.add(Calendar.YEAR, num);
                         break;
                 }

@@ -21,27 +21,20 @@ import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.DateUtils;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static ru.histone.v2.utils.DateUtils.*;
 import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
 
 /**
  * @author alexey.nevinsky
  */
 public class GetDayOfWeek extends AbstractFunction {
-    private static final int JS_MAX_BOUND_OF_YEAR = 275_761;
-    private static final int JS_MIN_BOUND_OF_YEAR = 1_000;
-    private static final int MIN_MONTH = 1;
-    private static final int MAX_MONTH = 12;
-    private static final int MIN_DAY = 1;
-
     @Override
     public String getName() {
         return "getDayOfWeek";
@@ -61,10 +54,16 @@ public class GetDayOfWeek extends AbstractFunction {
         final Optional<Integer> yearOptional = tryIntNumber(args.get(0).getValue())
                 .filter(year -> year >= JS_MIN_BOUND_OF_YEAR && year <= JS_MAX_BOUND_OF_YEAR);
         final Optional<Integer> monthOptional = tryIntNumber(args.get(1).getValue())
-                .filter(month -> month >= MIN_MONTH && month <= MAX_MONTH);
+                .filter(month -> month >= MIN_MONTH && month <= MAX_MONTH)
+                .map(month -> month - 1);
         final Optional<Integer> dayOptional = yearOptional.flatMap(year ->
                 monthOptional.flatMap(month -> {
-                    final int daysInMonth = DateUtils.getDaysInMonth(year, month);
+                    final int daysInMonth;
+                    try {
+                        daysInMonth = DateUtils.getDaysInMonth(year, month);
+                    } catch (IllegalArgumentException e) {
+                        return Optional.empty();
+                    }
                     return tryIntNumber(args.get(2).getValue())
                             .filter(day -> day <= daysInMonth && day >= MIN_DAY);
                 })
@@ -74,14 +73,8 @@ public class GetDayOfWeek extends AbstractFunction {
             return CompletableFuture.completedFuture(new EmptyEvalNode());
         }
         c.set(Calendar.YEAR, yearOptional.get());
-        c.set(Calendar.MONTH, monthOptional.get() - 1);
+        c.set(Calendar.MONTH, monthOptional.get());
         c.set(Calendar.DAY_OF_MONTH, dayOptional.get());
-
-        try {
-            c.getTimeInMillis();
-        } catch (IllegalArgumentException e) {
-            return EvalUtils.getValue(null);
-        }
 
         int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
         if (dayOfWeek == 0) {

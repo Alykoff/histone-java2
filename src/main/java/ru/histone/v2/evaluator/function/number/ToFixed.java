@@ -51,7 +51,7 @@ public class ToFixed extends AbstractFunction {
             } else if (args.get(1) instanceof LongEvalNode) {
                 count = ((LongEvalNode) args.get(1)).getValue();
             } else {
-                return EvalUtils.getValue(null);
+                count = 0;
             }
         }
         if (count < 0) {

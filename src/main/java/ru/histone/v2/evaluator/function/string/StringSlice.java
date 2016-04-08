@@ -71,7 +71,7 @@ public class StringSlice extends AbstractFunction {
             end = strLen - start;
         }
         if (length <= 0) {
-            return EMPTY_RESULT;
+            end = strLen + length;
         }
         if (start + length > strLen) {
             end = strLen;

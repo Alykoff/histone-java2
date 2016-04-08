@@ -74,7 +74,7 @@
       },
       {
         "input": "{{require('../../tpl/function/thisToJson.tpl', 3)}}",
-        "expectedResult": ""
+        "expectedResult": "3"
       }
     ]
   }

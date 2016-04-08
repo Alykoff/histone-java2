@@ -186,8 +186,14 @@
       {
         "input": "--{{* ываыва *}} sdfsdaf",
         "expectedResult": "-- sdfsdaf"
+      },
+      {
+        "input": "{{\"string\"[0.3]}}",
+        "expectedResult": ""
       }
     ]
   }
 ]
+
+
 

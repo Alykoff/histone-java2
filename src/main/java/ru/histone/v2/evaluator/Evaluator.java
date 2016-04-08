@@ -304,7 +304,6 @@ public class Evaluator implements Serializable {
                     if (!(futures.get(0) instanceof HasProperties)) {
                         return EvalUtils.createEvalNode(null);
                     }
-                    checkHasPropertiesInterface(futures.get(0));
                     final HasProperties mapEvalNode = (HasProperties) futures.get(0);
                     final Object value = futures.get(1).getValue();
                     final EvalNode obj = mapEvalNode.getProperty(value);
@@ -313,14 +312,6 @@ public class Evaluator implements Serializable {
                     }
                     return EvalUtils.createEvalNode(null);
                 });
-    }
-
-    private void checkHasPropertiesInterface(EvalNode v) {
-        if (!(v instanceof HasProperties)) {
-            throw new HistoneException("Value '" + v.getValue() + "' has type '"
-                    + v.getType() + "', but expected types are: 'T_ARRAY', 'T_MACRO', 'T_STRING'"
-            );
-        }
     }
 
     private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) {

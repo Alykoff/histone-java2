@@ -185,6 +185,13 @@ public class Parser {
     }
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) throws ParserException {
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentReturn = wrapper.isReturn();
+        final boolean isParentFor = wrapper.isFor();
+        wrapper.setVar(false);
+        wrapper.setReturn(true);
+        wrapper.setFor(false);
+
         final ExpAstNode result = new ExpAstNode(AST_RETURN);
         if (next(wrapper, T_BLOCK_END)) {
             result.add(getNodesStatement(wrapper, false));
@@ -199,10 +206,20 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
 
+        wrapper.setFor(isParentFor);
+        wrapper.setReturn(isParentReturn);
+        wrapper.setVar(isParentVar);
         return result;
     }
 
     private ExpAstNode getVarStatement(TokenizerWrapper wrapper) throws ParserException {
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentReturn = wrapper.isReturn();
+        final boolean isParentFor = wrapper.isFor();
+        wrapper.setVar(true);
+        wrapper.setReturn(false);
+        wrapper.setFor(false);
+
         TokenizerResult name;
         ExpAstNode result;
         if (!test(wrapper, T_ID, T_EQ)) {
@@ -243,6 +260,10 @@ public class Parser {
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
+
+        wrapper.setFor(isParentFor);
+        wrapper.setReturn(isParentReturn);
+        wrapper.setVar(isParentVar);
         return result;
     }
 
@@ -275,7 +296,12 @@ public class Parser {
     }
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
+        final boolean isParentReturn = wrapper.isReturn();
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentFor = wrapper.isFor();
         wrapper.setFor(true);
+        wrapper.setReturn(false);
+        wrapper.setVar(false);
         String labelString = null;
 
         final ExpAstNode node = new ExpAstNode(AST_FOR);
@@ -342,10 +368,12 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "{{/for}}");
         }
 
-        if (labelString != null) {
+        if (labelString != null) { // TODO !!! labelString is always null
             wrapper.removeLabel(labelString);
         }
-        wrapper.setFor(false);
+        wrapper.setFor(isParentFor);
+        wrapper.setVar(isParentVar);
+        wrapper.setReturn(isParentReturn);
         return node;
     }
 

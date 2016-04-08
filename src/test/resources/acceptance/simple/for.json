@@ -433,15 +433,24 @@
       },
       {
         "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{break}}{{/return}}{{/for}}",
-        "expectedResult": "MUST BE EXCEPTION HERE, THAT BREAK IS NOT IN LOOP"
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
       },
       {
         "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{break}}{{/var}}{{/for}}",
-        "expectedResult": "MUST BE EXCEPTION HERE, THAT BREAK IS NOT IN LOOP"
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
       },
       {
         "input": "{{for x:x in [1]}}{{x}}{{/for}}",
-        "expectedResult": "MUST BE EXCEPTION HERE, key and value must differ"
+        "expectedException": {
+          "line": "1",
+          "message": "key and value must differ"
+        }
       },
       {
         "input": "{{for in [1,2,3,4]}}HELLO{{break}}{{/for}}",

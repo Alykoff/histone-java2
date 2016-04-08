@@ -30,6 +30,8 @@ public class TokenizerWrapper {
     private Tokenizer tokenizer;
     private List<Integer> ignored;
     private boolean isFor = false;
+    private boolean isVar = false;
+    private boolean isReturn = false;
     private List<String> labels = new ArrayList<>();
 
     /**
@@ -97,6 +99,22 @@ public class TokenizerWrapper {
 
     public void setFor(boolean aFor) {
         this.isFor = aFor;
+    }
+
+    public boolean isReturn() {
+        return isReturn;
+    }
+
+    public void setReturn(boolean aReturn) {
+        isReturn = aReturn;
+    }
+
+    public boolean isVar() {
+        return isVar;
+    }
+
+    public void setVar(boolean var) {
+        isVar = var;
     }
 
     public void addLabel(String labelString) {

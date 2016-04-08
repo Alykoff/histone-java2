@@ -214,6 +214,7 @@ public class Parser {
     }
 
     private ExpAstNode getVarStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         final boolean isParentVar = wrapper.isVar();
         final boolean isParentReturn = wrapper.isReturn();
         final boolean isParentFor = wrapper.isFor();
@@ -854,7 +855,7 @@ public class Parser {
     }
 
     private StringAstNode getLiteralStatement(TokenizerWrapper wrapper) throws ParserException {
-        wrapper = new TokenizerWrapper(wrapper);
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList());
         final StringBuilder builder = new StringBuilder("");
         while (!test(wrapper, T_EOF) && !test(wrapper, T_LITERAL_END)) {
             builder.append(wrapper.next().first().getValue());

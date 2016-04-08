@@ -75,6 +75,14 @@
       {
         "input": "{{require('../../tpl/function/thisToJson.tpl', 3)}}",
         "expectedResult": "3"
+      },
+      {
+        "input": "{{require('../../tpl/function/literal1.tpl', 3)}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{require('../../tpl/function/literal2.tpl', 3)}}",
+        "expectedResult": ""
       }
     ]
   }

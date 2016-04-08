@@ -20,6 +20,10 @@
       },
       {
         "input": "--{{\"foobar\"->replace(/[ao]/, => 10)}}",
+        "expectedResult": "--f10obar"
+      },
+      {
+        "input": "--{{\"foobar\"->replace(/[ao]/g, => 10)}}",
         "expectedResult": "--f1010b10r"
       }
     ]

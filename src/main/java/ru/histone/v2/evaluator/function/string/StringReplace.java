@@ -56,21 +56,30 @@ public class StringReplace extends AbstractFunction {
         if (args.size() > 2) {
             EvalNode replaceNode = args.get(2);
             Matcher matcher;
+            boolean isGlobal = false;
             if (searchNode.getType() == HistoneType.T_REGEXP) {
-                matcher = ((HistoneRegex) searchNode.getValue()).getPattern().matcher(str);
+                HistoneRegex regex = (HistoneRegex) searchNode.getValue();
+                isGlobal = regex.isGlobal();
+                matcher = regex.getPattern().matcher(str);
             } else {
+                isGlobal = true;
                 matcher = Pattern.compile((String) RttiUtils.callToString(context, searchNode).join().getValue()).matcher(str);
             }
 
 
             if (replaceNode.getType() != HistoneType.T_MACRO) {
                 String replaceStr = (String) RttiUtils.callToString(context, replaceNode).join().getValue();
-                String replaced = matcher.replaceAll(replaceStr);
-                return EvalUtils.getValue(replaced);
+                if (isGlobal) {
+                    return EvalUtils.getValue(matcher.replaceAll(replaceStr));
+                } else {
+                    return EvalUtils.getValue(matcher.replaceFirst(replaceStr));
+                }
             } else {
                 int lastIndex = 0;
                 StringBuilder sb = new StringBuilder();
-                while (matcher.find(lastIndex)) {
+                int count = isGlobal ? Integer.MAX_VALUE : 1;
+                int i = 0;
+                while (matcher.find(lastIndex) && i < count) {
                     if (matcher.start() > lastIndex) {
                         sb.append(str.substring(lastIndex, matcher.start()));
                     }
@@ -81,6 +90,7 @@ public class StringReplace extends AbstractFunction {
                     String macroResult = (String) RttiUtils.callToString(context, val).join().getValue();
                     sb.append(macroResult);
                     lastIndex = matcher.start() + found.length();
+                    i++;
                 }
                 if (lastIndex < str.length()) {
                     sb.append(str.substring(lastIndex, str.length()));
@@ -90,8 +100,13 @@ public class StringReplace extends AbstractFunction {
             }
         } else {
             if (searchNode.getType() == HistoneType.T_REGEXP) {
-                Matcher matcher = ((HistoneRegex) searchNode.getValue()).getPattern().matcher(str);
-                return EvalUtils.getValue(matcher.replaceAll(""));
+                HistoneRegex regex = (HistoneRegex) searchNode.getValue();
+                Matcher matcher = regex.getPattern().matcher(str);
+                if (regex.isGlobal()) {
+                    return EvalUtils.getValue(matcher.replaceAll(""));
+                } else {
+                    return EvalUtils.getValue(matcher.replaceFirst(""));
+                }
             }
 
             String replaced = str.replaceAll((String) RttiUtils.callToString(context, searchNode).join().getValue(), "");

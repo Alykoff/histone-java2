@@ -446,6 +446,20 @@
         }
       },
       {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{continue}}{{/return}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Continue statement must be only in loop!"
+        }
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{continue}}{{/var}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Continue statement must be only in loop!"
+        }
+      },
+      {
         "input": "{{for x:x in [1]}}{{x}}{{/for}}",
         "expectedException": {
           "line": "1",

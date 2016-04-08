@@ -34,10 +34,10 @@ import java.util.regex.Pattern;
  */
 public class GetDate extends AbstractFunction {
     private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([+-])(\\d+)([dmyDMY])");
-    public static final String NEGATIVE_SIGN = "-";
-    public static final String DAY_SIMBOL = "d";
-    public static final String MONTH_SIMBOL = "m";
-    public static final String YEAR_SIMBOL = "y";
+    private static final String NEGATIVE_SIGN = "-";
+    private static final String DAY_SIMBOL = "d";
+    private static final String MONTH_SIMBOL = "m";
+    private static final String YEAR_SIMBOL = "y";
 
     @Override
     public String getName() {

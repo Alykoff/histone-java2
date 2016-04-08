@@ -152,6 +152,10 @@
       {
         "input": "{{'12345667'[-1]}}",
         "expectedResult": "7"
+      },
+      {
+        "input": "{{'string'[0.3]->isUndefined}}",
+        "expectedResult": "true"
       }
     ]
   },

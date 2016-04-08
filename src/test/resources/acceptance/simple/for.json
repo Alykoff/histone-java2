@@ -473,8 +473,16 @@
       {
         "input": "{{for in [1,2,3,4]}}HELLO_{{continue}}{{/for}}",
         "expectedResult": "HELLO_HELLO_HELLO_HELLO_"
+      },
+      {
+        "input": "{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{break}} }} }} {{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "illegal break statement"
+        }
       }
     ]
   }
 ]
+
 

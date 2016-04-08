@@ -54,8 +54,7 @@ public class ArrayMap extends AbstractFunction implements Serializable {
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
         final List<CompletableFuture<EvalNode>> mapResultRaw = new ArrayList<>(mapEvalNode.getValue().size());
-        int index = 0;
-        for (EvalNode arg : mapEvalNode.getValue().values()) {
+        for (Map.Entry<String, EvalNode> entry : mapEvalNode.getValue().entrySet()) {
             if (node == null) {
                 mapResultRaw.add(EvalUtils.getValue(ObjectUtils.NULL));
                 continue;
@@ -71,11 +70,10 @@ public class ArrayMap extends AbstractFunction implements Serializable {
             if (param != null) {
                 arguments.add(param);
             }
-            arguments.add(arg);
-            arguments.add(EvalUtils.createEvalNode(index + ""));
+            arguments.add(entry.getValue());
+            arguments.add(EvalUtils.createEvalNode(entry.getKey()));
             arguments.add(mapEvalNode);
             mapResultRaw.add(MacroCall.staticExecute(context, arguments, false));
-            index++;
         }
         return AsyncUtils.sequence(mapResultRaw).thenApply(nodes -> {
             Object[] keys = mapEvalNode.getValue().keySet().toArray();

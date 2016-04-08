@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
@@ -118,6 +119,18 @@ public class ToJson extends AbstractFunction {
             public void serialize(Evaluator value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
                 serializer.serialize("$EVALUATOR$", jgen, provider);
+            }
+        });
+        module.addSerializer(Double.class, new JsonSerializer<Double>() {
+            @Override
+            public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                if (value.isInfinite() || value.isNaN()) {
+                    JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                    serializer.serialize(null, jgen, provider);
+                } else {
+                    JsonSerializer<Double> serializer = new NumberSerializers.DoubleSerializer();
+                    serializer.serialize(value, jgen, provider);
+                }
             }
         });
         module.addSerializer(ObjectUtils.Null.class, new JsonSerializer<ObjectUtils.Null>() {

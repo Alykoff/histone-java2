@@ -53,7 +53,7 @@ public class GetMonthName extends LocaleFunction {
     }
 
     protected CompletableFuture<EvalNode> process(Context context, List<EvalNode> args) {
-        Properties properties = getCurrentProperties(context.getLocale());
+        final Properties properties = getCurrentProperties(context.getLocale());
 
         final Optional<Integer> idOptional = Optional.of(args)
                 .filter(a -> !a.isEmpty())
@@ -63,7 +63,7 @@ public class GetMonthName extends LocaleFunction {
         }
         int id = idOptional.get();
 
-        StringBuilder sb = new StringBuilder("MONTH_NAMES_");
+        final StringBuilder sb = new StringBuilder("MONTH_NAMES_");
         if (isShort) {
             sb.append("SHORT");
         } else {

@@ -28,6 +28,7 @@ import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static ru.histone.v2.parser.node.AstType.*;
 import static ru.histone.v2.parser.tokenizer.Tokens.*;
@@ -464,18 +465,30 @@ public class Parser {
         return getTernaryExpression(wrapper);
     }
 
+    private String checkMacroVarName(TokenizerWrapper wrapper, List<String> names, TokenizerResult nameVarToken) {
+        final String newVarName = nameVarToken.firstValue();
+        if (names.contains(newVarName)) {
+            throw buildSyntaxErrorException(wrapper, "duplicate argument name \"" + newVarName + "\"");
+        }
+        return newVarName;
+    }
+
     private ExpAstNode getMacroExpression(TokenizerWrapper wrapper) throws ParserException {
-        final List<AstNode> varNodes = new ArrayList<>();
+        final List<String> varStringNames = new ArrayList<>();
 
         TokenizerResult name = wrapper.next(T_ID);
         if (name.isFound()) {
-            varNodes.add(ParserUtils.createNopNode(name.firstValue()));
+            varStringNames.add(
+                    checkMacroVarName(wrapper, varStringNames, name)
+            );
         } else if (next(wrapper, T_LPAREN)) {
             if (!test(wrapper, T_RPAREN)) {
                 do {
                     name = wrapper.next(T_ID);
                     if (name.isFound()) {
-                        varNodes.add(ParserUtils.createNopNode(name.firstValue()));
+                        varStringNames.add(
+                                checkMacroVarName(wrapper, varStringNames, name)
+                        );
                     } else {
                         throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                     }
@@ -490,7 +503,10 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "=>");
         }
 
-
+        final List<AstNode> varNodes = varStringNames
+                .stream()
+                .map(ParserUtils::createNopNode)
+                .collect(Collectors.toList());
         final List<AstNode> result = new ArrayList<>();
         if (varNodes.size() > 0) {
             result.add(new LongAstNode(varNodes.size()));

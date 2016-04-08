@@ -9,7 +9,12 @@
       {
         "input": "--{{getMonthNameLong(1.2)}}",
         "expectedResult": "--"
+      },
+      {
+        "input": "--{{getMonthNameLong(1.0)}}",
+        "expectedResult": "--January"
       }
     ]
   }
 ]
+

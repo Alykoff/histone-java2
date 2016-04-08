@@ -9,6 +9,10 @@
       {
         "input": "--{{getWeekDayNameLong(1.2)}}",
         "expectedResult": "--"
+      },
+      {
+        "input": "--{{getWeekDayNameShort(1.0)}}",
+        "expectedResult": "--Mo"
       }
     ]
   }

@@ -70,7 +70,7 @@
       },
       {
         "input": "{{/reg/->toJSON}}",
-        "expectedResult": "/reg/"
+        "expectedResult": "\"/reg/\""
       },
       {
         "input": "{{57.323->isRegExp}}",

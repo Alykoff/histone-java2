@@ -9,6 +9,10 @@
       {
         "input": "--{{getMonthNameShort(1.2)}}",
         "expectedResult": "--"
+      },
+      {
+        "input": "--{{getMonthNameShort(1.0)}}",
+        "expectedResult": "--Jan"
       }
     ]
   }

@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.RawSerializer;
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
@@ -55,7 +54,7 @@ public class ToJson extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() == 0) {
-            return EvalUtils.getValue(ToString.GLOBAL_OBJECT_STRING_REPRESENTATION);
+            return EvalUtils.getValue(ObjectUtils.NULL);
         }
 
         EvalNode node = args.get(0);
@@ -131,7 +130,7 @@ public class ToJson extends AbstractFunction {
         module.addSerializer(HistoneRegex.class, new JsonSerializer<HistoneRegex>() {
             @Override
             public void serialize(HistoneRegex value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                JsonSerializer<String> serializer = new RawSerializer<>(String.class);
+                JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
                 serializer.serialize(value.toString(), jgen, provider);
             }
         });

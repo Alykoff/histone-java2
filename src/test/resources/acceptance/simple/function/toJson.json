@@ -44,7 +44,7 @@
       },
       {
         "input": "{{toJSON}}",
-        "expectedResult": "(Global)"
+        "expectedResult": "null"
       }
     ]
   }

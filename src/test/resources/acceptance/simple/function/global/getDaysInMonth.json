@@ -52,6 +52,10 @@
       {
         "input": "a {{getDaysInMonth('2012','2')}} b",
         "expectedResult": "a 29 b"
+      },
+      {
+        "input": "{{getDaysInMonth(2016, 2.3)}}",
+        "expectedResult": ""
       }
     ]
   }

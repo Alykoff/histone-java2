@@ -25,6 +25,10 @@
       {
         "input": "a {{loadJSON('../../responses/test_for_json.jsonp') -> isUndefined()}} b",
         "expectedResult": "a true b"
+      },
+      {
+        "input": "{{loadText('../simple/tpl/thisToJson.tpl', 33)}}",
+        "expectedResult": "33"
       }
     ]
   },

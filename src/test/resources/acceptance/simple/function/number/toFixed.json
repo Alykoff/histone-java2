@@ -157,6 +157,10 @@
       {
         "input": "{{57.323->toFixed(1.0)}}",
         "expectedResult": "57.3"
+      },
+      {
+        "input": "{{57.323->toFixed('BLA')}}",
+        "expectedResult": "57"
       }
     ]
   }

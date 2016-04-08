@@ -90,6 +90,10 @@
       {
         "input": "{{getDayOfWeek(2016, 2.3, 1)}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{getDayOfWeek(2016, 2.0, 1)}}",
+        "expectedResult": "1"
       }
     ]
   }

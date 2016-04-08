@@ -164,7 +164,7 @@ public class EvalUtils {
     }
 
     public static MapEvalNode constructFromMap(Map<String, Object> map) {
-        Map<String, EvalNode> res = new HashMap<>();
+        Map<String, EvalNode> res = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             res.put(entry.getKey(), constructFromObject(entry.getValue()));
         }

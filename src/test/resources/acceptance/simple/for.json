@@ -478,7 +478,7 @@
         "input": "{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{break}} }} }} {{/for}}",
         "expectedException": {
           "line": "1",
-          "message": "illegal break statement"
+          "message": "Break statement must be only in loop!"
         }
       },
       {

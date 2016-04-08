@@ -163,6 +163,10 @@ public class Parser {
     }
 
     private AstNode getExpressionStatement(TokenizerWrapper wrapper) throws ParserException {
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentFor = wrapper.isFor();
+        wrapper.setVar(false);
+        wrapper.setFor(false);
         if (next(wrapper, T_BLOCK_END)) {
             return new ExpAstNode(AST_T_NOP);
         }
@@ -170,6 +174,8 @@ public class Parser {
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
+        wrapper.setFor(isParentFor);
+        wrapper.setVar(isParentVar);
         return expression;
     }
 
@@ -339,18 +345,7 @@ public class Parser {
         do {
             final AstNode node2 = getExpression(wrapper);
             if (firstLoop) {
-//                if (next(wrapper, T_AS)) {
-//                    final TokenizerResult label = wrapper.next(T_ID);
-//                    if (label.isFound()) {
-//                        labelString = label.firstValue();
-//                        node.add(new StringAstNode(labelString)); //add label name
-//                        wrapper.addLabel(labelString);
-//                    } else {
-//                        throw buildUnexpectedTokenException(wrapper, "EXPRESSION");
-//                    }
-//                } else {
                 node.add(new StringAstNode(null)); //add 'null' as for-label name
-//                }
             }
             if (!next(wrapper, T_BLOCK_END)) {
                 throw buildUnexpectedTokenException(wrapper, "}}");

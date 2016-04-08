@@ -7,6 +7,14 @@
         "expectedResult": "a 1 b"
       },
       {
+        "input": "a {{getDayOfWeek(2012, 4, 2, 1)}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
+        "input": "a {{getDayOfWeek(2012, 4, 2, 1, 1)}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
         "input": "a {{getDayOfWeek(2012, 4, 3)}} b",
         "expectedResult": "a 2 b"
       },

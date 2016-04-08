@@ -57,8 +57,8 @@ public class GetDate extends AbstractFunction {
             final Matcher matcher = PATTERN_DELTA_DATE.matcher(value);
             while(matcher.find()) {
                 final String sign = matcher.group(1);
-                final String period = matcher.group(3).toLowerCase();
                 final Integer num = Integer.parseInt(matcher.group(2)) * (sign.equals(NEGATIVE_SIGN) ? -1 : 1);
+                final String period = matcher.group(3).toLowerCase();
                 switch (period) {
                     case DAY_SIMBOL:
                         calendar.add(Calendar.DAY_OF_MONTH, num);

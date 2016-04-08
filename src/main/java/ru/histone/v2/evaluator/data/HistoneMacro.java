@@ -26,7 +26,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- *
  * Created by gali.alykoff on 25/01/16.
  */
 public class HistoneMacro implements Serializable, Cloneable {
@@ -55,7 +54,14 @@ public class HistoneMacro implements Serializable, Cloneable {
     }
 
     public void addBindArgs(List<EvalNode> bindArgs) {
-        this.bindArgs.addAll(bindArgs);
+        if (bindArgs.size() > 0) {
+            List<EvalNode> list = new ArrayList<>();
+            list.addAll(bindArgs);
+            list.addAll(this.bindArgs);
+            this.bindArgs = list;
+        } else {
+            this.bindArgs.addAll(bindArgs);
+        }
     }
 
     @Override

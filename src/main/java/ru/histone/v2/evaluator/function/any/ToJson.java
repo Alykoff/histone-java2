@@ -96,8 +96,8 @@ public class ToJson extends AbstractFunction {
         module.addSerializer(EmptyEvalNode.class, new JsonSerializer<EvalNode>() {
             @Override
             public void serialize(EvalNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
-                serializer.serialize("undefined", jgen, provider);
+                JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                serializer.serialize(null, jgen, provider);
             }
         });
         module.addSerializer(MacroEvalNode.class, new JsonSerializer<EvalNode>() {

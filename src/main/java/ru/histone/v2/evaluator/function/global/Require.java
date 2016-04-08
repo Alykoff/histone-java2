@@ -20,7 +20,6 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
@@ -90,8 +89,7 @@ public class Require extends AbstractFunction {
         EvalNode node = EvalUtils.constructFromObject(params);
 
         if (node.getType() != HistoneType.T_ARRAY) {
-            MapEvalNode m = new MapEvalNode(Collections.singletonList(node));
-            macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(m));
+            macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
         } else {
             macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
         }

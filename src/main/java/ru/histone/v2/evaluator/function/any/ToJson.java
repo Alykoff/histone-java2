@@ -54,6 +54,10 @@ public class ToJson extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        if (args.size() == 0) {
+            return EvalUtils.getValue(ToString.GLOBAL_OBJECT_STRING_REPRESENTATION);
+        }
+
         EvalNode node = args.get(0);
         if (node.getType() == HistoneType.T_NULL) {
             return EvalUtils.getValue("null");

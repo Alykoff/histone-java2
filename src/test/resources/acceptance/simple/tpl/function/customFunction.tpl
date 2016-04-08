@@ -12,7 +12,7 @@
 {{return [
     foo: foo,
     x: f,
-    thisParam: this[0],
+    thisParam: this,
     a:this.a,
     b:this.b,
     c:this.c()

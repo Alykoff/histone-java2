@@ -298,9 +298,12 @@ public class Evaluator implements Serializable {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
                     if (futures.get(0).getType() == HistoneType.T_UNDEFINED || futures.get(0).getType() == HistoneType.T_NULL) {
-                        return EvalUtils.createEvalNode(null);
+                        return futures.get(1);
                     }
 
+                    if (!(futures.get(0) instanceof HasProperties)) {
+                        return EvalUtils.createEvalNode(null);
+                    }
                     checkHasPropertiesInterface(futures.get(0));
                     final HasProperties mapEvalNode = (HasProperties) futures.get(0);
                     final Object value = futures.get(1).getValue();

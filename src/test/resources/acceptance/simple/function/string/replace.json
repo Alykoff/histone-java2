@@ -12,11 +12,11 @@
       },
       {
         "input": "--{{\"foobar\"->replace(/[a-z]/, \"O\")}}",
-        "expectedResult": "--Ooobar"
+        "expectedResult": "--OOOOOO"
       },
       {
-        "input": "--{{\"foobar\"->replace(\"o\", => 10)}}",
-        "expectedResult": "--f1010"
+        "input": "--{{\"foobar\"->replace(/[ao]/, => 10)}}",
+        "expectedResult": "--f1010b10r"
       }
     ]
   }

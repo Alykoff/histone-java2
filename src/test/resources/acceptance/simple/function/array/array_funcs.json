@@ -618,6 +618,14 @@
       {
         "input": "--{{[x:[a:1]].x.a}}--",
         "expectedResult": "--1--"
+      },
+      {
+        "input": "{{macro foo}}{{self.callee->toJSON}}{{self.arguments->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')->bind('X')}}{{foo(30, 40)}}",
+        "expectedResult": "null[\"A\",\"B\",\"C\",\"X\",30,40]"
+      },
+      {
+        "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}{{[foo: 0]->map(mapper)->toJSON}}",
+        "expectedResult": "{\"foo\":[0,\"foo\",{\"foo\":0}]}"
       }
     ]
   }

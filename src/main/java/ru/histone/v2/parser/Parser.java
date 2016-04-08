@@ -465,7 +465,9 @@ public class Parser {
         return getTernaryExpression(wrapper);
     }
 
-    private String checkMacroVarName(TokenizerWrapper wrapper, List<String> names, TokenizerResult nameVarToken) {
+    private String checkAndGetMacroVarName(
+            TokenizerWrapper wrapper, List<String> names, TokenizerResult nameVarToken
+    ) throws ParserException {
         final String newVarName = nameVarToken.firstValue();
         if (names.contains(newVarName)) {
             throw buildSyntaxErrorException(wrapper, "duplicate argument name \"" + newVarName + "\"");
@@ -479,7 +481,7 @@ public class Parser {
         TokenizerResult name = wrapper.next(T_ID);
         if (name.isFound()) {
             varStringNames.add(
-                    checkMacroVarName(wrapper, varStringNames, name)
+                    checkAndGetMacroVarName(wrapper, varStringNames, name)
             );
         } else if (next(wrapper, T_LPAREN)) {
             if (!test(wrapper, T_RPAREN)) {
@@ -487,7 +489,7 @@ public class Parser {
                     name = wrapper.next(T_ID);
                     if (name.isFound()) {
                         varStringNames.add(
-                                checkMacroVarName(wrapper, varStringNames, name)
+                                checkAndGetMacroVarName(wrapper, varStringNames, name)
                         );
                     } else {
                         throw buildUnexpectedTokenException(wrapper, IDENTIFIER);

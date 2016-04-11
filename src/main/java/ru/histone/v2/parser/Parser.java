@@ -148,14 +148,6 @@ public class Parser {
         }
 
         final ExpAstNode result = new ExpAstNode(isBreak ? AST_BREAK : AST_CONTINUE);
-//        TokenizerResult label = wrapper.next(T_ID);
-//        if (label.isFound()) {
-//            if (!wrapper.labelExists(label.firstValue())) {
-//                throw buildSyntaxErrorException(wrapper, "Label '" + label.firstValue() + "' not found!");
-//            }
-//            result.add(new StringAstNode(label.firstValue()));
-//        }
-
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
@@ -163,6 +155,7 @@ public class Parser {
     }
 
     private AstNode getExpressionStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         final boolean isParentVar = wrapper.isVar();
         final boolean isParentFor = wrapper.isFor();
         wrapper.setVar(false);
@@ -193,6 +186,7 @@ public class Parser {
     }
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         final boolean isParentVar = wrapper.isVar();
         final boolean isParentReturn = wrapper.isReturn();
         final boolean isParentFor = wrapper.isFor();
@@ -305,6 +299,8 @@ public class Parser {
     }
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
+
         final boolean isParentReturn = wrapper.isReturn();
         final boolean isParentVar = wrapper.isVar();
         final boolean isParentFor = wrapper.isFor();

@@ -87,6 +87,30 @@
       {
         "input": "{{require('../../tpl/function/literal2.tpl', 3)}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{require('../../tpl/function/literal3.tpl', 3)}}",
+        "expectedResult": "{\"x\":\"\\n                HELLO\\n            \"}"
+      },
+      {
+        "input": "{{require('../../tpl/function/literal4.tpl', 3)}}",
+        "expectedResult": "START\n        HELLO WORLD\n    END"
+      },
+      {
+        "input": "{{require('../../tpl/function/literal5.tpl', 3)}}",
+        "expectedResult": "\n    HEU\n"
+      },
+      {
+        "input": "{{require('../../tpl/function/literal6.tpl', 3)}}",
+        "expectedResult": "\n\n\n    {\"key\":\"0\",\"value\":1,\"index\":0,\"last\":2}\n\n\n\n\n    {\"key\":\"1\",\"value\":2,\"index\":1,\"last\":2}\n\n\n\n\n    {\"key\":\"2\",\"value\":3,\"index\":2,\"last\":2}\n\n\n"
+      },
+      {
+        "input": "{{require('../../tpl/function/literal7.tpl', 3)}}",
+        "expectedResult": "\ndss{{10 * 2}} dd\n        BLOB\n    "
+      },
+      {
+        "input": "xx{{require('../../tpl/function/thisIsMacro.tpl',  => 10 * 2)}}",
+        "expectedResult": "xx1020"
       }
     ]
   }

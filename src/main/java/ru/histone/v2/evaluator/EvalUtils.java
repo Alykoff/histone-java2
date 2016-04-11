@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
@@ -156,6 +157,9 @@ public class EvalUtils {
         }
         if (object instanceof HistoneRegex) {
             return new RegexEvalNode((HistoneRegex) object);
+        }
+        if (object instanceof HistoneMacro) {
+            return new MacroEvalNode((HistoneMacro) object);
         }
         if (object instanceof EvalNode) {
             return (EvalNode) object;

@@ -87,12 +87,7 @@ public class Require extends AbstractFunction {
         }
 
         EvalNode node = EvalUtils.constructFromObject(params);
-
-        if (node.getType() != HistoneType.T_ARRAY) {
-            macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
-        } else {
-            macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
-        }
+        macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
         return macroCtx;
     }
 }

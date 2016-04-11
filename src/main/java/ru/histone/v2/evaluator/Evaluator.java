@@ -370,23 +370,29 @@ public class Evaluator implements Serializable {
                         false
                 ));
             } else if (node.getType() == AstType.AST_CALL) {
-                return processCall(node, context).thenCompose(macroResult -> {
-                    if (macroResult.getType() != HistoneType.T_MACRO) {
-                        return EvalUtils.getValue(null);
-                    }
-                    final MacroEvalNode macro = (MacroEvalNode) macroResult;
-                    return MacroCall.processMacro(
-                            context.getBaseUri(),
-                            args,
-                            macro.getValue(),
-                            Optional.empty(),
-                            false
-                    );
-                });
+                return processCall(node, context)
+                        .thenCompose(macroResult -> callMacro(context, args, macroResult));
+            } else if (node.getType() == AstType.AST_THIS) {
+                return evaluateNode(node, context)
+                        .thenCompose(macroResult -> callMacro(context, args, macroResult));
             } else {
                 return processMethod(node, context, args);
             }
         }));
+    }
+
+    private CompletableFuture<EvalNode> callMacro(Context context, List<EvalNode> args, EvalNode macroNode) {
+        if (macroNode.getType() != HistoneType.T_MACRO) {
+            return EvalUtils.getValue(null);
+        }
+        final MacroEvalNode macro = (MacroEvalNode) macroNode;
+        return MacroCall.processMacro(
+                context.getBaseUri(),
+                args,
+                macro.getValue(),
+                Optional.empty(),
+                false
+        );
     }
 
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) {

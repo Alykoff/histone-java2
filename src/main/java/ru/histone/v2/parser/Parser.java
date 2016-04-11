@@ -174,9 +174,10 @@ public class Parser {
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
+        AstNode res = new ExpAstNode(AST_EXPRESSION_STATEMENT, expression);
         wrapper.setFor(isParentFor);
         wrapper.setVar(isParentVar);
-        return expression;
+        return res;
     }
 
     private ExpAstNode getListenStatement(TokenizerWrapper wrapper, AstType astListen) {

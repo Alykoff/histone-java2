@@ -61,6 +61,26 @@
       {
         "input": "{{macro a}}{{'xxxx'}}sadfadsf{{return sdfsadf}}{{/macro}}{{a()->isUndefined}}",
         "expectedResult": "true"
+      },
+      {
+        "input": "{{{{ 5 {{return 10}} }}}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "e{{{{ 5 {{return 10}} }}}}",
+        "expectedResult": "e10"
+      },
+      {
+        "input": "e{{if true}} 5 {{return 10}} {{/if}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{if true}}e{{if true}} 5 {{return 10}} {{/if}}{{/if}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "a{{if true}}f{{for x in [1,2]}}e{{if true}} 5 {{return 10}} {{/if}}{{/for}}{{/if}}",
+        "expectedResult": "10"
       }
     ]
   }

@@ -22,7 +22,6 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -46,8 +45,12 @@ public class MacroCall extends AbstractFunction implements Serializable {
     public static final boolean IS_UNWRAP_ARGS_ARRAYS = true;
 
     public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return staticExecute(context, args, IS_UNWRAP_ARGS_ARRAYS);
+    }
+
+    public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args, boolean isUnwrapArgsArrays) throws FunctionExecutionException {
         final HistoneMacro histoneMacro = getMacro(args);
-        return processMacro(context.getBaseUri(), args, histoneMacro, MACRO_NODE_INDEX_OPTIONAL, IS_UNWRAP_ARGS_ARRAYS);
+        return processMacro(context.getBaseUri(), args, histoneMacro, MACRO_NODE_INDEX_OPTIONAL, isUnwrapArgsArrays);
     }
 
     public static HistoneMacro getMacro(List<EvalNode> args) {
@@ -83,16 +86,16 @@ public class MacroCall extends AbstractFunction implements Serializable {
             } else if (defaultsVars.containsKey(argName)) {
                 param = defaultsVars.get(argName);
             } else {
-                param = CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+                param = EvalUtils.getValue(null);
             }
             argumentsFutures.add(param);
             currentContext.put(argName, param);
         }
-        final CompletableFuture<EvalNode> selfObject = createSelfObject(new MacroEvalNode(histoneMacro), baseURI, paramsInput);
+        final CompletableFuture<EvalNode> selfObject = createSelfObject(new MacroEvalNode(histoneMacro), baseURI, params);
         currentContext.put(Constants.SELF_CONTEXT_NAME, selfObject);
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {
-                return CompletableFuture.completedFuture(res);
+                return CompletableFuture.completedFuture(res.clearReturned());
             } else {
                 return RttiUtils.callToString(contextInner, res);
             }
@@ -100,7 +103,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
     }
 
     private static CompletableFuture<EvalNode> createSelfObject(MacroEvalNode macro, String baseURI, List<EvalNode> args) {
-        Map<String, EvalNode> res = new HashMap<>();
+        Map<String, EvalNode> res = new LinkedHashMap<>();
         res.put(Constants.SELF_CONTEXT_CALLEE, macro);
         res.put(Constants.SELF_CONTEXT_CALLER, EvalUtils.createEvalNode(baseURI));
         res.put(Constants.SELF_CONTEXT_ARGUMENTS, EvalUtils.constructFromObject(args));

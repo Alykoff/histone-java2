@@ -15,6 +15,8 @@
  */
 package ru.histone.v2.evaluator.resource.loader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStreamResource;
 import ru.histone.v2.evaluator.resource.Resource;
@@ -30,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
  * @author alexey.nevinsky
  */
 public class FileLoader implements Loader {
+    private final static Logger LOG = LoggerFactory.getLogger(FileLoader.class);
+
     @Override
     public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
         InputStream stream = readFile(url);
@@ -58,10 +62,12 @@ public class FileLoader implements Loader {
             try {
                 stream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                throw new ResourceLoadException("File not found", e);
+                LOG.error(e.getMessage(), e);
+                stream = EmptyInputStream.INSTANCE;
             }
         } else {
-            throw new ResourceLoadException(String.format("Can't read file '%s'", location.toString()));
+            LOG.error(String.format("Can't read file '%s'", location.toString()));
+            stream = EmptyInputStream.INSTANCE;
         }
         return stream;
     }

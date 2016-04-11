@@ -18,9 +18,9 @@ package ru.histone.v2.evaluator.function.global;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.PathUtils;
 
 import java.util.List;
@@ -37,7 +37,14 @@ public class ResolveURI extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        if (args.size() > 0) {
+        return doExecute(context, clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
+        //todo this is dirty hack, so needed to do edit Evaluator -> processReferenceNode
+        if (args.size() > 0
+                && (args.get(0).getType() == HistoneType.T_STRING || args.get(0).getType() == HistoneType.T_NUMBER)
+                && !args.get(0).getValue().equals("resolveURI")) {
             String baseUri = context.getBaseUri();
             if (getValue(args, 1) != null) {
                 baseUri = getValue(args, 1);
@@ -45,6 +52,6 @@ public class ResolveURI extends AbstractFunction {
             String res = PathUtils.resolveUrl(getValue(args, 0) + "", baseUri);
             return EvalUtils.getValue(res);
         }
-        return EmptyEvalNode.FUTURE_INSTANCE;
+        return EvalUtils.getValue(null);
     }
 }

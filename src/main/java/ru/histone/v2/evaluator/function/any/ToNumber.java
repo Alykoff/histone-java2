@@ -20,7 +20,6 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -52,7 +51,7 @@ public class ToNumber extends AbstractFunction {
         } else if (args.size() > 1) {
             return CompletableFuture.completedFuture(args.get(1));
         }
-        return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+        return EvalUtils.getValue(null);
     }
 
     private CompletableFuture<EvalNode> getFromNumberNode(EvalNode node) {

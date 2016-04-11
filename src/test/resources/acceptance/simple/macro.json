@@ -72,6 +72,10 @@
       {
         "input": "{{macro myMacro(a, b, c, d)}}<div>a = {{a}}</div><div>b = {{b}}</div><div>c = {{c}}</div><div>d = {{d}}</div>re - {{re}}{{/macro}}{{var re = 2}}{{var bound = myMacro->bind('foo', 'bar')}}{{bound(10, 20)}}",
         "expectedResult": "<div>a = foo</div><div>b = bar</div><div>c = 10</div><div>d = 20</div>re - "
+      },
+      {
+        "input": "{{macro foo}}{{self.callee->toJSON}}{{self.arguments->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')}}{{foo(30, 40)}}",
+        "expectedResult": "null[\"A\",\"B\",\"C\",30,40]"
       }
     ]
   },
@@ -153,5 +157,190 @@
         "expectedResult": "10"
       }
     ]
+  },
+  {
+    "name": "macro - anonymous",
+    "cases": [
+      {
+        "input": "{{((x) => 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(x => 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(=> 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(=> 10)->isMacro}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{(=> 10)->call(12)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{(=> 10)(12)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x) => 10)(12)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x) => 10)(12, 11)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x, y) => 10)(12, 11)}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{((x, y) => x + y)(12, 11)}}",
+        "expectedResult": "23"
+      },
+      {
+        "input": "{{((x) => 10)()}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{(=> 10)()}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{var foo = => => (x) => 10 * x}}{{foo()(12)(11)}}",
+        "expectedResult": "110"
+      },
+      {
+        "input": "{{var foo = => => (x) => 10 * x}}{{foo(12)(11)}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{(=> => (x) => 10 * x)()(12)(11)}}",
+        "expectedResult": "110"
+      }
+    ]
+  },
+  {
+    "name": "macro - custom cases",
+    "cases": [
+      {
+        "input": "{{macro foo}}{{return 'x'}}{{/macro}}{{foo()}}-{{foo()}}",
+        "expectedResult": "x-x"
+      },
+      {
+        "input": "{{[()=> 10]->toJSON}}",
+        "expectedResult": "[null]"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->map(x => x * 10)->toJSON}}",
+        "expectedResult": "[10,20,30,40]"
+      },
+      {
+        "input": "xxx{{var f}}{{for in [1, 2, 3, 4]}}{{self->toJSON}}{{return 3}}{{/for}}{{/var}}{{f}}{{f}}",
+        "expectedResult": "xxx33"
+      },
+      {
+        "input": "{{macro foo(a)}}{{return 3}}{{/macro}}{{[1, 2, 3, 4]->filter(foo)->toJSON}}",
+        "expectedResult": "[1,2,3,4]"
+      },
+      {
+        "input": "{{macro foo}}{{var f = 20}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x().isString()}}{{x().length()>=2}}",
+        "expectedResult": "truetrue"
+      },
+      {
+        "input": "{{macro foo(a)}}a = {{self->toJSON}}{{/macro}}xx{{foo(10).isString()}}{{foo().isString()}}",
+        "expectedResult": "xxtruetrue"
+      },
+      {
+        "input": "{{macro foo}}{{var f = getRand}}{{macro bar}}{{f}}{{/macro}}{{return bar + getRand}}{{/macro}}{{var x = foo()}}---{{x}}{{x}}{{x}}",
+        "expectedResult": "---"
+      },
+      {
+        "input": "---{{[ => 10 ][0]()}}",
+        "expectedResult": "---10"
+      },
+      {
+        "input": "{{var foo = => => 10 * 2}}--{{foo()()}}",
+        "expectedResult": "--20"
+      },
+      {
+        "input": "--{{getRand(-10.3, 0)}}",
+        "expectedResult": "--0"
+      },
+      {
+        "input": "{{macro foo}}{{/macro}}{{foo->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "--{{'sss'->wtf}}",
+        "expectedResult": "--"
+      },
+      {
+        "input": "--{{[0, 1, 2, 3, 4, 5]->map->toJSON}}",
+        "expectedResult": "--[null,null,null,null,null,null]"
+      },
+      {
+        "input": "--{{[0, 1, 2, 3, 4, 5]->map(3)->toJSON}}",
+        "expectedResult": "--[3,3,3,3,3,3]"
+      },
+      {
+        "input": "--{{[0, 1, 2, 3, 4, 5]->map('FOO')->toJSON}}",
+        "expectedResult": "--[\"FOO\",\"FOO\",\"FOO\",\"FOO\",\"FOO\",\"FOO\"]"
+      },
+      {
+        "input": "{{macro mapper}}{{return 3}}{{/macro}}--{{[foo: 'bar', 'x': 'yyy']->map(mapper)->toJSON}}",
+        "expectedResult": "--{\"foo\":3,\"x\":3}"
+      },
+      {
+        "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}--{{['!', 'A', 'B', 'C', 4, 5]->map(mapper)->toJSON}}",
+        "expectedResult": "--[[\"!\",\"0\",[\"!\",\"A\",\"B\",\"C\",4,5]],[\"A\",\"1\",[\"!\",\"A\",\"B\",\"C\",4,5]],[\"B\",\"2\",[\"!\",\"A\",\"B\",\"C\",4,5]],[\"C\",\"3\",[\"!\",\"A\",\"B\",\"C\",4,5]],[4,\"4\",[\"!\",\"A\",\"B\",\"C\",4,5]],[5,\"5\",[\"!\",\"A\",\"B\",\"C\",4,5]]]"
+      },
+      {
+        "input": "{{macro mapper(a)}}{{return self.arguments}}{{/macro}}--{{['!', 'A', 'B', 'C', 4, 5]->map(mapper->bind(40))->toJSON}}",
+        "expectedResult": "--[[40,\"!\",\"0\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,\"A\",\"1\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,\"B\",\"2\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,\"C\",\"3\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,4,\"4\",[\"!\",\"A\",\"B\",\"C\",4,5]],[40,5,\"5\",[\"!\",\"A\",\"B\",\"C\",4,5]]]"
+      },
+      {
+        "input": "{{macro foo(a, a, a)}}{{a}}{{/macro}}",
+        "expectedException": {
+          "line": "1",
+          "message": "duplicate argument name \"a\""
+        }
+      },
+      {
+        "input": "{{var a = 333}}{{x()}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var a = 333}}{{a()}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}{{[0, 1, 2, 3, 4, 5]->map(mapper)->toJSON}}",
+        "expectedResult": "[[0,\"0\",[0,1,2,3,4,5]],[1,\"1\",[0,1,2,3,4,5]],[2,\"2\",[0,1,2,3,4,5]],[3,\"3\",[0,1,2,3,4,5]],[4,\"4\",[0,1,2,3,4,5]],[5,\"5\",[0,1,2,3,4,5]]]"
+      },
+      {
+        "input": "{{(a, a) => '??'}}",
+        "expectedException": {
+          "line": "1",
+          "message": "duplicate argument name \"a\""
+        }
+      },
+      {
+        "input": "--{{10()}}",
+        "expectedResult": "--"
+      },
+      {
+        "input": "--{{x()()()()}}",
+        "expectedResult": "--"
+      },
+      {
+        "input": "--{{x.ddd}}",
+        "expectedResult": "--"
+      }
+    ]
   }
 ]
+

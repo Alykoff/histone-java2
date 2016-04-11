@@ -19,7 +19,6 @@ package ru.histone.v2.evaluator.function.string;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
@@ -44,7 +43,7 @@ public class StringCharCodeAt extends AbstractFunction {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final Optional<Integer> indexOptional = EvalUtils.tryPureIntegerValue(args.get(1));
         if (!indexOptional.isPresent()) {
-            return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+            return EvalUtils.getValue(null);
         }
         final String value = ((StringEvalNode) args.get(0)).getValue();
         int index = indexOptional.get();
@@ -54,6 +53,6 @@ public class StringCharCodeAt extends AbstractFunction {
             final int character = (int) value.charAt(index);
             return CompletableFuture.completedFuture(new LongEvalNode(character));
         }
-        return CompletableFuture.completedFuture(EmptyEvalNode.INSTANCE);
+        return EvalUtils.getValue(null);
     }
 }

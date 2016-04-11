@@ -64,6 +64,14 @@
       {
         "input": "<div>{{[]->keys->toJSON}} = []</div>",
         "expectedResult": "<div>[] = []</div>"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->keys}}",
+        "expectedResult": "0 1 2 3"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->keys->toString}}",
+        "expectedResult": "0 1 2 3"
       }
     ]
   },
@@ -570,8 +578,55 @@
       {
         "input": "{{macro re(v)}}{{if (v > 20)}}{{return \"d\"}}{{else}}{{v}}{{/if}}{{/macro}}{{[7,1,2,-1,16,-4,22,-10,5,6]->group(re)->toJSON}}",
         "expectedResult": "{\"1\":[1],\"2\":[2],\"5\":[5],\"6\":[6],\"7\":[7],\"16\":[16],\"-1\":[-1],\"-4\":[-4],\"d\":[22],\"-10\":[-10]}"
+      },
+      {
+        "input": "{{[1,2]->some(true)}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1,2]->some(false)}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{['A', 1, 2, 3, 4]->every(false)->toJSON}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "--{{['A', 1, 2, 3, 4, 1]->reduce(1)->toJSON}}",
+        "expectedResult": "--1"
+      },
+      {
+        "input": "--{{['A', 1, 2, 3, 4, 1]->reduce('B')->toJSON}}",
+        "expectedResult": "--\"B\""
+      },
+      {
+        "input": "--{{['A', 1, 2, 3, 4, 1]->reduce(1.01)->toJSON}}",
+        "expectedResult": "--1.01"
+      },
+      {
+        "input": "--{{['A', 1, 2, 3, 4, 1]->reduce(99, 88)->toJSON}}",
+        "expectedResult": "--99"
+      },
+      {
+        "input": "{{macro filter(prev, curr)}}{{return prev + curr}}{{/macro}}--{{[0, 1, 2, 3, 4]->reduce(filter)->toJSON}}",
+        "expectedResult": "--10"
+      },
+      {
+        "input": "--{{[x:[a:1]]['x.a']}}--",
+        "expectedResult": "----"
+      },
+      {
+        "input": "--{{[x:[a:1]].x.a}}--",
+        "expectedResult": "--1--"
+      },
+      {
+        "input": "{{macro foo}}{{self.callee->toJSON}}{{self.arguments->toJSON}}{{/macro}}{{var foo = foo->bind('A', 'B', 'C')->bind('X')}}{{foo(30, 40)}}",
+        "expectedResult": "null[\"X\",\"A\",\"B\",\"C\",30,40]"
+      },
+      {
+        "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}{{[foo: 0]->map(mapper)->toJSON}}",
+        "expectedResult": "{\"foo\":[0,\"foo\",{\"foo\":0}]}"
       }
     ]
   }
 ]
-

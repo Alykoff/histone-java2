@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 22/01/16.
+ * @author Alexey Nevinsky
  */
 public class Range extends AbstractFunction {
     public static final String NAME = "range";
@@ -42,8 +42,12 @@ public class Range extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return processRange(clearGlobal(args));
+    }
+
+    protected CompletableFuture<EvalNode> processRange(List<EvalNode> args) {
         final int size = args.size();
-        if (size == 0) {
+        if (args.size() == 0) {
             return getEmptyMapNodeFuture();
         }
 

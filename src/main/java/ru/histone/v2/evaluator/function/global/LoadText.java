@@ -21,7 +21,6 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.evaluator.resource.HistoneStreamResource;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
@@ -34,7 +33,6 @@ import ru.histone.v2.utils.RttiUtils;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -55,6 +53,10 @@ public class LoadText extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(context, clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         checkMinArgsLength(args, 1);
         checkMaxArgsLength(args, 2);
         checkTypes(args.get(0), 0, HistoneType.T_STRING, String.class);
@@ -62,10 +64,9 @@ public class LoadText extends AbstractFunction {
         return CompletableFuture.completedFuture(null)
                 .thenCompose(n -> {
                     String path = getValue(args, 0);
-                    MapEvalNode requestMap = null;
+                    EvalNode requestMap = null;
                     if (args.size() > 1) {
-                        checkTypes(args.get(1), 1, HistoneType.T_ARRAY, LinkedHashMap.class);
-                        requestMap = (MapEvalNode) args.get(1);
+                        requestMap = args.get(1);
                     }
 
                     Map<String, Object> params = getParamsMap(context, requestMap);
@@ -86,13 +87,17 @@ public class LoadText extends AbstractFunction {
                 });
     }
 
-    protected Map<String, Object> getParamsMap(Context context, MapEvalNode requestMap) {
+    protected Map<String, Object> getParamsMap(Context context, EvalNode requestMap) {
         if (requestMap == null) {
             return Collections.emptyMap();
         }
 
         String json = (String) RttiUtils.callToJSON(context, requestMap).join().getValue();
-        return (Map<String, Object>) fromJSON(json);
+        Object obj = fromJSON(json);
+        if (obj instanceof Map) {
+            return (Map<String, Object>) obj;
+        }
+        return Collections.emptyMap();
     }
 
     protected Object fromJSON(String json) {

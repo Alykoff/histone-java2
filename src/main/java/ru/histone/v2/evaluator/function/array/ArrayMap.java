@@ -16,21 +16,21 @@
 
 package ru.histone.v2.evaluator.function.array;
 
+import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * @author gali.alykoff on 08/02/16.
@@ -50,20 +50,38 @@ public class ArrayMap extends AbstractFunction implements Serializable {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         // [MAP, MACROS, ARGS...]
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        final MacroEvalNode macro = (MacroEvalNode) args.get(MACRO_INDEX);
+        final EvalNode node = args.size() > MACRO_INDEX ? args.get(MACRO_INDEX) : null;
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
-        final List<CompletableFuture<EvalNode>> mapResultRaw = mapEvalNode.getValue()
-                .values().stream()
-                .map(arg -> {
-                    final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
-                    if (param != null) {
-                        arguments.add(param);
-                    }
-                    arguments.add(arg);
-                    return MacroCall.staticExecute(context, arguments);
-                })
-                .collect(Collectors.toList());
-        return AsyncUtils.sequence(mapResultRaw).thenApply(MapEvalNode::new);
+        final List<CompletableFuture<EvalNode>> mapResultRaw = new ArrayList<>(mapEvalNode.getValue().size());
+        for (Map.Entry<String, EvalNode> entry : mapEvalNode.getValue().entrySet()) {
+            if (node == null) {
+                mapResultRaw.add(EvalUtils.getValue(ObjectUtils.NULL));
+                continue;
+            }
+
+            if (node.getType() != HistoneType.T_MACRO) {
+                mapResultRaw.add(CompletableFuture.completedFuture(node));
+                continue;
+            }
+
+            MacroEvalNode macro = (MacroEvalNode) node;
+            final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
+            if (param != null) {
+                arguments.add(param);
+            }
+            arguments.add(entry.getValue());
+            arguments.add(EvalUtils.createEvalNode(entry.getKey()));
+            arguments.add(mapEvalNode);
+            mapResultRaw.add(MacroCall.staticExecute(context, arguments, false));
+        }
+        return AsyncUtils.sequence(mapResultRaw).thenApply(nodes -> {
+            Object[] keys = mapEvalNode.getValue().keySet().toArray();
+            Map<String, EvalNode> map = new LinkedHashMap<>();
+            for (int i = 0; i < nodes.size(); i++) {
+                map.put((String) keys[i], nodes.get(i));
+            }
+            return new MapEvalNode(map);
+        });
     }
 }

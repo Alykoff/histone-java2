@@ -28,6 +28,7 @@ import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static ru.histone.v2.parser.node.AstType.*;
 import static ru.histone.v2.parser.tokenizer.Tokens.*;
@@ -143,18 +144,10 @@ public class Parser {
 
     private AstNode getBreakContinueStatement(TokenizerWrapper wrapper, boolean isBreak) {
         if (!wrapper.isFor()) {
-            throw buildSyntaxErrorException(wrapper, (isBreak ? "Break" : "Continue") + " statement must be only in circle!");
+            throw buildSyntaxErrorException(wrapper, (isBreak ? "Break" : "Continue") + " statement must be only in loop!");
         }
 
         final ExpAstNode result = new ExpAstNode(isBreak ? AST_BREAK : AST_CONTINUE);
-//        TokenizerResult label = wrapper.next(T_ID);
-//        if (label.isFound()) {
-//            if (!wrapper.labelExists(label.firstValue())) {
-//                throw buildSyntaxErrorException(wrapper, "Label '" + label.firstValue() + "' not found!");
-//            }
-//            result.add(new StringAstNode(label.firstValue()));
-//        }
-
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
@@ -162,6 +155,11 @@ public class Parser {
     }
 
     private AstNode getExpressionStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentFor = wrapper.isFor();
+        wrapper.setVar(false);
+        wrapper.setFor(false);
         if (next(wrapper, T_BLOCK_END)) {
             return new ExpAstNode(AST_T_NOP);
         }
@@ -169,7 +167,10 @@ public class Parser {
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
-        return expression;
+        AstNode res = new ExpAstNode(AST_EXPRESSION_STATEMENT, expression);
+        wrapper.setFor(isParentFor);
+        wrapper.setVar(isParentVar);
+        return res;
     }
 
     private ExpAstNode getListenStatement(TokenizerWrapper wrapper, AstType astListen) {
@@ -185,6 +186,14 @@ public class Parser {
     }
 
     private ExpAstNode getReturnStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentReturn = wrapper.isReturn();
+        final boolean isParentFor = wrapper.isFor();
+        wrapper.setVar(false);
+        wrapper.setReturn(true);
+        wrapper.setFor(false);
+
         final ExpAstNode result = new ExpAstNode(AST_RETURN);
         if (next(wrapper, T_BLOCK_END)) {
             result.add(getNodesStatement(wrapper, false));
@@ -199,10 +208,21 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
 
+        wrapper.setFor(isParentFor);
+        wrapper.setReturn(isParentReturn);
+        wrapper.setVar(isParentVar);
         return result;
     }
 
     private ExpAstNode getVarStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentReturn = wrapper.isReturn();
+        final boolean isParentFor = wrapper.isFor();
+        wrapper.setVar(true);
+        wrapper.setReturn(false);
+        wrapper.setFor(false);
+
         TokenizerResult name;
         ExpAstNode result;
         if (!test(wrapper, T_ID, T_EQ)) {
@@ -243,6 +263,10 @@ public class Parser {
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
+
+        wrapper.setFor(isParentFor);
+        wrapper.setReturn(isParentReturn);
+        wrapper.setVar(isParentVar);
         return result;
     }
 
@@ -275,23 +299,35 @@ public class Parser {
     }
 
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
+
+        final boolean isParentReturn = wrapper.isReturn();
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentFor = wrapper.isFor();
         wrapper.setFor(true);
+        wrapper.setReturn(false);
+        wrapper.setVar(false);
         String labelString = null;
 
         final ExpAstNode node = new ExpAstNode(AST_FOR);
         final TokenizerResult id = wrapper.next(T_ID);
         if (id.isFound()) {
+            final String keyName = id.firstValue();
             if (next(wrapper, T_COLON)) {
-                node.add(new StringAstNode(id.firstValue())); //add key name
+                node.add(new StringAstNode(keyName)); //add key name
                 final TokenizerResult valueName = wrapper.next(T_ID);
                 if (valueName.isFound()) {
-                    node.add(new StringAstNode(valueName.firstValue())); //add value name
+                    final String value = valueName.firstValue();
+                    if (value.equals(keyName)) {
+                        throw buildSyntaxErrorException(wrapper, "key and value must differ");
+                    }
+                    node.add(new StringAstNode(value)); //add value name
                 } else {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
             } else {
                 node.add(new StringAstNode(null)) //add null as key name
-                        .add(new StringAstNode(id.firstValue())); //add value name
+                        .add(new StringAstNode(keyName)); //add value name
             }
         } else {
             node.add(new StringAstNode(null)) //add 'null' as key name
@@ -306,18 +342,7 @@ public class Parser {
         do {
             final AstNode node2 = getExpression(wrapper);
             if (firstLoop) {
-//                if (next(wrapper, T_AS)) {
-//                    final TokenizerResult label = wrapper.next(T_ID);
-//                    if (label.isFound()) {
-//                        labelString = label.firstValue();
-//                        node.add(new StringAstNode(labelString)); //add label name
-//                        wrapper.addLabel(labelString);
-//                    } else {
-//                        throw buildUnexpectedTokenException(wrapper, "EXPRESSION");
-//                    }
-//                } else {
                 node.add(new StringAstNode(null)); //add 'null' as for-label name
-//                }
             }
             if (!next(wrapper, T_BLOCK_END)) {
                 throw buildUnexpectedTokenException(wrapper, "}}");
@@ -337,10 +362,12 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "{{/for}}");
         }
 
-        if (labelString != null) {
+        if (labelString != null) { // TODO !!! labelString is always null
             wrapper.removeLabel(labelString);
         }
-        wrapper.setFor(false);
+        wrapper.setFor(isParentFor);
+        wrapper.setVar(isParentVar);
+        wrapper.setReturn(isParentReturn);
         return node;
     }
 
@@ -371,6 +398,7 @@ public class Parser {
         final ExpAstNode result = new ExpAstNode(AST_MACRO);
         final TokenizerResult nameTokenResult = wrapper.next(T_ID);
         final List<AstNode> inputVars = new ArrayList<>();
+        final List<String> nameOfVars = new ArrayList<>();
         if (!nameTokenResult.isFound()) {
             throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
         }
@@ -383,6 +411,12 @@ public class Parser {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
                 final String nameOfVar = nameOfVarToken.firstValue();
+                if (nameOfVars.contains(nameOfVar)) {
+                    throw buildSyntaxErrorException(wrapper, "duplicate argument name \"" + nameOfVar + "\"");
+                } else {
+                    nameOfVars.add(nameOfVar);
+                }
+
                 final ExpAstNode nopNode;
                 if (next(wrapper, T_EQ)) {
                     nopNode = ParserUtils.createNopNode(nameOfVar, getExpression(wrapper));
@@ -424,18 +458,32 @@ public class Parser {
         return getTernaryExpression(wrapper);
     }
 
+    private String checkAndGetMacroVarName(
+            TokenizerWrapper wrapper, List<String> names, TokenizerResult nameVarToken
+    ) throws ParserException {
+        final String newVarName = nameVarToken.firstValue();
+        if (names.contains(newVarName)) {
+            throw buildSyntaxErrorException(wrapper, "duplicate argument name \"" + newVarName + "\"");
+        }
+        return newVarName;
+    }
+
     private ExpAstNode getMacroExpression(TokenizerWrapper wrapper) throws ParserException {
-        final List<AstNode> varNodes = new ArrayList<>();
+        final List<String> varStringNames = new ArrayList<>();
 
         TokenizerResult name = wrapper.next(T_ID);
         if (name.isFound()) {
-            varNodes.add(ParserUtils.createNopNode(name.firstValue()));
+            varStringNames.add(
+                    checkAndGetMacroVarName(wrapper, varStringNames, name)
+            );
         } else if (next(wrapper, T_LPAREN)) {
             if (!test(wrapper, T_RPAREN)) {
                 do {
                     name = wrapper.next(T_ID);
                     if (name.isFound()) {
-                        varNodes.add(ParserUtils.createNopNode(name.firstValue()));
+                        varStringNames.add(
+                                checkAndGetMacroVarName(wrapper, varStringNames, name)
+                        );
                     } else {
                         throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                     }
@@ -450,11 +498,17 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "=>");
         }
 
+        final List<AstNode> varNodes = varStringNames
+                .stream()
+                .map(ParserUtils::createNopNode)
+                .collect(Collectors.toList());
+        final List<AstNode> result = new ArrayList<>();
         if (varNodes.size() > 0) {
-            varNodes.add(new LongAstNode(varNodes.size()));
+            result.add(new LongAstNode(varNodes.size()));
         }
+        result.addAll(varNodes);
 
-        return createMacroNode(wrapper, varNodes);
+        return createMacroNode(wrapper, result);
     }
 
     private ExpAstNode createMacroNode(
@@ -793,7 +847,7 @@ public class Parser {
     }
 
     private StringAstNode getLiteralStatement(TokenizerWrapper wrapper) throws ParserException {
-        wrapper = new TokenizerWrapper(wrapper);
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList());
         final StringBuilder builder = new StringBuilder("");
         while (!test(wrapper, T_EOF) && !test(wrapper, T_LITERAL_END)) {
             builder.append(wrapper.next().first().getValue());

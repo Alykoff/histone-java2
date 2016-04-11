@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
@@ -41,6 +42,8 @@ public class EvalUtils {
             return (Boolean) node.getValue();
         } else if (node instanceof LongEvalNode) {
             return ((Long) node.getValue()) != 0;
+        } else if (node instanceof DoubleEvalNode) {
+            return ((Double) node.getValue()) != 0;
         } else if (node instanceof StringEvalNode) {
             return !node.getValue().equals("");
         }
@@ -126,10 +129,10 @@ public class EvalUtils {
 
     public static EvalNode<?> createEvalNode(Object object) {
         if (object == null) {
-            return EmptyEvalNode.INSTANCE;
+            return new EmptyEvalNode();
         }
         if (object.equals(ObjectUtils.NULL)) {
-            return NullEvalNode.INSTANCE;
+            return new NullEvalNode();
         }
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);
@@ -155,6 +158,9 @@ public class EvalUtils {
         if (object instanceof HistoneRegex) {
             return new RegexEvalNode((HistoneRegex) object);
         }
+        if (object instanceof HistoneMacro) {
+            return new MacroEvalNode((HistoneMacro) object);
+        }
         if (object instanceof EvalNode) {
             return (EvalNode) object;
         }
@@ -162,7 +168,7 @@ public class EvalUtils {
     }
 
     public static MapEvalNode constructFromMap(Map<String, Object> map) {
-        Map<String, EvalNode> res = new HashMap<>();
+        Map<String, EvalNode> res = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             res.put(entry.getKey(), constructFromObject(entry.getValue()));
         }

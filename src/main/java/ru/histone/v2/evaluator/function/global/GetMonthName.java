@@ -18,15 +18,20 @@ package ru.histone.v2.evaluator.function.global;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.LocaleFunction;
+import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.ParserUtils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class GetMonthName extends LocaleFunction {
 
@@ -44,11 +49,21 @@ public class GetMonthName extends LocaleFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        Properties properties = getCurrentProperties(context.getLocale());
+        return process(context, clearGlobal(args));
+    }
 
-        long id = getValue(args, 0);
+    protected CompletableFuture<EvalNode> process(Context context, List<EvalNode> args) {
+        final Properties properties = getCurrentProperties(context.getLocale());
 
-        StringBuilder sb = new StringBuilder("MONTH_NAMES_");
+        final Optional<Integer> idOptional = Optional.of(args)
+                .filter(a -> !a.isEmpty())
+                .flatMap(a -> ParserUtils.tryIntNumber(a.get(0).getValue()));
+        if (!idOptional.isPresent()) {
+            return CompletableFuture.completedFuture(new EmptyEvalNode());
+        }
+        int id = idOptional.get();
+
+        final StringBuilder sb = new StringBuilder("MONTH_NAMES_");
         if (isShort) {
             sb.append("SHORT");
         } else {

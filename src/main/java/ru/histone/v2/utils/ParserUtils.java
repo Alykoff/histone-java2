@@ -116,4 +116,21 @@ public class ParserUtils {
         }
         return Optional.empty();
     }
+
+    public static Optional<Integer> tryIntNumber(Object value) {
+        return tryDouble(value).flatMap(doubleValue -> {
+            if ((doubleValue == Math.floor(doubleValue)) && !Double.isInfinite(doubleValue)&& doubleValue <= Integer.MAX_VALUE && doubleValue >= Integer.MIN_VALUE) {
+                return Optional.of(doubleValue.intValue());
+            }
+            return Optional.empty();
+        });
+    }
+    public static Optional<Long> tryLongNumber(Object value) {
+        return tryDouble(value).flatMap(longValue -> {
+            if ((longValue == Math.floor(longValue)) && !Double.isInfinite(longValue) && longValue <= Long.MAX_VALUE && longValue >= Long.MIN_VALUE) {
+                return Optional.of(longValue.longValue());
+            }
+            return Optional.empty();
+        });
+    }
 }

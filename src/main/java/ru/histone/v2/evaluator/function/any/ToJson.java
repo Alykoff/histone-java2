@@ -22,12 +22,17 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.data.HistoneMacro;
+import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
@@ -49,6 +54,10 @@ public class ToJson extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        if (args.size() == 0) {
+            return EvalUtils.getValue(ObjectUtils.NULL);
+        }
+
         EvalNode node = args.get(0);
         if (node.getType() == HistoneType.T_NULL) {
             return EvalUtils.getValue("null");
@@ -87,8 +96,15 @@ public class ToJson extends AbstractFunction {
         module.addSerializer(EmptyEvalNode.class, new JsonSerializer<EvalNode>() {
             @Override
             public void serialize(EvalNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
-                serializer.serialize("undefined", jgen, provider);
+                JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                serializer.serialize(null, jgen, provider);
+            }
+        });
+        module.addSerializer(MacroEvalNode.class, new JsonSerializer<EvalNode>() {
+            @Override
+            public void serialize(EvalNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                serializer.serialize(null, jgen, provider);
             }
         });
         module.addSerializer(EvalNode.class, new JsonSerializer<EvalNode>() {
@@ -98,6 +114,25 @@ public class ToJson extends AbstractFunction {
                 serializer.serialize(value.getValue(), jgen, provider);
             }
         });
+        module.addSerializer(Evaluator.class, new JsonSerializer<Evaluator>() {
+            @Override
+            public void serialize(Evaluator value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
+                serializer.serialize("$EVALUATOR$", jgen, provider);
+            }
+        });
+        module.addSerializer(Double.class, new JsonSerializer<Double>() {
+            @Override
+            public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                if (value.isInfinite() || value.isNaN()) {
+                    JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                    serializer.serialize(null, jgen, provider);
+                } else {
+                    JsonSerializer<Double> serializer = new NumberSerializers.DoubleSerializer();
+                    serializer.serialize(value, jgen, provider);
+                }
+            }
+        });
         module.addSerializer(ObjectUtils.Null.class, new JsonSerializer<ObjectUtils.Null>() {
             @Override
             public void serialize(ObjectUtils.Null value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -105,7 +140,20 @@ public class ToJson extends AbstractFunction {
                 serializer.serialize(null, jgen, provider);
             }
         });
-
+        module.addSerializer(HistoneRegex.class, new JsonSerializer<HistoneRegex>() {
+            @Override
+            public void serialize(HistoneRegex value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<Object> serializer = provider.findValueSerializer(String.class, null);
+                serializer.serialize(value.toString(), jgen, provider);
+            }
+        });
+        module.addSerializer(HistoneMacro.class, new JsonSerializer<HistoneMacro>() {
+            @Override
+            public void serialize(HistoneMacro value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
+                serializer.serialize(null, jgen, provider);
+            }
+        });
         mapper.registerModule(module);
 
         try {

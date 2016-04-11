@@ -22,15 +22,17 @@ import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.DateUtils;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import static ru.histone.v2.evaluator.function.global.GetDayOfWeek.*;
+import static ru.histone.v2.utils.DateUtils.*;
+import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
+
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class GetDaysInMonth extends AbstractFunction {
     @Override
@@ -40,28 +42,30 @@ public class GetDaysInMonth extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(clearGlobal(args));
+    }
+
+    protected CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         checkMinArgsLength(args, 2);
-        checkMaxArgsLength(args, 2);
-        checkTypes(args.get(0), 0, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
 
+        final Optional<Integer> yearOptional = tryIntNumber(args.get(0).getValue())
+                .filter(year -> year >= JS_MIN_BOUND_OF_YEAR && year <= JS_MAX_BOUND_OF_YEAR);
+        final Optional<Integer> monthOptional = tryIntNumber(args.get(1).getValue())
+                .filter(month -> month >= MIN_MONTH && month <= MAX_MONTH)
+                .map(month -> month - 1);
 
-        Calendar c = new GregorianCalendar();
-        c.setFirstDayOfWeek(Calendar.MONDAY);
-        c.setLenient(false);
-        c.set(Calendar.YEAR, EvalUtils.getNumberValue(args.get(0)).intValue());
-        c.set(Calendar.MONTH, EvalUtils.getNumberValue(args.get(1)).intValue() - 1);
+        if (!yearOptional.isPresent() || !monthOptional.isPresent()) {
+            return CompletableFuture.completedFuture(new EmptyEvalNode());
+        }
 
         try {
-            c.getTimeInMillis();
+            int dayOfWeek = DateUtils.getDaysInMonth(yearOptional.get(), monthOptional.get());
+            if (dayOfWeek == 0) {
+                dayOfWeek = 7;
+            }
+            return EvalUtils.getValue(dayOfWeek);
         } catch (IllegalArgumentException e) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
-
-        int dayOfWeek = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-        if (dayOfWeek == 0) {
-            dayOfWeek = 7;
-        }
-
-        return EvalUtils.getValue(dayOfWeek);
     }
 }

@@ -7,6 +7,14 @@
         "expectedResult": "a 1 b"
       },
       {
+        "input": "a {{getDayOfWeek(2012, 4, 2, 1)}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
+        "input": "a {{getDayOfWeek(2012, 4, 2, 1, 1)}} b",
+        "expectedResult": "a 1 b"
+      },
+      {
         "input": "a {{getDayOfWeek(2012, 4, 3)}} b",
         "expectedResult": "a 2 b"
       },
@@ -82,6 +90,18 @@
           "line": "1",
           "message": "For input string: \"a\""
         }
+      },
+      {
+        "input": "{{global->getDayOfWeek(2016, 12, 10)}}",
+        "expectedResult": "6"
+      },
+      {
+        "input": "{{getDayOfWeek(2016, 2.3, 1)}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{getDayOfWeek(2016, 2.0, 1)}}",
+        "expectedResult": "1"
       }
     ]
   }

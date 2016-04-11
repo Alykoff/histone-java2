@@ -16,19 +16,20 @@
 
 package ru.histone.v2.evaluator.function.string;
 
-import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.RegexEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -44,52 +45,72 @@ public class StringReplace extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        checkMinArgsLength(args, 3);
+        if (args.size() == 1) {
+            return CompletableFuture.completedFuture(args.get(0));
+        }
 
         String str = getValue(args, 0);
 
         EvalNode searchNode = args.get(1);
-        EvalNode replaceNode = args.get(2);
 
-        if (searchNode.getType() == HistoneType.T_STRING) {
-            String searchStr = EvalUtils.escape((String) searchNode.getValue());
-            final Pattern pattern = Pattern.compile(searchStr);
-            searchNode = new RegexEvalNode(new HistoneRegex(true, pattern));
-        }
+        if (args.size() > 2) {
+            EvalNode replaceNode = args.get(2);
+            Matcher matcher;
+            boolean isGlobal = false;
+            if (searchNode.getType() == HistoneType.T_REGEXP) {
+                HistoneRegex regex = (HistoneRegex) searchNode.getValue();
+                isGlobal = regex.isGlobal();
+                matcher = regex.getPattern().matcher(str);
+            } else {
+                isGlobal = true;
+                matcher = Pattern.compile((String) RttiUtils.callToString(context, searchNode).join().getValue()).matcher(str);
+            }
 
-        if (searchNode.getType() != HistoneType.T_REGEXP) {
-            return EvalUtils.getValue(str);
-        }
 
-        if (replaceNode.getType() != HistoneType.T_MACRO) {
-            String replaceStr = (String) RttiUtils.callToString(context, replaceNode).join().getValue();
-            String replaced = str.replace(((HistoneRegex) searchNode.getValue()).getPattern().pattern(), replaceStr);
+            if (replaceNode.getType() != HistoneType.T_MACRO) {
+                String replaceStr = (String) RttiUtils.callToString(context, replaceNode).join().getValue();
+                if (isGlobal) {
+                    return EvalUtils.getValue(matcher.replaceAll(replaceStr));
+                } else {
+                    return EvalUtils.getValue(matcher.replaceFirst(replaceStr));
+                }
+            } else {
+                int lastIndex = 0;
+                StringBuilder sb = new StringBuilder();
+                int count = isGlobal ? Integer.MAX_VALUE : 1;
+                int i = 0;
+                while (matcher.find(lastIndex) && i < count) {
+                    if (matcher.start() > lastIndex) {
+                        sb.append(str.substring(lastIndex, matcher.start()));
+                    }
+                    String found = matcher.group();
+                    Context ctx = context.cloneEmpty();
+                    List<EvalNode> macroArgs = Arrays.asList(replaceNode, EvalUtils.createEvalNode(found));
+                    EvalNode val = MacroCall.staticExecute(ctx, macroArgs).join();
+                    String macroResult = (String) RttiUtils.callToString(context, val).join().getValue();
+                    sb.append(macroResult);
+                    lastIndex = matcher.start() + found.length();
+                    i++;
+                }
+                if (lastIndex < str.length()) {
+                    sb.append(str.substring(lastIndex, str.length()));
+                }
+
+                return EvalUtils.getValue(sb.toString());
+            }
+        } else {
+            if (searchNode.getType() == HistoneType.T_REGEXP) {
+                HistoneRegex regex = (HistoneRegex) searchNode.getValue();
+                Matcher matcher = regex.getPattern().matcher(str);
+                if (regex.isGlobal()) {
+                    return EvalUtils.getValue(matcher.replaceAll(""));
+                } else {
+                    return EvalUtils.getValue(matcher.replaceFirst(""));
+                }
+            }
+
+            String replaced = str.replaceAll((String) RttiUtils.callToString(context, searchNode).join().getValue(), "");
             return EvalUtils.getValue(replaced);
         }
-
-        throw new NotImplementedException("Yeah, we not implemented string replace function with macro");
-//        var result = '', lastPos = 0;
-//        Utils_loopAsync(function(next) {
-//
-//            var match = search.exec(self);
-//
-//            if (match) {
-//
-//                if (lastPos < match.index)
-//                    result += self.slice(lastPos, match.index);
-//
-//                lastPos = match.index + match[0].length;
-//
-//                replace['call'] ([match[0]], scope, function(replace) {
-//                    result += replace;
-//                    next();
-//                });
-//
-//
-//            } else next(true);
-//
-//        },function() {
-//            ret(result);
-//        });
     }
 }

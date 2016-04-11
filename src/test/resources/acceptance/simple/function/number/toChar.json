@@ -29,10 +29,15 @@
       {
         "input": "a {{65 -> toChar() -> isNumber()}} b",
         "expectedResult": "a false b"
+      },
+      {
+        "input": "{{57.3->toChar}}",
+        "expectedResult": ""
       }
     ]
   }
 ]
+
 
 
 

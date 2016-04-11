@@ -17,7 +17,7 @@
 package ru.histone.v2.rtti;
 
 /**
- * Created by gali.alykoff on 22/01/16.
+ * @author Gali Alykoff
  */
 public enum HistoneType {
     T_BASE(0),
@@ -30,9 +30,8 @@ public enum HistoneType {
     T_MACRO(7),
     T_ARRAY(8),
     T_GLOBAL(9),
-    T_REQUIRE(10),
-    T_BREAK(11),
-    T_CONTINUE(12);
+    T_BREAK(10),
+    T_CONTINUE(11);
 
     private int id;
 

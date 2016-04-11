@@ -17,7 +17,6 @@
 package ru.histone.v2.evaluator;
 
 import ru.histone.v2.Constants;
-import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -87,6 +86,12 @@ public class Context implements Serializable {
         return that;
     }
 
+    public Context cloneEmpty() {
+        Context ctx = new Context(baseUri, locale, rttiInfo);
+        ctx.thisVars = new ConcurrentHashMap<>();
+        return ctx;
+    }
+
     /**
      * This method used for create a child context
      *
@@ -119,7 +124,7 @@ public class Context implements Serializable {
             if (thisVars.containsKey(key)) {
                 return thisVars.get(key);
             }
-            return EmptyEvalNode.FUTURE_INSTANCE;
+            return EvalUtils.getValue(null);
         }
         return vars.get(key);
     }
@@ -155,6 +160,15 @@ public class Context implements Serializable {
     public boolean findFunction(EvalNode node, String name) {
         try {
             return rttiInfo.getFunc(node.getType(), name).isPresent();
+        } catch (FunctionExecutionException ignore) {
+            // yeah, we couldn't find function with this name
+        }
+        return false;
+    }
+
+    public boolean findFunction(String name) {
+        try {
+            return rttiInfo.getFunc(HistoneType.T_GLOBAL, name).isPresent();
         } catch (FunctionExecutionException ignore) {
             // yeah, we couldn't find function with this name
         }

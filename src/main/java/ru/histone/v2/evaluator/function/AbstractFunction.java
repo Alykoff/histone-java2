@@ -18,7 +18,9 @@ package ru.histone.v2.evaluator.function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Function;
+import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -29,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public abstract class AbstractFunction implements Function {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -37,9 +39,14 @@ public abstract class AbstractFunction implements Function {
     protected final Executor executor;
     protected final HistoneResourceLoader resourceLoader;
 
+//    protected final Evaluator evaluator;
+//    protected final Parser parser;
+
     protected AbstractFunction() {
         executor = null;
         resourceLoader = null;
+//        evaluator = null;
+//        parser = null;
     }
 
     protected AbstractFunction(Executor executor, HistoneResourceLoader resourceLoader) {
@@ -88,7 +95,41 @@ public abstract class AbstractFunction implements Function {
     }
 
     protected <T> T getValue(List<EvalNode> args, int index) {
-        return index > args.size() - 1 ? null : (T) args.get(index).getValue();
+        return getValue(args, index, null);
+    }
+
+    protected <T> T getValue(List<EvalNode> args, int index, T defValue) {
+        return index > args.size() - 1 ? defValue : (T) args.get(index).getValue();
+    }
+
+    protected Long getLongValue(List<EvalNode> args, int index, Long defValue) {
+        if (index > args.size() - 1) {
+            return defValue;
+        }
+
+        EvalNode node = args.get(index);
+        if (node.getType() != HistoneType.T_STRING && node.getType() != HistoneType.T_NUMBER) {
+            return defValue;
+        }
+
+        if (node instanceof DoubleEvalNode && !EvalUtils.isInteger(((DoubleEvalNode) node).getValue())) {
+            return defValue;
+        }
+
+        Number number = EvalUtils.getNumberValue(node);
+        return number.longValue();
+    }
+
+    protected List<EvalNode> clearGlobal(List<EvalNode> args) {
+        if (args.size() == 0) {
+            return args;
+        }
+
+        if (args.get(0).getType() == HistoneType.T_GLOBAL) {
+            List<EvalNode> localNodes = args.subList(1, args.size());
+            return localNodes;
+        }
+        return args;
     }
 
     @Override

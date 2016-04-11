@@ -18,36 +18,18 @@ package ru.histone.v2.evaluator.node;
 
 import ru.histone.v2.rtti.HistoneType;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
- * Created by inv3r on 19/01/16.
+ * @author Alexey Nevinsky
  */
 public class EmptyEvalNode extends EvalNode<Void> {
     public static final String HISTONE_VIEW = "";
-    public static final EmptyEvalNode INSTANCE = EmptyEvalNodeHolder.EMPTY_EVAL_NODE;
-    public static final EmptyEvalNode RETURNED_INSTANCE = EmptyEvalNodeHolder.RETURNED_EMPTY_EVAL_NODE;
-    public static final CompletableFuture<EvalNode> FUTURE_INSTANCE = EmptyEvalNodeHolder.EMPTY_FUTURE;
 
-    private EmptyEvalNode(boolean isReturn) {
+    public EmptyEvalNode() {
         super(null);
-        this.isReturn = isReturn;
-    }
-
-    @Override
-    public EvalNode getReturned() {
-        return RETURNED_INSTANCE;
     }
 
     @Override
     public HistoneType getType() {
         return HistoneType.T_UNDEFINED;
-    }
-
-    private static class EmptyEvalNodeHolder {
-        private static final EmptyEvalNode EMPTY_EVAL_NODE = new EmptyEvalNode(false);
-        private static final EmptyEvalNode RETURNED_EMPTY_EVAL_NODE = new EmptyEvalNode(true);
-
-        private static final CompletableFuture<EvalNode> EMPTY_FUTURE = CompletableFuture.completedFuture(EMPTY_EVAL_NODE);
     }
 }

@@ -20,6 +20,8 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.LongEvalNode;
+import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -54,7 +56,9 @@ public class Keys extends AbstractFunction {
         int i = 0;
         for (Object key : set) {
             if (ParserUtils.isInt(key.toString())) {
-                res.put(i + "", Integer.valueOf(key.toString()));
+                res.put(i + "", new LongEvalNode(Integer.valueOf(key.toString())));
+            } else if (ParserUtils.isStrongString(key)) {
+                res.put(i + "", new StringEvalNode((String) key));
             } else {
                 res.put(i + "", key);
             }

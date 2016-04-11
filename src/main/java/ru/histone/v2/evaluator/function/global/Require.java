@@ -16,10 +16,10 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.RequireEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
@@ -49,11 +49,17 @@ public class Require extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(final Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(context, clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         checkMinArgsLength(args, 1);
-        checkMaxArgsLength(args, 1);
+        checkMaxArgsLength(args, 2);
         checkTypes(args.get(0), 0, Collections.singletonList(HistoneType.T_STRING), Collections.singletonList(String.class));
 
         final String url = getValue(args, 0);
+
+        final Object params = getValue(args, 1, null);
 
         return resourceLoader.load(url, context.getBaseUri(), Collections.emptyMap())
                 .thenCompose(res -> {
@@ -64,18 +70,24 @@ public class Require extends AbstractFunction {
                     ExpAstNode root = p.process(template, context.getBaseUri());
                     Evaluator evaluator = new Evaluator();
 
-                    Context macroCtx = context.clone();
+                    Context macroCtx = createCtx(context, params);
 
                     CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
                     EvalNode rNode = nodeFuture.join();
-                    if (rNode.getType() == HistoneType.T_REQUIRE) {
-                        return nodeFuture;
-                    } else if (rNode.isReturn()) {
-                        return CompletableFuture.completedFuture(new RequireEvalNode(rNode));
-                    } else {
-                        return CompletableFuture.completedFuture(new RequireEvalNode(macroCtx));
-                    }
+                    return CompletableFuture.completedFuture(rNode.clearReturned());
                 });
+    }
+
+    private Context createCtx(Context baseContext, Object params) {
+        Context macroCtx = baseContext.cloneEmpty();
+
+        if (params == null) {
+            return macroCtx;
+        }
+
+        EvalNode node = EvalUtils.constructFromObject(params);
+        macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
+        return macroCtx;
     }
 }

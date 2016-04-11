@@ -13,6 +13,22 @@
       {
         "input": "<div>{{resolveURI('foo') -> isString()}}</div>",
         "expectedResult": "<div>true</div>"
+      },
+      {
+        "input": "{{global->resolveURI}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{resolveURI}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{global->resolveURI([1, 2, 3])}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{resolveURI(this)}}",
+        "expectedResult": ""
       }
     ]
   },

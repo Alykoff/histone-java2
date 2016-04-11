@@ -21,12 +21,15 @@ import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.DateUtils;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import static ru.histone.v2.utils.DateUtils.*;
+import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
 
 /**
  * @author alexey.nevinsky
@@ -39,22 +42,39 @@ public class GetDayOfWeek extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return doExecute(clearGlobal(args));
+    }
+
+    private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         checkMinArgsLength(args, 3);
-        checkMaxArgsLength(args, 3);
-        checkTypes(args.get(0), 0, Arrays.asList(HistoneType.T_NUMBER, HistoneType.T_STRING), Arrays.asList(String.class, Long.class));
 
         Calendar c = Calendar.getInstance();
         c.setFirstDayOfWeek(Calendar.MONDAY);
         c.setLenient(false);
-        c.set(Calendar.YEAR, EvalUtils.getNumberValue(args.get(0)).intValue());
-        c.set(Calendar.MONTH, EvalUtils.getNumberValue(args.get(1)).intValue() - 1);
-        c.set(Calendar.DAY_OF_MONTH, EvalUtils.getNumberValue(args.get(2)).intValue());
+        final Optional<Integer> yearOptional = tryIntNumber(args.get(0).getValue())
+                .filter(year -> year >= JS_MIN_BOUND_OF_YEAR && year <= JS_MAX_BOUND_OF_YEAR);
+        final Optional<Integer> monthOptional = tryIntNumber(args.get(1).getValue())
+                .filter(month -> month >= MIN_MONTH && month <= MAX_MONTH)
+                .map(month -> month - 1);
+        final Optional<Integer> dayOptional = yearOptional.flatMap(year ->
+                monthOptional.flatMap(month -> {
+                    final int daysInMonth;
+                    try {
+                        daysInMonth = DateUtils.getDaysInMonth(year, month);
+                    } catch (IllegalArgumentException e) {
+                        return Optional.empty();
+                    }
+                    return tryIntNumber(args.get(2).getValue())
+                            .filter(day -> day <= daysInMonth && day >= MIN_DAY);
+                })
+        );
 
-        try {
-            c.getTimeInMillis();
-        } catch (IllegalArgumentException e) {
-            return EmptyEvalNode.FUTURE_INSTANCE;
+        if (!yearOptional.isPresent() || !monthOptional.isPresent() || !dayOptional.isPresent()) {
+            return CompletableFuture.completedFuture(new EmptyEvalNode());
         }
+        c.set(Calendar.YEAR, yearOptional.get());
+        c.set(Calendar.MONTH, monthOptional.get());
+        c.set(Calendar.DAY_OF_MONTH, dayOptional.get());
 
         int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
         if (dayOfWeek == 0) {

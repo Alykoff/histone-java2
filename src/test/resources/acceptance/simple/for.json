@@ -272,6 +272,14 @@
         "expectedResult": "a # b"
       },
       {
+        "input": "--{{for in []}}??{{else}}HELLO{{/for}}",
+        "expectedResult": "--HELLO"
+      },
+      {
+        "input": "---{{for in []}}??{{/for}}",
+        "expectedResult": "---"
+      },
+      {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
         "context": {
           "items": null
@@ -406,7 +414,82 @@
       {
         "input": "{{for i in range(0, 10)}}{{if i = 5}}{{break}}{{else}}{{i}}{{/if}}{{/for}}",
         "expectedResult": "01234"
+      },
+      {
+        "input": "--{{for in [1, 2, 3, 4]}}HELLO{{break}}{{/for}}",
+        "expectedResult": "--HELLO"
+      },
+      {
+        "input": "--{{for in [1, 2, 3, 4]}}HELLO{{continue}}{{/for}}",
+        "expectedResult": "--HELLOHELLOHELLOHELLO"
+      },
+      {
+        "input": "{{for value in [1, 2, 3, 4]}}HELLO{{value}}_{{continue}}{{/for}}",
+        "expectedResult": "HELLO1_HELLO2_HELLO3_HELLO4_"
+      },
+      {
+        "input": "{{for value in [1, 2, 3, 4]}}HELLO{{value}}_{{continue}}!!!{{/for}}",
+        "expectedResult": "HELLO1_HELLO2_HELLO3_HELLO4_"
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{break}}{{/return}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{break}}{{/var}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{continue}}{{/return}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Continue statement must be only in loop!"
+        }
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{continue}}{{/var}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Continue statement must be only in loop!"
+        }
+      },
+      {
+        "input": "{{for x:x in [1]}}{{x}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "key and value must differ"
+        }
+      },
+      {
+        "input": "{{for in [1,2,3,4]}}HELLO{{break}}{{/for}}",
+        "expectedResult": "HELLO"
+      },
+      {
+        "input": "{{for in [1,2,3,4]}}HELLO_{{continue}}{{/for}}",
+        "expectedResult": "HELLO_HELLO_HELLO_HELLO_"
+      },
+      {
+        "input": "{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{break}} }} }} {{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
+      },
+      {
+        "input": "---{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{return 10}} }} }} {{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "illegal break statement"
+        }
       }
     ]
   }
 ]
+
+

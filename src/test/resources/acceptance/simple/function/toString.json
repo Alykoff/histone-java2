@@ -78,6 +78,10 @@
       {
         "input": "<div>{{'string'->toString}} = string</div>",
         "expectedResult": "<div>string = string</div>"
+      },
+      {
+        "input": "{{undefined->toString}}",
+        "expectedResult": ""
       }
     ]
   }

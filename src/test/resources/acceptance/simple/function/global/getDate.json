@@ -5,6 +5,10 @@
       {
         "input": "{{global->getDate() != undefined}}",
         "expectedResult": "true"
+      },
+      {
+        "input": "{{global->getDate('+3y-2d')->toJSON}}",
+        "expectedResult": ""
       }
     ]
   }

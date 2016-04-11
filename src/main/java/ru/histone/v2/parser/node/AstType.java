@@ -64,6 +64,8 @@ public enum AstType {
     AST_BREAK(38),
     AST_CONTINUE(39),
 
+    AST_EXPRESSION_STATEMENT(40),
+
     AST_T_NOP(-1),
     AST_T_BREAK(-2),
     AST_T_ARRAY(-3),

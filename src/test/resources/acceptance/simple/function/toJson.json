@@ -41,6 +41,10 @@
       {
         "input": "<div>{{10->toJSON}} = 10</div>",
         "expectedResult": "<div>10 = 10</div>"
+      },
+      {
+        "input": "{{toJSON}}",
+        "expectedResult": "null"
       }
     ]
   }

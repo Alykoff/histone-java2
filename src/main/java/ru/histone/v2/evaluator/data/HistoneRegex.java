@@ -17,19 +17,21 @@
 package ru.histone.v2.evaluator.data;
 
 import java.io.Serializable;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
- *
  * Created by gali.alykoff on 25/01/16.
  */
 public class HistoneRegex implements Serializable {
     private final boolean isGlobal;
+    private final boolean isIgnoreCase;
+    private final boolean isMultiline;
     private final Pattern pattern;
 
-    public HistoneRegex(boolean isGlobal, Pattern pattern) {
+    public HistoneRegex(boolean isGlobal, boolean isIgnoreCase, boolean isMultiline, Pattern pattern) {
         this.isGlobal = isGlobal;
+        this.isIgnoreCase = isIgnoreCase;
+        this.isMultiline = isMultiline;
         this.pattern = pattern;
     }
 
@@ -37,26 +39,50 @@ public class HistoneRegex implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        HistoneRegex that = (HistoneRegex) o;
-        return isGlobal == that.isGlobal &&
-                Objects.equals(pattern, that.pattern);
+
+        HistoneRegex regex = (HistoneRegex) o;
+
+        if (isGlobal != regex.isGlobal) return false;
+        if (isIgnoreCase != regex.isIgnoreCase) return false;
+        if (isMultiline != regex.isMultiline) return false;
+        return pattern != null ? pattern.equals(regex.pattern) : regex.pattern == null;
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isGlobal, pattern);
+        int result = (isGlobal ? 1 : 0);
+        result = 31 * result + (isIgnoreCase ? 1 : 0);
+        result = 31 * result + (isMultiline ? 1 : 0);
+        result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
-        return "HistoneRegex{" +
-                "isGlobal=" + isGlobal +
-                ", pattern=" + pattern +
-                '}';
+        String res = "/" + pattern.pattern() + "/";
+        if (isGlobal()) {
+            res += "g";
+        }
+        if (isIgnoreCase()) {
+            res += "i";
+        }
+        if (isMultiline()) {
+            res += "m";
+        }
+        return res;
     }
 
     public boolean isGlobal() {
         return isGlobal;
+    }
+
+    public boolean isIgnoreCase() {
+        return isIgnoreCase;
+    }
+
+    public boolean isMultiline() {
+        return isMultiline;
     }
 
     public Pattern getPattern() {

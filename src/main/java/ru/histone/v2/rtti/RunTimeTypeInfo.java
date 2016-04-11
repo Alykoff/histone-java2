@@ -18,6 +18,7 @@ package ru.histone.v2.rtti;
 
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.function.any.*;
 import ru.histone.v2.evaluator.function.array.*;
@@ -25,12 +26,10 @@ import ru.histone.v2.evaluator.function.global.*;
 import ru.histone.v2.evaluator.function.macro.MacroBind;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.function.macro.MacroExtend;
-import ru.histone.v2.evaluator.function.macro.RequireCall;
 import ru.histone.v2.evaluator.function.number.*;
 import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.*;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.NullEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 
 import java.io.Serializable;
@@ -79,7 +78,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new IsBoolean());
         registerForAlltypes(new IsNumber());
         registerForAlltypes(new IsInt());
-        registerForAlltypes(new IsFloat());;
+        registerForAlltypes(new IsFloat());
+        registerForAlltypes(new IsRegExp());
         registerForAlltypes(new IsString());
         registerForAlltypes(new IsArray());
         registerForAlltypes(new IsMacro());
@@ -144,8 +144,6 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_MACRO, new MacroCall());
         registerCommon(T_MACRO, new MacroBind());
         registerCommon(T_MACRO, new MacroExtend());
-
-        registerCommon(T_REQUIRE, new RequireCall());
     }
 
     private void registerForAlltypes(Function function) {
@@ -185,7 +183,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     public CompletableFuture<EvalNode> callFunction(Context context, HistoneType type, String funcName, List<EvalNode> args) {
         final Optional<Function> fRaw = getFunc(type, funcName);
         if (!fRaw.isPresent()) {
-            return CompletableFuture.completedFuture(NullEvalNode.INSTANCE);
+            return EvalUtils.getValue(null);
         }
         final Function f = fRaw.get();
         if (f.isAsync()) {

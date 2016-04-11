@@ -327,9 +327,20 @@
           "line": "1",
           "message": "duplicate argument name \"a\""
         }
+      },
+      {
+        "input": "--{{10()}}",
+        "expectedResult": "--"
+      },
+      {
+        "input": "--{{x()()()()}}",
+        "expectedResult": "--"
+      },
+      {
+        "input": "--{{x.ddd}}",
+        "expectedResult": "--"
       }
     ]
   }
 ]
-
 

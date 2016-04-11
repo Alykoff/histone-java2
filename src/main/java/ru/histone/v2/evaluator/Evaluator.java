@@ -298,7 +298,7 @@ public class Evaluator implements Serializable {
         return evalAllNodesOfCurrent(expNode, context)
                 .thenApply(futures -> {
                     if (futures.get(0).getType() == HistoneType.T_UNDEFINED || futures.get(0).getType() == HistoneType.T_NULL) {
-                        return futures.get(1);
+                        return EvalUtils.createEvalNode(null);
                     }
 
                     if (!(futures.get(0) instanceof HasProperties)) {
@@ -315,6 +315,11 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) {
+        //so, we can write following construction: {{10()()()}}
+        if (!(expNode.getNode(0) instanceof ExpAstNode)) {
+            return EvalUtils.getValue(null);
+        }
+
         final ExpAstNode node = expNode.getNode(0);
         final boolean valueNodeExists = node.size() > 1;
         final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
@@ -357,6 +362,9 @@ public class Evaluator implements Serializable {
                 ));
             } else if (node.getType() == AstType.AST_CALL) {
                 return processCall(node, context).thenCompose(macroResult -> {
+                    if (macroResult.getType() != HistoneType.T_MACRO) {
+                        return EvalUtils.getValue(null);
+                    }
                     final MacroEvalNode macro = (MacroEvalNode) macroResult;
                     return MacroCall.processMacro(
                             context.getBaseUri(),

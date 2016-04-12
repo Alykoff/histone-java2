@@ -111,6 +111,10 @@
       {
         "input": "xx{{require('../../tpl/function/thisIsMacro.tpl',  => 10 * 2)}}",
         "expectedResult": "xx1020"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/function/ui.tpl')}}{{ui -> toJSON}}{{ui.button()}}XX",
+        "expectedResult": "--{\"button\":\"sss\"}XX"
       }
     ]
   }

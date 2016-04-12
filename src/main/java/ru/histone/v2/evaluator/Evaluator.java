@@ -276,7 +276,7 @@ public class Evaluator implements Serializable {
 
             if (valueNode instanceof HasProperties && !context.findFunction(valueNode, methodNode.getValue())) {
                 EvalNode newValue = ((HasProperties) valueNode).getProperty(methodNode.getValue());
-                if (newValue != null) {
+                if (newValue != null && newValue.getType() == HistoneType.T_MACRO) {
                     argsNodes.set(0, newValue);
                     return MacroCall.processMacro(
                             context.getBaseUri(),
@@ -286,6 +286,7 @@ public class Evaluator implements Serializable {
                             false
                     );
                 }
+                return EvalUtils.getValue(null);
             }
             return context.call(valueNode, methodNode.getValue(), argsNodes);
         });

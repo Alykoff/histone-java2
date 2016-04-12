@@ -115,6 +115,10 @@
       {
         "input": "--{{var ui = require('../../tpl/function/ui.tpl')}}{{ui -> toJSON}}{{ui.button()}}XX",
         "expectedResult": "--{\"button\":\"sss\"}XX"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/function/comments.tpl')}}{{ui}}XX",
+        "expectedResult": "--10XX"
       }
     ]
   }

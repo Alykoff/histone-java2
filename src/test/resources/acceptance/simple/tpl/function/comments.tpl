@@ -4,6 +4,11 @@ blablabla
 
 comments
 
-*}}
+*}}{{10*2}}=40
+{{*
 
-{{return 10}}
+blablabla
+
+comments
+
+*}}

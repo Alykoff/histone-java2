@@ -76,6 +76,10 @@ public class Require extends AbstractFunction {
 
                     EvalNode rNode = nodeFuture.join();
                     return CompletableFuture.completedFuture(rNode.clearReturned());
+                })
+                .exceptionally(e -> {
+                    logger.error(e.getMessage(), e);
+                    return EvalUtils.createEvalNode(null);
                 });
     }
 

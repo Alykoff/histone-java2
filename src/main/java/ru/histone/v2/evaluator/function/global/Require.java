@@ -67,10 +67,10 @@ public class Require extends AbstractFunction {
 
                     //todo get parser and evaluator from context
                     Parser p = new Parser();
-                    ExpAstNode root = p.process(template, context.getBaseUri());
+                    ExpAstNode root = p.process(template, res.getBaseHref());
                     Evaluator evaluator = new Evaluator();
 
-                    Context macroCtx = createCtx(context, params);
+                    Context macroCtx = createCtx(context, res.getBaseHref(), params);
 
                     CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
@@ -79,8 +79,9 @@ public class Require extends AbstractFunction {
                 });
     }
 
-    private Context createCtx(Context baseContext, Object params) {
+    private Context createCtx(Context baseContext, String baseUri, Object params) {
         Context macroCtx = baseContext.cloneEmpty();
+        macroCtx.setBaseUri(baseUri);
 
         if (params == null) {
             return macroCtx;

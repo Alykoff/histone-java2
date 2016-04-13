@@ -123,6 +123,10 @@
       {
         "input": "--{{var ui = require('../../tpl/function/syntaxError.tpl')}}XX",
         "expectedResult": "--XX"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/function/arraysAsArgument.tpl')}}{{ui.insertCSS(['a'])}}XX",
+        "expectedResult": "--[\"a\"]XX"
       }
     ]
   }

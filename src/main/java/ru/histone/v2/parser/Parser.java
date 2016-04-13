@@ -110,7 +110,7 @@ public class Parser {
     }
 
     private AstNode getTemplateStatement(TokenizerWrapper wrapper) throws ParserException {
-        wrapper = new TokenizerWrapper(wrapper, Collections.singletonList(T_SPACES.getId()));
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         AstNode result;
         if (next(wrapper, T_IF)) {
             result = getIfStatement(wrapper);

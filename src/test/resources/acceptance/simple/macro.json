@@ -247,11 +247,11 @@
         "expectedResult": "[1,2,3,4]"
       },
       {
-        "input": "{{macro foo}}{{var f = 20}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x().isString()}}{{x().length()>=2}}",
+        "input": "{{macro foo}}{{var f = 20}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x() -> isString()}}{{x() -> length()>=2}}",
         "expectedResult": "truetrue"
       },
       {
-        "input": "{{macro foo(a)}}a = {{self->toJSON}}{{/macro}}xx{{foo(10).isString()}}{{foo().isString()}}",
+        "input": "{{macro foo(a)}}a = {{self->toJSON}}{{/macro}}xx{{foo(10) -> isString()}}{{foo() -> isString()}}",
         "expectedResult": "xxtruetrue"
       },
       {

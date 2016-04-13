@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.parser.node.AstType.AST_PROP;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
@@ -339,7 +340,19 @@ public class Evaluator implements Serializable {
                 .map(x -> evaluateNode(x, context))
                 .collect(Collectors.toList()));
         return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
-            if (node.getType() == AST_REF) {
+            if (node.getType() == AST_PROP) {
+                return evaluateNode(node, context).thenCompose(vNode -> {
+                    if (vNode.getType() == HistoneType.T_MACRO) {
+                        List<EvalNode> macroArgs = new ArrayList<>();
+                        macroArgs.add(vNode);
+                        macroArgs.addAll(args);
+                        return MacroCall.staticExecute(context, macroArgs);
+                    }
+                    return EvalUtils.getValue(null);
+                });
+
+
+            } else if (node.getType() == AST_REF) {
                 final String refName = ((StringEvalNode) functionNameNode).getValue();
                 if (context.contains(refName)) {
                     //todo add normal exception then we do call macro, but node is string

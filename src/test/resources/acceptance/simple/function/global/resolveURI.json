@@ -1597,7 +1597,7 @@
     "name": "global -> getUniqueId",
     "cases": [
       {
-        "input": "a {{getUniqueId().isString()}} b",
+        "input": "a {{getUniqueId() -> isString}} b",
         "expectedResult": "a true b"
       },
       {

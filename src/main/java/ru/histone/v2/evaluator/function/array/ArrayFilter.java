@@ -61,7 +61,7 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
                             arguments.add(param);
                         }
                         arguments.add(arg);
-                        final CompletableFuture<EvalNode> predicateFuture = MacroCall.staticExecute(context, arguments);
+                        final CompletableFuture<EvalNode> predicateFuture = MacroCall.staticExecute(context, arguments, false);
                         return predicateFuture.thenApply(predicateNode -> {
                             final Boolean predicate = EvalUtils.nodeAsBoolean(predicateNode);
                             return Tuple.create(arg, predicate);

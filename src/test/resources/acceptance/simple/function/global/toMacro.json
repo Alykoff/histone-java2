@@ -1,0 +1,45 @@
+[
+  {
+    "name": "value -> toMacro",
+    "cases": [
+      {
+        "input": "{{null->toMacro->call}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{'string'->toMacro->call}}",
+        "expectedResult": "string"
+      },
+      {
+        "input": "{{6->toMacro->call}}",
+        "expectedResult": "6"
+      },
+      {
+        "input": "{{true->toMacro->call}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false->toMacro->call}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1,2,3]->toMacro->call}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{[a: 3, b:5]->toMacro->call}}",
+        "expectedResult": "3 5"
+      },
+      {
+        "input": "{{[a: 3, b:5]->toMacro->call->toJSON}}",
+        "expectedResult": "{\"a\":3,\"b\":5}"
+      },
+      {
+        "input": "{{var foo = [1,2,3]->toMacro->bind('A', 'B', 'C')->bind('X')}}{{foo(30, 40)}}",
+        "expectedResult": "1 2 3"
+      }
+    ]
+  }
+]
+
+

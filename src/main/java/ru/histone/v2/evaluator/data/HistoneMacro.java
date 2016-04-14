@@ -30,11 +30,16 @@ import java.util.concurrent.CompletableFuture;
  */
 public class HistoneMacro implements Serializable, Cloneable {
     private AstNode body;
+    private EvalNode result = null;
     private Context context;
     private List<String> args = new ArrayList<>();
     private Map<String, CompletableFuture<EvalNode>> defaultValues = new LinkedHashMap<>();
     private List<EvalNode> bindArgs = new ArrayList<>();
     private Evaluator evaluator;
+
+    public HistoneMacro(EvalNode result) {
+        this.result = result;
+    }
 
     public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator, Map<String, CompletableFuture<EvalNode>> defaultValues) {
         this.args.addAll(args);
@@ -72,6 +77,11 @@ public class HistoneMacro implements Serializable, Cloneable {
 
         final ArrayList<EvalNode> copyBindArgs = new ArrayList<>(this.bindArgs.size());
         copyBindArgs.addAll(this.bindArgs);
+
+        if (result != null) {
+            return new HistoneMacro(result);
+        }
+
         return new HistoneMacro(copyArgs, this.body, this.context.clone(), this.evaluator, copyBindArgs, copyValues);
     }
 
@@ -148,5 +158,9 @@ public class HistoneMacro implements Serializable, Cloneable {
 
     public void setBindArgs(List<EvalNode> bindArgs) {
         this.bindArgs = bindArgs;
+    }
+
+    public EvalNode getResult() {
+        return result;
     }
 }

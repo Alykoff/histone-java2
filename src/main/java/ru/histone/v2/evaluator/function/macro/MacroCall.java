@@ -65,6 +65,11 @@ public class MacroCall extends AbstractFunction implements Serializable {
             Optional<Integer> startArgsIndex,
             boolean isUnwrapArgsArrays
     ) {
+        //if result was set, we return it immediately
+        if (histoneMacro.getResult() != null) {
+            return CompletableFuture.completedFuture(histoneMacro.getResult());
+        }
+
         final AstNode body = histoneMacro.getBody();
         final List<String> namesOfVars = histoneMacro.getArgs();
         final Evaluator evaluator = histoneMacro.getEvaluator();

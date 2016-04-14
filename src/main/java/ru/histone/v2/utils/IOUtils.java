@@ -21,6 +21,7 @@ import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.exceptions.ResourceLoadException;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 
 /**
@@ -37,7 +38,7 @@ public class IOUtils {
             if (resource instanceof HistoneStringResource) {
                 content = ((HistoneStringResource) resource).getContent();
             } else if (resource instanceof HistoneStreamResource) {
-                content = org.apache.commons.io.IOUtils.toString(((HistoneStreamResource) resource).getContent());
+                content = org.apache.commons.io.IOUtils.toString(((HistoneStreamResource) resource).getContent(), "UTF-8");
             } else {
                 throw new ResourceLoadException(MessageFormat.format("Unsupported resource class: {0}", resource.getClass()));
             }

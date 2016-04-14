@@ -47,8 +47,12 @@
         "expectedResult": "a 0.0000000000001 b"
       },
       {
-        "input": "a {{(-.10E12) -> toAbs().isNumber()}} b",
+        "input": "a {{(-.10E12) -> toAbs() -> isNumber()}} b",
         "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{(-.10E12) -> toAbs().isNumber()}} b",
+        "expectedResult": "a  b"
       },
       {
         "input": "<div>{{(-4.2)->toAbs}} = 4.2</div>",

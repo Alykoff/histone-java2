@@ -17,6 +17,7 @@
 package ru.histone.v2.utils;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.any.ToBoolean;
 import ru.histone.v2.evaluator.function.any.ToJson;
 import ru.histone.v2.evaluator.function.any.ToNumber;
@@ -32,6 +33,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -41,6 +43,7 @@ public class RttiUtils implements Serializable {
     public static CompletableFuture<EvalNode> callToString(Context context, EvalNode node) {
         return context.call(ToString.NAME, Collections.singletonList(node));
     }
+
     public static CompletableFuture<String> callToStringResult(Context context, EvalNode node) {
         return context.call(ToString.NAME, Collections.singletonList(node))
                 .thenApply(n -> ((StringEvalNode) n).getValue());
@@ -60,7 +63,7 @@ public class RttiUtils implements Serializable {
 
     public static CompletableFuture<Boolean> callToBooleanResult(Context context, EvalNode node) {
         return context.call(ToBoolean.NAME, Collections.singletonList(node))
-                .thenApply(toBooleanResult -> ((BooleanEvalNode)toBooleanResult).getValue());
+                .thenApply(toBooleanResult -> ((BooleanEvalNode) toBooleanResult).getValue());
     }
 
     public static CompletableFuture<EvalNode> callMacro(
@@ -72,13 +75,17 @@ public class RttiUtils implements Serializable {
         return context.call(macroNode, MacroCall.NAME, macroArgs);
     }
 
-    public static CompletableFuture<EvalNode> callMacro(
-            Context context, EvalNode macroNode, EvalNode... argsNodes
-    ) {
+    public static CompletableFuture<EvalNode> callMacro(Context context, EvalNode macroNode, EvalNode... argsNodes) {
         final List<EvalNode> macroArgs = new ArrayList<>();
-        macroArgs.add(macroNode);
         Collections.addAll(macroArgs, argsNodes);
-        return context.call(macroNode, MacroCall.NAME, macroArgs);
+
+        return MacroCall.processMacro(
+                context.getBaseUri(),
+                macroArgs,
+                (HistoneMacro) macroNode.getValue(),
+                Optional.empty(),
+                false
+        );
     }
 
     public static CompletableFuture<EvalNode> callMacroBind(

@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.parser.node.AstType.AST_PROP;
 import static ru.histone.v2.parser.node.AstType.AST_REF;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
@@ -276,7 +277,7 @@ public class Evaluator implements Serializable {
 
             if (valueNode instanceof HasProperties && !context.findFunction(valueNode, methodNode.getValue())) {
                 EvalNode newValue = ((HasProperties) valueNode).getProperty(methodNode.getValue());
-                if (newValue != null) {
+                if (newValue != null && newValue.getType() == HistoneType.T_MACRO) {
                     argsNodes.set(0, newValue);
                     return MacroCall.processMacro(
                             context.getBaseUri(),
@@ -286,6 +287,7 @@ public class Evaluator implements Serializable {
                             false
                     );
                 }
+                return EvalUtils.getValue(null);
             }
             return context.call(valueNode, methodNode.getValue(), argsNodes);
         });
@@ -338,23 +340,14 @@ public class Evaluator implements Serializable {
                 .map(x -> evaluateNode(x, context))
                 .collect(Collectors.toList()));
         return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
-            if (node.getType() == AST_REF) {
+            if (node.getType() == AST_PROP) {
+                return evaluateNode(node, context)
+                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
+            } else if (node.getType() == AST_REF) {
                 final String refName = ((StringEvalNode) functionNameNode).getValue();
                 if (context.contains(refName)) {
-                    //todo add normal exception then we do call macro, but node is string
                     return getValueFromParentContext(context, refName)
-                            .thenCompose(rawMacro -> {
-                                if (rawMacro.getType() != HistoneType.T_MACRO) {
-                                    return EvalUtils.getValue(null);
-                                }
-                                return MacroCall.processMacro(
-                                        context.getBaseUri(),
-                                        args,
-                                        ((MacroEvalNode) rawMacro).getValue(),
-                                        Optional.empty(),
-                                        false
-                                );
-                            });
+                            .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
                 } else if (context.findFunction(refName)) {
                     return context.call(refName, args);
                 }
@@ -362,19 +355,14 @@ public class Evaluator implements Serializable {
             } else if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
                 return context.call((String) functionNameNode.getValue(), args);
             } else if (node.getType() == AstType.AST_MACRO) {
-                return processMacroNode(node, context).thenCompose(rawMacro -> MacroCall.processMacro(
-                        context.getBaseUri(),
-                        args,
-                        ((MacroEvalNode) rawMacro).getValue(),
-                        Optional.empty(),
-                        false
-                ));
+                return processMacroNode(node, context)
+                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
             } else if (node.getType() == AstType.AST_CALL) {
                 return processCall(node, context)
-                        .thenCompose(macroResult -> callMacro(context, args, macroResult));
+                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
             } else if (node.getType() == AstType.AST_THIS) {
                 return evaluateNode(node, context)
-                        .thenCompose(macroResult -> callMacro(context, args, macroResult));
+                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
             } else {
                 return processMethod(node, context, args);
             }
@@ -961,29 +949,30 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {
-        return CompletableFuture.supplyAsync(() -> {
-            final LongAstNode flagsNumNode = node.getNode(1);
-            final long flagsNum = flagsNumNode.getValue();
+        return CompletableFuture.completedFuture(null)
+                .thenApply(nullValue -> {
+                    final LongAstNode flagsNumNode = node.getNode(1);
+                    final long flagsNum = flagsNumNode.getValue();
 
-            boolean isIgnoreCase = false;
-            boolean isMultiline = false;
+                    boolean isIgnoreCase = false;
+                    boolean isMultiline = false;
 
-            int flags = 0;
-            if ((flagsNum & AstRegexType.RE_IGNORECASE.getId()) != 0) {
-                flags |= Pattern.CASE_INSENSITIVE;
-                isIgnoreCase = true;
-            }
-            if ((flagsNum & AstRegexType.RE_MULTILINE.getId()) != 0) {
-                flags |= Pattern.MULTILINE;
-                isMultiline = true;
-            }
+                    int flags = 0;
+                    if ((flagsNum & AstRegexType.RE_IGNORECASE.getId()) != 0) {
+                        flags |= Pattern.CASE_INSENSITIVE;
+                        isIgnoreCase = true;
+                    }
+                    if ((flagsNum & AstRegexType.RE_MULTILINE.getId()) != 0) {
+                        flags |= Pattern.MULTILINE;
+                        isMultiline = true;
+                    }
 
-            final boolean isGlobal = (flagsNum & AstRegexType.RE_GLOBAL.getId()) != 0;
-            final StringAstNode expNode = node.getNode(0);
-            final String exp = expNode.getValue();
-            final Pattern pattern = Pattern.compile(exp, flags);
-            return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
-        });
+                    final boolean isGlobal = (flagsNum & AstRegexType.RE_GLOBAL.getId()) != 0;
+                    final StringAstNode expNode = node.getNode(0);
+                    final String exp = expNode.getValue();
+                    final Pattern pattern = Pattern.compile(exp, flags);
+                    return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
+                });
     }
 
 }

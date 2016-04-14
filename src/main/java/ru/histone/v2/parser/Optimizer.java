@@ -63,12 +63,16 @@ public class Optimizer {
 
             if (i == innerNodes.size() - 1 && accStringNode.length() > 0) {
                 res.add(new StringAstNode(accStringNode.toString()));
+                accStringNode.setLength(0);
             }
 
             if (!isStringLeaf) {
                 current = mergeStrings(current);
                 res.add(current);
             }
+        }
+        if (accStringNode.length() > 0) {
+            res.add(new StringAstNode(accStringNode.toString()));
         }
         return res;
     }

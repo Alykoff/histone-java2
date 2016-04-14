@@ -87,6 +87,10 @@
         "expectedResult": "<input type=\"password\" />"
       },
       {
+        "input": "{{var inputWidget = 'stringToMacro'->toMacro->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
+        "expectedResult": "stringToMacro"
+      },
+      {
         "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text'],[PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
         "expectedResult": "<input type=\"\" />"
       },
@@ -247,11 +251,11 @@
         "expectedResult": "[1,2,3,4]"
       },
       {
-        "input": "{{macro foo}}{{var f = 20}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x().isString()}}{{x().length()>=2}}",
+        "input": "{{macro foo}}{{var f = 20}}{{macro bar}}{{f}}{{/macro}}{{return bar}}{{/macro}}{{var x = foo()}}{{x() -> isString()}}{{x() -> length()>=2}}",
         "expectedResult": "truetrue"
       },
       {
-        "input": "{{macro foo(a)}}a = {{self->toJSON}}{{/macro}}xx{{foo(10).isString()}}{{foo().isString()}}",
+        "input": "{{macro foo(a)}}a = {{self->toJSON}}{{/macro}}xx{{foo(10) -> isString()}}{{foo() -> isString()}}",
         "expectedResult": "xxtruetrue"
       },
       {
@@ -339,6 +343,10 @@
       {
         "input": "--{{x.ddd}}",
         "expectedResult": "--"
+      },
+      {
+        "input": "--{{var a = 'stringToMacro' -> toMacro}}{{a()}}",
+        "expectedResult": "--stringToMacro"
       }
     ]
   }

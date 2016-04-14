@@ -83,6 +83,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new IsString());
         registerForAlltypes(new IsArray());
         registerForAlltypes(new IsMacro());
+        registerForAlltypes(new ToMacro());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
@@ -108,6 +109,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArraySort());
         registerCommon(T_ARRAY, new ArraySlice());
         registerCommon(T_ARRAY, new ArrayHtmlEntities());
+        registerCommon(T_ARRAY, new ArrayHas());
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor, loader));

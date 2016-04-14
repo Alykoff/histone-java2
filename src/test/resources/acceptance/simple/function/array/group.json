@@ -1,0 +1,19 @@
+[
+  {
+    "name": "array -> group",
+    "cases": [
+      {
+        "input": "--{{require('../../tpl/function/group1.tpl')}}XX",
+        "expectedResult": "--\n\n\nfoo = {\"A\":[{\"value\":10,\"type\":\"A\"},{\"value\":20,\"type\":\"A\"}],\"C\":[{\"value\":30,\"type\":\"C\"}],\"B\":[{\"value\":40,\"type\":\"B\"},{\"value\":50,\"type\":\"B\"}]}XX"
+      },
+      {
+        "input": "--{{require('../../tpl/function/group2.tpl')}}XX",
+        "expectedResult": "--\n\nfoo = {\"type\":[{\"value\":10,\"type\":\"A\"},{\"value\":20,\"type\":\"A\"},{\"value\":30,\"type\":\"C\"},{\"value\":40,\"type\":\"B\"},{\"value\":50,\"type\":\"B\"}]}XX"
+      },
+      {
+        "input": "{{var items = [[value: 10, type: 'A'],[value: 20, type: 'A'],[value: 30, type: 'C'],[value: 40, type: 'B'],[value: 50, type: 'B']]}}foo = {{items->group(false)->toJSON}}",
+        "expectedResult": "foo = {\"false\":[{\"value\":10,\"type\":\"A\"},{\"value\":20,\"type\":\"A\"},{\"value\":30,\"type\":\"C\"},{\"value\":40,\"type\":\"B\"},{\"value\":50,\"type\":\"B\"}]}"
+      }
+    ]
+  }
+]

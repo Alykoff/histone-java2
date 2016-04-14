@@ -626,6 +626,10 @@
       {
         "input": "{{macro mapper}}{{return self.arguments}}{{/macro}}{{[foo: 0]->map(mapper)->toJSON}}",
         "expectedResult": "{\"foo\":[0,\"foo\",{\"foo\":0}]}"
+      },
+      {
+        "input": "{{[[title: 'A', hidden: false],[title: 'B', hidden: true],[title: 'C', hidden: false]]->filter(tab => !tab.hidden)->toJSON}}",
+        "expectedResult": "[{\"title\":\"A\",\"hidden\":false},{\"title\":\"C\",\"hidden\":false}]"
       }
     ]
   }

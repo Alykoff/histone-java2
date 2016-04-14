@@ -3,6 +3,10 @@
     "name": "global -> require - variables",
     "cases": [
       {
+        "input": "--{{var ui = require('../../tpl/function/comments.tpl')}}{{ui}}XX",
+        "expectedResult": "--20=40\nXX"
+      },
+      {
         "input": "START:{{require('../../tpl/function/template.tpl')}}:END",
         "expectedResult": "START:hidden:END"
       },
@@ -111,6 +115,22 @@
       {
         "input": "xx{{require('../../tpl/function/thisIsMacro.tpl',  => 10 * 2)}}",
         "expectedResult": "xx1020"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/function/ui.tpl')}}{{ui -> toJSON}}{{ui.button()}}XX",
+        "expectedResult": "--{\"button\":\"sss\"}XX"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/function/syntaxError.tpl')}}XX",
+        "expectedResult": "--XX"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/function/arraysAsArgument.tpl')}}{{ui.insertCSS(['a'])}}XX",
+        "expectedResult": "--[\"a\"]XX"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/function/testCase1.tpl')}}{{ui.listFormat([1,2,3])}}XX",
+        "expectedResult": "--\"1\", \"2\" и \"3\"XX"
       }
     ]
   }

@@ -633,19 +633,19 @@
     "cases": [
       {
         "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar']]).body -> toJSON}} b",
-        "expectedResult": "a {\"0\":\"foo\",\"1\":\"bar\"} b"
+        "expectedResult": "a [\"foo\",\"bar\"] b"
       },
       {
         "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar']]).body -> toJSON}} b",
-        "expectedResult": "a {\"0\":\"foo\",\"1\":\"bar\"} b"
+        "expectedResult": "a [\"foo\",\"bar\"] b"
       },
       {
         "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar bar']]).body -> toJSON}} b",
-        "expectedResult": "a {\"0\":\"foo\",\"1\":\"bar bar\"} b"
+        "expectedResult": "a [\"foo\",\"bar bar\"] b"
       },
       {
         "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar bar']]).body -> toJSON}} b",
-        "expectedResult": "a {\"0\":\"foo\",\"1\":\"bar bar\"} b"
+        "expectedResult": "a [\"foo\",\"bar bar\"] b"
       },
       {
         "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: [foo: 'bar', bar: 'x y z']]).body -> toJSON}} b",

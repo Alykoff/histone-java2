@@ -16,7 +16,6 @@
 
 package ru.histone.v2.evaluator.function.array;
 
-import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
@@ -49,7 +48,7 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
     };
     private static final int MACRO_INDEX = 1;
 
-    public static CompletableFuture<Map<String, List<EvalNode>>> groupBy(
+    private static CompletableFuture<Map<String, List<EvalNode>>> groupBy(
             Context context,
             MacroEvalNode macro,
             List<Map.Entry<String, EvalNode>> nodes,
@@ -97,39 +96,39 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
 
         final EvalNode rawMacroNode = args.get(MACRO_INDEX);
         if (rawMacroNode.getType() != HistoneType.T_MACRO) {
-            return RttiUtils.callToBooleanResult(context, rawMacroNode)
-                    .thenApply(predicate ->
-                            predicate ? values.get(0).getValue() : EvalUtils.createEvalNode(ObjectUtils.NULL)
-                    );
+            String stringKey = RttiUtils.callToStringResult(context, rawMacroNode).join();
+            Map<String, EvalNode> resMap = new HashMap<>();
+            resMap.put(stringKey, arrayNode);
+            return EvalUtils.getValue(resMap);
         }
         final CompletableFuture<MacroEvalNode> macroFuture =
                 ArrayReduce.getMacroWithBindFuture(context, args, START_BIND_INDEX);
-        return macroFuture.thenCompose(macro ->
-            groupBy(context, macro, values, new LinkedHashMap<>())
-        ).thenApply(acc -> {
-            final Map<String, EvalNode> res = new LinkedHashMap<>();
-            final List<Tuple<String, EvalNode>> entrySimpleKeys = new ArrayList<>();
-            final Set<Tuple<Integer, EvalNode>> entryWithPositiveNumKeys = new TreeSet<>(HISTONE_ARRAY_GROUP_COMPARATOR);
+        return macroFuture
+                .thenCompose(macro -> groupBy(context, macro, values, new LinkedHashMap<>()))
+                .thenApply(acc -> {
+                    final Map<String, EvalNode> res = new LinkedHashMap<>();
+                    final List<Tuple<String, EvalNode>> entrySimpleKeys = new ArrayList<>();
+                    final Set<Tuple<Integer, EvalNode>> entryWithPositiveNumKeys = new TreeSet<>(HISTONE_ARRAY_GROUP_COMPARATOR);
 
-            for (Map.Entry<String, List<EvalNode>> groups : acc.entrySet()) {
-                final String key = groups.getKey();
-                final EvalNode groupsObjs = new MapEvalNode(groups.getValue());
-                final Optional<Integer> intKey = ParserUtils.tryInt(key);
-                if (intKey.isPresent() && intKey.get() > -1) {
-                    entryWithPositiveNumKeys.add(new Tuple<>(intKey.get(), groupsObjs));
-                } else {
-                    entrySimpleKeys.add(new Tuple<>(key, groupsObjs));
-                }
-            }
+                    for (Map.Entry<String, List<EvalNode>> groups : acc.entrySet()) {
+                        final String key = groups.getKey();
+                        final EvalNode groupsObjs = new MapEvalNode(groups.getValue());
+                        final Optional<Integer> intKey = ParserUtils.tryInt(key);
+                        if (intKey.isPresent() && intKey.get() > -1) {
+                            entryWithPositiveNumKeys.add(new Tuple<>(intKey.get(), groupsObjs));
+                        } else {
+                            entrySimpleKeys.add(new Tuple<>(key, groupsObjs));
+                        }
+                    }
 
-            for (Tuple<Integer, EvalNode> key : entryWithPositiveNumKeys) {
-                res.put(key.getLeft().toString(), key.getRight());
-            }
-            for (Tuple<String, EvalNode> key : entrySimpleKeys) {
-                res.put(key.getLeft(), key.getRight());
-            }
+                    for (Tuple<Integer, EvalNode> key : entryWithPositiveNumKeys) {
+                        res.put(key.getLeft().toString(), key.getRight());
+                    }
+                    for (Tuple<String, EvalNode> key : entrySimpleKeys) {
+                        res.put(key.getLeft(), key.getRight());
+                    }
 
-            return new MapEvalNode(res);
-        });
+                    return new MapEvalNode(res);
+                });
     }
 }

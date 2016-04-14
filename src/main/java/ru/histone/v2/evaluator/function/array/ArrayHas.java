@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.evaluator.function.any;
+package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.RttiUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -30,18 +30,24 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Alexey Nevinsky
  */
-public class ToMacro extends AbstractFunction {
+public class ArrayHas extends AbstractFunction {
     @Override
     public String getName() {
-        return "toMacro";
+        return "has";
     }
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        EvalNode res = args.get(0);
-        if (res.getType() == HistoneType.T_MACRO) {
-            return CompletableFuture.completedFuture(res);
+        if (args.size() < 2) {
+            return EvalUtils.getValue(false);
         }
-        return EvalUtils.getValue(new HistoneMacro(res));
+
+
+        MapEvalNode map = (MapEvalNode) args.get(0);
+        EvalNode valueNode = args.get(1);
+
+        String key = (String) RttiUtils.callToString(context, valueNode).join().getValue();
+
+        return EvalUtils.getValue(map.getProperty(key) != null);
     }
 }

@@ -1,0 +1,35 @@
+[
+  {
+    "name": "array -> has",
+    "cases": [
+      {
+        "input": "{{[a:5, b:6] -> has}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{4 -> has(5)}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{[a:5, b:6] -> has()}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[a:5, b:6] -> has(d)}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[a:5, b:6] -> has('b')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[a:5, b:6] -> has(5)}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{macro a}}10{{/macro}}{{a -> has(5)}}",
+        "expectedResult": ""
+      }
+    ]
+  }
+]

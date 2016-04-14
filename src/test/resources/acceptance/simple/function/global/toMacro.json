@@ -37,6 +37,10 @@
       {
         "input": "{{var foo = [1,2,3]->toMacro->bind('A', 'B', 'C')->bind('X')}}{{foo(30, 40)}}",
         "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{macro a(f)}}{{f}}{{/macro}}{{a(20)}}{{a->toMacro->call(10)}}{{var b = a -> toMacro}}{{b(50)}}",
+        "expectedResult": "201050"
       }
     ]
   }

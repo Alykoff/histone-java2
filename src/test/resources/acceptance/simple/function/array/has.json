@@ -29,6 +29,14 @@
       {
         "input": "{{macro a}}10{{/macro}}{{a -> has(5)}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{[1, 2, 3, 4, 5]->has('1.0')}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[1, 2, 3, 4, 5]->has('1')}}",
+        "expectedResult": "true"
       }
     ]
   }

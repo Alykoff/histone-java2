@@ -48,6 +48,6 @@ public class ArrayHas extends AbstractFunction {
 
         String key = (String) RttiUtils.callToString(context, valueNode).join().getValue();
 
-        return EvalUtils.getValue(map.getProperty(key) != null);
+        return EvalUtils.getValue(map.getValue().containsKey(key));
     }
 }

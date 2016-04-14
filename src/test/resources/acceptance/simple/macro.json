@@ -87,6 +87,10 @@
         "expectedResult": "<input type=\"password\" />"
       },
       {
+        "input": "{{var inputWidget = 'stringToMacro'->toMacro->extend([EMAIL: 'email',TEXT: 'text',PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
+        "expectedResult": "stringToMacro"
+      },
+      {
         "input": "{{macro inputWidget(type)}}<input type=\"{{type}}\" />{{/macro}}{{var inputWidget = inputWidget->extend([EMAIL: 'email',TEXT: 'text'],[PASSWORD: 'password'])}}{{inputWidget(inputWidget.PASSWORD)}}",
         "expectedResult": "<input type=\"\" />"
       },
@@ -339,6 +343,10 @@
       {
         "input": "--{{x.ddd}}",
         "expectedResult": "--"
+      },
+      {
+        "input": "--{{var a = 'stringToMacro' -> toMacro}}{{a()}}",
+        "expectedResult": "--stringToMacro"
       }
     ]
   }

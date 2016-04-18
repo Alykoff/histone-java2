@@ -630,6 +630,14 @@
       {
         "input": "{{[[title: 'A', hidden: false],[title: 'B', hidden: true],[title: 'C', hidden: false]]->filter(tab => !tab.hidden)->toJSON}}",
         "expectedResult": "[{\"title\":\"A\",\"hidden\":false},{\"title\":\"C\",\"hidden\":false}]"
+      },
+      {
+        "input": "{{aaa -> toArray -> toJSON}}",
+        "expectedResult": "[null]"
+      },
+      {
+        "input": "{{[1] -> toArray -> toJSON}}",
+        "expectedResult": "[1]"
       }
     ]
   }

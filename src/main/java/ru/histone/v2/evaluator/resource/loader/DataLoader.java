@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class DataLoader implements Loader {
     @Override

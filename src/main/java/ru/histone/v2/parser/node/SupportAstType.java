@@ -17,7 +17,7 @@
 package ru.histone.v2.parser.node;
 
 /**
- * Created by alexey.nevinsky on 24.12.2015.
+ * @author Alexey Nevinsky on 24.12.2015.
  */
 public enum SupportAstType {
     TEXT_CACHE(0),

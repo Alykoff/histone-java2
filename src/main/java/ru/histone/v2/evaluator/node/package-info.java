@@ -16,6 +16,6 @@
 /**
  * Classes in this package uses to represents evaluated nodes from AST-tree
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 package ru.histone.v2.evaluator.node;

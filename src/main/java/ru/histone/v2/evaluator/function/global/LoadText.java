@@ -18,10 +18,12 @@ package ru.histone.v2.evaluator.function.global;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.IOUtils;
 import ru.histone.v2.utils.RttiUtils;
@@ -34,11 +36,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class LoadText extends AbstractFunction {
-    public LoadText(Executor executor, HistoneResourceLoader loader) {
-        super(executor, loader);
+    public LoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
+        super(executor, loader, evaluator, parser);
     }
 
     @Override

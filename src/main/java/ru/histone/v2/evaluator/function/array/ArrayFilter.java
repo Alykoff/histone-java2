@@ -19,7 +19,7 @@ package ru.histone.v2.evaluator.function.array;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.function.macro.MacroCall;
+import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * @author gali.alykoff on 09/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayFilter extends AbstractFunction implements Serializable {
     public static final String NAME = "filter";
@@ -57,11 +57,12 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
                         final MacroEvalNode macro = (MacroEvalNode) valueNode;
 
                         final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
+                        arguments.add(new BooleanEvalNode(false));
                         if (param != null) {
                             arguments.add(param);
                         }
                         arguments.add(arg);
-                        final CompletableFuture<EvalNode> predicateFuture = MacroCall.staticExecute(context, arguments, false);
+                        final CompletableFuture<EvalNode> predicateFuture = context.macroCall(arguments);
                         return predicateFuture.thenApply(predicateNode -> {
                             final Boolean predicate = EvalUtils.nodeAsBoolean(predicateNode);
                             return Tuple.create(arg, predicate);

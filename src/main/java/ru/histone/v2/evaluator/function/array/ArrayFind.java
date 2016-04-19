@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator.function.array;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -33,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * @author gali.alykoff on 11/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayFind extends AbstractFunction implements Serializable {
     public static final String NAME = "find";
@@ -53,7 +54,7 @@ public class ArrayFind extends AbstractFunction implements Serializable {
             return EvalUtils.getValue(null);
         }
         final Map.Entry<String, EvalNode> first = nodes.get(0);
-        return RttiUtils.callMacro(context, macro, first.getValue(), EvalUtils.createEvalNode(first.getKey()), values)
+        return RttiUtils.callMacro(context, macro, new BooleanEvalNode(false), first.getValue(), EvalUtils.createEvalNode(first.getKey()), values)
                 .thenCompose(resultMacro -> RttiUtils.callToBooleanResult(context, resultMacro))
                 .thenCompose(predicate -> {
                             if (predicate) {

@@ -32,7 +32,7 @@ import static ru.histone.v2.utils.DateUtils.*;
 import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class GetDayOfWeek extends AbstractFunction {
     @Override

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 19/02/16.
+ * @author Gali Alykoff
  */
 public class StringStrip extends AbstractFunction {
     public static final String NAME = "strip";

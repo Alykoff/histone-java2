@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Expression AST Node
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class ExpAstNode extends AstNode implements Serializable {
     public static final int LEAF_NODE_TYPE_ID = Integer.MIN_VALUE;

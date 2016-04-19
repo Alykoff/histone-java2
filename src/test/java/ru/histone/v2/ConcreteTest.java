@@ -17,11 +17,13 @@
 package ru.histone.v2;
 
 import org.junit.Test;
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
 import ru.histone.v2.exceptions.HistoneException;
+import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.support.HistoneTestCase;
 import ru.histone.v2.support.TestRunner;
@@ -33,18 +35,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class ConcreteTest {
     private static final ExecutorService executor = Executors.newFixedThreadPool(20);
     private static final RunTimeTypeInfo rtti;
+    private static final Evaluator evaluator;
+    private static final Parser parser;
 
     static {
+        parser = new Parser();
+        evaluator = new Evaluator();
         SchemaResourceLoader loader = new SchemaResourceLoader(executor);
         loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
         loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
         loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
-        rtti = new RunTimeTypeInfo(executor, loader);
+        rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
     }
 
     @Test
@@ -54,7 +60,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("--");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("--", rtti, testCase);
+        TestRunner.doTest("{{macro myMacro(a, b, c, d)}}a{{a > b}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}", rtti, testCase, evaluator, parser);
     }
 
     private Map<String, Object> getMap() {

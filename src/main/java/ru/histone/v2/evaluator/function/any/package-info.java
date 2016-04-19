@@ -15,6 +15,8 @@
  */
 
 /**
- * @author alexey.nevinsky
+ * Package contains functions, which can call from any variable type
+ *
+ * @author Alexey Nevinsky
  */
 package ru.histone.v2.evaluator.function.any;

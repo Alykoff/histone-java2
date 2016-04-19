@@ -20,6 +20,7 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -36,7 +37,7 @@ import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 11/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayReduce extends AbstractFunction implements Serializable {
     public static final String NAME = "reduce";
@@ -71,7 +72,7 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
             }
             final EvalNode curr = vals.poll();
             final CompletableFuture<Tuple<EvalNode, Queue<EvalNode>>> newAccTuple = RttiUtils
-                    .callMacro(context, macro, acc, curr)
+                    .callMacro(context, macro, new BooleanEvalNode(false), acc, curr)
                     .thenApply(newAcc -> new Tuple<>(newAcc, vals));
 
             return reduce(context, macro, newAccTuple);

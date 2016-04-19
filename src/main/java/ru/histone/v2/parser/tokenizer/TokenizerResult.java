@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by alexey.nevinsky on 12.01.2016.
+ * @author Alexey Nevinsky on 12.01.2016.
  */
 public class TokenizerResult {
     private List<Token> tokens;

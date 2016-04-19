@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * @author gali.alykoff on 09/02/16.
+ * @author Gali Alykoff
  */
 public class Tuple<L, R> implements Serializable {
     private final L left;

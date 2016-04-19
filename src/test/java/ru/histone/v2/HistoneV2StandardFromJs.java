@@ -36,7 +36,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
- * Created by gali.alykoff on 14/01/16.
+ * @author Gali Alykoff
  */
 public class HistoneV2StandardFromJs {
     public static final String RESOURCE_PATH_TO_RUNNER = "resources/v2/tools/histone2_js_runner.js";
@@ -52,11 +52,12 @@ public class HistoneV2StandardFromJs {
 
         try {
             Executor executor = Executors.newFixedThreadPool(20);
-            RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(executor));
+            final Evaluator evaluator = new Evaluator();
+            final Parser parser = new Parser();
+            RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(executor), evaluator, parser);
 
             final Context context = Context.createRoot("", rtti);
-            final Evaluator evaluator = new Evaluator();
-            final ExpAstNode root = new Parser().process(tpl, baseURI);
+            final ExpAstNode root = parser.process(tpl, baseURI);
             System.out.println(ParserUtils.astToString(root));
             final String result = evaluator.process(root, context);
             System.out.println(result);

@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.resource;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public enum ContentType {
     TEXT("TEXT"),

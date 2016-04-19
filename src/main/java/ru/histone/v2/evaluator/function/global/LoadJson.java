@@ -19,9 +19,11 @@ package ru.histone.v2.evaluator.function.global;
 import org.apache.commons.lang.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.parser.Parser;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,12 +31,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class LoadJson extends LoadText {
 
-    public LoadJson(Executor executor, HistoneResourceLoader loader) {
-        super(executor, loader);
+    public LoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
+        super(executor, loader, evaluator, parser);
     }
 
     @Override

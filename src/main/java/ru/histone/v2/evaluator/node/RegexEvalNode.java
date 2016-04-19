@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 /**
  *
- * Created by gali.alykoff on 25/01/16.
+ * @author Gali Alykoff
  */
 public class RegexEvalNode extends EvalNode<HistoneRegex> implements Serializable {
     public RegexEvalNode(HistoneRegex value) {

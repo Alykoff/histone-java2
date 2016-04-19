@@ -19,11 +19,13 @@ package ru.histone.v2.evaluator.function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.util.Collections;
@@ -39,19 +41,21 @@ public abstract class AbstractFunction implements Function {
     protected final Executor executor;
     protected final HistoneResourceLoader resourceLoader;
 
-//    protected final Evaluator evaluator;
-//    protected final Parser parser;
+    protected final Evaluator evaluator;
+    protected final Parser parser;
 
     protected AbstractFunction() {
         executor = null;
         resourceLoader = null;
-//        evaluator = null;
-//        parser = null;
+        evaluator = null;
+        parser = null;
     }
 
-    protected AbstractFunction(Executor executor, HistoneResourceLoader resourceLoader) {
+    protected AbstractFunction(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
         this.executor = executor;
         this.resourceLoader = resourceLoader;
+        this.evaluator = evaluator;
+        this.parser = parser;
     }
 
     /**

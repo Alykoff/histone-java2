@@ -32,7 +32,8 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Evaluation context of histone
  * <p>
- * Created by inv3r on 13/01/16.
+ *
+ * @author Alexey Nevinsky
  */
 public class Context implements Serializable {
     private String baseUri;
@@ -155,6 +156,10 @@ public class Context implements Serializable {
 
     public CompletableFuture<EvalNode> call(EvalNode node, String name, List<EvalNode> args) {
         return rttiInfo.callFunction(this, node, name, args);
+    }
+
+    public CompletableFuture<EvalNode> macroCall(List<EvalNode> args) {
+        return rttiInfo.callFunction(this, HistoneType.T_MACRO, "call", args);
     }
 
     public boolean findFunction(EvalNode node, String name) {

@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class SchemaResourceLoader implements HistoneResourceLoader {
     public static final String HTTP_SCHEME = "http";

@@ -25,7 +25,7 @@ import java.util.*;
 
 /**
  *
- * Created by gali.alykoff on 20/01/16.
+ * @author Gali Alykoff
  */
 public class Marker {
     public void markReferences(AstNode rawNode) throws HistoneException {

@@ -18,7 +18,7 @@ package ru.histone.v2.exceptions;
 
 /**
  *
- * Created by gali.alykoff on 21/01/16.
+ * @author Gali Alykoff
  */
 public class SyntaxErrorException extends ParserException {
     public SyntaxErrorException(String message, String baseURI, int line) {

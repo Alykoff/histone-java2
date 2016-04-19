@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  * Method returns current date
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class GetDate extends AbstractFunction {
     private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([+-])(\\d+)([dmyDMY])");

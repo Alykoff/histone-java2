@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author inv3r
+ * @author Alexey Nevinsky
  */
 public class ResolveURI extends AbstractFunction {
     @Override

@@ -17,7 +17,7 @@
 package ru.histone.v2.parser.tokenizer;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public enum Tokens {
     T_PROP(1),

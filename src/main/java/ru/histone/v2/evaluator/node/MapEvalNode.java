@@ -18,7 +18,6 @@ package ru.histone.v2.evaluator.node;
 
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.ParserUtils;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -29,7 +28,7 @@ import java.util.Optional;
 import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasProperties, Serializable {
 

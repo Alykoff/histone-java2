@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 19/02/16.
+ * @author Gali Alykoff
  */
 public class StringSlice extends AbstractFunction {
     public static final String NAME = "slice";

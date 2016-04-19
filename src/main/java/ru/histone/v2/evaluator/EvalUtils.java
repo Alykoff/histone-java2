@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class EvalUtils {
     public static boolean nodeAsBoolean(EvalNode node) {

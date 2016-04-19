@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  *
- * Created by gali.alykoff on 27/01/16.
+ * @author Gali Alykoff
  */
 public class AsyncUtils {
     public static <T> CompletableFuture<Optional<T>> sequenceOptional(Optional<CompletableFuture<T>> optionalFutures) {

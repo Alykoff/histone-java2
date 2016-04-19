@@ -22,7 +22,7 @@ import static ru.histone.v2.rtti.HistoneType.T_NUMBER;
 import static ru.histone.v2.rtti.HistoneType.T_UNDEFINED;
 
 /**
- * Created by inv3r on 19/01/16.
+ * @author Alexey Nevinsky
  */
 public class DoubleEvalNode extends EvalNode<Double> {
     public DoubleEvalNode(Double val) {

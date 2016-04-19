@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public abstract class EvalNode<T> implements Serializable {
     protected T value;

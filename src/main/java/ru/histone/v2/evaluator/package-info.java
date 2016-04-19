@@ -16,6 +16,6 @@
 /**
  * Classes from this package uses to evaluating AST-tree and getting result in string representation
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 package ru.histone.v2.evaluator;

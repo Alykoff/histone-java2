@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * @author gali.alykoff on 15/02/16.
+ * @author Gali Alykoff
  */
 public class ArraySlice extends AbstractFunction implements Serializable {
     public static final String NAME = "slice";

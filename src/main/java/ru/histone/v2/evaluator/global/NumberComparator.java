@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 /**
  *
- * Created by gali.alykoff on 22/01/16.
+ * @author Gali Alykoff
  */
 public class NumberComparator implements Comparator<Number>, Serializable {
     private static boolean isSpecial(final Number x) {

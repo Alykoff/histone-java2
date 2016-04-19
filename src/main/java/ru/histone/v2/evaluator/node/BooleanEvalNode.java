@@ -19,7 +19,7 @@ package ru.histone.v2.evaluator.node;
 import ru.histone.v2.rtti.HistoneType;
 
 /**
- * Created by inv3r on 14/01/16.
+ * @author Alexey Nevinsky
  */
 public class BooleanEvalNode extends EvalNode<Boolean> {
 

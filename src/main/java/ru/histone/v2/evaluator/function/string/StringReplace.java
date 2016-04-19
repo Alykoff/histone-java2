@@ -20,7 +20,7 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.function.macro.MacroCall;
+import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author gali.alykoff on 19/02/16.
+ * @author Gali Alykoff
  */
 public class StringReplace extends AbstractFunction {
     public static final String NAME = "replace";
@@ -85,8 +85,8 @@ public class StringReplace extends AbstractFunction {
                     }
                     String found = matcher.group();
                     Context ctx = context.cloneEmpty();
-                    List<EvalNode> macroArgs = Arrays.asList(replaceNode, EvalUtils.createEvalNode(found));
-                    EvalNode val = MacroCall.staticExecute(ctx, macroArgs).join();
+                    List<EvalNode> macroArgs = Arrays.asList(replaceNode, new BooleanEvalNode(true), EvalUtils.createEvalNode(found));
+                    EvalNode val = context.macroCall(macroArgs).join();
                     String macroResult = (String) RttiUtils.callToString(context, val).join().getValue();
                     sb.append(macroResult);
                     lastIndex = matcher.start() + found.length();

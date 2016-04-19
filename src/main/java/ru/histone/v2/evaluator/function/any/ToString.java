@@ -36,7 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class ToString extends AbstractFunction {
     public static final String NAME = "toString";

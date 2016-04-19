@@ -38,8 +38,8 @@ import static ru.histone.v2.parser.tokenizer.Tokens.*;
  * only one instance.
  * Parser using {@link Tokenizer} for getting tokens from input string.
  *
- * @author alexey.nevinsky
- * @author gali.alykoff
+ * @author Alexey Nevinsky
+ * @author Gali Alykoff
  */
 public class Parser {
     public static final String IDENTIFIER = "IDENTIFIER";

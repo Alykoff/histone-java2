@@ -19,10 +19,7 @@ package ru.histone.v2.evaluator.function.array;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MacroEvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
-import ru.histone.v2.evaluator.node.StringEvalNode;
+import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
@@ -35,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * @author gali.alykoff on 11/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayGroup extends AbstractFunction implements Serializable {
     public static final String NAME = "group";
@@ -60,7 +57,7 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
         final Map.Entry<String, EvalNode> first = nodes.get(0);
         final EvalNode firstValue = first.getValue();
         final EvalNode firstKey = new StringEvalNode(first.getKey());
-        return RttiUtils.callMacro(context, macro, firstValue, firstKey).thenCompose(macroResult ->
+        return RttiUtils.callMacro(context, macro, new BooleanEvalNode(false), firstValue, firstKey).thenCompose(macroResult ->
                 RttiUtils.callToStringResult(context, macroResult).thenCompose(group -> {
                     final List<EvalNode> listOfGroup = accNumber.get(group);
                     if (listOfGroup == null) {

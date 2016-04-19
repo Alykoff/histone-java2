@@ -15,16 +15,20 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.parser.Parser;
 
 import java.util.concurrent.Executor;
 
 /**
- * @author alexey.nevinsky
+ * Async wrapper for loadText function
+ *
+ * @author Alexey Nevinsky
  */
 public class AsyncLoadText extends LoadText {
-    public AsyncLoadText(Executor executor, HistoneResourceLoader loader) {
-        super(executor, loader);
+    public AsyncLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
+        super(executor, loader, evaluator, parser);
     }
 
     @Override

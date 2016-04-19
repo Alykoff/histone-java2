@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public abstract class PropertiesEvalNode<T> extends EvalNode<T> implements HasProperties {
     protected Map<String, EvalNode> extArgs = new LinkedHashMap<>();

@@ -20,7 +20,7 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.rtti.HistoneType;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
     public static final String HISTONE_VIEW = "null";

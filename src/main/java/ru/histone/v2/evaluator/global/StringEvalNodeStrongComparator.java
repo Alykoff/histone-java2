@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * @author gali.alykoff on 11/02/16.
+ * @author Gali Alykoff
  */
 public class StringEvalNodeStrongComparator implements Comparator<StringEvalNode>, Serializable {
     @Override

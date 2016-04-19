@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 package ru.histone.v2.parser.node;

@@ -42,7 +42,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class ToJson extends AbstractFunction {
     public static final String NAME = "toJSON";

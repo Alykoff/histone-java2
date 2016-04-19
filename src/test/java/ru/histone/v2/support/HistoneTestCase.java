@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HistoneTestCase {

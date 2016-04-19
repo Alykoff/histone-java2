@@ -19,7 +19,7 @@ package ru.histone.v2.expression;
 import java.util.List;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public interface Expression {
     List<Integer> getIds();

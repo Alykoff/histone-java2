@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  *
- * Created by gali.alykoff on 20/01/16.
+ * @author Gali Alykoff
  */
 public class StringAstNode extends ValueNode<String> implements Serializable {
     public StringAstNode(String value) {

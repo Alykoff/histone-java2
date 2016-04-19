@@ -638,6 +638,10 @@
       {
         "input": "{{[1] -> toArray -> toJSON}}",
         "expectedResult": "[1]"
+      },
+      {
+        "input": "{{123 -> toArray -> toJSON}}",
+        "expectedResult": "[123]"
       }
     ]
   }

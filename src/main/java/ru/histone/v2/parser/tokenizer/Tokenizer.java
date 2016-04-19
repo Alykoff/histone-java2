@@ -34,7 +34,7 @@ import static ru.histone.v2.parser.tokenizer.Tokens.T_ERROR;
  * Histone template tokenizer<br/>
  * Tokenizer is based on regular expressions and returns tokens one by one. All tokens are configured in {@link ru.histone.v2.parser.tokenizer.Tokenizer}
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class Tokenizer {
     private final List<Expression> expressions;

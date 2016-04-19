@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class HistoneStringResource implements Resource<String> {
     private final String baseHref;

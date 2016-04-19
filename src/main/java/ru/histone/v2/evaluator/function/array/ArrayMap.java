@@ -20,7 +20,7 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.function.macro.MacroCall;
+import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 08/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayMap extends AbstractFunction implements Serializable {
     public static final String NAME = "map";
@@ -67,13 +67,14 @@ public class ArrayMap extends AbstractFunction implements Serializable {
 
             MacroEvalNode macro = (MacroEvalNode) node;
             final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
+            arguments.add(new BooleanEvalNode(false));
             if (param != null) {
                 arguments.add(param);
             }
             arguments.add(entry.getValue());
             arguments.add(EvalUtils.createEvalNode(entry.getKey()));
             arguments.add(mapEvalNode);
-            mapResultRaw.add(MacroCall.staticExecute(context, arguments, false));
+            mapResultRaw.add(context.macroCall(arguments));
         }
         return AsyncUtils.sequence(mapResultRaw).thenApply(nodes -> {
             Object[] keys = mapEvalNode.getValue().keySet().toArray();

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class ToNumber extends AbstractFunction {
 

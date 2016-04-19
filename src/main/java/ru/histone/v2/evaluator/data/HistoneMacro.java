@@ -17,7 +17,6 @@
 package ru.histone.v2.evaluator.data;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.parser.node.AstNode;
 
@@ -26,7 +25,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by gali.alykoff on 25/01/16.
+ * @author Gali Alykoff
  */
 public class HistoneMacro implements Serializable, Cloneable {
     private AstNode body;
@@ -35,25 +34,23 @@ public class HistoneMacro implements Serializable, Cloneable {
     private List<String> args = new ArrayList<>();
     private Map<String, CompletableFuture<EvalNode>> defaultValues = new LinkedHashMap<>();
     private List<EvalNode> bindArgs = new ArrayList<>();
-    private Evaluator evaluator;
+
 
     public HistoneMacro(EvalNode result) {
         this.result = result;
     }
 
-    public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator, Map<String, CompletableFuture<EvalNode>> defaultValues) {
+    public HistoneMacro(List<String> args, AstNode body, Context context, Map<String, CompletableFuture<EvalNode>> defaultValues) {
         this.args.addAll(args);
         this.body = body;
         this.context = context;
-        this.evaluator = evaluator;
         this.defaultValues = defaultValues;
     }
 
-    public HistoneMacro(List<String> args, AstNode body, Context context, Evaluator evaluator, List<EvalNode> bindArgs, Map<String, CompletableFuture<EvalNode>> defaultValues) {
+    public HistoneMacro(List<String> args, AstNode body, Context context, List<EvalNode> bindArgs, Map<String, CompletableFuture<EvalNode>> defaultValues) {
         this.args.addAll(args);
         this.body = body;
         this.context = context;
-        this.evaluator = evaluator;
         this.bindArgs = bindArgs;
         this.defaultValues = defaultValues;
     }
@@ -82,7 +79,7 @@ public class HistoneMacro implements Serializable, Cloneable {
             return new HistoneMacro(result);
         }
 
-        return new HistoneMacro(copyArgs, this.body, this.context.clone(), this.evaluator, copyBindArgs, copyValues);
+        return new HistoneMacro(copyArgs, this.body, this.context.clone(), copyBindArgs, copyValues);
     }
 
     @Override
@@ -94,13 +91,12 @@ public class HistoneMacro implements Serializable, Cloneable {
                 Objects.equals(context, that.context) &&
                 Objects.equals(args, that.args) &&
                 Objects.equals(bindArgs, that.bindArgs) &&
-                Objects.equals(evaluator, that.evaluator) &&
                 Objects.equals(defaultValues, that.defaultValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(body, context, args, bindArgs, evaluator, defaultValues);
+        return Objects.hash(body, context, args, bindArgs, defaultValues);
     }
 
     @Override
@@ -142,14 +138,6 @@ public class HistoneMacro implements Serializable, Cloneable {
 
     public void setArgs(List<String> args) {
         this.args = args;
-    }
-
-    public Evaluator getEvaluator() {
-        return evaluator;
-    }
-
-    public void setEvaluator(Evaluator evaluator) {
-        this.evaluator = evaluator;
     }
 
     public List<EvalNode> getBindArgs() {

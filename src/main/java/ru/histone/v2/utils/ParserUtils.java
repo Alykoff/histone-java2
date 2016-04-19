@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by alexey.nevinsky on 12.01.2016.
+ * @author Alexey Nevinsky on 12.01.2016.
  */
 public class ParserUtils {
     public static String astToString(AstNode node) {

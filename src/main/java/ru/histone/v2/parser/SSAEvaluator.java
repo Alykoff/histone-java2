@@ -20,7 +20,7 @@ import ru.histone.v2.parser.node.*;
 import java.util.*;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class SSAEvaluator {
     private Deque<Map<String, Var>> scopes = new ArrayDeque<>();

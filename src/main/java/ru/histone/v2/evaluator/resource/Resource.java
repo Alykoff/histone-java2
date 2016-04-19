@@ -20,6 +20,8 @@ import java.io.IOException;
 
 /**
  * All resources loaded via resource loaders should be accessible via this interface
+ *
+ * @author Alexey Nevinsky
  */
 public interface Resource<T> extends Closeable {
     /**

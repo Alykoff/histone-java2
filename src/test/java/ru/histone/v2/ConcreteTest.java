@@ -60,7 +60,7 @@ public class ConcreteTest {
         testCase.setExpectedResult("--");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{macro myMacro(a, b, c, d)}}a{{a > b}}b{{/macro}}{{myMacro->call([1, 2, 3, 4])->toJSON}}", rtti, testCase, evaluator, parser);
+        TestRunner.doTest("{{var x}}{{null}}{{/var}}{{x->isString}}", rtti, testCase, evaluator, parser);
     }
 
     private Map<String, Object> getMap() {

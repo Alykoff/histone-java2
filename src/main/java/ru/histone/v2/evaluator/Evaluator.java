@@ -45,8 +45,7 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
-import static ru.histone.v2.parser.node.AstType.AST_PROP;
-import static ru.histone.v2.parser.node.AstType.AST_REF;
+import static ru.histone.v2.parser.node.AstType.*;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
@@ -735,11 +734,11 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> valueNameFuture = evaluateNode(node.getNode(1), context);
         CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context)
-                .thenApply(value -> {
-                    if (value.isReturn()) {
-                        return value.clearReturned();
+                .thenCompose(value -> {
+                    if (node.getNode(0).getType() == AST_NODES) {
+                        return RttiUtils.callToString(context, value.clearReturned());
                     }
-                    return value;
+                    return CompletableFuture.completedFuture(value.clearReturned());
                 });
 
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueNameFuture);

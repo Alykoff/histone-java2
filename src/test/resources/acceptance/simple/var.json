@@ -195,6 +195,30 @@
       {
         "input": "{{var x}}{{[foo:\"bar\"]}}{{/var}}{{x}}",
         "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x}}{{var f = 10}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{@getDate}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{macro b}}{{/macro}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{/reg/}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{10}}{{/var}}{{x->toJSON}}",
+        "expectedResult": "\"10\""
+      },
+      {
+        "input": "{{var x}}{{null}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
       }
     ]
   }

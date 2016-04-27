@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff
+ * @author Gali Alykoff
  */
 public interface Irtti {
     Optional<Function> getFunc(HistoneType type, String funcName);

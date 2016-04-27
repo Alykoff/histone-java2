@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 /**
- * @author gali.alykoff on 19/02/16.
+ * @author Gali Alykoff
  */
 public class StringSplit extends AbstractFunction {
     public static final String NAME = "split";

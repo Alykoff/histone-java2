@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.regex.Pattern;
 
 /**
- * Created by gali.alykoff on 25/01/16.
+ * @author Gali Alykoff
  */
 public class HistoneRegex implements Serializable {
     private final boolean isGlobal;

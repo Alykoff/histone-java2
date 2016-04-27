@@ -14,34 +14,36 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.evaluator.function.array;
+package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
-import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.utils.Tuple;
+import ru.histone.v2.rtti.HistoneType;
 
-import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Gali Alykoff
+ * @author Alexey Nevinsky
  */
-public class ArraySome extends AbstractFunction implements Serializable {
-    public static final String NAME = "some";
-
+public class ToArray extends AbstractFunction {
     @Override
     public String getName() {
-        return NAME;
+        return "toArray";
     }
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return ArrayFilter.calcByPredicate(context, args).thenApply(pairs ->
-                pairs.stream().anyMatch(Tuple::getRight)
-        ).thenApply(BooleanEvalNode::new);
+        EvalNode res = args.get(0);
+        if (res.getType() == HistoneType.T_ARRAY) {
+            return CompletableFuture.completedFuture(res);
+        }
+        MapEvalNode result = new MapEvalNode(Collections.singletonList(res));
+        return EvalUtils.getValue(result);
     }
 }

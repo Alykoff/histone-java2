@@ -18,7 +18,7 @@ package ru.histone.v2.evaluator.node;
 import ru.histone.v2.rtti.HistoneType;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class BreakContinueEvalNode extends EvalNode<String> {
 

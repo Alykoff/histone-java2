@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public interface Loader {
     CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params);

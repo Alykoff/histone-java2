@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by gali.alykoff on 26/01/16.
+ * @author Gali Alykoff
  */
 public class Test extends AbstractFunction implements Serializable {
     public static final String NAME = "test";

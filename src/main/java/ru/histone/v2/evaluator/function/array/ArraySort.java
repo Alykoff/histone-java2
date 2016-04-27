@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import static java.util.Map.Entry;
 
 /**
- * @author gali.alykoff on 11/02/16.
+ * @author Gali Alykoff
  */
 public class ArraySort extends AbstractFunction implements Serializable {
     public static final String NAME = "sort";
@@ -57,9 +57,9 @@ public class ArraySort extends AbstractFunction implements Serializable {
         List<CompletableFuture<Entry<String, EvalNode>>> right = nodes.subList(mid, size);
 
         return sort(left, macroNode, context).thenCompose(leftSort ->
-            sort(right, macroNode, context).thenCompose(rightSort ->
-                merge(leftSort, rightSort, macroNode, context)
-            )
+                sort(right, macroNode, context).thenCompose(rightSort ->
+                        merge(leftSort, rightSort, macroNode, context)
+                )
         );
     }
 
@@ -71,7 +71,7 @@ public class ArraySort extends AbstractFunction implements Serializable {
     ) {
         final LinkedList<Entry<String, EvalNode>> acc = new LinkedList<>();
         return mergeHelper(left, right, macroNode, context, acc)
-                .thenApply(x -> (List<Entry<String, EvalNode>>)x);
+                .thenApply(x -> (List<Entry<String, EvalNode>>) x);
     }
 
     public static CompletableFuture<LinkedList<Entry<String, EvalNode>>> mergeHelper(
@@ -94,14 +94,14 @@ public class ArraySort extends AbstractFunction implements Serializable {
         Entry<String, EvalNode> valueR = right.get(0);
 
         return RttiUtils.callMacro(
-            context,
-            macroNode,
-            valueL.getValue(),
-            valueR.getValue(),
-            new StringEvalNode(valueL.getKey()),
-            new StringEvalNode(valueR.getKey())
+                context,
+                macroNode, new BooleanEvalNode(false),
+                valueL.getValue(),
+                valueR.getValue(),
+                new StringEvalNode(valueL.getKey()),
+                new StringEvalNode(valueR.getKey())
         ).thenCompose(macroReturn ->
-            RttiUtils.callToBoolean(context, macroReturn)
+                RttiUtils.callToBoolean(context, macroReturn)
         ).thenCompose(booleanNodeResult -> {
 //            boolean isNotReturned = !booleanNodeResult.isReturn();
             boolean isRightLessThenLeft = ((BooleanEvalNode) booleanNodeResult).getValue();

@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class FileLoader implements Loader {
     private final static Logger LOG = LoggerFactory.getLogger(FileLoader.class);

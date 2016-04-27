@@ -16,10 +16,10 @@
 
 package ru.histone.v2.evaluator.function.array;
 
-import org.apache.commons.lang.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -29,34 +29,40 @@ import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * @author gali.alykoff on 11/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayFind extends AbstractFunction implements Serializable {
     public static final String NAME = "find";
     public static final int ARRAY_INDEX = 0;
-    public static final int START_BIND_INDEX = 2;
+    public static final int BOOLEAN_FLAG_INDEX = 2;
+    public static final int START_BIND_INDEX = 3;
     private static final int MACRO_INDEX = 1;
 
     public static CompletableFuture<EvalNode> find(
             Context context,
             MacroEvalNode macro,
-            List<EvalNode> nodes
+            MapEvalNode values,
+            List<Map.Entry<String, EvalNode>> nodes,
+            boolean keyAsResult
     ) {
         if (nodes.size() == 0) {
-            return EvalUtils.getValue(ObjectUtils.NULL);
+            return EvalUtils.getValue(null);
         }
-        final EvalNode first = nodes.get(0);
-        return RttiUtils.callMacro(context, macro, first).thenCompose(resultMacro ->
-                RttiUtils.callToBooleanResult(context, resultMacro)
-        ).thenCompose(predicate ->
-                predicate
-                        ? CompletableFuture.completedFuture(first)
-                        : find(context, macro, nodes.subList(1, nodes.size()))
-        );
+        final Map.Entry<String, EvalNode> first = nodes.get(0);
+        return RttiUtils.callMacro(context, macro, new BooleanEvalNode(false), first.getValue(), EvalUtils.createEvalNode(first.getKey()), values)
+                .thenCompose(resultMacro -> RttiUtils.callToBooleanResult(context, resultMacro))
+                .thenCompose(predicate -> {
+                            if (predicate) {
+                                return CompletableFuture.completedFuture(getResultForPredicate(first, keyAsResult));
+                            }
+                            return find(context, macro, values, nodes.subList(1, nodes.size()), keyAsResult);
+                        }
+                );
     }
 
     @Override
@@ -66,26 +72,46 @@ public class ArrayFind extends AbstractFunction implements Serializable {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        // [ARRAY, MACRO, MACRO_BINDINGS...]
+        // [ARRAY, MACRO, VALUE_OR_KEY_FLAG, MACRO_BINDINGS...]
         final MapEvalNode arrayNode = (MapEvalNode) args.get(ARRAY_INDEX);
-        final List<EvalNode> values = arrayNode
+        final List<Map.Entry<String, EvalNode>> values = arrayNode
                 .getValue()
-                .values()
+                .entrySet()
                 .stream()
                 .collect(Collectors.toList());
+
         if (args.size() <= MACRO_INDEX || values.size() == 0) {
-            return EvalUtils.getValue(ObjectUtils.NULL);
+            return EvalUtils.getValue(null);
         }
 
         final EvalNode rawMacroNode = args.get(MACRO_INDEX);
+
+        final boolean keyAsResult;
+        if (args.size() > 2) {
+            keyAsResult = RttiUtils.callToBooleanResult(context, args.get(BOOLEAN_FLAG_INDEX)).join();
+        } else {
+            keyAsResult = false;
+        }
+
         if (rawMacroNode.getType() != HistoneType.T_MACRO) {
             return RttiUtils.callToBooleanResult(context, rawMacroNode)
-                    .thenApply(predicate ->
-                            predicate ? values.get(0) : EvalUtils.createEvalNode(ObjectUtils.NULL)
+                    .thenApply(predicate -> {
+                                if (predicate) {
+                                    return getResultForPredicate(values.get(0), keyAsResult);
+                                }
+                                return EvalUtils.createEvalNode(null);
+                            }
                     );
         }
-        final CompletableFuture<MacroEvalNode> macroFuture =
-                ArrayReduce.getMacroWithBindFuture(context, args, START_BIND_INDEX);
-        return macroFuture.thenCompose(macro -> find(context, macro, values));
+        final CompletableFuture<MacroEvalNode> macroFuture = ArrayReduce.getMacroWithBindFuture(context, args, START_BIND_INDEX);
+        return macroFuture
+                .thenCompose(macro -> find(context, macro, arrayNode, values, keyAsResult));
+    }
+
+    private static EvalNode getResultForPredicate(Map.Entry<String, EvalNode> entry, boolean keyAsResult) {
+        if (keyAsResult) {
+            return EvalUtils.createEvalNode(entry.getKey());
+        }
+        return entry.getValue();
     }
 }

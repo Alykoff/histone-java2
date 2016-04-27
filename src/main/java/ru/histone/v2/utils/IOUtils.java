@@ -21,11 +21,10 @@ import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.exceptions.ResourceLoadException;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class IOUtils {
     public static String readStringFromResource(Resource resource, String path) throws ResourceLoadException {

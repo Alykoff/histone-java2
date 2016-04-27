@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public final class ExpressionList {
     public static final List<Expression> VALUES = Collections.unmodifiableList(Arrays.asList(

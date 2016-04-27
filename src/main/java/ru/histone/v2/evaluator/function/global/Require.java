@@ -35,11 +35,11 @@ import java.util.concurrent.Executor;
 /**
  * Function loads histone template from specified file and evaluating it.
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class Require extends AbstractFunction {
-    public Require(Executor executor, HistoneResourceLoader resourceLoader) {
-        super(executor, resourceLoader);
+    public Require(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
+        super(executor, resourceLoader, evaluator, parser);
     }
 
     @Override
@@ -65,10 +65,7 @@ public class Require extends AbstractFunction {
                 .thenCompose(res -> {
                     String template = IOUtils.readStringFromResource(res, url);
 
-                    //todo get parser and evaluator from context
-                    Parser p = new Parser();
-                    ExpAstNode root = p.process(template, res.getBaseHref());
-                    Evaluator evaluator = new Evaluator();
+                    ExpAstNode root = parser.process(template, res.getBaseHref());
 
                     Context macroCtx = createCtx(context, res.getBaseHref(), params);
 

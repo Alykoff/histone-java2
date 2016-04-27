@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 @Path("/")
 @Singleton

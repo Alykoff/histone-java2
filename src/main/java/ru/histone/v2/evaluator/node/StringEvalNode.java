@@ -21,7 +21,7 @@ import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class StringEvalNode extends EvalNode<String> implements HasProperties {
     public StringEvalNode(String value) {

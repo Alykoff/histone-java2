@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
  * If you want to implement your own custom resource loader, then implement this interface. If you want to extend default
  * resource loaer, then you should override DefaultResourceLoader class and make calls to super methods.
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public interface HistoneResourceLoader {
     /**

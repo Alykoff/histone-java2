@@ -512,15 +512,15 @@
       },
       {
         "input": "{{macro re(r, v)}}{{return v > r}}{{/macro}}{{[1,2,3,-4,22,5,6]->find(re, 19)->toJSON}}",
-        "expectedResult": "22"
+        "expectedResult": "\"3\""
       },
       {
         "input": "{{macro re(r, v)}}{{return v > r}}{{/macro}}{{[1,2,3,-4,22,5,6]->find(re, 2)->toJSON}}",
-        "expectedResult": "3"
+        "expectedResult": "\"3\""
       },
       {
         "input": "{{[1,22,3,-4,5,6]->find()}}",
-        "expectedResult": "null"
+        "expectedResult": ""
       },
       {
         "input": "{{[1,22,3,-4,5,6]->find(1)}}",
@@ -528,7 +528,7 @@
       },
       {
         "input": "{{[1,22,3,-4,5,6]->find(addada)}}",
-        "expectedResult": "null"
+        "expectedResult": ""
       }
     ]
   },
@@ -630,6 +630,18 @@
       {
         "input": "{{[[title: 'A', hidden: false],[title: 'B', hidden: true],[title: 'C', hidden: false]]->filter(tab => !tab.hidden)->toJSON}}",
         "expectedResult": "[{\"title\":\"A\",\"hidden\":false},{\"title\":\"C\",\"hidden\":false}]"
+      },
+      {
+        "input": "{{aaa -> toArray -> toJSON}}",
+        "expectedResult": "[null]"
+      },
+      {
+        "input": "{{[1] -> toArray -> toJSON}}",
+        "expectedResult": "[1]"
+      },
+      {
+        "input": "{{123 -> toArray -> toJSON}}",
+        "expectedResult": "[123]"
       }
     ]
   }

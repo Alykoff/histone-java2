@@ -17,13 +17,11 @@
 package ru.histone.v2.utils;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.any.ToBoolean;
 import ru.histone.v2.evaluator.function.any.ToJson;
 import ru.histone.v2.evaluator.function.any.ToNumber;
 import ru.histone.v2.evaluator.function.any.ToString;
 import ru.histone.v2.evaluator.function.macro.MacroBind;
-import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
@@ -33,11 +31,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 11/02/16.
+ * @author Gali Alykoff
  */
 public class RttiUtils implements Serializable {
     public static CompletableFuture<EvalNode> callToString(Context context, EvalNode node) {
@@ -72,20 +69,14 @@ public class RttiUtils implements Serializable {
         final List<EvalNode> macroArgs = new ArrayList<>();
         macroArgs.add(macroNode);
         macroArgs.addAll(argsNodes);
-        return context.call(macroNode, MacroCall.NAME, macroArgs);
+        return context.macroCall(macroArgs);
     }
 
     public static CompletableFuture<EvalNode> callMacro(Context context, EvalNode macroNode, EvalNode... argsNodes) {
         final List<EvalNode> macroArgs = new ArrayList<>();
+        macroArgs.add(macroNode);
         Collections.addAll(macroArgs, argsNodes);
-
-        return MacroCall.processMacro(
-                context.getBaseUri(),
-                macroArgs,
-                (HistoneMacro) macroNode.getValue(),
-                Optional.empty(),
-                false
-        );
+        return context.macroCall(macroArgs);
     }
 
     public static CompletableFuture<EvalNode> callMacroBind(

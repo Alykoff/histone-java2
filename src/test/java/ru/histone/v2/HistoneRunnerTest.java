@@ -14,15 +14,30 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.expression;
+package ru.histone.v2;
 
-import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Collections;
 
 /**
  * @author Alexey Nevinsky
  */
-public interface Expression {
-    List<Integer> getIds();
+public class HistoneRunnerTest {
 
-    String getExpression();
+    @Test
+    public void doTest() {
+        Histone histone = new Histone();
+        String res = histone.process("{{'Hello World!'}}", "", Collections.emptyMap());
+        Assert.assertEquals("Hello World!", res);
+    }
+
+    @Test
+    public void doTest1() {
+        Histone histone = new Histone();
+        String res = histone.process("{{'Hello World!'}}");
+        Assert.assertEquals("Hello World!", res);
+    }
+
 }

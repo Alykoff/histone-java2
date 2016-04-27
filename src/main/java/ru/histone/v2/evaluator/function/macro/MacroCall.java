@@ -25,46 +25,37 @@ import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
- * @author gali.alykoff
+ * @author Gali Alykoff
  */
 public class MacroCall extends AbstractFunction implements Serializable {
     public final static String NAME = "call";
-    public static final int MACRO_NODE_INDEX = 0;
-    public static final Optional<Integer> MACRO_NODE_INDEX_OPTIONAL = Optional.of(MACRO_NODE_INDEX);
-    public static final boolean IS_UNWRAP_ARGS_ARRAYS = true;
+    private static final int MACRO_NODE_INDEX = 0;
 
-    public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return staticExecute(context, args, IS_UNWRAP_ARGS_ARRAYS);
+    public MacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
+        super(executor, resourceLoader, evaluator, parser);
     }
 
-    public static CompletableFuture<EvalNode> staticExecute(Context context, List<EvalNode> args, boolean isUnwrapArgsArrays) throws FunctionExecutionException {
+    @Override
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final HistoneMacro histoneMacro = getMacro(args);
-        return processMacro(context.getBaseUri(), args, histoneMacro, MACRO_NODE_INDEX_OPTIONAL, isUnwrapArgsArrays);
-    }
 
-    public static HistoneMacro getMacro(List<EvalNode> args) {
-        final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
-        return macroNode.getValue();
-    }
-
-    public static CompletableFuture<EvalNode> processMacro(
-            String baseURI,
-            List<EvalNode> args,
-            HistoneMacro histoneMacro,
-            Optional<Integer> startArgsIndex,
-            boolean isUnwrapArgsArrays
-    ) {
         //if result was set, we return it immediately
         if (histoneMacro.getResult() != null) {
             return CompletableFuture.completedFuture(histoneMacro.getResult());
@@ -72,11 +63,10 @@ public class MacroCall extends AbstractFunction implements Serializable {
 
         final AstNode body = histoneMacro.getBody();
         final List<String> namesOfVars = histoneMacro.getArgs();
-        final Evaluator evaluator = histoneMacro.getEvaluator();
         final Context contextInner = histoneMacro.getContext();
         final Map<String, CompletableFuture<EvalNode>> defaultsVars = histoneMacro.getDefaultValues();
         final List<EvalNode> bindArgs = histoneMacro.getBindArgs();
-        final List<EvalNode> paramsInput = getParams(args, startArgsIndex, isUnwrapArgsArrays);
+        final List<EvalNode> paramsInput = getParams(args);
         final List<EvalNode> params = new ArrayList<>(bindArgs.size() + paramsInput.size());
         params.addAll(bindArgs);
         params.addAll(paramsInput);
@@ -96,7 +86,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
             argumentsFutures.add(param);
             currentContext.put(argName, param);
         }
-        final CompletableFuture<EvalNode> selfObject = createSelfObject(new MacroEvalNode(histoneMacro), baseURI, params);
+        final CompletableFuture<EvalNode> selfObject = createSelfObject(new MacroEvalNode(histoneMacro), context.getBaseUri(), params);
         currentContext.put(Constants.SELF_CONTEXT_NAME, selfObject);
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {
@@ -105,6 +95,11 @@ public class MacroCall extends AbstractFunction implements Serializable {
                 return RttiUtils.callToString(contextInner, res);
             }
         });
+    }
+
+    private static HistoneMacro getMacro(List<EvalNode> args) {
+        final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
+        return macroNode.getValue();
     }
 
     private static CompletableFuture<EvalNode> createSelfObject(MacroEvalNode macro, String baseURI, List<EvalNode> args) {
@@ -116,11 +111,18 @@ public class MacroCall extends AbstractFunction implements Serializable {
         return EvalUtils.getValue(res);
     }
 
-    private static List<EvalNode> getParams(List<EvalNode> args, Optional<Integer> startArgsIndex, boolean isUnwrapArgsArrays) {
+    private static List<EvalNode> getParams(List<EvalNode> args) {
         final List<EvalNode> params = new ArrayList<>();
-        final int start = startArgsIndex.isPresent()
-                ? startArgsIndex.get() + 1
-                : 0;
+        int start = 1;
+        boolean isUnwrapArgsArrays = true;
+        for (int i = 0; i < args.size(); i++) {
+            if (args.get(i).getType() == HistoneType.T_BOOLEAN) {
+                start = i + 1;
+                isUnwrapArgsArrays = (boolean) args.get(i).getValue();
+                break;
+            }
+        }
+
         for (int i = start; i < args.size(); i++) {
             final EvalNode rawNode = args.get(i);
             if (isUnwrapArgsArrays && rawNode instanceof MapEvalNode) {
@@ -141,10 +143,5 @@ public class MacroCall extends AbstractFunction implements Serializable {
     @Override
     public String getName() {
         return NAME;
-    }
-
-    @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return staticExecute(context, args);
     }
 }

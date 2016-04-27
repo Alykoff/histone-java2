@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class TestRunner {
     public static List<HistoneTestCase> loadTestCases(String testPath) throws URISyntaxException, IOException {
@@ -95,10 +95,8 @@ public class TestRunner {
     }
 
 
-    public static void doTest(String input, RunTimeTypeInfo rtti, HistoneTestCase.Case testCase) throws HistoneException {
-        Parser parser = new Parser();
-
-        Evaluator evaluator = new Evaluator();
+    public static void doTest(String input, RunTimeTypeInfo rtti, HistoneTestCase.Case testCase,
+                              Evaluator evaluator, Parser parser) throws HistoneException {
 
         try {
             ExpAstNode root = parser.process(input, "");

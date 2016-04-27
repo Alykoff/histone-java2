@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  *
- * Created by gali.alykoff on 20/01/16.
+ * @author Gali Alykoff
  */
 public class BooleanAstNode extends ValueNode<Boolean> implements Serializable {
     public BooleanAstNode(Boolean value) {

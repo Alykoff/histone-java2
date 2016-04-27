@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 19/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayHtmlEntities extends AbstractFunction {
     public static final String NAME = "htmlentities";

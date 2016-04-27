@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 /**
  *
- * Created by gali.alykoff on 03/02/16.
+ * @author Gali Alykoff
  */
 public class StringEvalNodeLenComparator implements Comparator<StringEvalNode>, Serializable {
     @Override

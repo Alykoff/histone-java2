@@ -1,14 +1,12 @@
 package ru.histone.v2.utils;
 
-import ru.histone.v2.evaluator.EvalUtils;
-
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
  *
- * @author gali.alykoff on 08/04/16.
+ * @author Gali Alykoff
  */
 public class DateUtils implements Serializable {
     public static final int JS_MAX_BOUND_OF_YEAR = 275_761;

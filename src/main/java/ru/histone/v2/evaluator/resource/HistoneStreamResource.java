@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class HistoneStreamResource implements Resource<InputStream> {
     private final InputStream stream;

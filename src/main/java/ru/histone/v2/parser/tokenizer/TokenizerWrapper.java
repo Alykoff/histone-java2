@@ -24,7 +24,7 @@ import java.util.List;
  * Class used for wrapping generic tokenizer. If you want to add tokens for ignore - you must to create wrapper base on
  * tokenizer or wrapper and add tokens.
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class TokenizerWrapper {
     private Tokenizer tokenizer;

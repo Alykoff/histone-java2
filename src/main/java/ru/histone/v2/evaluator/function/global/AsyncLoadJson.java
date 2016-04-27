@@ -15,21 +15,25 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.parser.Parser;
 
 import java.util.concurrent.Executor;
 
 /**
- * @author alexey.nevinsky
+ * Async wrapper for loadJSON function
+ *
+ * @author Alexey Nevinsky
  */
 public class AsyncLoadJson extends LoadJson {
-    public AsyncLoadJson(Executor executor, HistoneResourceLoader loader) {
-        super(executor, loader);
+    public AsyncLoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
+        super(executor, loader, evaluator, parser);
     }
 
     @Override
     public String getName() {
-        return "asyncLoadJson";
+        return "asyncLoadJSON";
     }
 
     @Override

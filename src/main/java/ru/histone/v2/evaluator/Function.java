@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Use this interface when you need to implement your own global function
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public interface Function {
 

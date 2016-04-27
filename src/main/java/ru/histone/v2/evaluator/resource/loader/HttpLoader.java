@@ -39,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class HttpLoader implements Loader {
 

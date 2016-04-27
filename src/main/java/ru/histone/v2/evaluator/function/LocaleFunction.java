@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public abstract class LocaleFunction extends AbstractFunction {
 

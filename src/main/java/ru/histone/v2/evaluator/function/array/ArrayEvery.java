@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 09/02/16.
+ * @author Gali Alykoff
  */
 public class ArrayEvery extends AbstractFunction implements Serializable {
     public static final String NAME = "every";
@@ -40,9 +40,8 @@ public class ArrayEvery extends AbstractFunction implements Serializable {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return ArrayFilter.calcByPredicate(context, args).thenApply(pairs ->
-                pairs.stream()
-                        .allMatch(Tuple::getRight)
-        ).thenApply(BooleanEvalNode::new);
+        return ArrayFilter.calcByPredicate(context, args)
+                .thenApply(pairs -> pairs.stream().allMatch(Tuple::getRight))
+                .thenApply(BooleanEvalNode::new);
     }
 }

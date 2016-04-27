@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
-import ru.histone.v2.evaluator.function.macro.MacroCall;
 import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.global.StringEvalNodeLenComparator;
@@ -46,8 +45,7 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
-import static ru.histone.v2.parser.node.AstType.AST_PROP;
-import static ru.histone.v2.parser.node.AstType.AST_REF;
+import static ru.histone.v2.parser.node.AstType.*;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
@@ -55,8 +53,8 @@ import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 /**
  * The main class for evaluating AST tree.
  *
- * @author alexey.nevinsky
- * @author gali.alykoff
+ * @author Alexey Nevinsky
+ * @author Gali Alykoff
  */
 public class Evaluator implements Serializable {
 
@@ -237,9 +235,7 @@ public class Evaluator implements Serializable {
                             varNode -> evaluateNode(varNode.getNode(1), context)
                     ));
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(
-                    args, body, cloneContext, Evaluator.this, argsDefaultValues
-            ));
+            return new MacroEvalNode(new HistoneMacro(args, body, cloneContext, argsDefaultValues));
         });
     }
 
@@ -278,14 +274,11 @@ public class Evaluator implements Serializable {
             if (valueNode instanceof HasProperties && !context.findFunction(valueNode, methodNode.getValue())) {
                 EvalNode newValue = ((HasProperties) valueNode).getProperty(methodNode.getValue());
                 if (newValue != null && newValue.getType() == HistoneType.T_MACRO) {
-                    argsNodes.set(0, newValue);
-                    return MacroCall.processMacro(
-                            context.getBaseUri(),
-                            args,
-                            ((MacroEvalNode) newValue).getValue(),
-                            Optional.empty(),
-                            false
-                    );
+                    List<EvalNode> arguments = new ArrayList<>();
+                    arguments.add(newValue);
+                    arguments.add(new BooleanEvalNode(false));
+                    arguments.addAll(args);
+                    return context.macroCall(arguments);
                 }
                 return EvalUtils.getValue(null);
             }
@@ -373,14 +366,11 @@ public class Evaluator implements Serializable {
         if (macroNode.getType() != HistoneType.T_MACRO) {
             return EvalUtils.getValue(null);
         }
-        final MacroEvalNode macro = (MacroEvalNode) macroNode;
-        return MacroCall.processMacro(
-                context.getBaseUri(),
-                args,
-                macro.getValue(),
-                Optional.empty(),
-                false
-        );
+        List<EvalNode> arguments = new ArrayList<>(args.size() + 1);
+        arguments.add(macroNode);
+        arguments.add(new BooleanEvalNode(false));
+        arguments.addAll(args);
+        return context.macroCall(arguments);
     }
 
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) {
@@ -744,11 +734,11 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processVarNode(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> valueNameFuture = evaluateNode(node.getNode(1), context);
         CompletableFuture<EvalNode> valueNodeFuture = evaluateNode(node.getNode(0), context)
-                .thenApply(value -> {
-                    if (value.isReturn()) {
-                        return value.clearReturned();
+                .thenCompose(value -> {
+                    if (node.getNode(0).getType() == AST_NODES) {
+                        return RttiUtils.callToString(context, value.clearReturned());
                     }
-                    return value;
+                    return CompletableFuture.completedFuture(value.clearReturned());
                 });
 
         CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueNameFuture);

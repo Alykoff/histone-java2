@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by inv3r on 25/01/16.
+ * @author Alexey Nevinsky
  */
 public class Keys extends AbstractFunction {
 

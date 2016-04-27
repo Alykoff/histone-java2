@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author gali.alykoff on 05/02/16.
+ * @author Gali Alykoff
  */
 public class MacroExtend extends AbstractFunction implements Serializable {
     public static final String NAME = "extend";

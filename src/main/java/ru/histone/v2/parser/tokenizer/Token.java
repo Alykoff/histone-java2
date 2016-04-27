@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public class Token {
 

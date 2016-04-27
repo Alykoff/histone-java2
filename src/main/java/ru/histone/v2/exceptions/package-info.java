@@ -16,6 +16,6 @@
 /**
  * Exceptions from this package uses for represents errors witch may occurs in paring or evaluating histone 2 templates
  *
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 package ru.histone.v2.exceptions;

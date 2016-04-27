@@ -17,7 +17,7 @@
 package ru.histone.v2;
 
 /**
- * Created by gali.alykoff on 27/01/16.
+ * @author Gali Alykoff
  */
 public final class Constants {
     public static final String SELF_CONTEXT_NAME = "self";

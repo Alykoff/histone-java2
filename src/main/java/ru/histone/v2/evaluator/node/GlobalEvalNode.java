@@ -19,7 +19,7 @@ package ru.histone.v2.evaluator.node;
 import ru.histone.v2.rtti.HistoneType;
 
 /**
- * Created by inv3r on 28/01/16.
+ * @author Alexey Nevinsky
  */
 public class GlobalEvalNode extends EvalNode<Void> {
     public GlobalEvalNode() {

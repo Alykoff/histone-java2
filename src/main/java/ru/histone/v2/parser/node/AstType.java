@@ -17,7 +17,7 @@
 package ru.histone.v2.parser.node;
 
 /**
- * @author alexey.nevinsky
+ * @author Alexey Nevinsky
  */
 public enum AstType {
     AST_NOP(0),

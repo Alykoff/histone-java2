@@ -19,6 +19,7 @@ package ru.histone.v2.rtti;
 import org.apache.commons.lang.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.function.any.*;
 import ru.histone.v2.evaluator.function.array.*;
@@ -31,6 +32,7 @@ import ru.histone.v2.evaluator.function.regex.Test;
 import ru.histone.v2.evaluator.function.string.*;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.parser.Parser;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -47,7 +49,7 @@ import static ru.histone.v2.rtti.HistoneType.*;
  * RTTI used to storing {@link Function} for global and default types and user defined functions. Create it ones and
  * use it as parameter to create a {@link Context}.
  *
- * @author gali.alykoff on 22/01/16.
+ * @author Gali Alykoff
  */
 public class RunTimeTypeInfo implements Irtti, Serializable {
     protected final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
@@ -55,10 +57,14 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     protected final Executor executor;
     protected final HistoneResourceLoader loader;
+    protected final Evaluator evaluator;
+    protected final Parser parser;
 
-    public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader) {
+    public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
         this.executor = executor;
         this.loader = loader;
+        this.evaluator = evaluator;
+        this.parser = parser;
 
         for (HistoneType type : HistoneType.values()) {
             typeMembers.put(type, new HashMap<>());
@@ -84,6 +90,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new IsArray());
         registerForAlltypes(new IsMacro());
         registerForAlltypes(new ToMacro());
+        registerForAlltypes(new ToArray());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
@@ -112,10 +119,10 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArrayHas());
 
         registerCommon(T_GLOBAL, new Range());
-        registerCommon(T_GLOBAL, new LoadJson(executor, loader));
-        registerCommon(T_GLOBAL, new LoadText(executor, loader));
-        registerCommon(T_GLOBAL, new AsyncLoadText(executor, loader));
-        registerCommon(T_GLOBAL, new AsyncLoadJson(executor, loader));
+        registerCommon(T_GLOBAL, new LoadJson(executor, loader, evaluator, parser));
+        registerCommon(T_GLOBAL, new LoadText(executor, loader, evaluator, parser));
+        registerCommon(T_GLOBAL, new AsyncLoadText(executor, loader, evaluator, parser));
+        registerCommon(T_GLOBAL, new AsyncLoadJson(executor, loader, evaluator, parser));
         registerCommon(T_GLOBAL, new GetBaseUri());
         registerCommon(T_GLOBAL, new GetUniqueId());
         registerCommon(T_GLOBAL, new ResolveURI());
@@ -129,7 +136,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetDate());
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());
-        registerCommon(T_GLOBAL, new Require(executor, loader));
+        registerCommon(T_GLOBAL, new Require(executor, loader, evaluator, parser));
 
         registerCommon(T_REGEXP, new Test());
 
@@ -143,7 +150,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_STRING, new StringSplit());
         registerCommon(T_STRING, new StringStrip());
 
-        registerCommon(T_MACRO, new MacroCall());
+        registerCommon(T_MACRO, new MacroCall(executor, loader, evaluator, parser));
         registerCommon(T_MACRO, new MacroBind());
         registerCommon(T_MACRO, new MacroExtend());
     }

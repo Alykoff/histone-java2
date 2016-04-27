@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * @author gali.alykoff
+ * @author Gali Alykoff
  */
 public class MacroEvalNode extends PropertiesEvalNode<HistoneMacro> implements HasProperties, Serializable {
 

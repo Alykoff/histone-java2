@@ -19,7 +19,7 @@ package ru.histone.v2.evaluator.node;
 import ru.histone.v2.exceptions.HistoneException;
 
 /**
- * @author gali.alykoff on 08/02/16.
+ * @author Gali Alykoff
  */
 public interface HasProperties {
     EvalNode getProperty(Object propertyName) throws HistoneException;

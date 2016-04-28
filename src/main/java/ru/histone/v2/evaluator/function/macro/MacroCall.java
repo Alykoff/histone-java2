@@ -87,7 +87,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
             currentContext.put(argName, param);
         }
         final CompletableFuture<EvalNode> selfObject = createSelfObject(new MacroEvalNode(histoneMacro), context.getBaseUri(), params);
-        currentContext.put(Constants.SELF_CONTEXT_NAME, selfObject);
+        currentContext.put("0", selfObject);
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {
                 return CompletableFuture.completedFuture(res.clearReturned());

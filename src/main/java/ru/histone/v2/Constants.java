@@ -20,7 +20,7 @@ package ru.histone.v2;
  * @author Gali Alykoff
  */
 public final class Constants {
-    public static final String SELF_CONTEXT_NAME = "self";
+    public static final String SELF_CONTEXT_NAME = "0";
     public static final String SELF_CONTEXT_CURRENT_INDEX = "index";
     public static final String SELF_CONTEXT_LAST_INDEX = "last";
     public static final String SELF_CONTEXT_KEY = "key";

@@ -50,12 +50,14 @@
     "name": "array methods -> keys",
     "cases": [
       {
-        "input": "<div>{{[1, 2, 3]->keys->toJSON}} = [0,1,2]</div>",
-        "expectedResult": "<div>[0,1,2] = [0,1,2]</div>"
+        "input": "{{[1, 2, 3]->keys->toJSON}}",
+        "expectedAST": "[29,[22,[22,[1,1,\"0\",2,\"1\",3,\"2\"],\"keys\"],\"toJSON\"]]",
+        "expectedResult": "[0,1,2]"
       },
       {
-        "input": "<div>{{[foo: 'bar', bar: 'foo']->keys->toJSON}} = [\"foo\",\"bar\"]</div>",
-        "expectedResult": "<div>[\"foo\",\"bar\"] = [\"foo\",\"bar\"]</div>"
+        "input": "{{[foo: 'bar', bar: 'foo']->keys->toJSON}}",
+        "expectedAST": "[29,[22,[22,[1,\"bar\",\"foo\",\"foo\",\"bar\"],\"keys\"],\"toJSON\"]]",
+        "expectedResult": "[\"foo\",\"bar\"]"
       },
       {
         "input": "<div>{{[bar: 'foo', foo: 'bar']->keys->toJSON}} = [\"bar\",\"foo\"]</div>",
@@ -165,6 +167,7 @@
     "cases": [
       {
         "input": "{{range(7)->chunk(2)->toJSON()}}",
+        "expectedAST": "[29,[22,[22,[22,[4],\"range\",7],\"chunk\",2],\"toJSON\"]]",
         "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
       },
       {

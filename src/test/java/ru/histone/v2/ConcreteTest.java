@@ -57,10 +57,13 @@ public class ConcreteTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("--");
-        testCase.setContext(getMap());
-//        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{var x}}{{null}}{{/var}}{{x->isString}}", rtti, testCase, evaluator, parser);
+        testCase.setExpectedResult("e10uuu");
+//        testCase.setContext(getMap());
+//        testCase.setContext(getMap());
+        testCase.setExpectedAST("[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]");
+//        TestRunner.doTest("{{var f = (n) => n <= 1 ? n : self.callee(n - 1) + self.callee(n - 2)}}{{f(100)}}", rtti, testCase, evaluator, parser);
+        TestRunner.doTest("e{{{{ 5 {{return 10}} }}}}uuu", rtti, testCase, evaluator, parser);
+//        TestRunner.doTest("{{var a = 6}}{{a}}", rtti, testCase, evaluator, parser);
     }
 
     private Map<String, Object> getMap() {

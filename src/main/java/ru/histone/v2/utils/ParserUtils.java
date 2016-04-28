@@ -16,6 +16,7 @@
 
 package ru.histone.v2.utils;
 
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.parser.node.*;
 
 import java.util.List;
@@ -35,10 +36,31 @@ public class ParserUtils {
         if (node.hasValue()) {
             Object nodeValue = ((ValueNode) node).getValue();
             if (nodeValue instanceof Number || nodeValue instanceof Boolean || nodeValue == null) {
-                sb.append(nodeValue);
+                if (nodeValue instanceof Double && EvalUtils.canBeLong((Double) nodeValue)) {
+                    sb.append(((Double) nodeValue).longValue());
+                } else {
+                    sb.append(nodeValue);
+                }
             } else {
                 sb.append("\"").append(nodeValue).append("\"");
             }
+        } else if (node instanceof CallExpAstNode) {
+            List<AstNode> nodes = ((ExpAstNode) node).getNodes();
+            sb.append("[").append(node.getTypeId()).append(",");
+            if (nodes.size() > 0) {
+                nodeToString(sb, nodes.get(0));
+                CallType type = ((CallExpAstNode) node).getCallType();
+                if (type != CallType.SIMPLE) {
+                    sb.append(",").append(((CallExpAstNode) node).getCallType().getId());
+                }
+                if (nodes.size() > 1) {
+                    for (AstNode child : nodes.subList(1, nodes.size())) {
+                        sb.append(",");
+                        nodeToString(sb, child);
+                    }
+                }
+            }
+            sb.append("]");
         } else {
             List<AstNode> nodes = ((ExpAstNode) node).getNodes();
             sb.append("[").append(node.getTypeId());
@@ -119,12 +141,13 @@ public class ParserUtils {
 
     public static Optional<Integer> tryIntNumber(Object value) {
         return tryDouble(value).flatMap(doubleValue -> {
-            if ((doubleValue == Math.floor(doubleValue)) && !Double.isInfinite(doubleValue)&& doubleValue <= Integer.MAX_VALUE && doubleValue >= Integer.MIN_VALUE) {
+            if ((doubleValue == Math.floor(doubleValue)) && !Double.isInfinite(doubleValue) && doubleValue <= Integer.MAX_VALUE && doubleValue >= Integer.MIN_VALUE) {
                 return Optional.of(doubleValue.intValue());
             }
             return Optional.empty();
         });
     }
+
     public static Optional<Long> tryLongNumber(Object value) {
         return tryDouble(value).flatMap(longValue -> {
             if ((longValue == Math.floor(longValue)) && !Double.isInfinite(longValue) && longValue <= Long.MAX_VALUE && longValue >= Long.MIN_VALUE) {

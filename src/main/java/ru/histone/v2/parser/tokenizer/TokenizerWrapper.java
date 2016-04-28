@@ -16,9 +16,9 @@
 
 package ru.histone.v2.parser.tokenizer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import ru.histone.v2.utils.Tuple;
+
+import java.util.*;
 
 /**
  * Class used for wrapping generic tokenizer. If you want to add tokens for ignore - you must to create wrapper base on
@@ -33,6 +33,9 @@ public class TokenizerWrapper {
     private boolean isVar = false;
     private boolean isReturn = false;
     private List<String> labels = new ArrayList<>();
+
+    private Deque<Scope> scopes = new ArrayDeque<>();
+    private boolean isMacroScope = false;
 
     /**
      * Construct wrapper without tokens for ignoring
@@ -64,7 +67,10 @@ public class TokenizerWrapper {
         this.isFor = wrapper.isFor;
         this.labels = wrapper.labels;
         this.ignored = ignored;
+        this.scopes = wrapper.scopes;
+        this.isMacroScope = wrapper.isMacroScope;
     }
+
 
     /**
      * @return base uri from tokenizer
@@ -91,6 +97,72 @@ public class TokenizerWrapper {
 
     public int getLineNumber(long index) {
         return tokenizer.getLineNumber(index);
+    }
+
+    public void startMacro() {
+        isMacroScope = true;
+    }
+
+    public void endMacro() {
+        isMacroScope = false;
+    }
+
+    public void enter() {
+        scopes.addFirst(new Scope());
+    }
+
+    public void leave() {
+        scopes.pop();
+    }
+
+    public Long getVarName(String varName) {
+        Scope scope = scopes.peek();
+
+        Var var = scope.vars.get(varName);
+        if (var == null) {
+            var = new Var();
+            var.addName(scope.counter++);
+            scope.vars.put(varName, var);
+        } else if (var.used) {
+            var.addName(scope.counter++);
+        }
+
+        return var.lastName();
+    }
+
+    public Tuple<Long, Long> getRefPair(final String name) {
+        Iterator<Scope> iterator = scopes.iterator();
+        long i = 0;
+        while (iterator.hasNext()) {
+            Scope scope = iterator.next();
+            Var var = scope.vars.get(name);
+            if (var != null) {
+                if (isMacroScope) {
+                    var.used = true;
+                }
+                return new Tuple<>(i, var.lastName());
+            }
+            i++;
+        }
+        return null;
+    }
+
+    private static class Scope {
+        private long counter = 0;
+        private Map<String, Var> vars = new HashMap<>();
+    }
+
+    private static class Var {
+        private boolean used = false;
+        private List<Long> names = new ArrayList<>();
+
+        void addName(Long name) {
+            names.add(name);
+        }
+
+        Long lastName() {
+            return names.get(names.size() - 1);
+        }
     }
 
     public boolean isFor() {

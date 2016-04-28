@@ -43,7 +43,6 @@ public class Context implements Serializable {
     private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = null;
 
     private Context parent;
-    private boolean isRequired = false;
 
     private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
         this.baseUri = baseUri;
@@ -182,13 +181,5 @@ public class Context implements Serializable {
 
     public Locale getLocale() {
         return locale;
-    }
-
-    public boolean isReturned() {
-        return isRequired;
-    }
-
-    public void setReturned() {
-        isRequired = true;
     }
 }

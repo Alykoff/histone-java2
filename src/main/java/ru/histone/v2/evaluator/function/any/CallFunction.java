@@ -14,33 +14,40 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.evaluator.function.array;
+package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.utils.Tuple;
+import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.rtti.RttiMethod;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Gali Alykoff
+ * @author Alexey Nevinsky
  */
-public class ArraySome extends ArrayFilter implements Serializable {
-    public static final String NAME = "some";
-
+public class CallFunction extends AbstractFunction {
     @Override
     public String getName() {
-        return NAME;
+        return RttiMethod.RTTI_M_CALL.getId();
     }
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return calcByPredicate(context, args)
-                .thenApply(pairs -> pairs.stream().anyMatch(Tuple::getRight))
-                .thenApply(BooleanEvalNode::new);
+        EvalNode value = args.get(0);
+        if (value.getType() == HistoneType.T_MACRO) {
+            List<EvalNode> arguments = new ArrayList<>(args.size() + 1);
+            arguments.add(value);
+            arguments.add(new BooleanEvalNode(false));
+            arguments.addAll(args.subList(1, args.size()));
+            return context.macroCall(arguments);
+        }
+        return EvalUtils.getValue(null);
     }
 }

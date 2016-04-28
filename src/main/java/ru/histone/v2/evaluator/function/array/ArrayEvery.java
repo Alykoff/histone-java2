@@ -17,7 +17,6 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -30,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Gali Alykoff
  */
-public class ArrayEvery extends AbstractFunction implements Serializable {
+public class ArrayEvery extends ArrayFilter implements Serializable {
     public static final String NAME = "every";
 
     @Override
@@ -40,7 +39,7 @@ public class ArrayEvery extends AbstractFunction implements Serializable {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return ArrayFilter.calcByPredicate(context, args)
+        return calcByPredicate(context, args)
                 .thenApply(pairs -> pairs.stream().allMatch(Tuple::getRight))
                 .thenApply(BooleanEvalNode::new);
     }

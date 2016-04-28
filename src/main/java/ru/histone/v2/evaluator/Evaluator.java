@@ -31,6 +31,7 @@ import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.rtti.RttiMethod;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static ru.histone.v2.Constants.*;
 import static ru.histone.v2.evaluator.EvalUtils.*;
-import static ru.histone.v2.parser.node.AstType.*;
+import static ru.histone.v2.parser.node.AstType.AST_NODES;
 import static ru.histone.v2.utils.AsyncUtils.sequence;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
@@ -58,10 +59,10 @@ import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
  */
 public class Evaluator implements Serializable {
 
-    public static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
-    public static final Comparator<StringEvalNode> STRING_EVAL_NODE_LEN_COMPARATOR = new StringEvalNodeLenComparator();
-    public static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
-    public static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
+    private static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
+    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_LEN_COMPARATOR = new StringEvalNodeLenComparator();
+    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
+    private static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public String process(ExpAstNode node, Context context) {
@@ -90,9 +91,9 @@ public class Evaluator implements Serializable {
             case AST_REGEXP:
                 return processRegExp(expNode);
             case AST_THIS:
-                return processThisNode(expNode, context);
+                return processThisNode(context);
             case AST_GLOBAL:
-                return processGlobalNode(expNode, context);
+                return processGlobalNode();
             case AST_NOT:
                 return processNotNode(expNode, context);
             case AST_AND:
@@ -120,10 +121,6 @@ public class Evaluator implements Serializable {
                 return processRelation(expNode, context, STRING_EVAL_NODE_STRONG_COMPARATOR);
             case AST_REF:
                 return processReferenceNode(expNode, context);
-            case AST_METHOD:
-                return processMethod(expNode, context);
-            case AST_PROP:
-                return processPropertyNode(expNode, context);
             case AST_CALL:
                 return processCall(expNode, context);
             case AST_VAR:
@@ -152,8 +149,6 @@ public class Evaluator implements Serializable {
                 return processBreakContinueNode(expNode, false);
             case AST_BREAK:
                 return processBreakContinueNode(expNode, true);
-            case AST_EXPRESSION_STATEMENT:
-                return processExpressionStatement(expNode, context);
             case AST_TRIGGER:
                 break;
             case AST_LISTEN:
@@ -162,12 +157,6 @@ public class Evaluator implements Serializable {
         }
         throw new HistoneException("Unknown AST Histone Type: " + node.getType());
 
-    }
-
-    private CompletableFuture<EvalNode> processExpressionStatement(ExpAstNode expNode, Context context) {
-        AstNode node = expNode.getNode(0);
-        return evaluateNode(node, context)
-                .thenApply(EvalNode::clearReturned);
     }
 
     private CompletableFuture<EvalNode> processBreakContinueNode(ExpAstNode expNode, boolean isBreak) {
@@ -190,17 +179,15 @@ public class Evaluator implements Serializable {
                 .thenApply(node -> EvalUtils.createEvalNode(null));
     }
 
-    private CompletableFuture<EvalNode> processThisNode(ExpAstNode expNode, Context context) {
+    private CompletableFuture<EvalNode> processThisNode(Context context) {
         return context.getValue(Constants.THIS_CONTEXT_VALUE);
     }
 
     private CompletableFuture<EvalNode> processReturnNode(ExpAstNode expNode, Context context) {
-        Context ctx = context.createNew();
-        ctx.setReturned();
-        return evaluateNode(expNode.getNode(0), ctx).thenApply(EvalNode::getReturned);
+        return evaluateNode(expNode.getNode(0), context).thenApply(EvalNode::getReturned);
     }
 
-    private CompletableFuture<EvalNode> processGlobalNode(ExpAstNode expNode, Context context) {
+    private CompletableFuture<EvalNode> processGlobalNode() {
         return completedFuture(new GlobalEvalNode());
     }
 
@@ -222,67 +209,21 @@ public class Evaluator implements Serializable {
                         : node.getNodes().subList(startVarIndex, node.size())
         );
         return astArgsFuture.thenApply(astNodes -> {
-            final List<String> args = astNodes.stream().map(x -> {
-                final ExpAstNode varNode = (ExpAstNode) x;
-                final StringAstNode nameNode = varNode.getNode(0);
-                return nameNode.getValue();
-            }).collect(Collectors.toList());
-            final Map<String, CompletableFuture<EvalNode>> argsDefaultValues = astNodes.stream()
-                    .map(varNode -> (ExpAstNode) varNode)
-                    .filter(varNode -> varNode.size() == 2)
-                    .collect(Collectors.toMap(
-                            varNode -> ((StringAstNode) varNode.getNode(0)).getValue(),
-                            varNode -> evaluateNode(varNode.getNode(1), context)
-                    ));
+            final List<String> args = new ArrayList<>();
+            if (node.getNode(1) != null) {
+                LongEvalNode size = (LongEvalNode) evaluateNode(node.getNode(1), context).join();
+                for (long i = 1; i <= size.getValue(); i++) {
+                    args.add(i + "");
+                }
+            }
+            final Map<String, CompletableFuture<EvalNode>> argsDefaultValues = new HashMap<>();
+            for (int i = 0; i < astNodes.size() / 2; i++) {
+                long offset = (long) evaluateNode(astNodes.get(i * 2), context).join().getValue();
+                CompletableFuture<EvalNode> defValue = evaluateNode(astNodes.get(i * 2 + 1), context);
+                argsDefaultValues.put(offset + 1 + "", defValue);
+            }
             final AstNode body = node.getNode(bodyIndex);
             return new MacroEvalNode(new HistoneMacro(args, body, cloneContext, argsDefaultValues));
-        });
-    }
-
-    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context) {
-        final int valueIndex = 0;
-        final int methodIndex = 1;
-        final int startArgsIndex = 2;
-        final CompletableFuture<List<EvalNode>> nodesFuture = evalAllNodesOfCurrent(expNode, context);
-
-        return nodesFuture.thenCompose(nodes -> {
-            final EvalNode valueNode = nodes.get(valueIndex);
-            final StringEvalNode methodNode = (StringEvalNode) nodes.get(methodIndex);
-            final List<EvalNode> argsNode = new ArrayList<>();
-            argsNode.add(valueNode);
-            argsNode.addAll(nodes.subList(startArgsIndex, nodes.size()));
-
-            return context.call(valueNode, methodNode.getValue(), argsNode);
-        });
-    }
-
-    private CompletableFuture<EvalNode> processMethod(ExpAstNode expNode, Context context, List<EvalNode> args) {
-        final int valueIndex = 0;
-        final int methodIndex = 1;
-        final CompletableFuture<List<EvalNode>> processNodes = sequence(Arrays.asList(
-                evaluateNode(expNode.getNode(valueIndex), context),
-                evaluateNode(expNode.getNode(methodIndex), context)
-                        .thenCompose(node -> RttiUtils.callToString(context, node))
-        ));
-        return processNodes.thenCompose(methodNodes -> {
-            final EvalNode valueNode = methodNodes.get(valueIndex);
-            final StringEvalNode methodNode = (StringEvalNode) methodNodes.get(methodIndex);
-            List<EvalNode> argsNodes = new ArrayList<>();
-            argsNodes.add(valueNode);
-            argsNodes.addAll(args);
-
-            if (valueNode instanceof HasProperties && !context.findFunction(valueNode, methodNode.getValue())) {
-                EvalNode newValue = ((HasProperties) valueNode).getProperty(methodNode.getValue());
-                if (newValue != null && newValue.getType() == HistoneType.T_MACRO) {
-                    List<EvalNode> arguments = new ArrayList<>();
-                    arguments.add(newValue);
-                    arguments.add(new BooleanEvalNode(false));
-                    arguments.addAll(args);
-                    return context.macroCall(arguments);
-                }
-                return EvalUtils.getValue(null);
-            }
-            return context.call(valueNode, methodNode.getValue(), argsNodes);
         });
     }
 
@@ -298,84 +239,101 @@ public class Evaluator implements Serializable {
         });
     }
 
-    private CompletableFuture<EvalNode> processPropertyNode(ExpAstNode expNode, Context context) {
-        return evalAllNodesOfCurrent(expNode, context)
-                .thenApply(futures -> {
-                    if (futures.get(0).getType() == HistoneType.T_UNDEFINED || futures.get(0).getType() == HistoneType.T_NULL) {
-                        return EvalUtils.createEvalNode(null);
-                    }
-
-                    if (!(futures.get(0) instanceof HasProperties)) {
-                        return EvalUtils.createEvalNode(null);
-                    }
-                    final HasProperties mapEvalNode = (HasProperties) futures.get(0);
-                    final Object value = futures.get(1).getValue();
-                    final EvalNode obj = mapEvalNode.getProperty(value);
-                    if (obj != null) {
-                        return obj;
-                    }
-                    return EvalUtils.createEvalNode(null);
-                });
+    private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) {
+        final CallExpAstNode callNode = (CallExpAstNode) expNode;
+        if (callNode.getCallType() == CallType.RTTI_M_GET) {
+            final CompletableFuture<EvalNode> valueNode = evaluateNode(callNode.getNode(0), context);
+            final CompletableFuture<EvalNode> fieldNode = evaluateNode(callNode.getNode(1), context);
+            return valueNode
+                    .thenCompose(value -> fieldNode
+                            .thenCompose(fieldName ->
+                                    context.call(value, RttiMethod.RTTI_M_GET.getId(), Arrays.asList(value, fieldName))
+                            )
+                    );
+        } else if (callNode.getCallType() == CallType.RTTI_M_CALL) {
+            return processMethodCall(context, callNode);
+        } else {
+            return processSimpleCall(callNode, context, true);
+        }
     }
 
-    private CompletableFuture<EvalNode> processCall(ExpAstNode expNode, Context context) {
-        //so, we can write following construction: {{10()()()}}
-        if (!(expNode.getNode(0) instanceof ExpAstNode)) {
+    private CompletableFuture<EvalNode> processMethodCall(Context context, CallExpAstNode callNode) {
+        if (callNode.getNode(0) instanceof ValueNode) {
             return EvalUtils.getValue(null);
         }
 
-        final ExpAstNode node = expNode.getNode(0);
-        final boolean valueNodeExists = node.size() > 1;
-        final List<AstNode> paramsAstNodes = expNode.getNodes().subList(1, expNode.getNodes().size());
+        final CompletableFuture<EvalNode> valueNode;
+        if (!(callNode.getNode(0) instanceof CallExpAstNode)) {
+            valueNode = evaluateNode(callNode.getNode(0), context);
+        } else {
+            CallExpAstNode n = callNode.getNode(0);
+            if (n.getCallType() == CallType.SIMPLE) {
+                valueNode = processSimpleCall(callNode.getNode(0), context, false);
+            } else {
+                valueNode = evaluateNode(callNode.getNode(0), context);
+            }
+        }
 
-        final CompletableFuture<EvalNode> functionNameFuture = evaluateNode(node.getNode(valueNodeExists ? 1 : 0), context);
-        CompletableFuture<List<EvalNode>> argsFuture = sequence(paramsAstNodes.stream()
+        final List<AstNode> paramsAstNodes = callNode.getNodes().subList(1, callNode.getNodes().size());
+        final CompletableFuture<List<EvalNode>> argsFuture = sequence(paramsAstNodes.stream()
                 .map(x -> evaluateNode(x, context))
                 .collect(Collectors.toList()));
-        return argsFuture.thenCompose(args -> functionNameFuture.thenCompose(functionNameNode -> {
-            if (node.getType() == AST_PROP) {
-                return evaluateNode(node, context)
-                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
-            } else if (node.getType() == AST_REF) {
-                final String refName = ((StringEvalNode) functionNameNode).getValue();
-                if (context.contains(refName)) {
-                    return getValueFromParentContext(context, refName)
-                            .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
-                } else if (context.findFunction(refName)) {
-                    return context.call(refName, args);
-                }
-                return EvalUtils.getValue(null);
-            } else if (functionNameNode.getType() == HistoneType.T_STRING && !valueNodeExists) {
-                return context.call((String) functionNameNode.getValue(), args);
-            } else if (node.getType() == AstType.AST_MACRO) {
-                return processMacroNode(node, context)
-                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
-            } else if (node.getType() == AstType.AST_CALL) {
-                return processCall(node, context)
-                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
-            } else if (node.getType() == AstType.AST_THIS) {
-                return evaluateNode(node, context)
-                        .thenCompose(rawMacro -> callMacro(context, args, rawMacro));
-            } else {
-                return processMethod(node, context, args);
-            }
-        }));
+        return valueNode
+                .thenCompose(value -> argsFuture
+                        .thenCompose(args -> {
+                                    if (value.getType() == HistoneType.T_MACRO) {
+                                        List<EvalNode> arguments = new ArrayList<>();
+                                        arguments.add(value);
+                                        arguments.addAll(args);
+                                        return context.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
+                                    }
+                                    if (value.getType() != HistoneType.T_STRING) {
+                                        return EvalUtils.getValue(null);
+                                    }
+                                    return context.call((String) value.getValue(), args);
+                                }
+                        )
+                );
     }
 
-    private CompletableFuture<EvalNode> callMacro(Context context, List<EvalNode> args, EvalNode macroNode) {
-        if (macroNode.getType() != HistoneType.T_MACRO) {
-            return EvalUtils.getValue(null);
+    private CompletableFuture<EvalNode> processSimpleCall(ExpAstNode expNode, Context context, boolean doCall) {
+        if (expNode.size() == 2) {
+            return evaluateNode(expNode.getNode(1), context)
+                    .thenCompose(fNameNode -> {
+                        //we call function without args or getting value from context
+                        if (fNameNode.getType() == HistoneType.T_NULL || fNameNode.getType() == HistoneType.T_UNDEFINED) {
+                            return EvalUtils.getValue(null);
+                        }
+
+                        final String name = (String) fNameNode.getValue();
+                        CompletableFuture<EvalNode> res = getValueFromContextOrNull(context, null, name);
+                        if (res != null) {
+                            return res;
+                        }
+                        if (!doCall) {
+                            return EvalUtils.getValue(name);
+
+                        }
+                        return evaluateNode(expNode.getNode(0), context)
+                                .thenCompose(value -> context.call(value, name, Collections.singletonList(value)));
+                    });
         }
-        List<EvalNode> arguments = new ArrayList<>(args.size() + 1);
-        arguments.add(macroNode);
-        arguments.add(new BooleanEvalNode(false));
-        arguments.addAll(args);
-        return context.macroCall(arguments);
+
+        CompletableFuture<List<EvalNode>> nodesFuture = evalAllNodesOfCurrent(expNode, context);
+        return nodesFuture.thenCompose(nodes -> {
+            final String name = (String) nodes.get(1).getValue();
+
+            final EvalNode value = nodes.get(0);
+            List<EvalNode> args = new ArrayList<>(nodes.size() - 1);
+            args.add(value);
+            args.addAll(nodes.subList(2, nodes.size()));
+            return context.call(value, name, args);
+        });
     }
 
     private CompletableFuture<EvalNode> processForNode(ExpAstNode expNode, Context context) {
-        // [KEY_NODE, VAR_NODE, LABEL_NODE, LIST_NODES, ARRAY_NODE, [CONDITIONS_NODES, BODIES_NODES, ...], [ELSE_BODIES_NODE]]
-        final AstNode iterator = expNode.getNode(4); // get array for iterate it in loop
+        // [KEY_NODE, VAR_NODE, LIST_NODES, ARRAY_NODE, [CONDITIONS_NODES, BODIES_NODES, ...], [ELSE_BODIES_NODE]]
+        final AstNode iterator = expNode.getNode(3); // get array for iterate it in loop
         return evaluateNode(iterator, context).thenCompose(objToIterate -> {
             if (!(objToIterate instanceof MapEvalNode) || ((MapEvalNode) objToIterate).getValue().size() == 0) {
                 return processNonMapValue(expNode, context);
@@ -386,10 +344,10 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processNonMapValue(ExpAstNode expNode, Context context) {
-        if (expNode.size() == 4) {
+        if (expNode.size() == 3) {
             return EvalUtils.getValue(null);
         }
-        int i = 5;
+        int i = 4;
         AstNode expressionNode = expNode.getNode(i + 1);
         AstNode bodyNode = expNode.getNode(i);
         while (expressionNode != null) {
@@ -445,18 +403,19 @@ public class Evaluator implements Serializable {
                     if (node.isReturn() || node.getType() == HistoneType.T_BREAK) {
                         return getEvaluatedString(context, node, null);
                     } else {
-                        return getEvaluatedString(context, node, evaluateNode(expNode.getNode(3), iterableContext));
+                        return getEvaluatedString(context, node, evaluateNode(expNode.getNode(2), iterableContext));
                     }
                 });
             } else {
-                res = getEvaluatedString(context, null, evaluateNode(expNode.getNode(3), iterableContext));
+                res = getEvaluatedString(context, null, evaluateNode(expNode.getNode(2), iterableContext));
             }
             i++;
         }
         return res;
     }
 
-    private CompletableFuture<EvalNode> getEvaluatedString(Context ctx, EvalNode node, CompletableFuture<EvalNode> evalNodeCompletableFuture) {
+    private CompletableFuture<EvalNode> getEvaluatedString(Context ctx, EvalNode node,
+                                                           CompletableFuture<EvalNode> evalNodeCompletableFuture) {
         if (evalNodeCompletableFuture == null) {
             if (node.isReturn()) {
                 return CompletableFuture.completedFuture(node.getReturned());
@@ -754,21 +713,21 @@ public class Evaluator implements Serializable {
         }
         if (node.getNode(0).getType() == AstType.AST_VAR) {
             return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EvalUtils.createEvalNode(null));
+        }
+        //todo do check and refactorings
+        if (node.size() > 0) {
+            CompletableFuture<List<EvalNode>> futures = evalAllNodesOfCurrent(node, context);
+            return futures.thenApply(nodes -> {
+                Map<String, EvalNode> map = new LinkedHashMap<>();
+                for (int i = 0; i < nodes.size() / 2; i++) {
+                    EvalNode value = nodes.get(i * 2);
+                    EvalNode key = nodes.get(i * 2 + 1);
+                    map.put(key.getValue() + "", value);
+                }
+                return new MapEvalNode(map);
+            });
         } else {
-            if (node.size() > 0) {
-                CompletableFuture<List<EvalNode>> futures = evalAllNodesOfCurrent(node, context);
-                return futures.thenApply(nodes -> {
-                    Map<String, EvalNode> map = new LinkedHashMap<>();
-                    for (int i = 0; i < nodes.size() / 2; i++) {
-                        EvalNode key = nodes.get(i * 2);
-                        EvalNode value = nodes.get(i * 2 + 1);
-                        map.put(key.getValue() + "", value);
-                    }
-                    return new MapEvalNode(map);
-                });
-            } else {
-                return completedFuture(new MapEvalNode(new LinkedHashMap<>()));
-            }
+            return completedFuture(new MapEvalNode(new LinkedHashMap<>()));
         }
     }
 
@@ -815,12 +774,14 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processReferenceNode(ExpAstNode node, Context context) {
-        final StringAstNode valueNode = node.getNode(0);
-        CompletableFuture<EvalNode> value = getValueFromParentContext(context, valueNode.getValue());
+        //todo
+        final int ctxNumber = ((LongEvalNode) evaluateNode(node.getNode(0), context).join()).getValue().intValue();
+        final String valueName = ((ValueNode) node.getNode(1)).getValue() + "";
+        CompletableFuture<EvalNode> value = getValueFromContext(context, ctxNumber, valueName);
         return value.thenCompose(v -> {
             if (v != null) {
-                if (v.getType() == HistoneType.T_UNDEFINED && context.findFunction(valueNode.getValue())) {
-                    return context.call(valueNode.getValue(), Collections.emptyList());
+                if (v.getType() == HistoneType.T_UNDEFINED && context.findFunction(valueName)) {
+                    return context.call(valueName, Collections.emptyList());
                 }
                 return completedFuture(v);
             } else {
@@ -829,14 +790,21 @@ public class Evaluator implements Serializable {
         });
     }
 
-    private CompletableFuture<EvalNode> getValueFromParentContext(Context context, String valueName) {
+    private CompletableFuture<EvalNode> getValueFromContextOrNull(Context context, Integer ctxNumber, String valueName) {
+        int i = 0;
         while (context != null) {
-            if (context.getVars().containsKey(valueName)) {
+            if ((ctxNumber == null || i == ctxNumber) && context.getVars().containsKey(valueName)) {
                 return context.getValue(valueName);
             }
             context = context.getParent();
+            i++;
         }
-        return EvalUtils.getValue(null);
+        return null;
+    }
+
+    private CompletableFuture<EvalNode> getValueFromContext(Context context, int ctxNumber, String valueName) {
+        CompletableFuture<EvalNode> res = getValueFromContextOrNull(context, ctxNumber, valueName);
+        return res != null ? res : EvalUtils.getValue(null);
     }
 
     private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
@@ -872,6 +840,15 @@ public class Evaluator implements Serializable {
         });
     }
 
+    /**
+     * Method evaluate AST_NODES or AST_NODELIST node. If {@param createContext} is true, then this is block of code and
+     * return node must return value only from this block, else return from template
+     *
+     * @param node
+     * @param context
+     * @param createContext
+     * @return future of processed node
+     */
     private CompletableFuture<EvalNode> processNodeList(ExpAstNode node, Context context, boolean createContext) {
         final Context ctx = createContext ? context.createNew() : context;
         if (node.getNodes().size() == 1) {
@@ -894,11 +871,8 @@ public class Evaluator implements Serializable {
                 });
             }
             return res.thenApply(n -> {
-                if (context.isReturned()) {
+                if (createContext) {
                     return n.clearReturned();
-                }
-                if (n.isReturn()) {
-                    return n;
                 }
                 return n;
             });

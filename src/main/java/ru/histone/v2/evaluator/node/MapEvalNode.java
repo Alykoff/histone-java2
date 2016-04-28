@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
 
@@ -23,9 +24,6 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
-import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
 
 /**
  * @author Alexey Nevinsky
@@ -90,10 +88,10 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasP
         if (value.containsKey(property)) {
             return value.get(property);
         }
-        final Optional<Integer> propertyIntOptional = tryIntNumber(property);
-        if (propertyIntOptional.isPresent()) {
-            return value.get(propertyIntOptional.get().toString());
-        }
-        return null;
+//        final Optional<Integer> propertyIntOptional = tryIntNumber(property);
+//        if (propertyIntOptional.isPresent()) {
+//            return value.get(propertyIntOptional.get().toString());
+//        }
+        return EvalUtils.createEvalNode(null);
     }
 }

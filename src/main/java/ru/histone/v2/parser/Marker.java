@@ -206,9 +206,10 @@ public class Marker {
 
         final AstNode globalNode = new ExpAstNode(AstType.AST_GLOBAL);
         final AstNode nameOfGlobalVarNode = new StringAstNode(name);
-        return new ExpAstNode(AstType.AST_METHOD)
-                .add(globalNode)
-                .add(nameOfGlobalVarNode);
+        return null;
+//        return new ExpAstNode(AstType.AST_METHOD)
+//                .add(globalNode)
+//                .add(nameOfGlobalVarNode);
     }
 
     private LongAstNode setReference(String name, Deque<Map<String, Long>> scopeChain) {

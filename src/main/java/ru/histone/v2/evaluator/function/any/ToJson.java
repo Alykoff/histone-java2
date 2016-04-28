@@ -52,6 +52,12 @@ public class ToJson extends AbstractFunction {
         return NAME;
     }
 
+    /**
+     * @param context
+     * @param args    arguments from Histone template [VALUE NODE, ignored nodes...]
+     * @return
+     * @throws FunctionExecutionException
+     */
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() == 0) {
@@ -157,7 +163,7 @@ public class ToJson extends AbstractFunction {
         mapper.registerModule(module);
 
         try {
-            String res = mapper.writeValueAsString(args.get(0).getValue());
+            String res = mapper.writeValueAsString(node.getValue());
             return EvalUtils.getValue(res);
         } catch (JsonProcessingException e) {
             throw new FunctionExecutionException("Failed to write object to json", e);

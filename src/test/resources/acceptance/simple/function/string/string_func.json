@@ -185,6 +185,7 @@
       },
       {
         "input": "{{[  x: {{    BLA  {{if true}}  {{return 300}}  {{/if}}}}]->toJSON}}",
+        "expectedAST": "[29,[22,[1,[28,\"    BLA  \",[24,[29,\"  \",[27,300],\"  \"],true]],\"x\"],\"toJSON\"]]",
         "expectedResult": "{\"x\":300}"
       },
       {

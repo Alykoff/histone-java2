@@ -16,8 +16,8 @@
 
 package ru.histone.v2.parser;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.ParserException;
@@ -174,7 +174,7 @@ public class Parser {
     }
 
     private ExpAstNode getListenStatement(TokenizerWrapper wrapper, AstType astListen) {
-        throw new NotImplementedException();
+        throw new NotImplementedException("");
     }
 
     private ExpAstNode getSuppressStatement(TokenizerWrapper wrapper) {

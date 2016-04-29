@@ -92,4 +92,13 @@ public enum AstType {
     public int getId() {
         return id;
     }
+
+    public static AstType fromId(int id) {
+        for (AstType type : values()) {
+            if (type.getId() == id) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("wrong AstType id '" + id + "'");
+    }
 }

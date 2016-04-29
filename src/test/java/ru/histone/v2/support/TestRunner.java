@@ -18,7 +18,7 @@ package ru.histone.v2.support;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.junit.Assert;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
@@ -29,6 +29,7 @@ import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
+import ru.histone.v2.utils.AstJsonProcessor;
 import ru.histone.v2.utils.ParserUtils;
 
 import java.io.IOException;
@@ -100,9 +101,12 @@ public class TestRunner {
 
         try {
             ExpAstNode root = parser.process(input, "");
+            String stringAst = ParserUtils.astToString(root);
             if (testCase.getExpectedAST() != null) {
-                Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
+                Assert.assertEquals(testCase.getExpectedAST(), stringAst);
             }
+
+            root = AstJsonProcessor.read(stringAst);
             if (testCase.getExpectedResult() != null) {
                 Context context = Context.createRoot(testCase.getBaseURI(), rtti);
                 if (testCase.getContext() != null) {

@@ -15,7 +15,7 @@
  */
 package ru.histone.v2.exceptions;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Occurs, when ResourceLoader does not support particular contentType.

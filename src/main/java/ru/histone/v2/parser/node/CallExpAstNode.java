@@ -36,4 +36,8 @@ public class CallExpAstNode extends ExpAstNode {
     public CallType getCallType() {
         return callType;
     }
+
+    public void setCallType(CallType callType) {
+        this.callType = callType;
+    }
 }

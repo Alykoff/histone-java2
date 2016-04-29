@@ -123,6 +123,7 @@
       },
       {
         "input": "{{10e+3333->toJSON}}",
+        "expectedAST": "[29,[22,null,\"toJSON\"]]",
         "expectedResult": "null"
       },
       {

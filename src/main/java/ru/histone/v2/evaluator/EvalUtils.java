@@ -16,9 +16,9 @@
 
 package ru.histone.v2.evaluator;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
@@ -102,7 +102,7 @@ public class EvalUtils {
         } else if (node instanceof StringEvalNode) {
             return Double.parseDouble(((StringEvalNode) node).getValue());
         } else {
-            throw new NotImplementedException();
+            throw new NotImplementedException("");
         }
     }
 
@@ -217,7 +217,7 @@ public class EvalUtils {
     }
 
     public static String escape(String str) {
-        return StringEscapeUtils.escapeHtml(str);
+        return StringEscapeUtils.escapeHtml4(str);
     }
 
 }

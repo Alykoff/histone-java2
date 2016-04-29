@@ -35,4 +35,13 @@ public enum CallType {
     public int getId() {
         return id;
     }
+
+    public static CallType fromId(int id) {
+        for (CallType type : values()) {
+            if (type.getId() == id) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("wrong CallType id '" + id + "'");
+    }
 }

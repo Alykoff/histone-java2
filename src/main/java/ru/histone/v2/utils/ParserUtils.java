@@ -16,6 +16,9 @@
 
 package ru.histone.v2.utils;
 
+import org.apache.commons.lang3.text.translate.AggregateTranslator;
+import org.apache.commons.lang3.text.translate.EntityArrays;
+import org.apache.commons.lang3.text.translate.LookupTranslator;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.parser.node.*;
 
@@ -36,13 +39,32 @@ public class ParserUtils {
         if (node.hasValue()) {
             Object nodeValue = ((ValueNode) node).getValue();
             if (nodeValue instanceof Number || nodeValue instanceof Boolean || nodeValue == null) {
-                if (nodeValue instanceof Double && EvalUtils.canBeLong((Double) nodeValue)) {
-                    sb.append(((Double) nodeValue).longValue());
+                if (nodeValue instanceof Double) {
+                    Double v = (Double) nodeValue;
+                    if (v.isInfinite()) {
+                        sb.append("null");
+                    } else if (EvalUtils.canBeLong((Double) nodeValue)) {
+                        sb.append(((Double) nodeValue).longValue());
+                    } else {
+                        sb.append(nodeValue);
+                    }
                 } else {
                     sb.append(nodeValue);
                 }
             } else {
-                sb.append("\"").append(nodeValue).append("\"");
+                String v = (String) nodeValue;
+                AggregateTranslator translator = new AggregateTranslator(
+                        new LookupTranslator(
+                                new String[][]{
+                                        {"\"", "\\\""},
+                                        {"\\", "\\\\"},
+                                        {"/", "\\/"}
+                                }),
+                        new LookupTranslator(EntityArrays.JAVA_CTRL_CHARS_ESCAPE())
+//                        JavaUnicodeEscaper.outsideOf(32, 0x7f)
+                );
+                v = translator.translate(v);
+                sb.append("\"").append(v).append("\"");
             }
         } else if (node instanceof CallExpAstNode) {
             List<AstNode> nodes = ((ExpAstNode) node).getNodes();

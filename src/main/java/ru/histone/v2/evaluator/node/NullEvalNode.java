@@ -16,7 +16,7 @@
 
 package ru.histone.v2.evaluator.node;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import ru.histone.v2.rtti.HistoneType;
 
 /**

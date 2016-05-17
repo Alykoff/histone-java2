@@ -79,5 +79,4 @@ public class GetDate extends AbstractFunction {
 
         return EvalUtils.getValue(res);
     }
-
 }

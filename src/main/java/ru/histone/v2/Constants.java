@@ -30,6 +30,9 @@ public final class Constants {
     public static final String SELF_CONTEXT_CALLER = "caller";
     public static final String THIS_CONTEXT_VALUE = "this";
 
+
+    public static final int MILLI_SEC_IN_SEC = 1000;
+
     private Constants() {
     }
 }

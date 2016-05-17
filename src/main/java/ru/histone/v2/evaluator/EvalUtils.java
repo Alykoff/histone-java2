@@ -27,6 +27,7 @@ import ru.histone.v2.rtti.HistoneType;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -220,4 +221,8 @@ public class EvalUtils {
         return StringEscapeUtils.escapeHtml4(str);
     }
 
+    public static boolean isAst(String template) {
+        Pattern pattern = Pattern.compile("^\\s*\\[\\s*[0-9]+.*\\]\\s*$");
+        return pattern.matcher(template).matches();
+    }
 }

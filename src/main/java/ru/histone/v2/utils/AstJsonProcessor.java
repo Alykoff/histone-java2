@@ -17,6 +17,10 @@
 package ru.histone.v2.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.text.translate.AggregateTranslator;
+import org.apache.commons.lang3.text.translate.EntityArrays;
+import org.apache.commons.lang3.text.translate.LookupTranslator;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.parser.node.*;
 
 import java.io.IOException;
@@ -105,5 +109,72 @@ public class AstJsonProcessor {
             }
         }
         return expAstNode;
+    }
+
+    public static String write(AstNode node) {
+        StringBuffer sb = new StringBuffer();
+        nodeToString(sb, node);
+        return sb.toString();
+    }
+
+    private static void nodeToString(StringBuffer sb, AstNode node) {
+        if (node.hasValue()) {
+            Object nodeValue = ((ValueNode) node).getValue();
+            if (nodeValue instanceof Number || nodeValue instanceof Boolean || nodeValue == null) {
+                if (nodeValue instanceof Double) {
+                    Double v = (Double) nodeValue;
+                    if (v.isInfinite()) {
+                        sb.append("null");
+                    } else if (EvalUtils.canBeLong((Double) nodeValue)) {
+                        sb.append(((Double) nodeValue).longValue());
+                    } else {
+                        sb.append(nodeValue);
+                    }
+                } else {
+                    sb.append(nodeValue);
+                }
+            } else {
+                String v = (String) nodeValue;
+                AggregateTranslator translator = new AggregateTranslator(
+                        new LookupTranslator(
+                                new String[][]{
+                                        {"\"", "\\\""},
+                                        {"\\", "\\\\"},
+                                        {"/", "\\/"}
+                                }),
+                        new LookupTranslator(EntityArrays.JAVA_CTRL_CHARS_ESCAPE())
+//                        JavaUnicodeEscaper.outsideOf(32, 0x7f)
+                );
+                v = translator.translate(v);
+                sb.append("\"").append(v).append("\"");
+            }
+        } else if (node instanceof CallExpAstNode) {
+            List<AstNode> nodes = ((ExpAstNode) node).getNodes();
+            sb.append("[").append(node.getTypeId()).append(",");
+            if (nodes.size() > 0) {
+                nodeToString(sb, nodes.get(0));
+                CallType type = ((CallExpAstNode) node).getCallType();
+                if (type != CallType.SIMPLE) {
+                    sb.append(",").append(((CallExpAstNode) node).getCallType().getId());
+                }
+                if (nodes.size() > 1) {
+                    for (AstNode child : nodes.subList(1, nodes.size())) {
+                        sb.append(",");
+                        nodeToString(sb, child);
+                    }
+                }
+            }
+            sb.append("]");
+        } else {
+            List<AstNode> nodes = ((ExpAstNode) node).getNodes();
+            sb.append("[").append(node.getTypeId());
+            if (nodes.size() > 0) {
+                for (AstNode child : nodes) {
+                    sb.append(",");
+                    nodeToString(sb, child);
+                }
+            }
+            sb.append("]");
+        }
     }
 }

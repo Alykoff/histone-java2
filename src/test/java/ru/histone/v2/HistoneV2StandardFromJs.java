@@ -23,7 +23,7 @@ import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
-import ru.histone.v2.utils.ParserUtils;
+import ru.histone.v2.utils.AstJsonProcessor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class HistoneV2StandardFromJs {
 
             final Context context = Context.createRoot("", rtti);
             final ExpAstNode root = parser.process(tpl, baseURI);
-            System.out.println(ParserUtils.astToString(root));
+            System.out.println(AstJsonProcessor.write(root));
             final String result = evaluator.process(root, context);
             System.out.println(result);
         } catch (HistoneException e) {

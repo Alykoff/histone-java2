@@ -30,7 +30,6 @@ import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.utils.AstJsonProcessor;
-import ru.histone.v2.utils.ParserUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -101,7 +100,7 @@ public class TestRunner {
 
         try {
             ExpAstNode root = parser.process(input, "");
-            String stringAst = ParserUtils.astToString(root);
+            String stringAst = AstJsonProcessor.write(root);
             if (testCase.getExpectedAST() != null) {
                 Assert.assertEquals(testCase.getExpectedAST(), stringAst);
             }

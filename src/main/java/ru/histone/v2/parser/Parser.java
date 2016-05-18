@@ -314,9 +314,10 @@ public class Parser {
             expressionNode = null;
         } else {
             expressionNode = getExpression(wrapper);
-            if (!next(wrapper, T_BLOCK_END)) {
-                throw buildUnexpectedTokenException(wrapper, "}}");
-            }
+        }
+
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
         }
 
         wrapper.enter();

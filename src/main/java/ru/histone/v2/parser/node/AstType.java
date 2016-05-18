@@ -56,11 +56,13 @@ public enum AstType {
     AST_BAND(32),
 
     AST_SUPPRESS(33),
-    AST_LISTEN(34),
-    AST_TRIGGER(35),
+    AST_BLS(34),
+    AST_BRS(35),
+    AST_BNOT(36),
 
-    AST_BREAK(36),
-    AST_CONTINUE(37),
+    AST_BREAK(37),
+    AST_CONTINUE(38),
+    AST_WHILE(39),
 
 //
 //    RTTI_T_BASE: 0,

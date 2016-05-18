@@ -149,11 +149,10 @@ public class Evaluator implements Serializable {
                 return processBreakContinueNode(expNode, false);
             case AST_BREAK:
                 return processBreakContinueNode(expNode, true);
-            case AST_TRIGGER:
+            case AST_BNOT:
+            case AST_BLS:
+            case AST_BRS:
                 break;
-            case AST_LISTEN:
-                break;
-
         }
         throw new HistoneException("Unknown AST Histone Type: " + node.getType());
 

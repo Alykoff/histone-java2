@@ -3,15 +3,15 @@
     "name": "global -> getTimeStamp, wait",
     "cases": [
       {
-        "input": "--{{var a = getTimeStamp()}}{{wait(1000)}}{{var b = getTimeStamp()}}{{b - a}}",
+        "input": "--{{var a = getTimeStamp()}}{{wait(1000)}}{{var b = getTimeStamp()}}{{((b - a) / 1000)->toFloor}}",
         "expectedResult": "--1"
       },
       {
-        "input": "--{{var a = getTimeStamp()}}{{var b = wait(1000, ((x) => x + getTimeStamp()), 1)}}{{b - a}}",
+        "input": "--{{var a = getTimeStamp()}}{{var b = wait(1000, ((x) => x + getTimeStamp()), 1000)}}{{((b - a) / 1000)->toFloor}}",
         "expectedResult": "--2"
       },
       {
-        "input": "--{{var a = getTimeStamp()}}{{var b = wait(1000, => getTimeStamp())}}{{b - a}}",
+        "input": "--{{var a = getTimeStamp()}}{{var b = wait(1000, => getTimeStamp())}}{{((b - a) / 1000)->toFloor}}",
         "expectedResult": "--1"
       }
     ]

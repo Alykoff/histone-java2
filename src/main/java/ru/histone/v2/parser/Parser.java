@@ -116,6 +116,8 @@ public class Parser {
             result = getIfStatement(wrapper);
         } else if (next(wrapper, T_FOR)) {
             result = getForStatement(wrapper);
+        } else if (next(wrapper, T_WHILE)) {
+            result = getWhileStatement(wrapper);
         } else if (next(wrapper, T_VAR)) {
             result = getVarStatement(wrapper);
         } else if (next(wrapper, T_MACRO)) {
@@ -128,10 +130,6 @@ public class Parser {
             result = getBreakContinueStatement(wrapper, true);
         } else if (next(wrapper, T_CONTINUE)) {
             result = getBreakContinueStatement(wrapper, false);
-        } else if (next(wrapper, T_LISTEN)) {
-            result = getListenStatement(wrapper, AST_LISTEN);
-        } else if (next(wrapper, T_TRIGGER)) {
-            result = getListenStatement(wrapper, AST_TRIGGER);
         } else if (test(wrapper, T_SLASH, T_STATEMENT, T_BLOCK_END)) {
             result = new ExpAstNode(AST_T_BREAK);
         } else if (test(wrapper, T_STATEMENT)) {
@@ -171,10 +169,6 @@ public class Parser {
         wrapper.setFor(isParentFor);
         wrapper.setVar(isParentVar);
         return expression;
-    }
-
-    private ExpAstNode getListenStatement(TokenizerWrapper wrapper, AstType astListen) {
-        throw new NotImplementedException("");
     }
 
     private ExpAstNode getSuppressStatement(TokenizerWrapper wrapper) {
@@ -304,6 +298,37 @@ public class Parser {
         return res;
     }
 
+    private ExpAstNode getWhileStatement(TokenizerWrapper wrapper) throws ParserException {
+        wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
+        final boolean isParentReturn = wrapper.isReturn();
+        final boolean isParentVar = wrapper.isVar();
+        final boolean isParentFor = wrapper.isFor();
+        wrapper.setFor(true);
+        wrapper.setReturn(false);
+        wrapper.setVar(false);
+
+        final ExpAstNode node = new ExpAstNode(AST_WHILE);
+        final AstNode expressionNode = getExpression(wrapper);
+
+        if (!next(wrapper, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "}}");
+        }
+
+        wrapper.enter();
+        wrapper.getVarName("self");
+        node.add(getNodeList(wrapper), expressionNode);
+        wrapper.leave();
+
+        if (!next(wrapper, T_SLASH, T_WHILE, T_BLOCK_END)) {
+            throw buildUnexpectedTokenException(wrapper, "{{/while}}");
+        }
+
+        wrapper.setFor(isParentFor);
+        wrapper.setVar(isParentVar);
+        wrapper.setReturn(isParentReturn);
+        return node;
+    }
+
     private ExpAstNode getForStatement(TokenizerWrapper wrapper) throws ParserException {
         wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
 
@@ -323,30 +348,24 @@ public class Parser {
         if (id.isFound()) {
             final String keyName = id.firstValue();
             if (next(wrapper, T_COLON)) {
-                vars.add(keyName);
-//                node.add(new LongAstNode(wrapper.getVarName(keyName))); //add key name
+                vars.add(keyName); //add key name
                 final TokenizerResult valueName = wrapper.next(T_ID);
                 if (valueName.isFound()) {
                     final String value = valueName.firstValue();
                     if (value.equals(keyName)) {
                         throw buildSyntaxErrorException(wrapper, "key and value must differ");
                     }
-                    vars.add(value);
-//                    node.add(new LongAstNode(wrapper.getVarName(value))); //add value name
+                    vars.add(value); //add value name
                 } else {
                     throw buildUnexpectedTokenException(wrapper, IDENTIFIER);
                 }
             } else {
-                vars.add(null);
-                vars.add(keyName);
-//                node.add(new StringAstNode(null)) //add null as key name
-//                        .add(new LongAstNode(wrapper.getVarName(keyName))); //add value name
+                vars.add(null);//add null as key name
+                vars.add(keyName);//add value name
             }
         } else {
-            vars.add(null);
-            vars.add(null);
-//            node.add(new StringAstNode(null)) //add 'null' as key name
-//                    .add(new StringAstNode(null));//add 'null' as value name
+            vars.add(null);//add 'null' as key name
+            vars.add(null);//add 'null' as value name
         }
 
 

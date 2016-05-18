@@ -35,6 +35,7 @@ public final class ExpressionList {
             new BaseExpression("in\\b", Tokens.T_PROP, Tokens.T_STATEMENT, Tokens.T_IN),
             new BaseExpression("as\\b", Tokens.T_PROP, Tokens.T_STATEMENT, Tokens.T_AS),
             new BaseExpression("for\\b", Tokens.T_PROP, Tokens.T_STATEMENT, Tokens.T_FOR),
+            new BaseExpression("while\\b", Tokens.T_PROP, Tokens.T_STATEMENT, Tokens.T_WHILE),
             new BaseExpression("var\\b", Tokens.T_PROP, Tokens.T_STATEMENT, Tokens.T_VAR),
             new BaseExpression("else\\b", Tokens.T_PROP, Tokens.T_STATEMENT, Tokens.T_ELSE),
             new BaseExpression("macro\\b", Tokens.T_PROP, Tokens.T_STATEMENT, Tokens.T_MACRO),

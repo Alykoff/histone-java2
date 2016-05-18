@@ -58,7 +58,7 @@ public class Parser {
         final Optimizer optimizer = new Optimizer();
         result = (ExpAstNode) optimizer.mergeStrings(result);
 
-        final Marker marker = new Marker();
+//        final Marker marker = new Marker();
 //        marker.markReferences(result);
         wrapper.leave();
         return result;
@@ -308,15 +308,23 @@ public class Parser {
         wrapper.setVar(false);
 
         final ExpAstNode node = new ExpAstNode(AST_WHILE);
-        final AstNode expressionNode = getExpression(wrapper);
 
-        if (!next(wrapper, T_BLOCK_END)) {
-            throw buildUnexpectedTokenException(wrapper, "}}");
+        final AstNode expressionNode;
+        if (test(wrapper, T_BLOCK_END)) {
+            expressionNode = null;
+        } else {
+            expressionNode = getExpression(wrapper);
+            if (!next(wrapper, T_BLOCK_END)) {
+                throw buildUnexpectedTokenException(wrapper, "}}");
+            }
         }
 
         wrapper.enter();
         wrapper.getVarName("self");
-        node.add(getNodeList(wrapper), expressionNode);
+        node.add(getNodeList(wrapper));
+        if (expressionNode != null) {
+            node.add(expressionNode);
+        }
         wrapper.leave();
 
         if (!next(wrapper, T_SLASH, T_WHILE, T_BLOCK_END)) {

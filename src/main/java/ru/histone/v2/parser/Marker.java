@@ -27,6 +27,7 @@ import java.util.*;
  *
  * @author Gali Alykoff
  */
+@Deprecated
 public class Marker {
     public void markReferences(AstNode rawNode) throws HistoneException {
         markReferences(rawNode, null);
@@ -60,6 +61,10 @@ public class Marker {
             }
             case AST_FOR: {
                 markFor(node, scopeChain);
+                break;
+            }
+            case AST_WHILE: {
+                markWhile(node, scopeChain);
                 break;
             }
             case AST_MACRO: {
@@ -132,6 +137,12 @@ public class Marker {
 
         final int startElseStatement = 4;
         markReferenceForElseStatement(startElseStatement, node, scopeChain);
+    }
+
+    private void markWhile(
+            ExpAstNode node, Deque<Map<String, Long>> scopeChain
+    ) {
+        throw new RuntimeException("");
     }
 
     private void markMacro(

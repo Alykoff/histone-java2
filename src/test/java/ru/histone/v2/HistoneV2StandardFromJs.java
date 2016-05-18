@@ -45,7 +45,7 @@ public class HistoneV2StandardFromJs {
 
     public static void main(String[] args) throws IOException {
         final String baseURI = "";
-        final String tpl = "{{macro myMacro(a, b, c = (10000 + 1), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}";
+        final String tpl = "{{var arr = [a:[id:5, cont:1], b:[id:1, cont:12]]}}{{var arr1 = arr + [[id:2, con:5]]}}{{arr1->toJSON}}...{{arr->toJSON}}";
         System.out.println(getNodes(tpl));
         System.out.println(getTpl(tpl));
         System.out.println("--------");

@@ -528,8 +528,10 @@ public class Evaluator implements Serializable {
                 }
 
                 if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
-                    ((MapEvalNode) left).append((MapEvalNode) right);
-                    return completedFuture(left);
+                    final MapEvalNode result = new MapEvalNode(new LinkedHashMap<>());
+                    result.append((MapEvalNode) left);
+                    result.append((MapEvalNode) right);
+                    return completedFuture(result);
                 }
             }
 

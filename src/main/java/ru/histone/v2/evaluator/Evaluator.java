@@ -64,6 +64,8 @@ public class Evaluator implements Serializable {
     private static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
     private static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final String SELF_WHILE_PARAM_ITERATION = "iteration";
+    public static final String SELF_WHILE_PARAM_CONDITION = "condition";
 
     public String process(ExpAstNode node, Context context) {
         return processFuture(node, context).join();
@@ -363,8 +365,8 @@ public class Evaluator implements Serializable {
     private Context createWhileContext(Context context, EvalNode condition, long counter) {
         Context iterableContext = context.createNew();
         final Map<String, EvalNode> selfVars = new LinkedHashMap<>();
-        selfVars.put("iteration", EvalUtils.createEvalNode(counter));
-        selfVars.put("condition", condition);
+        selfVars.put(SELF_WHILE_PARAM_ITERATION, EvalUtils.createEvalNode(counter));
+        selfVars.put(SELF_WHILE_PARAM_CONDITION, condition);
         iterableContext.put(SELF_CONTEXT_NAME, EvalUtils.getValue(selfVars));
         return iterableContext;
     }

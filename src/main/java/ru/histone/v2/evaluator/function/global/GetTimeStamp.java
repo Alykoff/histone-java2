@@ -1,6 +1,5 @@
 package ru.histone.v2.evaluator.function.global;
 
-import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
@@ -27,7 +26,7 @@ public class GetTimeStamp extends AbstractFunction {
     }
 
     private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
-        final long timestamp = System.currentTimeMillis() / Constants.MILLI_SEC_IN_SEC;
+        final long timestamp = System.currentTimeMillis();
         return EvalUtils.getValue(timestamp);
     }
 }

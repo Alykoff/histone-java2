@@ -7,8 +7,8 @@
         "expectedResult": "true"
       },
       {
-        "input": "{{global->getDate('+3y-2d')->toJSON}}",
-        "expectedResult": ""
+        "input": "--{{var now = getDate().month}}{{var x = getDate('+1M').month}}{{(now - x)->toAbs}}",
+        "expectedResult": "--1"
       }
     ]
   }

@@ -21,7 +21,7 @@ import ru.histone.v2.rtti.HistoneType;
  * @author Alexey Nevinsky
  */
 public class BreakContinueEvalNode extends EvalNode<String> {
-
+    private static final String INIT_VALUE = "";
     final private HistoneType type;
     final private String label;
 
@@ -30,13 +30,13 @@ public class BreakContinueEvalNode extends EvalNode<String> {
     }
 
     public BreakContinueEvalNode(HistoneType type, String label) {
-        super(null);
+        super(INIT_VALUE);
         this.type = type;
         this.label = label;
     }
 
     public BreakContinueEvalNode(BreakContinueEvalNode node, String value) {
-        super(null);
+        super(INIT_VALUE);
         this.type = node.getType();
         this.label = node.getLabel();
         this.value = value;

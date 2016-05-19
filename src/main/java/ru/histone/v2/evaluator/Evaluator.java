@@ -356,10 +356,14 @@ public class Evaluator implements Serializable {
                 if (bodyNode.isReturn()) {
                     return bodyNode;
                 }
+
+                acc.append(
+                        RttiUtils.callToStringResult(context, bodyNode).join()
+                );
+
                 if (bodyNode.getType() == HistoneType.T_BREAK) {
-                    return EvalUtils.createEvalNode(acc.toString());
+                    break;
                 }
-                acc.append(RttiUtils.callToStringResult(context, bodyNode).join());
                 counter++;
             }
             return EvalUtils.createEvalNode(acc.toString());

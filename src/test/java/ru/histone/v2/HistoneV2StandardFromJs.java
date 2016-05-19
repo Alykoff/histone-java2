@@ -33,6 +33,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -45,13 +46,13 @@ public class HistoneV2StandardFromJs {
 
     public static void main(String[] args) throws IOException {
         final String baseURI = "";
-        final String tpl = "{{var arr = [a:[id:5, cont:1], b:[id:1, cont:12]]}}{{var arr1 = arr + [[id:2, con:5]]}}{{arr1->toJSON}}...{{arr->toJSON}}";
+        final String tpl = "{{while}}{{if self.iteration != 1}}{{self.iteration}}{{else}}{{break}}{{/if}} {{/while}}";
         System.out.println(getNodes(tpl));
         System.out.println(getTpl(tpl));
         System.out.println("--------");
 
         try {
-            Executor executor = Executors.newFixedThreadPool(20);
+            ExecutorService executor = Executors.newFixedThreadPool(20);
             final Evaluator evaluator = new Evaluator();
             final Parser parser = new Parser();
             RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(executor), evaluator, parser);
@@ -61,6 +62,7 @@ public class HistoneV2StandardFromJs {
             System.out.println(AstJsonProcessor.write(root));
             final String result = evaluator.process(root, context);
             System.out.println(result);
+            executor.shutdown();
         } catch (HistoneException e) {
             e.printStackTrace();
         }

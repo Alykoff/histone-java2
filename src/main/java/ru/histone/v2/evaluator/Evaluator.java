@@ -961,23 +961,21 @@ public class Evaluator implements Serializable {
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {
         return CompletableFuture.completedFuture(null)
                 .thenApply(nullValue -> {
-                    final LongAstNode flagsNumNode = node.getNode(1);
-                    final long flagsNum = flagsNumNode.getValue();
+                    final StringAstNode flagsNumNode = node.getNode(1);
 
                     boolean isIgnoreCase = false;
                     boolean isMultiline = false;
-
+                    boolean isGlobal = false;
                     int flags = 0;
-                    if ((flagsNum & AstRegexType.RE_IGNORECASE.getId()) != 0) {
-                        flags |= Pattern.CASE_INSENSITIVE;
-                        isIgnoreCase = true;
-                    }
-                    if ((flagsNum & AstRegexType.RE_MULTILINE.getId()) != 0) {
-                        flags |= Pattern.MULTILINE;
-                        isMultiline = true;
+
+                    if (flagsNumNode != null) {
+                        final String flagStr = flagsNumNode.getValue();
+
+                        isIgnoreCase = flagStr.contains("i");
+                        isMultiline = flagStr.contains("m");
+                        isGlobal = flagStr.contains("g");
                     }
 
-                    final boolean isGlobal = (flagsNum & AstRegexType.RE_GLOBAL.getId()) != 0;
                     final StringAstNode expNode = node.getNode(0);
                     final String exp = expNode.getValue();
                     final Pattern pattern = Pattern.compile(exp, flags);

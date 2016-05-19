@@ -16,7 +16,6 @@
 
 package ru.histone.v2.parser;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.HistoneException;
@@ -1013,30 +1012,23 @@ public class Parser {
             throw buildSyntaxErrorException(wrapper, e.getMessage());
         }
 
-        int flagNum = 0;
+        String flagStr = null;
         final TokenizerResult flagsTokenizerResult = wrapper.next(T_PROP);
         if (flagsTokenizerResult.isFound()) {
-            String flagStr = flagsTokenizerResult.firstValue();
+            flagStr = flagsTokenizerResult.firstValue();
 
             if (!regexpFlagsPattern.matcher(flagStr).find()) {
                 final String msg = "invalid flags supplied to regular expression '" + flagStr + "'";
                 throw buildSyntaxErrorException(wrapper, msg);
             }
-
-            if (flagStr.contains("g")) {
-                flagNum |= AstRegexType.RE_GLOBAL.getId();
-            }
-            if (flagStr.contains("m")) {
-                flagNum |= AstRegexType.RE_MULTILINE.getId();
-            }
-            if (flagStr.contains("i")) {
-                flagNum |= AstRegexType.RE_IGNORECASE.getId();
-            }
         }
 
-        return new ExpAstNode(AST_REGEXP)
-                .add(new StringAstNode(result.toString()))
-                .add(new LongAstNode(flagNum));
+        ExpAstNode res = new ExpAstNode(AST_REGEXP)
+                .add(new StringAstNode(result.toString()));
+        if (StringUtils.isNotEmpty(flagStr)) {
+            res.add(new StringAstNode(flagStr));
+        }
+        return res;
     }
 
     private boolean next(TokenizerWrapper wrapper, Tokens... tokens) {

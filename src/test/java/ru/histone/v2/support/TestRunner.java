@@ -46,6 +46,8 @@ import java.util.stream.Stream;
  * @author Alexey Nevinsky
  */
 public class TestRunner {
+    private static final Locale US_LOCALE = Locale.US;
+
     public static List<HistoneTestCase> loadTestCases(String testPath) throws URISyntaxException, IOException {
         DirectoryStream<Path> stream = Files.newDirectoryStream(
                 Paths.get(TestRunner.class.getResource("/acceptance/" + testPath).toURI())
@@ -107,7 +109,7 @@ public class TestRunner {
 
             root = AstJsonProcessor.read(stringAst);
             if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot(testCase.getBaseURI(), rtti);
+                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti);
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {

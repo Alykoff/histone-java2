@@ -1,0 +1,19 @@
+[
+  {
+    "name": "ast statement - {{# #}}",
+    "cases": [
+      {
+        "input": "START {{var a = {{#{{5+7}}#}}}}{{a}} END",
+        "expectedResult": "START [29,[9,5,7]] END"
+      },
+      {
+        "input": "START {{var a = {{#{{5+7}}#}}}}{{a->toJSON}} END",
+        "expectedResult": "START \"[29,[9,5,7]]\" END"
+      },
+      {
+        "input": "START {{var a = {{#{{a+7}}#}}}}{{a}} END",
+        "expectedResult": "START [29,[9,[22,[4],\"a\"],7]] END"
+      }
+    ]
+  }
+]

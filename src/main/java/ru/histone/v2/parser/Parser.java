@@ -17,6 +17,7 @@
 package ru.histone.v2.parser;
 
 import org.apache.commons.lang3.StringUtils;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.ParserException;
@@ -24,6 +25,7 @@ import ru.histone.v2.exceptions.SyntaxErrorException;
 import ru.histone.v2.exceptions.UnexpectedTokenException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.parser.tokenizer.*;
+import ru.histone.v2.utils.AstJsonProcessor;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.Tuple;
 
@@ -83,6 +85,9 @@ public class Parser {
     }
 
     private AstNode getStatement(TokenizerWrapper wrapper) throws ParserException {
+        if (next(wrapper, T_AST_START)) {
+            return getASTStatement(wrapper);
+        }
         if (next(wrapper, T_BLOCK_START)) {
             return getTemplateStatement(wrapper);
         }
@@ -96,6 +101,28 @@ public class Parser {
             return new StringAstNode(wrapper.next().firstValue());
         }
         return new ExpAstNode(AST_T_BREAK);
+    }
+
+    private AstNode getASTStatement(TokenizerWrapper wrapper) throws ParserException {
+        final ExpAstNode result = new ExpAstNode(AST_NODELIST);
+        while (!test(wrapper, T_EOF) && !test(wrapper, T_AST_END)) {
+            final AstNode node = getStatement(wrapper);
+            final AstType type = node.getType();
+            switch (type) {
+                case AST_T_NOP: continue;
+                case AST_T_BREAK: break;
+                case AST_T_ARRAY:
+                    result.add(node);
+                    continue;
+                default: result.add(node);
+            }
+        }
+
+        if (!next(wrapper, T_AST_END)) {
+            throw buildUnexpectedTokenException(wrapper, "#}}");
+        }
+
+        return new StringAstNode(AstJsonProcessor.write(result));
     }
 
     private ExpAstNode getCommentStatement(TokenizerWrapper wrapper) throws ParserException {
@@ -808,6 +835,8 @@ public class Parser {
             return new BooleanAstNode(false);
         } else if (next(wrapper, T_SLASH)) {
             return getRegexpLiteral(wrapper);
+        } else if (next(wrapper, T_AST_START)) {
+            return getASTStatement(wrapper);
         } else if (next(wrapper, T_LITERAL_START)) {
             return getLiteralStatement(wrapper);
         } else if (test(wrapper, T_SQUOTE)) {

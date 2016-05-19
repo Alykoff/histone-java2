@@ -217,4 +217,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     public CompletableFuture<EvalNode> callFunction(Context context, EvalNode node, String funcName, List<EvalNode> args) {
         return callFunction(context, node.getType(), funcName, args);
     }
+
+    public Executor getExecutor() {
+        return executor;
+    }
 }

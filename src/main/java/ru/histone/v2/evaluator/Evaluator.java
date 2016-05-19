@@ -335,31 +335,35 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processWhileNode(ExpAstNode expNode, Context context) {
         // [BODY, CONDITION]
-        final AstNode bodyAstNode = expNode.getNode(0);
+        final int bodyIndex = 0;
+        final int conditionIndex = 1;
+        final AstNode bodyAstNode = expNode.getNode(bodyIndex);
         final boolean isConditionExists = expNode.size() > 1;
         final AstNode conditionNode = isConditionExists
-                ? expNode.getNode(1)
+                ? expNode.getNode(conditionIndex)
                 : new BooleanAstNode(true);
-        final StringBuilder acc = new StringBuilder();
-        long counter = 0;
-        while (true) {
-            final EvalNode conditionEvalNode = evaluateNode(conditionNode, context).join();
-            final Boolean condition = RttiUtils.callToBooleanResult(context, conditionEvalNode).join();
-            if (!condition) {
-                break;
+        return CompletableFuture.supplyAsync(() -> {
+            final StringBuilder acc = new StringBuilder();
+            long counter = 0;
+            while (true) {
+                final EvalNode conditionEvalNode = evaluateNode(conditionNode, context).join();
+                final Boolean condition = RttiUtils.callToBooleanResult(context, conditionEvalNode).join();
+                if (!condition) {
+                    break;
+                }
+                final Context ownContext = createWhileContext(context, conditionEvalNode, counter);
+                final EvalNode bodyNode = evaluateNode(bodyAstNode, ownContext).join();
+                if (bodyNode.isReturn()) {
+                    return bodyNode;
+                }
+                if (bodyNode.getType() == HistoneType.T_BREAK) {
+                    return EvalUtils.createEvalNode(acc.toString());
+                }
+                acc.append(RttiUtils.callToStringResult(context, bodyNode).join());
+                counter++;
             }
-            final Context ownContext = createWhileContext(context, conditionEvalNode, counter);
-            final EvalNode bodyNode = evaluateNode(bodyAstNode, ownContext).join();
-            if (bodyNode.isReturn()) {
-                return CompletableFuture.completedFuture(bodyNode);
-            }
-            if (bodyNode.getType() == HistoneType.T_BREAK) {
-                return EvalUtils.getValue(acc.toString());
-            }
-            acc.append(RttiUtils.callToStringResult(context, bodyNode).join());
-            counter++;
-        }
-        return EvalUtils.getValue(acc.toString());
+            return EvalUtils.createEvalNode(acc.toString());
+        }, context.getExecutor());
     }
 
     private Context createWhileContext(Context context, EvalNode condition, long counter) {

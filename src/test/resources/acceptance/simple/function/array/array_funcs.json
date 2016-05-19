@@ -118,6 +118,10 @@
       {
         "input": "{{[foo: 'bar'] + [x: 'y']}}",
         "expectedResult": "bar y"
+      },
+      {
+        "input": "{{var arr = [a:[id:5, cont:1], b:[id:1, cont:12]]}}{{var arr1 = arr + [[id:2, con:5]]}}{{arr1->toJSON}}...{{arr->toJSON}}",
+        "expectedResult": "{\"a\":{\"id\":5,\"cont\":1},\"b\":{\"id\":1,\"cont\":12},\"0\":{\"id\":2,\"con\":5}}...{\"a\":{\"id\":5,\"cont\":1},\"b\":{\"id\":1,\"cont\":12}}"
       }
     ]
   },

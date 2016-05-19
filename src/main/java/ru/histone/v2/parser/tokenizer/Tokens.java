@@ -86,6 +86,8 @@ public enum Tokens {
     T_BREAK(64),
     T_CONTINUE(65),
     T_WHILE(66),
+    T_AST_START(67),
+    T_AST_END(68),
 
     T_EOF(-1),
     T_ERROR(-2),

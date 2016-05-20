@@ -18,6 +18,7 @@ package ru.histone.v2.evaluator.function.global;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -32,8 +33,8 @@ import java.util.regex.Pattern;
  *
  * @author Alexey Nevinsky
  */
-public class GetDate extends AbstractFunction {
-    private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([+-])(\\d+)([dmyDMY])");
+public class GetDate extends LocaleFunction {
+    private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([+-])(\\d+)([DMYhms])");
     private static final String NEGATIVE_SIGN = "-";
     private static final String DAY_SYMBOL = "D";
     private static final String MONTH_SYMBOL = "M";
@@ -88,7 +89,7 @@ public class GetDate extends AbstractFunction {
         res.put("day", getCalendarParam(calendar, Calendar.DAY_OF_MONTH));
         res.put("month", getCalendarParam(calendar, Calendar.MONTH));
         res.put("year", getCalendarParam(calendar, Calendar.YEAR));
-        res.put("hour", getCalendarParam(calendar, Calendar.HOUR));
+        res.put("hour", getCalendarParam(calendar, Calendar.HOUR_OF_DAY));
         res.put("minute", getCalendarParam(calendar, Calendar.MINUTE));
         res.put("second", getCalendarParam(calendar, Calendar.SECOND));
 

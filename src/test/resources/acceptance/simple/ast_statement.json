@@ -17,6 +17,10 @@
       {
         "input": "{{var x = {{#{{*var ui = require('static:///script/ui/ui.tpl')*}}HELLO#}}}}{{x}}",
         "expectedResult": "[29,\"HELLO\"]"
+      },
+      {
+        "input": "{{var x = {{#{{var ui = require('ui.tpl')}}{{var info = ui.getPipe('lk/main/info')}}{{info->toJSON}}#}}}}{{x}}",
+        "expectedResult": "[29,[23,[22,[4],\"require\",\"ui.tpl\"],0],[23,[22,[22,[21,0,0],0,\"getPipe\"],1,\"lk/main/info\"],1],[22,[21,0,1],\"toJSON\"]]"
       }
     ]
   }

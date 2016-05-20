@@ -113,7 +113,8 @@ public class Parser {
                 case AST_T_NOP: continue;
                 case AST_T_BREAK: break;
                 case AST_T_ARRAY:
-                    result.add(node);
+                    final ExpAstNode expNode = (ExpAstNode) node;
+                    result.addAll(expNode.getNodes());
                     continue;
                 default: result.add(node);
             }

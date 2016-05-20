@@ -43,6 +43,10 @@
       {
         "input": "{{macro isBigEnough(biggerThan, element)}}{{return element >= biggerThan}}{{/macro}}{{[12, 5, 8, 130, 44]->filter(isBigEnough, 10)}}",
         "expectedResult": "12 130 44"
+      },
+      {
+        "input": "{{[[errorMsg: 'a'],[errorMsg: 'b'],[errorMsg: 'c'],[errorMsg: 'a'],[xxx: 10]]->group(x => x.errorMsg)->keys->filter->toJSON}}",
+        "expectedResult": "[]"
       }
     ]
   },
@@ -135,6 +139,10 @@
       {
         "input": "{{macro isBigEnough(biggerThan, element)}}{{return element >= biggerThan}}{{/macro}}{{[12, 5, 8, 130, 44]->every(isBigEnough, 10)}} {{[12, 54, 18, 130, 44]->every(isBigEnough, 10)}}",
         "expectedResult": "false true"
+      },
+      {
+        "input": "{{[[errorMsg: 'a'],[errorMsg: 'b'],[errorMsg: 'c'],[errorMsg: 'a'],[xxx: 10]]->every->toJSON}}",
+        "expectedResult": "false"
       }
     ]
   },
@@ -593,6 +601,10 @@
       },
       {
         "input": "{{[1,2]->some(false)}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{[[errorMsg: 'a'],[errorMsg: 'b'],[errorMsg: 'c'],[errorMsg: 'a'],[xxx: 10]]->some->toJSON}}",
         "expectedResult": "false"
       },
       {

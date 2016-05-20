@@ -64,12 +64,21 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
 
     protected static CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        final EvalNode valueNode = args.get(MACRO_INDEX);
+        final EvalNode valueNode;
+        if (args.size() > 1) {
+            valueNode = args.get(MACRO_INDEX);
+        } else {
+            valueNode = null;
+        }
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
         final List<CompletableFuture<Tuple<EvalNode, Boolean>>> mapResultWithPredicate = mapEvalNode.getValue()
                 .values().stream()
                 .map(arg -> {
+                    if (valueNode == null) {
+                        return CompletableFuture.completedFuture(Tuple.create(arg, false));
+                    }
+
                     if (valueNode.getType() == HistoneType.T_MACRO) {
                         final MacroEvalNode macro = (MacroEvalNode) valueNode;
 

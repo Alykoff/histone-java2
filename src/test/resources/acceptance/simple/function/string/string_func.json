@@ -84,6 +84,10 @@
       {
         "input": "{{'histone'->charCodeAt(1, 2)->toJSON}}",
         "expectedResult": "105"
+      },
+      {
+        "input": "{{'hello'->charCodeAt->toJSON}}",
+        "expectedResult": "null"
       }
     ]
   },

@@ -41,6 +41,10 @@ public class StringCharCodeAt extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        if (args.size() < 2) {
+            return EvalUtils.getValue(null);
+        }
+
         final Optional<Integer> indexOptional = EvalUtils.tryPureIntegerValue(args.get(1));
         if (!indexOptional.isPresent()) {
             return EvalUtils.getValue(null);

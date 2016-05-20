@@ -46,7 +46,9 @@ public class GetDayOfWeek extends AbstractFunction {
     }
 
     private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
-        checkMinArgsLength(args, 3);
+        if (args.size() < 3) {
+            return EvalUtils.getValue(null);
+        }
 
         Calendar c = Calendar.getInstance();
         c.setFirstDayOfWeek(Calendar.MONDAY);

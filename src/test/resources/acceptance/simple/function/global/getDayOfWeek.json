@@ -102,6 +102,18 @@
       {
         "input": "{{getDayOfWeek(2016, 2.0, 1)}}",
         "expectedResult": "1"
+      },
+      {
+        "input": "{{getDayOfWeek->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{getDayOfWeek(2016)->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{getDayOfWeek(2016, 2)->toJSON}}",
+        "expectedResult": "null"
       }
     ]
   }

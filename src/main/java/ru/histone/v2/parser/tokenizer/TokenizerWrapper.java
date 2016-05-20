@@ -79,6 +79,11 @@ public class TokenizerWrapper {
         return tokenizer.getBaseURI();
     }
 
+    public TokenizerWrapper setBaseURI(String baseURI) {
+        this.tokenizer.setBaseURI(baseURI);
+        return this;
+    }
+
     /**
      * @param selector
      * @return
@@ -115,6 +120,19 @@ public class TokenizerWrapper {
         scopes.pop();
     }
 
+    public TokenizerWrapper getCleanWrapper() {
+        final TokenizerWrapper newWrapper = new TokenizerWrapper(tokenizer);
+        newWrapper.ignored = new ArrayList<>();
+        newWrapper.isFor = false;
+        newWrapper.isVar = false;
+        newWrapper.isReturn = false;
+        newWrapper.labels = new ArrayList<>();
+        newWrapper.scopes = new ArrayDeque<>();
+        newWrapper.scopes.add(new Scope());
+        newWrapper.isMacroScope = false;
+        return newWrapper;
+    }
+
     public Long getVarName(String varName) {
         Scope scope = scopes.peek();
 
@@ -147,12 +165,12 @@ public class TokenizerWrapper {
         return null;
     }
 
-    private static class Scope {
+    public static class Scope {
         private long counter = 0;
         private Map<String, Var> vars = new HashMap<>();
     }
 
-    private static class Var {
+    public static class Var {
         private boolean used = false;
         private List<Long> names = new ArrayList<>();
 
@@ -200,4 +218,5 @@ public class TokenizerWrapper {
     public boolean labelExists(String labelString) {
         return labels.contains(labelString);
     }
+
 }

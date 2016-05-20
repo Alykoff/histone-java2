@@ -105,9 +105,12 @@ public class Parser {
     }
 
     private AstNode getASTStatement(TokenizerWrapper wrapper) throws ParserException {
+        final String baseURI = wrapper.getBaseURI();
+        wrapper.setBaseURI("");
+        final TokenizerWrapper cleanWrapper = wrapper.getCleanWrapper();
         final ExpAstNode result = new ExpAstNode(AST_NODELIST);
-        while (!test(wrapper, T_EOF) && !test(wrapper, T_AST_END)) {
-            final AstNode node = getStatement(wrapper);
+        while (!test(cleanWrapper, T_EOF) && !test(cleanWrapper, T_AST_END)) {
+            final AstNode node = getStatement(cleanWrapper);
             final AstType type = node.getType();
             switch (type) {
                 case AST_T_NOP: continue;
@@ -120,10 +123,10 @@ public class Parser {
             }
         }
 
-        if (!next(wrapper, T_AST_END)) {
-            throw buildUnexpectedTokenException(wrapper, "#}}");
+        if (!next(cleanWrapper, T_AST_END)) {
+            throw buildUnexpectedTokenException(cleanWrapper, "#}}");
         }
-
+        wrapper.setBaseURI(baseURI);
         return new StringAstNode(
             AstJsonProcessor.write(optimizer.mergeStrings(result))
         );

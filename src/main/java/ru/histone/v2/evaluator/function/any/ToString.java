@@ -79,7 +79,7 @@ public class ToString extends AbstractFunction {
                     if (EvalUtils.canBeLong(fv)) {
                         return CompletableFuture.completedFuture(String.valueOf(fv.longValue()));
                     } else {
-                        String res = new BigDecimal(fv, MathContext.DECIMAL32).stripTrailingZeros().toPlainString();
+                        String res = new BigDecimal(fv, MathContext.DECIMAL64).stripTrailingZeros().toPlainString();
                         return CompletableFuture.completedFuture(res);
                     }
                 }

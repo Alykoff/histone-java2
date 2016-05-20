@@ -24,14 +24,19 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Alexey Nevinsky
  */
 public class ToFixed extends AbstractFunction {
+
+    public static final int DEFAULT_INDEX_OF_CUT = 0;
+
     @Override
     public String getName() {
         return "toFixed";
@@ -42,22 +47,14 @@ public class ToFixed extends AbstractFunction {
         if (args.get(0) instanceof LongEvalNode) {
             return CompletableFuture.completedFuture(args.get(0));
         }
-        double v = ((DoubleEvalNode) args.get(0)).getValue();
+        double input = ((DoubleEvalNode) args.get(0)).getValue();
 
-        long count = 0;
-        if (args.size() > 1) {
-            if (args.get(1) instanceof DoubleEvalNode && EvalUtils.isInteger(((DoubleEvalNode) args.get(1)).getValue())) {
-                count = ((DoubleEvalNode) args.get(1)).getValue().intValue();
-            } else if (args.get(1) instanceof LongEvalNode) {
-                count = ((LongEvalNode) args.get(1)).getValue();
-            } else {
-                count = 0;
-            }
-        }
-        if (count < 0) {
-            count = 0;
-        }
-        return EvalUtils.getValue(new DecimalFormat(format(count)).format(v));
+        long count = Optional.ofNullable(args.size() > 1 ? args.get(1) : null)
+                .flatMap(EvalUtils::tryPureIntegerValue)
+                .filter(x -> x > 0)
+                .orElse(DEFAULT_INDEX_OF_CUT);
+        final double result = Double.parseDouble(new DecimalFormat(format(count)).format(input));
+        return EvalUtils.getNumberFuture(result);
     }
 
     private String format(long count) {

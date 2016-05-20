@@ -161,6 +161,14 @@
       {
         "input": "{{57.323->toFixed('BLA')}}",
         "expectedResult": "57"
+      },
+      {
+        "input": "{{123.192->toFixed('2')->toJSON}}",
+        "expectedResult": "123.19"
+      },
+      {
+        "input": "{{123.192->toFixed->toJSON}}",
+        "expectedResult": "123"
       }
     ]
   }

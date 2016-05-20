@@ -46,7 +46,9 @@ public class GetDaysInMonth extends AbstractFunction {
     }
 
     protected CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
-        checkMinArgsLength(args, 2);
+        if (args.size() < 2) {
+            return EvalUtils.getValue(null);
+        }
 
         final Optional<Integer> yearOptional = tryIntNumber(args.get(0).getValue())
                 .filter(year -> year >= JS_MIN_BOUND_OF_YEAR && year <= JS_MAX_BOUND_OF_YEAR);

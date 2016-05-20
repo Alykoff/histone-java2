@@ -13,6 +13,10 @@
       {
         "input": "START {{var a = {{#{{a+7}}#}}}}{{a}} END",
         "expectedResult": "START [29,[9,[22,[4],\"a\"],7]] END"
+      },
+      {
+        "input": "{{var x = {{#{{*var ui = require('static:///script/ui/ui.tpl')*}}HELLO#}}}}{{x}}",
+        "expectedResult": "[29,\"HELLO\"]"
       }
     ]
   }

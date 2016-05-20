@@ -46,6 +46,7 @@ import static ru.histone.v2.parser.tokenizer.Tokens.*;
 public class Parser {
     public static final String IDENTIFIER = "IDENTIFIER";
     private static final Pattern regexpFlagsPattern = Pattern.compile("^(?:([gim])(?!.*\\1))*$");
+    private static final Optimizer optimizer = new Optimizer();
 
     public ExpAstNode process(String template, String baseURI) throws HistoneException {
         Tokenizer tokenizer = new Tokenizer(template, baseURI, ExpressionList.VALUES);
@@ -122,7 +123,9 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "#}}");
         }
 
-        return new StringAstNode(AstJsonProcessor.write(result));
+        return new StringAstNode(
+            AstJsonProcessor.write(optimizer.mergeStrings(result))
+        );
     }
 
     private ExpAstNode getCommentStatement(TokenizerWrapper wrapper) throws ParserException {

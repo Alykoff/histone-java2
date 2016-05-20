@@ -7,6 +7,10 @@
         "expectedResult": "false"
       },
       {
+        "input": "{{/foo/->test}}",
+        "expectedResult": "false"
+      },
+      {
         "input": "{{var re = /ab+c}}{{re->test('ac')}}",
         "expectedException": {
           "line": "1",

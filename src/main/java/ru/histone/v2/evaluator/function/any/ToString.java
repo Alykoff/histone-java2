@@ -109,7 +109,6 @@ public class ToString extends AbstractFunction {
                     .toPlainString();
         }
         final StringBuilder builder = new StringBuilder();
-        System.out.println(value[0]);
         final String mantissa = value[0]
                 .replaceAll("\\.0$", "")
                 .replace(".", "");

@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.evaluator.node;
-
-import org.apache.commons.lang3.ObjectUtils;
-import ru.histone.v2.rtti.HistoneType;
+package ru.histone.v2.rtti;
 
 /**
  * @author Alexey Nevinsky
  */
-public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
-    public static final String HISTONE_VIEW = "null";
+public enum RttiMethod {
+    RTTI_M_GET("$RTTI_M_GET$"),
+    RTTI_M_CALL("$RTTI_M_CALL$");
 
-    public NullEvalNode() {
-        super(ObjectUtils.NULL);
+    private String id;
+
+    RttiMethod(String id) {
+        this.id = id;
     }
 
-    @Override
-    public ObjectUtils.Null getValue() {
-        return ObjectUtils.NULL;
-    }
-
-    @Override
-    public HistoneType getType() {
-        return HistoneType.T_NULL;
+    public String getId() {
+        return id;
     }
 }

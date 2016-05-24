@@ -25,6 +25,7 @@ import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -40,14 +41,20 @@ public class Histone {
     private Parser parser;
     private SchemaResourceLoader resourceLoader;
     private Executor executor;
+    private Locale locale;
 
     public Histone() {
         evaluator = new Evaluator();
         parser = new Parser();
         executor = new ForkJoinPool();
         resourceLoader = new SchemaResourceLoader(executor);
-
+        locale = Locale.getDefault();
         runTimeTypeInfo = new RunTimeTypeInfo(executor, resourceLoader, evaluator, parser);
+    }
+
+    public Histone(Locale locale) {
+        this();
+        this.locale = locale;
     }
 
     public String process(String template, String baseUri, Map<String, Object> params) {
@@ -60,7 +67,7 @@ public class Histone {
     }
 
     private Context createContext(String baseUri, Map<String, Object> params) {
-        Context ctx = Context.createRoot(baseUri, runTimeTypeInfo);
+        Context ctx = Context.createRoot(baseUri, locale, runTimeTypeInfo);
         ctx.getThisVars().put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(params)));
         return ctx;
     }

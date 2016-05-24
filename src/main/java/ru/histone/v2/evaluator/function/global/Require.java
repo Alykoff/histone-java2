@@ -21,12 +21,15 @@ import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.AstJsonProcessor;
 import ru.histone.v2.utils.IOUtils;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -65,7 +68,7 @@ public class Require extends AbstractFunction {
                 .thenCompose(res -> {
                     String template = IOUtils.readStringFromResource(res, url);
 
-                    ExpAstNode root = parser.process(template, res.getBaseHref());
+                    ExpAstNode root = processTemplate(template, res);
 
                     Context macroCtx = createCtx(context, res.getBaseHref(), params);
 
@@ -91,5 +94,16 @@ public class Require extends AbstractFunction {
         EvalNode node = EvalUtils.constructFromObject(params);
         macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
         return macroCtx;
+    }
+
+    private ExpAstNode processTemplate(String template, Resource res) {
+        if (EvalUtils.isAst(template)) {
+            try {
+                return AstJsonProcessor.read(template);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return parser.process(template, res.getBaseHref());
     }
 }

@@ -16,7 +16,7 @@
 
 package ru.histone.v2.parser.tokenizer;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import ru.histone.v2.expression.Expression;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class Tokenizer {
     private final List<Expression> expressions;
 
     private final String input;
-    private final String baseURI;
+    private String baseURI;
     private final Matcher matcher;
     private final int inputLen;
     private int lastIndex = 0;
@@ -61,6 +61,12 @@ public class Tokenizer {
 
     public String getBaseURI() {
         return baseURI;
+    }
+
+
+    public Tokenizer setBaseURI(String baseURI) {
+        this.baseURI = baseURI;
+        return this;
     }
 
     public void readTokenToBuffer() {

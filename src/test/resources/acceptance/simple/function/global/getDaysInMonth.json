@@ -80,6 +80,14 @@
       {
         "input": "{{getDaysInMonth(2016, 2, 1, 1)}}",
         "expectedResult": "29"
+      },
+      {
+        "input": "{{getDaysInMonth(2016)->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{getDaysInMonth->toJSON}}",
+        "expectedResult": "null"
       }
     ]
   }

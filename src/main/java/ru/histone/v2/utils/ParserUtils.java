@@ -16,42 +16,17 @@
 
 package ru.histone.v2.utils;
 
-import ru.histone.v2.parser.node.*;
+import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.parser.node.AstType;
+import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.parser.node.StringAstNode;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
  * @author Alexey Nevinsky on 12.01.2016.
  */
 public class ParserUtils {
-    public static String astToString(AstNode node) {
-        StringBuffer sb = new StringBuffer();
-        nodeToString(sb, node);
-        return sb.toString();
-    }
-
-    private static void nodeToString(StringBuffer sb, AstNode node) {
-        if (node.hasValue()) {
-            Object nodeValue = ((ValueNode) node).getValue();
-            if (nodeValue instanceof Number || nodeValue instanceof Boolean || nodeValue == null) {
-                sb.append(nodeValue);
-            } else {
-                sb.append("\"").append(nodeValue).append("\"");
-            }
-        } else {
-            List<AstNode> nodes = ((ExpAstNode) node).getNodes();
-            sb.append("[").append(node.getTypeId());
-            if (nodes.size() > 0) {
-                for (AstNode child : nodes) {
-                    sb.append(",");
-                    nodeToString(sb, child);
-                }
-            }
-            sb.append("]");
-        }
-    }
-
     public static ExpAstNode createNopNode(String name) {
         final StringAstNode nameNode = new StringAstNode(name);
         return new ExpAstNode(AstType.AST_NOP).add(nameNode);
@@ -119,12 +94,13 @@ public class ParserUtils {
 
     public static Optional<Integer> tryIntNumber(Object value) {
         return tryDouble(value).flatMap(doubleValue -> {
-            if ((doubleValue == Math.floor(doubleValue)) && !Double.isInfinite(doubleValue)&& doubleValue <= Integer.MAX_VALUE && doubleValue >= Integer.MIN_VALUE) {
+            if ((doubleValue == Math.floor(doubleValue)) && !Double.isInfinite(doubleValue) && doubleValue <= Integer.MAX_VALUE && doubleValue >= Integer.MIN_VALUE) {
                 return Optional.of(doubleValue.intValue());
             }
             return Optional.empty();
         });
     }
+
     public static Optional<Long> tryLongNumber(Object value) {
         return tryDouble(value).flatMap(longValue -> {
             if ((longValue == Math.floor(longValue)) && !Double.isInfinite(longValue) && longValue <= Long.MAX_VALUE && longValue >= Long.MIN_VALUE) {

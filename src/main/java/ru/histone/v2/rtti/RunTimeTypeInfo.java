@@ -16,7 +16,7 @@
 
 package ru.histone.v2.rtti;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
@@ -91,6 +91,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new IsMacro());
         registerForAlltypes(new ToMacro());
         registerForAlltypes(new ToArray());
+        registerForAlltypes(new GetFunction());
+        registerForAlltypes(new CallFunction());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
@@ -134,6 +136,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetMinMax(false));
         registerCommon(T_GLOBAL, new GetMinMax(true));
         registerCommon(T_GLOBAL, new GetDate());
+        registerCommon(T_GLOBAL, new GetTimeStamp());
+        registerCommon(T_GLOBAL, new Wait());
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());
         registerCommon(T_GLOBAL, new Require(executor, loader, evaluator, parser));
@@ -185,7 +189,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     @Override
     public void unregistered(HistoneType type, String funcName) {
-        throw new NotImplementedException();
+        throw new NotImplementedException("");
     }
 
     @Override
@@ -212,5 +216,9 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
     @Override
     public CompletableFuture<EvalNode> callFunction(Context context, EvalNode node, String funcName, List<EvalNode> args) {
         return callFunction(context, node.getType(), funcName, args);
+    }
+
+    public Executor getExecutor() {
+        return executor;
     }
 }

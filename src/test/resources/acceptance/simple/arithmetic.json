@@ -4,6 +4,7 @@
     "cases": [
       {
         "input": "{{'10' - 2}}",
+        "expectedAST": "[29,[10,\"10\",2]]",
         "expectedResult": "8"
       },
       {
@@ -101,11 +102,12 @@
       },
       {
         "input": "--{{[1, 2, 3][0.0]}}",
+        "expectedAST": "[29,\"--\",[22,[1,1,\"0\",2,\"1\",3,\"2\"],0,0]]",
         "expectedResult": "--1"
       },
       {
         "input": "-{{[1, 2, 3]['0.0']}}",
-        "expectedResult": "-1"
+        "expectedResult": "-"
       },
       {
         "input": "{{-'3'}}",
@@ -121,6 +123,7 @@
       },
       {
         "input": "{{10e+3333->toJSON}}",
+        "expectedAST": "[29,[22,null,\"toJSON\"]]",
         "expectedResult": "null"
       },
       {

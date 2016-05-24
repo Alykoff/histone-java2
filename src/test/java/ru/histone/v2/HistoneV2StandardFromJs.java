@@ -23,7 +23,7 @@ import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
-import ru.histone.v2.utils.ParserUtils;
+import ru.histone.v2.utils.AstJsonProcessor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +33,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -45,22 +46,23 @@ public class HistoneV2StandardFromJs {
 
     public static void main(String[] args) throws IOException {
         final String baseURI = "";
-        final String tpl = "{{macro myMacro(a, b, c = (10000 + 1), d = 222222)}}a = {{a}} b = {{b}} c = {{c}} d = {{d}}{{/macro}}{{myMacro(1, 2)}}";
+        final String tpl = "{{while}}{{if self.iteration != 1}}{{self.iteration}}{{else}}{{break}}{{/if}} {{/while}}";
         System.out.println(getNodes(tpl));
         System.out.println(getTpl(tpl));
         System.out.println("--------");
 
         try {
-            Executor executor = Executors.newFixedThreadPool(20);
+            ExecutorService executor = Executors.newFixedThreadPool(20);
             final Evaluator evaluator = new Evaluator();
             final Parser parser = new Parser();
             RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(executor), evaluator, parser);
 
             final Context context = Context.createRoot("", rtti);
             final ExpAstNode root = parser.process(tpl, baseURI);
-            System.out.println(ParserUtils.astToString(root));
+            System.out.println(AstJsonProcessor.write(root));
             final String result = evaluator.process(root, context);
             System.out.println(result);
+            executor.shutdown();
         } catch (HistoneException e) {
             e.printStackTrace();
         }

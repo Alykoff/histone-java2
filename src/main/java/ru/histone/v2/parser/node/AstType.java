@@ -42,29 +42,43 @@ public enum AstType {
     AST_EQ(19),
     AST_NEQ(20),
     AST_REF(21),
-    AST_METHOD(22),
-    AST_PROP(23),
-    AST_CALL(24),
-    AST_VAR(25),
-    AST_IF(26),
-    AST_FOR(27),
-    AST_MACRO(28),
-    AST_RETURN(29),
-    AST_NODES(30),
-    AST_NODELIST(31),
+    AST_CALL(22),
+    AST_VAR(23),
+    AST_IF(24),
+    AST_FOR(25),
+    AST_MACRO(26),
+    AST_RETURN(27),
+    AST_NODES(28),
+    AST_NODELIST(29),
 
-    AST_BOR(32),
-    AST_BXOR(33),
-    AST_BAND(34),
+    AST_BOR(30),
+    AST_BXOR(31),
+    AST_BAND(32),
 
-    AST_SUPPRESS(35),
-    AST_LISTEN(36),
-    AST_TRIGGER(37),
+    AST_SUPPRESS(33),
+    AST_BLS(34),
+    AST_BRS(35),
+    AST_BNOT(36),
 
-    AST_BREAK(38),
-    AST_CONTINUE(39),
+    AST_BREAK(37),
+    AST_CONTINUE(38),
+    AST_WHILE(39),
 
-    AST_EXPRESSION_STATEMENT(40),
+//
+//    RTTI_T_BASE: 0,
+//    RTTI_T_UNDEFINED: 1,
+//    RTTI_T_NULL: 2,
+//    RTTI_T_BOOLEAN: 3,
+//    RTTI_T_NUMBER: 4,
+//    RTTI_T_STRING: 5,
+//    RTTI_T_REGEXP: 6,
+//    RTTI_T_MACRO: 7,
+//    RTTI_T_ARRAY: 8,
+//    RTTI_T_GLOBAL: 9,
+//
+//    RTTI_V_CLEAN: 0,
+//    RTTI_V_DIRTY: 1
+
 
     AST_T_NOP(-1),
     AST_T_BREAK(-2),
@@ -79,5 +93,14 @@ public enum AstType {
 
     public int getId() {
         return id;
+    }
+
+    public static AstType fromId(int id) {
+        for (AstType type : values()) {
+            if (type.getId() == id) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("wrong AstType id '" + id + "'");
     }
 }

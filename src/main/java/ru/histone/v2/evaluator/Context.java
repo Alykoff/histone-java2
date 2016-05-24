@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 
 /**
  * Evaluation context of histone
@@ -43,7 +44,6 @@ public class Context implements Serializable {
     private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = null;
 
     private Context parent;
-    private boolean isRequired = false;
 
     private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
         this.baseUri = baseUri;
@@ -66,7 +66,7 @@ public class Context implements Serializable {
     }
 
     /**
-     * This method used for create a root node
+     * This method used for create a root node using default locale
      *
      * @param baseUri  of context
      * @param rttiInfo is global run time type info
@@ -184,11 +184,7 @@ public class Context implements Serializable {
         return locale;
     }
 
-    public boolean isReturned() {
-        return isRequired;
-    }
-
-    public void setReturned() {
-        isRequired = true;
+    public Executor getExecutor() {
+        return rttiInfo.getExecutor();
     }
 }

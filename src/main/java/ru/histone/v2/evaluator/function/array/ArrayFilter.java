@@ -40,19 +40,45 @@ import java.util.stream.Collectors;
  * @author Gali Alykoff
  */
 public class ArrayFilter extends AbstractFunction implements Serializable {
-    public static final String NAME = "filter";
-    public static final int MAP_EVAL_INDEX = 0;
-    public static final int MACRO_INDEX = 1;
-    public static final int ARGS_START_INDEX = 2;
+    private static final String NAME = "filter";
+    private static final int MAP_EVAL_INDEX = 0;
+    private static final int MACRO_INDEX = 1;
+    private static final int ARGS_START_INDEX = 2;
 
-    public static CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        return calcByPredicate(context, args)
+                .thenApply(pairs ->
+                        pairs.stream()
+                                .filter(Tuple::getRight)
+                                .map(Tuple::getLeft)
+                                .collect(Collectors.toList())
+                )
+                .thenApply(MapEvalNode::new);
+    }
+
+    protected static CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        final EvalNode valueNode = args.get(MACRO_INDEX);
+        final EvalNode valueNode;
+        if (args.size() > 1) {
+            valueNode = args.get(MACRO_INDEX);
+        } else {
+            valueNode = null;
+        }
         final EvalNode param = args.size() > ARGS_START_INDEX ? args.get(ARGS_START_INDEX) : null;
 
         final List<CompletableFuture<Tuple<EvalNode, Boolean>>> mapResultWithPredicate = mapEvalNode.getValue()
                 .values().stream()
                 .map(arg -> {
+                    if (valueNode == null) {
+                        return CompletableFuture.completedFuture(Tuple.create(arg, false));
+                    }
+
                     if (valueNode.getType() == HistoneType.T_MACRO) {
                         final MacroEvalNode macro = (MacroEvalNode) valueNode;
 
@@ -73,20 +99,5 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
                     }
                 }).collect(Collectors.toList());
         return AsyncUtils.sequence(mapResultWithPredicate);
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return calcByPredicate(context, args).thenApply(pairs ->
-                pairs.stream()
-                        .filter(Tuple::getRight)
-                        .map(Tuple::getLeft)
-                        .collect(Collectors.toList())
-        ).thenApply(MapEvalNode::new);
     }
 }

@@ -67,8 +67,9 @@
         "expectedResult": "10"
       },
       {
-        "input": "e{{{{ 5 {{return 10}} }}}}",
-        "expectedResult": "e10"
+        "input": "e{{{{ 5 {{return 10}} }}}}uuu",
+        "expectedAST": "[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]",
+        "expectedResult": "e10uuu"
       },
       {
         "input": "e{{if true}} 5 {{return 10}} {{/if}}",

@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.megafonweblab.histone</groupId>
     <artifactId>histone-java-v2</artifactId>
-    <version>1.0.3</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>Histone - Java Implementation</name>
     <description>Java implementation for Histone Template Engine</description>
@@ -74,7 +74,7 @@
         <google-reflections.version>0.9.8</google-reflections.version>
         <spring.version>4.1.4.RELEASE</spring.version>
         <commons-io.version>2.4</commons-io.version>
-        <commons-lang.version>2.6</commons-lang.version>
+        <commons-lang3.version>3.4</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
     </properties>
     <build>
@@ -263,9 +263,9 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons-lang.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>

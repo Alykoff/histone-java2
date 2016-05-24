@@ -44,6 +44,9 @@ public class Test extends AbstractFunction implements Serializable {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         try {
             final HistoneRegex regexHistone = (HistoneRegex) args.get(0).getValue();
+            if (args.size() < 2) {
+                return EvalUtils.getValue(false);
+            }
             final EvalNode evalNode = args.get(1);
             final String exp = String.valueOf(evalNode.getValue());
             final Pattern pattern = regexHistone.getPattern();

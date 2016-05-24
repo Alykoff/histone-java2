@@ -14,28 +14,34 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.evaluator.node;
-
-import org.apache.commons.lang3.ObjectUtils;
-import ru.histone.v2.rtti.HistoneType;
+package ru.histone.v2.parser.node;
 
 /**
  * @author Alexey Nevinsky
  */
-public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
-    public static final String HISTONE_VIEW = "null";
+public enum CallType {
+    SIMPLE(-1),
+    RTTI_M_GET(0),
+    RTTI_M_CALL(1),
+    REFERENCE(2);
 
-    public NullEvalNode() {
-        super(ObjectUtils.NULL);
+
+    private final int id;
+
+    CallType(int id) {
+        this.id = id;
     }
 
-    @Override
-    public ObjectUtils.Null getValue() {
-        return ObjectUtils.NULL;
+    public int getId() {
+        return id;
     }
 
-    @Override
-    public HistoneType getType() {
-        return HistoneType.T_NULL;
+    public static CallType fromId(int id) {
+        for (CallType type : values()) {
+            if (type.getId() == id) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("wrong CallType id '" + id + "'");
     }
 }

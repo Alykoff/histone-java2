@@ -16,7 +16,7 @@
 
 package ru.histone.v2.evaluator.function.any;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
@@ -73,17 +73,15 @@ public class ToString extends AbstractFunction {
                 return CompletableFuture.completedFuture(NullEvalNode.HISTONE_VIEW);
             }
             case T_NUMBER: {
-                Number v = (Number) node.getValue();
-                if (v instanceof Double) {
-                    Double fv = (Double) v;
-                    if (EvalUtils.canBeLong(fv)) {
-                        return CompletableFuture.completedFuture(String.valueOf(fv.longValue()));
-                    } else {
-                        String res = new BigDecimal(fv, MathContext.DECIMAL32).stripTrailingZeros().toPlainString();
-                        return CompletableFuture.completedFuture(res);
-                    }
+                final Number numberValue = (Number) node.getValue();
+                if (numberValue instanceof Double) {
+                    final Double doubleValue = (Double) numberValue;
+                    final String stringValue = EvalUtils.canBeLong(doubleValue)
+                            ? String.valueOf(doubleValue.longValue())
+                            : processPureDouble(doubleValue);
+                    return CompletableFuture.completedFuture(stringValue);
                 }
-                return CompletableFuture.completedFuture(String.valueOf(v));
+                return CompletableFuture.completedFuture(String.valueOf(numberValue));
             }
             case T_MACRO: {
                 return CompletableFuture.completedFuture(EmptyEvalNode.HISTONE_VIEW);
@@ -99,6 +97,38 @@ public class ToString extends AbstractFunction {
                 return CompletableFuture.completedFuture(node.getValue() + "");
             }
         }
+    }
+
+    private String processPureDouble(Double doubleValue) {
+        final String stringValue = doubleValue.toString();
+        final String[] value = stringValue.split("(e|E)");
+        if (value.length == 1) {
+            return new BigDecimal(doubleValue, MathContext.DECIMAL64)
+                    .stripTrailingZeros()
+                    .toPlainString();
+        }
+        final StringBuilder builder = new StringBuilder();
+        final String mantissa = value[0]
+                .replaceAll("\\.0$", "")
+                .replace(".", "");
+        Long exponent = Long.valueOf(value[1]) + 1;
+        if (exponent < 0) {
+            if (doubleValue < 0) {
+                builder.append('-');
+            }
+            builder.append("0.");
+            while (exponent++ != 0) {
+                builder.append('0');
+            }
+            return builder.append(
+                    mantissa.replaceAll("^-", "")
+            ).toString();
+        }
+        exponent -= mantissa.length();
+        while (exponent-- != 0) {
+            builder.append("0");
+        }
+        return builder.append(exponent).toString();
     }
 
     private CompletableFuture<String> recurseFlattening(Context context, Map<String, EvalNode> map) {

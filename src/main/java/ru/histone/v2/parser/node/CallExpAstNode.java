@@ -14,28 +14,30 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.evaluator.node;
-
-import org.apache.commons.lang3.ObjectUtils;
-import ru.histone.v2.rtti.HistoneType;
+package ru.histone.v2.parser.node;
 
 /**
  * @author Alexey Nevinsky
  */
-public class NullEvalNode extends EvalNode<ObjectUtils.Null> {
-    public static final String HISTONE_VIEW = "null";
+public class CallExpAstNode extends ExpAstNode {
 
-    public NullEvalNode() {
-        super(ObjectUtils.NULL);
+    private CallType callType;
+
+    public CallExpAstNode(CallType callType) {
+        super(AstType.AST_CALL);
+        this.callType = callType;
     }
 
-    @Override
-    public ObjectUtils.Null getValue() {
-        return ObjectUtils.NULL;
+    public CallExpAstNode(CallType callType, AstNode... res) {
+        super(AstType.AST_CALL, res);
+        this.callType = callType;
     }
 
-    @Override
-    public HistoneType getType() {
-        return HistoneType.T_NULL;
+    public CallType getCallType() {
+        return callType;
+    }
+
+    public void setCallType(CallType callType) {
+        this.callType = callType;
     }
 }

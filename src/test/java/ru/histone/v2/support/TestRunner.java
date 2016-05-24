@@ -18,7 +18,7 @@ package ru.histone.v2.support;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.junit.Assert;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
@@ -29,7 +29,7 @@ import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
-import ru.histone.v2.utils.ParserUtils;
+import ru.histone.v2.utils.AstJsonProcessor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -46,6 +46,8 @@ import java.util.stream.Stream;
  * @author Alexey Nevinsky
  */
 public class TestRunner {
+    private static final Locale US_LOCALE = Locale.US;
+
     public static List<HistoneTestCase> loadTestCases(String testPath) throws URISyntaxException, IOException {
         DirectoryStream<Path> stream = Files.newDirectoryStream(
                 Paths.get(TestRunner.class.getResource("/acceptance/" + testPath).toURI())
@@ -100,11 +102,14 @@ public class TestRunner {
 
         try {
             ExpAstNode root = parser.process(input, "");
+            String stringAst = AstJsonProcessor.write(root);
             if (testCase.getExpectedAST() != null) {
-                Assert.assertEquals(testCase.getExpectedAST(), ParserUtils.astToString(root));
+                Assert.assertEquals(testCase.getExpectedAST(), stringAst);
             }
+
+            root = AstJsonProcessor.read(stringAst);
             if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot(testCase.getBaseURI(), rtti);
+                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti);
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {

@@ -97,6 +97,7 @@
       },
       {
         "input": "a {{for x in items}}{{x}}{{/for}} b1",
+        "expectedAST": "[29,\"a \",[25,null,1,[29,[21,0,1]],[22,[4],\"items\"]],\" b1\"]",
         "context": {
           "items": [
             1,
@@ -171,7 +172,8 @@
         "expectedResult": "a  b"
       },
       {
-        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b0",
+        "expectedAST": "[29,\"a \",[25,1,2,[29,[21,0,1],\":\",[21,0,2]],[22,[4],\"items\"]],\" b0\"]",
         "context": {
           "items": [
             1,
@@ -179,7 +181,7 @@
             3
           ]
         },
-        "expectedResult": "a 0:11:22:3 b"
+        "expectedResult": "a 0:11:22:3 b0"
       },
       {
         "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b2",
@@ -341,6 +343,7 @@
       },
       {
         "input": "a {{for k1:v1 in items}}{{k1}}:{{v1}} {{for k2:v2 in items}}({{k2}}:{{v2}}){{/for}} {{/for}}b",
+        "expectedAST": "[29,\"a \",[25,1,2,[29,[21,0,1],\":\",[21,0,2],\" \",[25,1,2,[29,\"(\",[21,0,1],\":\",[21,0,2],\")\"],[22,[4],\"items\"]],\" \"],[22,[4],\"items\"]],\"b\"]",
         "context": {
           "items": [
             1,

@@ -19,23 +19,13 @@ package ru.histone.v2.utils;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author Gali Alykoff
  */
 public class AsyncUtils {
-    public static <T> CompletableFuture<Optional<T>> sequenceOptional(Optional<CompletableFuture<T>> optionalFutures) {
-        if (optionalFutures.isPresent()) {
-            return optionalFutures.get().thenApply(Optional::ofNullable);
-        } else {
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
-    }
-
     public static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
         CompletableFuture<Void> allDoneFuture =
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
@@ -45,14 +35,15 @@ public class AsyncUtils {
                         collect(Collectors.<T>toList())
         );
     }
+
     public static <T> CompletableFuture<LinkedList<T>> sequence(LinkedList<CompletableFuture<T>> futures) {
         CompletableFuture<Void> allDoneFuture =
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
         return allDoneFuture.thenApply(v ->
                 new LinkedList<>(
-                   futures.stream().
-                        map(CompletableFuture::join).
-                        collect(Collectors.<T>toList())
+                        futures.stream().
+                                map(CompletableFuture::join).
+                                collect(Collectors.<T>toList())
                 )
         );
     }

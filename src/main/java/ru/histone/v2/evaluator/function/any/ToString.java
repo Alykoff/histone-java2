@@ -73,14 +73,13 @@ public class ToString extends AbstractFunction {
                 return CompletableFuture.completedFuture(NullEvalNode.HISTONE_VIEW);
             }
             case T_NUMBER: {
-                Number numberValue = (Number) node.getValue();
+                final Number numberValue = (Number) node.getValue();
                 if (numberValue instanceof Double) {
                     final Double doubleValue = (Double) numberValue;
-                    if (EvalUtils.canBeLong(doubleValue)) {
-                        return CompletableFuture.completedFuture(String.valueOf(doubleValue.longValue()));
-                    } else {
-                        return CompletableFuture.completedFuture(processPureDouble(doubleValue));
-                    }
+                    final String stringValue = EvalUtils.canBeLong(doubleValue)
+                            ? String.valueOf(doubleValue.longValue())
+                            : processPureDouble(doubleValue);
+                    return CompletableFuture.completedFuture(stringValue);
                 }
                 return CompletableFuture.completedFuture(String.valueOf(numberValue));
             }

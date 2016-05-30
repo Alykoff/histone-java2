@@ -140,7 +140,7 @@ public class ToString extends AbstractFunction {
             return result.toString();
         } else {
             exponent -= mantissa.length();
-            while (exponent-- != 0) {
+            while (exponent-- > 0) {
                 builder.append("0");
             }
             return mantissa + builder.toString();

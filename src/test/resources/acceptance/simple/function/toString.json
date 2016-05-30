@@ -114,6 +114,10 @@
       {
         "input": "{{10E-20->toString}}",
         "expectedResult": "0.0000000000000000001"
+      },
+      {
+        "input": "{{10E0->toString}}",
+        "expectedResult": "10"
       }
     ]
   }

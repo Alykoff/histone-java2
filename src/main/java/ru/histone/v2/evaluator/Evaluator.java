@@ -255,7 +255,7 @@ public class Evaluator implements Serializable {
         } else if (callNode.getCallType() == CallType.RTTI_M_CALL) {
             return processMethodCall(context, callNode);
         } else {
-            return processSimpleCall(callNode, context, true);
+            return processSimpleCall(callNode, context);
         }
     }
 
@@ -270,7 +270,7 @@ public class Evaluator implements Serializable {
         } else {
             CallExpAstNode n = callNode.getNode(0);
             if (n.getCallType() == CallType.SIMPLE) {
-                valueNode = processSimpleCall(callNode.getNode(0), context, false);
+                valueNode = processSimpleCall(callNode.getNode(0), context);
             } else {
                 valueNode = evaluateNode(callNode.getNode(0), context);
             }
@@ -298,7 +298,7 @@ public class Evaluator implements Serializable {
                 );
     }
 
-    private CompletableFuture<EvalNode> processSimpleCall(ExpAstNode expNode, Context context, boolean doCall) {
+    private CompletableFuture<EvalNode> processSimpleCall(ExpAstNode expNode, Context context) {
         if (expNode.size() == 2) {
             return evaluateNode(expNode.getNode(1), context)
                     .thenCompose(fNameNode -> {
@@ -311,10 +311,6 @@ public class Evaluator implements Serializable {
                         CompletableFuture<EvalNode> res = getValueFromContextOrNull(context, null, name);
                         if (res != null) {
                             return res;
-                        }
-                        if (!doCall) {
-                            return EvalUtils.getValue(name);
-
                         }
                         return evaluateNode(expNode.getNode(0), context)
                                 .thenCompose(value -> context.call(value, name, Collections.singletonList(value)));

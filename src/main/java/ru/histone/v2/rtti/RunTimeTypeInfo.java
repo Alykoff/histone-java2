@@ -93,6 +93,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerForAlltypes(new ToArray());
         registerForAlltypes(new GetFunction());
         registerForAlltypes(new CallFunction());
+        registerForAlltypes(new HasMethod());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());

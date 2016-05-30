@@ -103,32 +103,43 @@ public class ToString extends AbstractFunction {
         final String stringValue = doubleValue.toString();
         final String[] value = stringValue.split("(e|E)");
         if (value.length == 1) {
-            return new BigDecimal(doubleValue, MathContext.DECIMAL64)
-                    .stripTrailingZeros()
-                    .toPlainString();
+            return Double.toString(doubleValue);
         }
         final StringBuilder builder = new StringBuilder();
-        final String mantissa = value[0]
+        final boolean isMinus = doubleValue < 0;
+        final String sign = isMinus
+                ? "-"
+                : "";
+        String mantissa = value[0]
                 .replaceAll("\\.0$", "")
+                .replaceAll("^-", "")
                 .replace(".", "");
         Long exponent = Long.valueOf(value[1]) + 1;
         if (exponent < 0) {
-            if (doubleValue < 0) {
-                builder.append('-');
-            }
-            builder.append("0.");
-            while (exponent++ != 0) {
+            builder.append(sign).append("0.");
+            while (exponent++ < 0) {
                 builder.append('0');
             }
-            return builder.append(
-                    mantissa.replaceAll("^-", "")
-            ).toString();
+            return builder.append(mantissa).toString();
+        } else if (exponent < mantissa.length()) {
+            final String[] mantissaArray = mantissa.split("");
+            int i = 0;
+            while (i != mantissaArray.length) {
+                builder.append(mantissaArray[i]);
+                exponent--;
+                i++;
+                if (exponent == 0) {
+                    builder.append(".");
+                }
+            }
+            return sign + builder.toString();
+        } else {
+            exponent -= mantissa.length();
+            while (exponent-- > 0) {
+                builder.append("0");
+            }
+            return sign + mantissa + builder.toString();
         }
-        exponent -= mantissa.length();
-        while (exponent-- != 0) {
-            builder.append("0");
-        }
-        return builder.append(exponent).toString();
     }
 
     private CompletableFuture<String> recurseFlattening(Context context, Map<String, EvalNode> map) {

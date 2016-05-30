@@ -1,0 +1,43 @@
+[
+  {
+    "name": "any -> hasMethod",
+    "cases": [
+      {
+        "input": "{{hasMethod('asyncLoadJSON')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{global->hasMethod('asyncLoadJSON')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{'a'->hasMethod('asyncLoadJSON')}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{5->hasMethod('toFixed')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false->hasMethod('toString')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false->hasMethod('asMacro')}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false->hasMethod('toMacro')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{false->hasMethod()}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{false->hasMethod('fsdkjfbdskfdsbkjfskb')}}",
+        "expectedResult": "false"
+      }
+    ]
+  }
+]

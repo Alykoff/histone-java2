@@ -122,8 +122,7 @@ public class ToString extends AbstractFunction {
             return builder.append(
                     mantissa.replaceAll("^-", "")
             ).toString();
-        }
-        if (exponent < mantissa.length()) {
+        } else if (exponent < mantissa.length()) {
             if (isMinus) {
                 exponent++;
             }
@@ -139,12 +138,13 @@ public class ToString extends AbstractFunction {
                 }
             }
             return result.toString();
+        } else {
+            exponent -= mantissa.length();
+            while (exponent-- != 0) {
+                builder.append("0");
+            }
+            return mantissa + builder.toString();
         }
-        exponent -= mantissa.length();
-        while (exponent-- != 0) {
-            builder.append("0");
-        }
-        return mantissa + builder.toString();
     }
 
     private CompletableFuture<String> recurseFlattening(Context context, Map<String, EvalNode> map) {

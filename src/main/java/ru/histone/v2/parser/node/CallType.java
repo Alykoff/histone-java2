@@ -20,10 +20,10 @@ package ru.histone.v2.parser.node;
  * @author Alexey Nevinsky
  */
 public enum CallType {
-    SIMPLE(-1),
-    RTTI_M_GET(0),
-    RTTI_M_CALL(1),
-    REFERENCE(2);
+    //we have an variable: {{var a = [b:'c']}}
+    SIMPLE(-1),    //example: {{toJSON()}} or {{toJSON}} or {{global->toJSON}} or {{varFromOuterContext->toJSON()}}
+    RTTI_M_GET(0), //example: {{a.b}} or {{a['b']}}
+    RTTI_M_CALL(1);//example: {{a()}} or {{a(1,2,3,4,5)}}
 
 
     private final int id;

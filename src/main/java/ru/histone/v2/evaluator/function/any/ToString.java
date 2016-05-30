@@ -106,44 +106,39 @@ public class ToString extends AbstractFunction {
             return Double.toString(doubleValue);
         }
         final StringBuilder builder = new StringBuilder();
-        final String mantissa = value[0]
-                .replaceAll("\\.0$", "")
-                .replace(".", "");
         final boolean isMinus = doubleValue < 0;
+        final String sign = isMinus
+                ? "-"
+                : "";
+        String mantissa = value[0]
+                .replaceAll("\\.0$", "")
+                .replaceAll("^-", "")
+                .replace(".", "");
         Long exponent = Long.valueOf(value[1]) + 1;
         if (exponent < 0) {
-            if (isMinus) {
-                builder.append('-');
-            }
-            builder.append("0.");
+            builder.append(sign).append("0.");
             while (exponent++ < 0) {
                 builder.append('0');
             }
-            return builder.append(
-                    mantissa.replaceAll("^-", "")
-            ).toString();
+            return builder.append(mantissa).toString();
         } else if (exponent < mantissa.length()) {
-            if (isMinus) {
-                exponent++;
-            }
-            final StringBuilder result = new StringBuilder();
             final String[] mantissaArray = mantissa.split("");
             int i = 0;
             while (i != mantissaArray.length) {
-                result.append(mantissaArray[i]);
+                builder.append(mantissaArray[i]);
                 exponent--;
                 i++;
                 if (exponent == 0) {
-                    result.append(".");
+                    builder.append(".");
                 }
             }
-            return result.toString();
+            return sign + builder.toString();
         } else {
             exponent -= mantissa.length();
             while (exponent-- > 0) {
                 builder.append("0");
             }
-            return mantissa + builder.toString();
+            return sign + mantissa + builder.toString();
         }
     }
 

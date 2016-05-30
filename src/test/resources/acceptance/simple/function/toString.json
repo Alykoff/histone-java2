@@ -118,6 +118,14 @@
       {
         "input": "{{10E0->toString}}",
         "expectedResult": "10"
+      },
+      {
+        "input": "{{-10E0->toString}}",
+        "expectedResult": "-10"
+      },
+      {
+        "input": "{{-10E1->toString}}",
+        "expectedResult": "-100"
       }
     ]
   }

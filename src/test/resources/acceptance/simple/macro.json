@@ -357,6 +357,14 @@
       {
         "input": "--{{var a = 'stringToMacro' -> toMacro}}{{a()}}",
         "expectedResult": "--stringToMacro"
+      },
+      {
+        "input": "XXX{{'x'->toMacro()()}}END",
+        "expectedResult": "XXXxEND"
+      },
+      {
+        "input": "XXX{{5->toMacro()()}}END",
+        "expectedResult": "XXX5END"
       }
     ]
   }

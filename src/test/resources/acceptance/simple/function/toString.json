@@ -82,6 +82,38 @@
       {
         "input": "{{undefined->toString}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{12345678E3->toString}}",
+        "expectedResult": "12345678000"
+      },
+      {
+        "input": "{{9.904119055E7->toString}}",
+        "expectedResult": "99041190.55"
+      },
+      {
+        "input": "{{-9.904119055E7->toString}}",
+        "expectedResult": "-99041190.55"
+      },
+      {
+        "input": "{{-9.904119055E9->toString}}",
+        "expectedResult": "-9904119055"
+      },
+      {
+        "input": "{{-9.904119055E-2->toString}}",
+        "expectedResult": "-0.09904119055"
+      },
+      {
+        "input": "{{0.123E1->toString}}",
+        "expectedResult": "1.23"
+      },
+      {
+        "input": "{{0.123->toString}}",
+        "expectedResult": "0.123"
+      },
+      {
+        "input": "{{10E-20->toString}}",
+        "expectedResult": "0.0000000000000000001"
       }
     ]
   }

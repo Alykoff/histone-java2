@@ -103,32 +103,48 @@ public class ToString extends AbstractFunction {
         final String stringValue = doubleValue.toString();
         final String[] value = stringValue.split("(e|E)");
         if (value.length == 1) {
-            return new BigDecimal(doubleValue, MathContext.DECIMAL64)
-                    .stripTrailingZeros()
-                    .toPlainString();
+            return Double.toString(doubleValue);
         }
         final StringBuilder builder = new StringBuilder();
         final String mantissa = value[0]
                 .replaceAll("\\.0$", "")
                 .replace(".", "");
+        final boolean isMinus = doubleValue < 0;
         Long exponent = Long.valueOf(value[1]) + 1;
         if (exponent < 0) {
-            if (doubleValue < 0) {
+            if (isMinus) {
                 builder.append('-');
             }
             builder.append("0.");
-            while (exponent++ != 0) {
+            while (exponent++ < 0) {
                 builder.append('0');
             }
             return builder.append(
                     mantissa.replaceAll("^-", "")
             ).toString();
         }
+        if (exponent < mantissa.length()) {
+            if (isMinus) {
+                exponent++;
+            }
+            final StringBuilder result = new StringBuilder();
+            final String[] mantissaArray = mantissa.split("");
+            int i = 0;
+            while (i != mantissaArray.length) {
+                result.append(mantissaArray[i]);
+                exponent--;
+                i++;
+                if (exponent == 0) {
+                    result.append(".");
+                }
+            }
+            return result.toString();
+        }
         exponent -= mantissa.length();
         while (exponent-- != 0) {
             builder.append("0");
         }
-        return builder.append(exponent).toString();
+        return mantissa + builder.toString();
     }
 
     private CompletableFuture<String> recurseFlattening(Context context, Map<String, EvalNode> map) {

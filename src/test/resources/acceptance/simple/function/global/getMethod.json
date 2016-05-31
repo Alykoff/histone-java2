@@ -1,0 +1,31 @@
+[
+  {
+    "name": "global -> getMethod",
+    "cases": [
+      {
+        "input": "{{var x = getMethod('getDaysInMonth')}}{{x(2016, 2, 11)->toJSON}}",
+        "expectedResult": "29"
+      },
+      {
+        "input": "{{var x = getMethod('getDaysInMonth')}}{{x->call(2016, 2, 11)->toJSON}}",
+        "expectedResult": "29"
+      },
+      {
+        "input": "{{var x = getMethod('getDaysInMonth')}}{{x->isMacro->toJSON}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x = getMethod('getDaysInMonth')}}{{x->call()->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{var x = getMethod('xxx')}}{{x->isMacro()->toJSON}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var x = getMethod('xxx')}}{{x->call('hi')->toJSON}}",
+        "expectedResult": "null"
+      }
+    ]
+  }
+]

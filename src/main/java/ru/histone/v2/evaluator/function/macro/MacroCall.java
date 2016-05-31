@@ -29,6 +29,8 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.AstNode;
+import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.parser.node.StringAstNode;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
 
@@ -47,6 +49,7 @@ import java.util.stream.Collectors;
 public class MacroCall extends AbstractFunction implements Serializable {
     public final static String NAME = "call";
     private static final int MACRO_NODE_INDEX = 0;
+    private static final int METHOD_NAME_INDEX_IN_WRAPPED_MACRO_BODY = 1;
 
     public MacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
         super(executor, resourceLoader, evaluator, parser);
@@ -71,8 +74,11 @@ public class MacroCall extends AbstractFunction implements Serializable {
         params.addAll(bindArgs);
         params.addAll(paramsInput);
 
+        if (histoneMacro.isMacroWrappedGlobalFunc()) {
+            return callWrappedGlobalFunction(context, paramsInput, body);
+        }
+
         final Context currentContext = contextInner.createNew();
-        final List<CompletableFuture<EvalNode>> argumentsFutures = new ArrayList<>();
         for (int i = 0; i < namesOfVars.size(); i++) {
             final String argName = namesOfVars.get(i);
             final CompletableFuture<EvalNode> param;
@@ -83,10 +89,12 @@ public class MacroCall extends AbstractFunction implements Serializable {
             } else {
                 param = EvalUtils.getValue(null);
             }
-            argumentsFutures.add(param);
             currentContext.put(argName, param);
         }
-        final CompletableFuture<EvalNode> selfObject = createSelfObject(new MacroEvalNode(histoneMacro), context.getBaseUri(), params);
+
+        final CompletableFuture<EvalNode> selfObject = createSelfObject(
+                new MacroEvalNode(histoneMacro), context.getBaseUri(), params
+        );
         currentContext.put("0", selfObject);
         return evaluator.evaluateNode(body, currentContext).thenCompose(res -> {
             if (res.isReturn()) {
@@ -138,6 +146,18 @@ public class MacroCall extends AbstractFunction implements Serializable {
             }
         }
         return params;
+    }
+
+    // if macro is wrapped global function:
+    // body := [AST_CALL, [AST_GLOBAL], METHOD_NAME],
+    // body := [22, [4], METHOD_NAME]
+    private static CompletableFuture<EvalNode> callWrappedGlobalFunction(
+            Context context, List<EvalNode> args, AstNode body
+    ) {
+        final ExpAstNode bodyExt = (ExpAstNode) body;
+        final StringAstNode methodNameNode = bodyExt.getNode(METHOD_NAME_INDEX_IN_WRAPPED_MACRO_BODY);
+        final String methodName = methodNameNode.getValue();
+        return context.call(methodName, args);
     }
 
     @Override

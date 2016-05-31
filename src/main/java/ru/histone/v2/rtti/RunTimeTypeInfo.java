@@ -142,6 +142,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());
         registerCommon(T_GLOBAL, new Require(executor, loader, evaluator, parser));
+        registerCommon(T_GLOBAL, new GetMethod());
 
         registerCommon(T_REGEXP, new Test());
 

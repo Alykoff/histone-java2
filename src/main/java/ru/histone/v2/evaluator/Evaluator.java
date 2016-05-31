@@ -225,7 +225,9 @@ public class Evaluator implements Serializable {
                 argsDefaultValues.put(offset + 1 + "", defValue);
             }
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(args, body, cloneContext, argsDefaultValues));
+            return new MacroEvalNode(new HistoneMacro(
+                    args, body, cloneContext, argsDefaultValues, HistoneMacro.MACRO_IS_NOT_WRAPPED_GLOBAL_FUNC_FLAG
+            ));
         });
     }
 
@@ -255,7 +257,7 @@ public class Evaluator implements Serializable {
         } else if (callNode.getCallType() == CallType.RTTI_M_CALL) {
             return processMethodCall(context, callNode);
         } else {
-            return processSimpleCall(callNode, context);
+            return processSimpleCall(context, callNode);
         }
     }
 
@@ -270,7 +272,7 @@ public class Evaluator implements Serializable {
         } else {
             CallExpAstNode n = callNode.getNode(0);
             if (n.getCallType() == CallType.SIMPLE) {
-                valueNode = processSimpleCall(callNode.getNode(0), context);
+                valueNode = processSimpleCall(context, callNode.getNode(0));
             } else {
                 valueNode = evaluateNode(callNode.getNode(0), context);
             }
@@ -298,7 +300,7 @@ public class Evaluator implements Serializable {
                 );
     }
 
-    private CompletableFuture<EvalNode> processSimpleCall(ExpAstNode expNode, Context context) {
+    private CompletableFuture<EvalNode> processSimpleCall(Context context, ExpAstNode expNode) {
         if (expNode.size() == 2) {
             return evaluateNode(expNode.getNode(1), context)
                     .thenCompose(fNameNode -> {

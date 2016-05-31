@@ -54,9 +54,9 @@ public class LoadText extends AbstractFunction {
     }
 
     private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
-        checkMinArgsLength(args, 1);
-        checkMaxArgsLength(args, 2);
-        checkTypes(args.get(0), 0, HistoneType.T_STRING, String.class);
+        if (args.size() < 1 || args.get(0).getType() != HistoneType.T_STRING) {
+            return EvalUtils.getValue(null);
+        }
 
         return CompletableFuture.completedFuture(null)
                 .thenCompose(n -> {

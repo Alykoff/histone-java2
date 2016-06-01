@@ -58,17 +58,17 @@ public class PathUtils {
 
         } else {
             if (StringUtils.isNotEmpty(baseUri.getScheme())) {
-                result.append((baseUri.getScheme() + COLON));
+                result.append(baseUri.getScheme()).append(COLON);
             }
             if (StringUtils.isNotEmpty(relUri.getAuthority())) {
-                result.append((DOUBLE_SLASH + relUri.getAuthority()));
+                result.append(DOUBLE_SLASH).append(relUri.getAuthority());
 
                 appendDotSegments(result, relUri.getPath());
                 appendQuery(result, relUri.getQuery());
 
             } else {
                 if (StringUtils.isNotEmpty(baseUri.getAuthority())) {
-                    result.append((DOUBLE_SLASH + baseUri.getAuthority()));
+                    result.append(DOUBLE_SLASH).append(baseUri.getAuthority());
                 }
                 if (StringUtils.isNotEmpty(relUri.getPath())) {
                     StringBuilder pathStringBuilder = new StringBuilder();
@@ -90,15 +90,15 @@ public class PathUtils {
                         result.append(baseUri.getPath());
                     }
                     if (StringUtils.isNotEmpty(relUri.getQuery())) {
-                        result.append((QUESTION + relUri.getQuery()));
+                        result.append(QUESTION).append(relUri.getQuery());
                     } else if (StringUtils.isNotEmpty(baseUri.getQuery())) {
-                        result.append((QUESTION + baseUri.getQuery()));
+                        result.append(QUESTION).append(baseUri.getQuery());
                     }
                 }
             }
         }
         if (StringUtils.isNotEmpty(relUri.getFragment())) {
-            result.append((HASH + relUri.getFragment()));
+            result.append(HASH).append(relUri.getFragment());
         }
         return result.toString();
     }
@@ -112,7 +112,7 @@ public class PathUtils {
 
     private static void appendQuery(StringBuilder sb, String str) {
         if (StringUtils.isNotEmpty(str)) {
-            sb.append((QUESTION + str));
+            sb.append(QUESTION).append(str);
         }
     }
 

@@ -65,7 +65,7 @@ public class TestRunner {
                 if (p.toString().endsWith(".json")) {
                     Stream<String> stringStream = Files.lines(p);
                     List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
-                    histoneCases.forEach(histoneTestCase -> histoneTestCase.getCases().forEach(c -> c.setBaseURI("file://" + p.toString())));
+                    histoneCases.forEach(histoneTestCase -> histoneTestCase.getCases().forEach(c -> c.setBaseURI(p.toUri().toString())));
                     cases.addAll(histoneCases);
                 } else {
                     tplMap.put(p.getFileName().toString(), p);

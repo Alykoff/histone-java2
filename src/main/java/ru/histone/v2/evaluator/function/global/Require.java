@@ -74,8 +74,7 @@ public class Require extends AbstractFunction {
 
                     CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
-                    EvalNode rNode = nodeFuture.join();
-                    return CompletableFuture.completedFuture(rNode.clearReturned());
+                    return nodeFuture.thenApply(EvalNode::clearReturned);
                 })
                 .exceptionally(e -> {
                     logger.error(e.getMessage(), e);

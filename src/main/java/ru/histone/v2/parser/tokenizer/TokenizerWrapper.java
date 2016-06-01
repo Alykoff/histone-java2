@@ -155,9 +155,7 @@ public class TokenizerWrapper {
             Scope scope = iterator.next();
             Var var = scope.vars.get(name);
             if (var != null) {
-                if (isMacroScope) {
-                    var.used = true;
-                }
+                var.used = true;
                 return new Tuple<>(i, var.lastName());
             }
             i++;

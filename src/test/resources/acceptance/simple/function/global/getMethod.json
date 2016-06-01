@@ -25,6 +25,10 @@
       {
         "input": "{{var x = getMethod('xxx')}}{{x->call('hi')->toJSON}}",
         "expectedResult": "null"
+      },
+      {
+        "input": "{{getMethod('loadText')->isMacro}} = true, {{getMethod('loadText')->call(['foo'])}},{{var x = getMethod('loadText')}}{{x(1, 2, 3)}}",
+        "expectedResult": "true = true, ,"
       }
     ]
   }

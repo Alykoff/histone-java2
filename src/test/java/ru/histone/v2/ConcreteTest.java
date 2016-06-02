@@ -62,7 +62,7 @@ public class ConcreteTest {
 //        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]");
 //        TestRunner.doTest("{{var f = (n) => n <= 1 ? n : self.callee(n - 1) + self.callee(n - 2)}}{{f(100)}}", rtti, testCase, evaluator, parser);
-        TestRunner.doTest("{{5->toMacro()(1,9)}}", rtti, testCase, evaluator, parser);
+        TestRunner.doTest("{{eval('{{this->toJSON}}', 123)}}", rtti, testCase, evaluator, parser);
 //        TestRunner.doTest("{{var a = 6}}{{a}}", rtti, testCase, evaluator, parser);
     }
 

@@ -18,6 +18,7 @@ package ru.histone.v2.evaluator.function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.Function;
@@ -30,6 +31,7 @@ import ru.histone.v2.rtti.HistoneType;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
@@ -134,6 +136,19 @@ public abstract class AbstractFunction implements Function {
             return localNodes;
         }
         return args;
+    }
+
+    protected Context createCtx(Context baseContext, String baseUri, Object params) {
+        Context macroCtx = baseContext.cloneEmpty();
+        macroCtx.setBaseUri(baseUri);
+
+        if (params == null) {
+            return macroCtx;
+        }
+
+        EvalNode node = EvalUtils.constructFromObject(params);
+        macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
+        return macroCtx;
     }
 
     @Override

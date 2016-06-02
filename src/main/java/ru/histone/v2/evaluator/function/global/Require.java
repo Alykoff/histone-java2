@@ -82,19 +82,6 @@ public class Require extends AbstractFunction {
                 });
     }
 
-    private Context createCtx(Context baseContext, String baseUri, Object params) {
-        Context macroCtx = baseContext.cloneEmpty();
-        macroCtx.setBaseUri(baseUri);
-
-        if (params == null) {
-            return macroCtx;
-        }
-
-        EvalNode node = EvalUtils.constructFromObject(params);
-        macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
-        return macroCtx;
-    }
-
     private ExpAstNode processTemplate(String template, Resource res) {
         if (EvalUtils.isAst(template)) {
             try {

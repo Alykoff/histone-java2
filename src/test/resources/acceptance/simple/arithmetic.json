@@ -38,6 +38,36 @@
       {
         "input": "{{-'x10'}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{'x10' - throwExceptionFunction}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'x10' * throwExceptionFunction}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'x10' / throwExceptionFunction}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'x10' % throwExceptionFunction}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'10' * throwExceptionFunction}}",
+        "expectedException": {
+          "line": "1",
+          "message": "For input string: \"a\""
+        }
+      },
+      {
+        "input": "{{throwExceptionFunction - '10'}}",
+        "expectedException": {
+          "line": "1",
+          "message": "For input string: \"a\""
+        }
       }
     ]
   },

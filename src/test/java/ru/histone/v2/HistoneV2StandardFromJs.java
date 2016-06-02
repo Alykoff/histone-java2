@@ -96,11 +96,11 @@ public class HistoneV2StandardFromJs {
                 final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)
         ) {
             String line;
-            String processResult = "";
+            StringBuilder processResult = new StringBuilder("");
             while ((line = bufferedReader.readLine()) != null) {
-                processResult += line;
+                processResult.append(line);
             }
-            return processResult;
+            return processResult.toString();
         }
     }
 

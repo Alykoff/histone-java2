@@ -554,34 +554,34 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(futures -> {
-            EvalNode left = futures.get(0);
-            EvalNode right = futures.get(1);
-
-            if ((isNumberNode(left) || left.getType() == HistoneType.T_STRING) &&
-                    (isNumberNode(right) || right.getType() == HistoneType.T_STRING)) {
-                Double leftValue = getValue(left).orElse(null);
-                Double rightValue = getValue(right).orElse(null);
-                if (leftValue == null || rightValue == null) {
-                    return EvalUtils.createEvalNode(null);
+        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() > 1) {
+            Double[] values = new Double[2];
+            for (int i = 0; i < node.getNodes().size(); i++) {
+                EvalNode evaluatedNode = evaluateNode(node.getNodes().get(i), context).join();
+                if (isNumberNode(evaluatedNode) || evaluatedNode.getType() == HistoneType.T_STRING) {
+                    values[i] = getValue(evaluatedNode).orElse(null);
+                    if (values[i] != null) continue;
                 }
 
-                Double res;
-                AstType type = node.getType();
-                if (type == AstType.AST_SUB) {
-                    res = leftValue - rightValue;
-                } else if (type == AstType.AST_MUL) {
-                    res = leftValue * rightValue;
-                } else if (type == AstType.AST_DIV) {
-                    res = leftValue / rightValue;
-                } else {
-                    res = leftValue % rightValue;
-                }
-                return EvalUtils.getNumberNode(res);
+                return EvalUtils.getValue(null);
             }
-            return EvalUtils.createEvalNode(null);
-        });
+
+            Double res;
+            AstType type = node.getType();
+            if (type == AstType.AST_SUB) {
+                res = values[0] - values[1];
+            } else if (type == AstType.AST_MUL) {
+                res = values[0] * values[1];
+            } else if (type == AstType.AST_DIV) {
+                res = values[0] / values[1];
+            } else {
+                res = values[0] % values[1];
+            }
+
+            return EvalUtils.getNumberFuture(res);
+        }
+
+        return EvalUtils.getValue(null);
     }
 
     private Optional<Double> getValue(EvalNode node) { // TODO duplicate ???
@@ -855,37 +855,23 @@ public class Evaluator implements Serializable {
         return res != null ? res : EvalUtils.getValue(null);
     }
 
-    private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> {
-            final EvalNode evalNode = f.get(0);
-            if (evalNode.getType() == HistoneType.T_UNDEFINED
-                    || evalNode.getType() == HistoneType.T_NULL
-                    || !nodeAsBoolean(evalNode)) {
-                return f.get(1);
-            }
-            return evalNode;
-        });
+    private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
+        return processLogicalNode(node, context, true);
     }
 
-    private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> {
-            if (f.get(0).getType() == HistoneType.T_UNDEFINED
-                    || f.get(0).getType() == HistoneType.T_NULL
-                    || !nodeAsBoolean(f.get(0))) {
-                return f.get(0);
-            } else if (f.get(1).getType() == HistoneType.T_UNDEFINED
-                    || f.get(1).getType() == HistoneType.T_NULL
-                    || (!(f.get(0).getType() == HistoneType.T_BOOLEAN) && f.get(1).getType() == HistoneType.T_BOOLEAN)
-                    ) {
-                if (!nodeAsBoolean(f.get(0))) {
-                    return f.get(0);
-                }
-                return f.get(1);
+    private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
+        return processLogicalNode(node, context, false);
+    }
+
+    private CompletableFuture<EvalNode> processLogicalNode(ExpAstNode node, Context context, boolean negateCheck) {
+        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() > 1) {
+            EvalNode leftNode = evaluateNode(node.getNodes().get(0), context).join();
+            if (nodeAsBoolean(leftNode) ^ negateCheck) {
+                return CompletableFuture.completedFuture(leftNode);
             }
-            return f.get(1);
-        });
+            return evaluateNode(node.getNodes().get(1), context);
+        }
+        return EvalUtils.getValue(null);
     }
 
     /**

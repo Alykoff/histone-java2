@@ -554,7 +554,7 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
-        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() > 1) {
+        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
             Double[] values = new Double[2];
             for (int i = 0; i < node.getNodes().size(); i++) {
                 EvalNode evaluatedNode = evaluateNode(node.getNodes().get(i), context).join();
@@ -566,16 +566,21 @@ public class Evaluator implements Serializable {
                 return EvalUtils.getValue(null);
             }
 
-            Double res;
+            Double res = null;
             AstType type = node.getType();
-            if (type == AstType.AST_SUB) {
-                res = values[0] - values[1];
-            } else if (type == AstType.AST_MUL) {
-                res = values[0] * values[1];
-            } else if (type == AstType.AST_DIV) {
-                res = values[0] / values[1];
-            } else {
-                res = values[0] % values[1];
+            switch (type) {
+                case AST_SUB:
+                    res = values[0] - values[1];
+                    break;
+                case AST_MUL:
+                    res = values[0] * values[1];
+                    break;
+                case AST_DIV:
+                    res = values[0] / values[1];
+                    break;
+                case AST_MOD:
+                    res = values[0] % values[1];
+                    break;
             }
 
             return EvalUtils.getNumberFuture(res);
@@ -864,7 +869,7 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processLogicalNode(ExpAstNode node, Context context, boolean negateCheck) {
-        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() > 1) {
+        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
             EvalNode leftNode = evaluateNode(node.getNodes().get(0), context).join();
             if (nodeAsBoolean(leftNode) ^ negateCheck) {
                 return CompletableFuture.completedFuture(leftNode);

@@ -92,19 +92,6 @@
     ]
   },
   {
-    "name": "String.strip",
-    "cases": [
-      {
-        "input": "{{'\t\n  \t\t\t\thistone     \t   \n'->strip}}",
-        "expectedResult": "histone"
-      },
-      {
-        "input": "{{'\t\n  \t    --\thistone  \ta   \n'->strip}}",
-        "expectedResult": "--\thistone  \ta"
-      }
-    ]
-  },
-  {
     "name": "String.split",
     "cases": [
       {

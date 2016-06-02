@@ -16,6 +16,7 @@
 
 package ru.histone.v2;
 
+import com.google.common.base.Charsets;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
@@ -46,7 +47,10 @@ public class HistoneV2StandardFromJs {
 
     public static void main(String[] args) throws IOException {
         final String baseURI = "";
-        final String tpl = "{{while}}{{if self.iteration != 1}}{{self.iteration}}{{else}}{{break}}{{/if}} {{/while}}";
+        final String tpl = "{{'ab$1safsd$1sdfsdf1sdfsdf1dfdfs'->split('$1')->toJSON}}";
+
+        //a {{2.9870654321 -> toFixed(8)}} b getDaysInMonth
+                //"{{var x = {{#{{var ui = require('static:///script/ui/ui.tpl')}}{{var info = ui.getPipe('lk/main/info')}}{{info->toJSON}}#}}}}{{x}}";
         System.out.println(getNodes(tpl));
         System.out.println(getTpl(tpl));
         System.out.println("--------");
@@ -88,7 +92,7 @@ public class HistoneV2StandardFromJs {
         final Process process = builder.start();
         try (
                 final InputStream is = process.getInputStream();
-                final InputStreamReader inputStreamReader = new InputStreamReader(is);
+                final InputStreamReader inputStreamReader = new InputStreamReader(is, Charsets.UTF_8);
                 final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)
         ) {
             String line;

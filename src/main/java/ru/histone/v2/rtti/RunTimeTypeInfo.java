@@ -33,6 +33,7 @@ import ru.histone.v2.evaluator.function.string.*;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.parser.Parser;
+import ru.histone.v2.utils.AsyncUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -211,8 +212,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     protected CompletableFuture<EvalNode> runAsync(Context context, List<EvalNode> args, Function f) {
         // TODO it should be more compact
-        return CompletableFuture
-                .completedFuture(null)
+        return AsyncUtils.initFuture()
                 .thenComposeAsync((x) -> f.execute(context, args), executor);
     }
 

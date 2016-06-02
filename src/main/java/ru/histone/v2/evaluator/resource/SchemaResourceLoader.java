@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.resource.loader.Loader;
 import ru.histone.v2.exceptions.ResourceLoadException;
+import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.PathUtils;
 
 import java.net.URI;
@@ -63,8 +64,7 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
     public CompletableFuture<Resource> load(String href, String baseHref, Map<String, Object> args) throws ResourceLoadException {
         log.debug("Trying to load resource from location={}, with baseLocation={}", new Object[]{href, baseHref});
 
-        return CompletableFuture.completedFuture(null)
-                .thenCompose(x -> {
+        return AsyncUtils.initFuture().thenCompose(ignore -> {
                     String fullLocation = PathUtils.resolveUrl(href, baseHref);
                     ru.histone.v2.utils.URI uri = PathUtils.parseURI(fullLocation);
 

@@ -25,6 +25,7 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.IOUtils;
 import ru.histone.v2.utils.RttiUtils;
 
@@ -58,8 +59,7 @@ public class LoadText extends AbstractFunction {
             return EvalUtils.getValue(null);
         }
 
-        return CompletableFuture.completedFuture(null)
-                .thenCompose(n -> {
+        return AsyncUtils.initFuture().thenCompose(ignore -> {
                     String path = getValue(args, 0);
                     EvalNode requestMap = null;
                     if (args.size() > 1) {

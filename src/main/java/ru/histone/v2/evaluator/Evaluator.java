@@ -32,6 +32,7 @@ import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
+import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
@@ -959,8 +960,7 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {
-        return CompletableFuture.completedFuture(null)
-                .thenApply(nullValue -> {
+        return AsyncUtils.initFuture().thenApply(ignore -> {
                     final StringAstNode flagsNumNode = node.getNode(1);
 
                     boolean isIgnoreCase = false;

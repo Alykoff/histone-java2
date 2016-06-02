@@ -555,37 +555,43 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
         if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
-            Double[] values = new Double[2];
-            for (int i = 0; i < node.getNodes().size(); i++) {
-                EvalNode evaluatedNode = evaluateNode(node.getNodes().get(i), context).join();
-                if (isNumberNode(evaluatedNode) || evaluatedNode.getType() == HistoneType.T_STRING) {
-                    values[i] = getValue(evaluatedNode).orElse(null);
-                    if (values[i] != null) continue;
+            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode ->
+            {
+                if (isNumberNode(leftNode) || leftNode.getType() == HistoneType.T_STRING) {
+                    Double lValue = getValue(leftNode).orElse(null);
+                    if (lValue != null) {
+                        return evaluateNode(node.getNodes().get(1), context).thenCompose(rightNode -> {
+                            if (isNumberNode(rightNode) || rightNode.getType() == HistoneType.T_STRING) {
+                                return CompletableFuture.completedFuture(getValue(rightNode).orElse(null));
+                            }
+                            return CompletableFuture.completedFuture(null);
+                        }).thenCompose(rValue -> {
+                            if (rValue != null) {
+                                Double res = null;
+                                AstType type = node.getType();
+                                switch (type) {
+                                    case AST_SUB:
+                                        res = lValue - rValue;
+                                        break;
+                                    case AST_MUL:
+                                        res = lValue * rValue;
+                                        break;
+                                    case AST_DIV:
+                                        res = lValue / rValue;
+                                        break;
+                                    case AST_MOD:
+                                        res = lValue % rValue;
+                                        break;
+                                }
+                                return EvalUtils.getNumberFuture(res);
+                            }
+                            return EvalUtils.getValue(null);
+                        });
+                    }
                 }
-
                 return EvalUtils.getValue(null);
-            }
-
-            Double res = null;
-            AstType type = node.getType();
-            switch (type) {
-                case AST_SUB:
-                    res = values[0] - values[1];
-                    break;
-                case AST_MUL:
-                    res = values[0] * values[1];
-                    break;
-                case AST_DIV:
-                    res = values[0] / values[1];
-                    break;
-                case AST_MOD:
-                    res = values[0] % values[1];
-                    break;
-            }
-
-            return EvalUtils.getNumberFuture(res);
+            });
         }
-
         return EvalUtils.getValue(null);
     }
 
@@ -870,11 +876,12 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processLogicalNode(ExpAstNode node, Context context, boolean negateCheck) {
         if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
-            EvalNode leftNode = evaluateNode(node.getNodes().get(0), context).join();
-            if (nodeAsBoolean(leftNode) ^ negateCheck) {
-                return CompletableFuture.completedFuture(leftNode);
-            }
-            return evaluateNode(node.getNodes().get(1), context);
+            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode -> {
+                if (nodeAsBoolean(leftNode) ^ negateCheck) {
+                    return CompletableFuture.completedFuture(leftNode);
+                }
+                return evaluateNode(node.getNodes().get(1), context);
+            });
         }
         return EvalUtils.getValue(null);
     }

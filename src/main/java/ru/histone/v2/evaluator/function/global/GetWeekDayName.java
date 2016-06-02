@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentMap;
 public class GetWeekDayName extends LocaleFunction {
 
     private boolean isShort;
-    private ConcurrentMap<String, Properties> props;
 
     public GetWeekDayName(boolean isShort) {
         super();

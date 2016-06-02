@@ -52,7 +52,7 @@ import static ru.histone.v2.rtti.HistoneType.*;
  *
  * @author Gali Alykoff
  */
-public class RunTimeTypeInfo implements Irtti, Serializable {
+public class RunTimeTypeInfo implements Irtti {
     protected final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
     protected final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 

@@ -124,7 +124,7 @@ public class TestRunner {
             }
         } catch (ParserException ex) {
             if (testCase.getExpectedException() != null) {
-                HistoneTestCase.ExpectedException e = testCase.getExpectedException();
+                ExpectedException e = testCase.getExpectedException();
                 Assert.assertEquals(e.getLine(), ex.getLine());
                 if (e.getMessage() != null) {
                     Assert.assertEquals(e.getMessage(), ex.getMessage());
@@ -136,7 +136,7 @@ public class TestRunner {
             }
         } catch (Exception ex) {
             if (testCase.getExpectedException() != null) {
-                HistoneTestCase.ExpectedException e = testCase.getExpectedException();
+                ExpectedException e = testCase.getExpectedException();
                 if (e.getMessage() != null) {
                     Assert.assertEquals(e.getMessage(), ex.getMessage());
                 } else {

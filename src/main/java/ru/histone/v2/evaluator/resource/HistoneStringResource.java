@@ -25,7 +25,6 @@ public class HistoneStringResource implements Resource<String> {
     private final String baseHref;
     private final String contentType;
     private final String content;
-    private Map<String, Object> additionalParams = null;
 
     public HistoneStringResource(String content, String baseHref, String contentType) {
         this.baseHref = baseHref;
@@ -33,9 +32,9 @@ public class HistoneStringResource implements Resource<String> {
         this.content = content;
     }
 
+    @Deprecated
     public HistoneStringResource(String baseHref, String contentType, String content, Map<String, Object> additionalParams) {
         this(baseHref, content, contentType);
-        this.additionalParams = additionalParams;
     }
 
     @Override

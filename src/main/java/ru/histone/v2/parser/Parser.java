@@ -380,7 +380,6 @@ public class Parser {
         wrapper.setFor(true);
         wrapper.setReturn(false);
         wrapper.setVar(false);
-        String labelString = null;
 
         final ExpAstNode node = new ExpAstNode(AST_FOR);
         final TokenizerResult id = wrapper.next(T_ID);
@@ -455,9 +454,6 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "{{/for}}");
         }
 
-        if (labelString != null) { // TODO !!! labelString is always null
-            wrapper.removeLabel(labelString);
-        }
         wrapper.setFor(isParentFor);
         wrapper.setVar(isParentVar);
         wrapper.setReturn(isParentReturn);

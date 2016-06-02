@@ -114,7 +114,7 @@ public class ToString extends AbstractFunction {
                 .replaceAll("\\.0$", "")
                 .replaceAll("^-", "")
                 .replace(".", "");
-        Long exponent = Long.valueOf(value[1]) + 1;
+        Long exponent = Long.parseLong(value[1]) + 1;
         if (exponent < 0) {
             builder.append(sign).append("0.");
             while (exponent++ < 0) {

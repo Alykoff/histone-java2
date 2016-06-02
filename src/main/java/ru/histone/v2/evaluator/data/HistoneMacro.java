@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Gali Alykoff
  */
-public class HistoneMacro implements Serializable, Cloneable {
+public class HistoneMacro implements Cloneable {
     public static final boolean MACRO_IS_WRAPPED_GLOBAL_FUNC_FLAG = true;
     public static final boolean MACRO_IS_NOT_WRAPPED_GLOBAL_FUNC_FLAG = false;
 

@@ -36,7 +36,7 @@ import java.util.concurrent.Executor;
  *
  * @author Alexey Nevinsky
  */
-public class Context implements Serializable {
+public class Context implements Cloneable {
     private String baseUri;
     private Locale locale;
     private RunTimeTypeInfo rttiInfo;

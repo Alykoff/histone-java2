@@ -103,6 +103,14 @@
         "expectedResult": "[\"ab\",\"safsd\",\"sdfsdf1sdfsdf1dfdfs\"]"
       },
       {
+        "input": "{{'ab$$1safsd$$1sdfsdf1sdfsdf1dfdfs'->split('$$1')->toJSON}}",
+        "expectedResult": "[\"ab\",\"safsd\",\"sdfsdf1sdfsdf1dfdfs\"]"
+      },
+      {
+        "input": "{{'fooo////bar/////sdfdsaf'->split(/\\/+/)->toJSON}}",
+        "expectedResult": "[\"fooo\",\"bar\",\"sdfdsaf\"]"
+      },
+      {
         "input": "{{'ab1safsd1sdfsdf1sdfsdf1dfdfs'->split()->toJSON}}",
         "expectedResult": "[\"a\",\"b\",\"1\",\"s\",\"a\",\"f\",\"s\",\"d\",\"1\",\"s\",\"d\",\"f\",\"s\",\"d\",\"f\",\"1\",\"s\",\"d\",\"f\",\"s\",\"d\",\"f\",\"1\",\"d\",\"f\",\"d\",\"f\",\"s\"]"
       }

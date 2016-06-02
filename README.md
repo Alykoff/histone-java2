@@ -59,3 +59,26 @@ Distribution archive contents
     |- LICENSE.txt Apache v2.0 license file
     |- NOTICE.txt file with copyright info
     |- README.md this file
+
+Clone, Build and Run test
+-----------------------------
+For Windows users before clone repo:
+```bash
+git config —global core.autocrlf false
+```
+Clone repo:
+```bash
+git clone https://github.com/MegafonWebLab/histone-java2 histone-java2
+```
+Go to the repo:
+```bash
+cd histone-java2
+```
+Run test:
+```
+mvn clean test
+```
+Build and Run test:
+```bash
+mvn clean package
+```

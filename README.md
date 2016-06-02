@@ -1,4 +1,4 @@
-Histone Template Engine 2 ![Travis build bage](https://travis-ci.org/MegafonWebLab/histone-java2.svg?branch=v2)
+Histone Template Engine 2 ![Travis build bage](https://travis-ci.org/MegafonWebLab/histone-java2.svg?branch=v2) [![Coverage Status](https://coveralls.io/repos/github/MegafonWebLab/histone-java2/badge.svg?branch=v2)](https://coveralls.io/github/MegafonWebLab/histone-java2?branch=v2)
 =======================
 
 Histone — powerful and flexible template engine, which can be used for HTML - code generation as well as any other kind of text - documents. Histone implementations exists for the web - browser as well as for the server (Java and PHP), it allows you to use same templates on the server and on the client. Built - in extension mechanism allows you to extend default template engine features, by adding your own methods and properties for the particular project. Templates has clean and simple syntax and can be stored either as source code or as compiled code that can be executed with the maximum performance wherever it's needed.

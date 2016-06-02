@@ -76,6 +76,8 @@
         <commons-io.version>2.4</commons-io.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
+
+        <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
     </properties>
     <build>
         <resources>
@@ -143,16 +145,13 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18</version>
-                <configuration>
-                    <argLine>-Dfile.encoding=UTF-8</argLine>
-                    <excludes>
-                        <exclude>**/HistonePlaygroundTest.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+            <!--<artifactId>maven-surefire-plugin</artifactId>-->
+            <!--<version>2.19.1</version>-->
+            <!--<configuration>-->
+            <!--<argLine>-Dfile.encoding=UTF-8</argLine>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -181,6 +180,52 @@
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18</version>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <excludes>
+                        <exclude>**/HistonePlaygroundTest.java</exclude>
+                    </excludes>
+                    <argLine>${surefireArgLine}</argLine>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.5.201505241946</version>
+                <configuration>
+                    <destFile>${project.basedir}/target/jacoco.exec</destFile>
+                    <append>true</append>
+                    <propertyName>surefireArgLine</propertyName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.2.0</version>
+                <configuration>
+                    <repoToken>${repo_token}</repoToken>
                 </configuration>
             </plugin>
         </plugins>

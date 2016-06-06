@@ -48,38 +48,34 @@ public class StringSplit extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final String value = ((StringEvalNode) args.get(ELEMENT_INDEX)).getValue();
-        final String separator = getSeparator(args);
+        final String[] separator = getSplitArray(args, value);
         return CompletableFuture.completedFuture(
                 EvalUtils.constructFromList(
-                        Arrays.asList(value.split(separator))
+                        Arrays.asList(separator)
                 )
         );
     }
 
-    private static String getSeparator(List<EvalNode> args) {
+    private static String[] getSplitArray(List<EvalNode> args, String value) {
         return Optional.of(args)
                 .filter(a -> a.size() > SEPARATOR_INDEX)
                 .map(a -> a.get(SEPARATOR_INDEX))
                 .map(separatorNode -> {
                     final HistoneType type = separatorNode.getType();
-                    final String separator;
                     switch (type) {
                         case T_STRING:
-                            separator = Pattern.quote(
+                            final String separator = Pattern.quote(
                                     ((StringEvalNode) separatorNode).getValue()
                             );
-                            break;
+                            return value.split(separator);
                         case T_REGEXP:
-                            separator = ((RegexEvalNode) separatorNode)
+                            final Pattern pattern = ((RegexEvalNode) separatorNode)
                                     .getValue()
-                                    .getPattern()
-                                    .pattern();
-                            break;
+                                    .getPattern();
+                            return pattern.split(value);
                         default:
-                            separator = DEFAULT_SEPARATOR;
-                            break;
+                            return value.split(DEFAULT_SEPARATOR);
                     }
-                    return  separator;
-                }).orElse(DEFAULT_SEPARATOR);
+                }).orElse(value.split(DEFAULT_SEPARATOR));
     }
 }

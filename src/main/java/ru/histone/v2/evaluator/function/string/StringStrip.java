@@ -49,6 +49,12 @@ public class StringStrip extends AbstractFunction {
 
         int start = -1;
         int length = value.length();
+
+        if (length == 0) {
+            return EvalUtils.getValue(value);
+        }
+
+        //строка может быть пустой
         while (start < length && charsToRemove.contains(value.charAt(++start) + "")) {
         }
         while (length >= 0 && charsToRemove.contains(value.charAt(--length) + "")) {

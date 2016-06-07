@@ -13,6 +13,10 @@
       {
         "input": "{{'/X////foo////bar///X//'->strip('/X')}}",
         "expectedResult": "foo////bar"
+      },
+      {
+        "input": "{{''->strip('/X')}}",
+        "expectedResult": ""
       }
     ]
   }

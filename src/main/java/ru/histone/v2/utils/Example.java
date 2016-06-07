@@ -22,8 +22,11 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.property.DefaultPropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
+import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,7 +44,7 @@ public class Example {
         String baseUri = "http://localhost/";
         ExpAstNode node = parser.process("{{var x = 'Hello world!!'}}{{x}}", baseUri); // parsing template and create AST-tree
 
-        Context ctx = Context.createRoot(baseUri, runTimeTypeInfo); // context for evaluating
+        Context ctx = Context.createRoot(baseUri, runTimeTypeInfo, new DefaultPropertyHolder()); // context for evaluating
         String res = evaluator.process(node, ctx); // evaluate AST-tree
         System.out.println(res);
     }

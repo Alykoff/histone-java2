@@ -19,12 +19,13 @@ package ru.histone.v2.evaluator;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.property.PropertyHolder;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -42,13 +43,15 @@ public class Context implements Cloneable {
     private RunTimeTypeInfo rttiInfo;
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
     private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = null;
-
+    private PropertyHolder<String> propertyHolder;
     private Context parent;
 
-    private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
+    private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo,
+                    PropertyHolder<String> propertyHolder) {
         this.baseUri = baseUri;
         this.rttiInfo = rttiInfo;
         this.locale = locale;
+        this.propertyHolder = propertyHolder;
     }
 
     /**
@@ -57,10 +60,12 @@ public class Context implements Cloneable {
      * @param baseUri  of context
      * @param locale   environment locale
      * @param rttiInfo is global run time type info
+     * @param propertyHolder holder with global properties
      * @return created root context
      */
-    public static Context createRoot(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo) {
-        Context ctx = new Context(baseUri, locale, rttiInfo);
+    public static Context createRoot(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo,
+                                     PropertyHolder<String> propertyHolder) {
+        Context ctx = new Context(baseUri, locale, rttiInfo, propertyHolder);
         ctx.thisVars = new ConcurrentHashMap<>();
         return ctx;
     }
@@ -70,17 +75,19 @@ public class Context implements Cloneable {
      *
      * @param baseUri  of context
      * @param rttiInfo is global run time type info
+     * @param propertyHolder holder with global properties
      * @return created root context
      */
-    public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo) {
-        Context ctx = new Context(baseUri, Locale.getDefault(), rttiInfo);
+    public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo,
+                                     PropertyHolder<String> propertyHolder) {
+        Context ctx = new Context(baseUri, Locale.getDefault(), rttiInfo, propertyHolder);
         ctx.thisVars = new ConcurrentHashMap<>();
         return ctx;
     }
 
     @Override
     public Context clone() {
-        final Context that = new Context(baseUri, locale, rttiInfo);
+        final Context that = new Context(baseUri, locale, rttiInfo, propertyHolder);
         that.parent = this.parent;
         that.thisVars = this.thisVars;
         that.vars.putAll(this.vars);
@@ -88,7 +95,7 @@ public class Context implements Cloneable {
     }
 
     public Context cloneEmpty() {
-        Context ctx = new Context(baseUri, locale, rttiInfo);
+        Context ctx = new Context(baseUri, locale, rttiInfo, propertyHolder);
         ctx.thisVars = new ConcurrentHashMap<>();
         return ctx;
     }
@@ -99,7 +106,7 @@ public class Context implements Cloneable {
      * @return child context
      */
     public Context createNew() {
-        Context ctx = new Context(baseUri, locale, rttiInfo);
+        Context ctx = new Context(baseUri, locale, rttiInfo, propertyHolder);
         ctx.parent = this;
         ctx.thisVars = thisVars;
         return ctx;
@@ -132,6 +139,10 @@ public class Context implements Cloneable {
 
     public Context getParent() {
         return parent;
+    }
+
+    public Map<String, String> getGlobalProperties() {
+        return propertyHolder.getPropertyMap();
     }
 
     public ConcurrentMap<String, CompletableFuture<EvalNode>> getVars() {

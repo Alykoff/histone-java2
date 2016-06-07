@@ -16,10 +16,12 @@
 
 package ru.histone.v2.evaluator.function.any;
 
+import org.apache.commons.collections.CollectionUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.GlobalEvalNode;
 import ru.histone.v2.evaluator.node.HasProperties;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.RttiMethod;
@@ -39,6 +41,13 @@ public class GetFunction extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode value = args.get(0);
+        if (value instanceof GlobalEvalNode) {
+            if (CollectionUtils.isNotEmpty(args) && args.size() == 2) {
+                return EvalUtils.getValue(args.get(1).getValue() instanceof String
+                        ? context.getGlobalProperties().get(args.get(1).getValue()) : null);
+            }
+        }
+
         if (value instanceof HasProperties) {
             Object propName = args.get(1).getValue();
             EvalNode res = ((HasProperties) value).getProperty(propName);
@@ -48,6 +57,7 @@ public class GetFunction extends AbstractFunction {
 
             return EvalUtils.getValue(null);
         }
+
         return EvalUtils.getValue(null);
     }
 }

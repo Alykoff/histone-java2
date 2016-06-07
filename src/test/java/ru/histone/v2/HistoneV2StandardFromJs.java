@@ -23,6 +23,7 @@ import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.property.DefaultPropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.utils.AstJsonProcessor;
 
@@ -33,7 +34,6 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,7 +61,7 @@ public class HistoneV2StandardFromJs {
             final Parser parser = new Parser();
             RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(executor), evaluator, parser);
 
-            final Context context = Context.createRoot("", rtti);
+            final Context context = Context.createRoot("", rtti, new DefaultPropertyHolder());
             final ExpAstNode root = parser.process(tpl, baseURI);
             System.out.println(AstJsonProcessor.write(root));
             final String result = evaluator.process(root, context);

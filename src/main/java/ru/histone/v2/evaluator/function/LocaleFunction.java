@@ -42,16 +42,13 @@ public abstract class LocaleFunction extends AbstractFunction {
 
     private void loadProperties() {
         props = new ConcurrentHashMap<>();
-        try {
-            DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(LocaleFunction.class.getResource("/i18n/").toURI()));
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(LocaleFunction.class.getResource("/i18n/").toURI()))) {
             for (Path path : stream) {
                 String fileName = path.getFileName().toString().split("\\.")[0];
                 Properties properties = new Properties();
                 properties.load(Files.newInputStream(path));
-
                 props.put(fileName, properties);
             }
-            stream.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

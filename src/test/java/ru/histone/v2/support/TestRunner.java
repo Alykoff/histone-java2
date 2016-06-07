@@ -28,6 +28,7 @@ import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.property.DefaultPropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.utils.AstJsonProcessor;
 
@@ -109,7 +110,8 @@ public class TestRunner {
 
             root = AstJsonProcessor.read(stringAst);
             if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti);
+                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti,
+                        new DefaultPropertyHolder());
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {

@@ -35,7 +35,6 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.utils.AsyncUtils;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +111,8 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_ARRAY, new ArraySome());
         registerCommon(T_ARRAY, new ArrayEvery());
         registerCommon(T_ARRAY, new ArrayJoin());
+        registerCommon(T_ARRAY, new ArrayLast());
+        registerCommon(T_ARRAY, new ArrayFirst());
         registerCommon(T_ARRAY, new ArrayChunk());
         registerCommon(T_ARRAY, new ArrayReduce());
         registerCommon(T_ARRAY, new ArrayFind());

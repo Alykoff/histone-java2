@@ -102,18 +102,18 @@ import java.util.concurrent.Executors;
 
 public class Example {
     public static void main(String[] args) {
-    	// for evaluating AST-tree
+        // for evaluating AST-tree
         final Evaluator evaluator = new Evaluator();
         // for parsing string template
         final Parser parser = new Parser();
-	// base executor service
+        // base executor service
         final ExecutorService executorService = Executors.newFixedThreadPool(10); 
-	// base resource loader
+        // base resource loader
         final HistoneResourceLoader loader = new SchemaResourceLoader(executorService);
         // singleton with predefined functions
         final RunTimeTypeInfo runTimeTypeInfo = new RunTimeTypeInfo(executorService, loader, evaluator, parser); 
         final String baseUri = "http://localhost/";
-	// context for evaluating
+        // context for evaluating
         final Context ctx = Context.createRoot(baseUri, runTimeTypeInfo, new DefaultPropertyHolder()); 
         
         // parsing template and create AST-tree

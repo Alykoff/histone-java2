@@ -62,13 +62,17 @@ public abstract class LocaleFunction extends AbstractFunction {
     }
 
     private void loadDefaultProperties() {
-        try (BufferedReader propertyListReader =
-                     new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/props.conf")))) {
-            for (String fileName : propertyListReader.readLine().split(" ")) {
-                try (InputStream resourceInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/" + fileName)) {
-                    Properties properties = new Properties();
-                    properties.load(resourceInputStream);
-                    props.put(fileName.split("\\.")[0], properties);
+        try (InputStream propertyListInputStream =
+                     Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/props.conf")) {
+            if (propertyListInputStream != null) {
+                BufferedReader propertyListReader =
+                        new BufferedReader(new InputStreamReader(propertyListInputStream));
+                for (String fileName : propertyListReader.readLine().split(" ")) {
+                    try (InputStream resourceInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/" + fileName)) {
+                        Properties properties = new Properties();
+                        properties.load(resourceInputStream);
+                        props.put(fileName.split("\\.")[0], properties);
+                    }
                 }
             }
         } catch (IOException e) {

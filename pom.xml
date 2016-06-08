@@ -228,6 +228,51 @@
                     <repoToken>${repo_token}</repoToken>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>createPropertiesListFile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                import java.io.IOException;
+                                import java.io.InputStream;
+                                import java.io.File;
+                                import java.nio.charset.Charset;
+                                import java.nio.file.Paths;
+                                import java.nio.file.Path;
+                                import java.nio.file.Files;
+
+                                Path out = Paths.get('src/main/resources/i18n/props.conf');
+                                Files.deleteIfExists(out);
+
+                                File file = new File('src/main/resources/i18n');
+                                StringBuilder sb = new StringBuilder();
+                                if (file.exists()) {
+                                    for (String str : file.list()) {
+                                        if (str.matches(/.+[.]properties/)) {
+                                            sb.append(str).append(" ");
+                                        }
+                                    }
+                                    BufferedWriter bw =
+                                            Files.newBufferedWriter(Files.createFile(out),
+                                                    Charset.forName("UTF-8"));
+
+                                    bw.write(sb.toString().trim());
+                                    bw.flush();
+                                    bw.close();
+                                }
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

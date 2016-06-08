@@ -5,3 +5,4 @@
 .settings
 .classpath
 .project
+/src/main/resources/i18n/props.conf

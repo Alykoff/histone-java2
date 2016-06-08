@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,11 +67,12 @@ public abstract class LocaleFunction extends AbstractFunction {
                      Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/props.conf")) {
             if (propertyListInputStream != null) {
                 BufferedReader propertyListReader =
-                        new BufferedReader(new InputStreamReader(propertyListInputStream));
+                        new BufferedReader(new InputStreamReader(propertyListInputStream, Charset.forName("UTF-8")));
                 for (String fileName : propertyListReader.readLine().split(" ")) {
-                    try (InputStream resourceInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/" + fileName)) {
+                    try (InputStreamReader inputStreamReader =
+                                 new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/" + fileName), Charset.forName("UTF-8"))) {
                         Properties properties = new Properties();
-                        properties.load(resourceInputStream);
+                        properties.load(inputStreamReader);
                         props.put(fileName.split("\\.")[0], properties);
                     }
                 }

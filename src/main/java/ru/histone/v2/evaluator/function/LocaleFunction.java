@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -34,6 +35,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public abstract class LocaleFunction extends AbstractFunction {
 
+    private static final String PROTOCOL_TYPE = "file";
+
     protected ConcurrentMap<String, Properties> props;
 
     public LocaleFunction() {
@@ -48,17 +51,20 @@ public abstract class LocaleFunction extends AbstractFunction {
 //    }
 
     private void loadProperties() {
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(LocaleFunction.class.getResource("/i18n/").toURI()))) {
-            for (Path path : stream) {
-                if (path.getFileName().toString().matches(".+[.]properties")) {
-                    String fileName = path.getFileName().toString().split("\\.")[0];
-                    Properties properties = new Properties();
-                    properties.load(Files.newInputStream(path));
-                    props.put(fileName, properties);
+        URL resource = LocaleFunction.class.getResource("/i18n/");
+        if (resource != null && PROTOCOL_TYPE.equalsIgnoreCase(resource.getProtocol())) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(resource.toURI()))) {
+                for (Path path : stream) {
+                    if (path.getFileName().toString().matches(".+[.]properties")) {
+                        String fileName = path.getFileName().toString().split("\\.")[0];
+                        Properties properties = new Properties();
+                        properties.load(Files.newInputStream(path));
+                        props.put(fileName, properties);
+                    }
                 }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

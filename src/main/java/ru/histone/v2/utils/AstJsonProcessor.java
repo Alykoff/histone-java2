@@ -142,7 +142,6 @@ public class AstJsonProcessor {
                                         {"\\", "\\\\"}
                                 }),
                         new LookupTranslator(EntityArrays.JAVA_CTRL_CHARS_ESCAPE())
-//                        JavaUnicodeEscaper.outsideOf(32, 0x7f)
                 );
                 v = translator.translate(v);
                 sb.append("\"").append(v).append("\"");

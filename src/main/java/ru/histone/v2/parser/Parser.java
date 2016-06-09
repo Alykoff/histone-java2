@@ -17,7 +17,6 @@
 package ru.histone.v2.parser;
 
 import org.apache.commons.lang3.StringUtils;
-import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.ParserException;
@@ -113,13 +112,16 @@ public class Parser {
             final AstNode node = getStatement(cleanWrapper);
             final AstType type = node.getType();
             switch (type) {
-                case AST_T_NOP: continue;
-                case AST_T_BREAK: break;
+                case AST_T_NOP:
+                    continue;
+                case AST_T_BREAK:
+                    break;
                 case AST_T_ARRAY:
                     final ExpAstNode expNode = (ExpAstNode) node;
                     result.addAll(expNode.getNodes());
                     continue;
-                default: result.add(node);
+                default:
+                    result.add(node);
             }
         }
 
@@ -128,7 +130,7 @@ public class Parser {
         }
         wrapper.setBaseURI(baseURI);
         return new StringAstNode(
-            AstJsonProcessor.write(optimizer.mergeStrings(result))
+                AstJsonProcessor.write(optimizer.mergeStrings(result))
         );
     }
 
@@ -489,6 +491,7 @@ public class Parser {
 
     private ExpAstNode getMacroStatement(TokenizerWrapper wrapper) throws ParserException {
         final ExpAstNode result = new ExpAstNode(AST_MACRO);
+        result.add(new LongAstNode(0)); //this macro is clear
         final TokenizerResult nameTokenResult = wrapper.next(T_ID);
         final List<AstNode> inputVars = new ArrayList<>();
         final List<String> nameOfVars = new ArrayList<>();
@@ -628,7 +631,7 @@ public class Parser {
     private ExpAstNode createMacroNode(TokenizerWrapper wrapper, long size) throws ParserException {
         final ExpAstNode returnNode = new ExpAstNode(AST_RETURN).add(getExpression(wrapper));
         final ExpAstNode listNode = new ExpAstNode(AST_NODELIST).add(returnNode);
-        final ExpAstNode res = new ExpAstNode(AST_MACRO).add(listNode);
+        final ExpAstNode res = new ExpAstNode(AST_MACRO).add(new LongAstNode(0)).add(listNode);
         if (size > 0) {
             res.add(new LongAstNode(size));
         }

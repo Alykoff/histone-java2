@@ -200,11 +200,12 @@ public class Evaluator implements Serializable {
     }
 
     /**
-     * [AST_ID, MACRO_BODY, NUM_OF_VARS, VARS...]
+     * [AST_ID, [LINKS_TO_EXTERNAL_VARS], MACRO_BODY, NUM_OF_VARS, VARS...]
      */
     private CompletableFuture<EvalNode> processMacroNode(ExpAstNode node, Context context) {
-        final int bodyIndex = 0;
-        final int startVarIndex = 2;
+        final int bodyIndex = 1;
+        final int numVarIndex = 2;
+        final int startVarIndex = 3;
         final Context cloneContext = context.clone();
         final CompletableFuture<List<AstNode>> astArgsFuture = completedFuture(
                 node.size() < startVarIndex
@@ -213,8 +214,8 @@ public class Evaluator implements Serializable {
         );
         return astArgsFuture.thenApply(astNodes -> {
             final List<String> args = new ArrayList<>();
-            if (node.getNode(1) != null) {
-                LongEvalNode size = (LongEvalNode) evaluateNode(node.getNode(1), context).join();
+            if (node.getNode(numVarIndex) != null) {
+                LongEvalNode size = (LongEvalNode) evaluateNode(node.getNode(numVarIndex), context).join();
                 for (long i = 1; i <= size.getValue(); i++) {
                     args.add(i + "");
                 }
@@ -961,26 +962,26 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {
         return AsyncUtils.initFuture().thenApply(ignore -> {
-                    final StringAstNode flagsNumNode = node.getNode(1);
+            final StringAstNode flagsNumNode = node.getNode(1);
 
-                    boolean isIgnoreCase = false;
-                    boolean isMultiline = false;
-                    boolean isGlobal = false;
-                    int flags = 0;
+            boolean isIgnoreCase = false;
+            boolean isMultiline = false;
+            boolean isGlobal = false;
+            int flags = 0;
 
-                    if (flagsNumNode != null) {
-                        final String flagStr = flagsNumNode.getValue();
+            if (flagsNumNode != null) {
+                final String flagStr = flagsNumNode.getValue();
 
-                        isIgnoreCase = flagStr.contains("i");
-                        isMultiline = flagStr.contains("m");
-                        isGlobal = flagStr.contains("g");
-                    }
+                isIgnoreCase = flagStr.contains("i");
+                isMultiline = flagStr.contains("m");
+                isGlobal = flagStr.contains("g");
+            }
 
-                    final StringAstNode expNode = node.getNode(0);
-                    final String exp = expNode.getValue();
-                    final Pattern pattern = Pattern.compile(exp, flags);
-                    return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
-                });
+            final StringAstNode expNode = node.getNode(0);
+            final String exp = expNode.getValue();
+            final Pattern pattern = Pattern.compile(exp, flags);
+            return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
+        });
     }
 
 }

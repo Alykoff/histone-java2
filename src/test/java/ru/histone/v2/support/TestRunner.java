@@ -122,7 +122,7 @@ public class TestRunner {
                     }
                 }
                 String result = evaluator.process(root, context);
-                Assert.assertEquals(testCase.getExpectedResult(), result);
+                Assert.assertEquals(normalizeLineEndings(testCase.getExpectedResult()), normalizeLineEndings(result));
             }
         } catch (ParserException ex) {
             if (testCase.getExpectedException() != null) {
@@ -192,5 +192,9 @@ public class TestRunner {
             value = ((Integer) value).longValue();
         }
         return EvalUtils.createEvalNode(value);
+    }
+
+    private static String normalizeLineEndings(String value) {
+        return value.replaceAll("\\r\\n", "\n");
     }
 }

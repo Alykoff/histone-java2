@@ -45,26 +45,22 @@ public abstract class LocaleFunction extends AbstractFunction {
         loadProperties();
     }
 
-//    public LocaleFunction(Executor executor) {
-//        super(executor);
-//        loadProperties();
-//    }
-
     private void loadProperties() {
         URL resource = LocaleFunction.class.getResource("/i18n/");
-        if (resource != null && PROTOCOL_TYPE.equalsIgnoreCase(resource.getProtocol())) {
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(resource.toURI()))) {
-                for (Path path : stream) {
-                    if (path.getFileName().toString().matches(".+[.]properties")) {
-                        String fileName = path.getFileName().toString().split("\\.")[0];
-                        Properties properties = new Properties();
-                        properties.load(Files.newInputStream(path));
-                        props.put(fileName, properties);
-                    }
+        if (resource == null || !PROTOCOL_TYPE.equalsIgnoreCase(resource.getProtocol())) {
+            return;
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(resource.toURI()))) {
+            for (Path path : stream) {
+                if (path.getFileName().toString().matches(".+[.]properties")) {
+                    String fileName = path.getFileName().toString().split("\\.")[0];
+                    Properties properties = new Properties();
+                    properties.load(Files.newInputStream(path));
+                    props.put(fileName, properties);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

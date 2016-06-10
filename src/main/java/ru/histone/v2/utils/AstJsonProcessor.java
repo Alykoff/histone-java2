@@ -87,6 +87,27 @@ public class AstJsonProcessor {
                     expAstNode.add(node);
                 }
             }
+        } else if (type == AstType.AST_MACRO) {
+            expAstNode = new ExpAstNode(type);
+            expAstNode.add(new LongAstNode(0));
+            for (int i = 2; i < list.size(); i++) {
+                Object o = list.get(i);
+                final AstNode node;
+                if (o instanceof List) {
+                    node = convert((List) o);
+                } else if (o instanceof Integer) {
+                    node = new LongAstNode((Integer) o);
+                } else if (o instanceof Long) {
+                    node = new LongAstNode((Long) o);
+                } else if (o instanceof Double) {
+                    node = new DoubleAstNode((Double) o);
+                } else if (o instanceof Boolean) {
+                    node = new BooleanAstNode((Boolean) o);
+                } else {
+                    node = new StringAstNode((String) o);
+                }
+                expAstNode.add(node);
+            }
         } else {
             expAstNode = new ExpAstNode(type);
             for (int i = 1; i < list.size(); i++) {

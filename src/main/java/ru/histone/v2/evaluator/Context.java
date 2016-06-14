@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.property.PropertyHolder;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -82,10 +83,13 @@ public class Context implements Cloneable {
 
     @Override
     public Context clone() {
-        final Context that = new Context(baseUri, locale, rttiInfo, propertyHolder);
-        that.parent = this.parent;
-        that.vars.putAll(this.vars);
-        return that;
+        try {
+            Context that = (Context) super.clone();
+            that.vars = new ConcurrentHashMap<>(this.vars);
+            return that;
+        } catch (CloneNotSupportedException e) {
+            throw new HistoneException(e);
+        }
     }
 
     public Context cloneEmpty() {

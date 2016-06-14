@@ -115,7 +115,7 @@ public class TestRunner {
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {
-                            context.getThisVars().put("this", entry.getValue());
+                            context.put("this", entry.getValue());
                         } else {
                             context.getVars().put(entry.getKey(), entry.getValue());
                         }

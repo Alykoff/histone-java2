@@ -72,7 +72,7 @@ public class Histone {
 
     private Context createContext(String baseUri, Map<String, Object> params) {
         Context ctx = Context.createRoot(baseUri, locale, runTimeTypeInfo, propertyHolder);
-        ctx.getThisVars().put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(params)));
+        ctx.put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(params)));
         return ctx;
     }
 }

@@ -93,10 +93,12 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
 
         final EvalNode rawMacroNode = args.get(MACRO_INDEX);
         if (rawMacroNode.getType() != HistoneType.T_MACRO) {
-            String stringKey = RttiUtils.callToStringResult(context, rawMacroNode).join();
-            Map<String, EvalNode> resMap = new HashMap<>();
-            resMap.put(stringKey, arrayNode);
-            return EvalUtils.getValue(resMap);
+            return RttiUtils.callToStringResult(context, rawMacroNode)
+                    .thenCompose(stringKey -> {
+                        Map<String, EvalNode> resMap = new HashMap<>();
+                        resMap.put(stringKey, arrayNode);
+                        return EvalUtils.getValue(resMap);
+                    });
         }
         final CompletableFuture<MacroEvalNode> macroFuture =
                 ArrayReduce.getMacroWithBindFuture(context, args, START_BIND_INDEX);

@@ -92,19 +92,6 @@
     ]
   },
   {
-    "name": "String.strip",
-    "cases": [
-      {
-        "input": "{{'\t\n  \t\t\t\thistone     \t   \n'->strip}}",
-        "expectedResult": "histone"
-      },
-      {
-        "input": "{{'\t\n  \t    --\thistone  \ta   \n'->strip}}",
-        "expectedResult": "--\thistone  \ta"
-      }
-    ]
-  },
-  {
     "name": "String.split",
     "cases": [
       {
@@ -114,6 +101,14 @@
       {
         "input": "{{'ab$1safsd$1sdfsdf1sdfsdf1dfdfs'->split('$1')->toJSON}}",
         "expectedResult": "[\"ab\",\"safsd\",\"sdfsdf1sdfsdf1dfdfs\"]"
+      },
+      {
+        "input": "{{'ab$$1safsd$$1sdfsdf1sdfsdf1dfdfs'->split('$$1')->toJSON}}",
+        "expectedResult": "[\"ab\",\"safsd\",\"sdfsdf1sdfsdf1dfdfs\"]"
+      },
+      {
+        "input": "{{'fooo////bar/////sdfdsaf'->split(/\\/+/)->toJSON}}",
+        "expectedResult": "[\"fooo\",\"bar\",\"sdfdsaf\"]"
       },
       {
         "input": "{{'ab1safsd1sdfsdf1sdfsdf1dfdfs'->split()->toJSON}}",

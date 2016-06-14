@@ -1,0 +1,12 @@
+[
+  {
+    "name": "deadlock",
+    "comment": "issue as https://github.com/ben-manes/caffeine/issues/69",
+    "cases": [
+      {
+        "input": "{{var a = asyncLoadText('http://127.0.0.1:4442/longRequest'), a = a? a}} {{a->toJSON}}",
+        "expectedResult": " \"done\""
+      }
+    ]
+  }
+]

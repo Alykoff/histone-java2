@@ -33,8 +33,8 @@ import ru.histone.v2.evaluator.function.string.*;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.parser.Parser;
+import ru.histone.v2.utils.AsyncUtils;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ import static ru.histone.v2.rtti.HistoneType.*;
  *
  * @author Gali Alykoff
  */
-public class RunTimeTypeInfo implements Irtti, Serializable {
+public class RunTimeTypeInfo implements Irtti {
     protected final Map<HistoneType, Map<String, Function>> userTypes = new ConcurrentHashMap<>();
     protected final Map<HistoneType, Map<String, Function>> typeMembers = new ConcurrentHashMap<>();
 
@@ -111,6 +111,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_ARRAY, new ArraySome());
         registerCommon(T_ARRAY, new ArrayEvery());
         registerCommon(T_ARRAY, new ArrayJoin());
+        registerCommon(T_ARRAY, new ArrayLast());
+        registerCommon(T_ARRAY, new ArrayFirst());
         registerCommon(T_ARRAY, new ArrayChunk());
         registerCommon(T_ARRAY, new ArrayReduce());
         registerCommon(T_ARRAY, new ArrayFind());
@@ -142,6 +144,8 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());
         registerCommon(T_GLOBAL, new Require(executor, loader, evaluator, parser));
+        registerCommon(T_GLOBAL, new GetMethod());
+        registerCommon(T_GLOBAL, new Eval(executor, loader, evaluator, parser));
 
         registerCommon(T_REGEXP, new Test());
 
@@ -209,8 +213,7 @@ public class RunTimeTypeInfo implements Irtti, Serializable {
 
     protected CompletableFuture<EvalNode> runAsync(Context context, List<EvalNode> args, Function f) {
         // TODO it should be more compact
-        return CompletableFuture
-                .completedFuture(null)
+        return AsyncUtils.initFuture()
                 .thenComposeAsync((x) -> f.execute(context, args), executor);
     }
 

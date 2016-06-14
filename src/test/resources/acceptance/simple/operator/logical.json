@@ -318,6 +318,31 @@
       },
       {
         "input": "{{['foo':'bar'] && ['foo':'bar']}}", "expectedResult": "bar"
+      },
+      {
+        "input": "{{false && throwExceptionFunction}}", "expectedResult": "false"
+      },
+      {
+        "input": "{{true && throwExceptionFunction}}",
+        "expectedException": {
+        "line": "1",
+        "message": "For input string: \"a\""
+        }
+      }
+    ]
+  },
+  {
+    "name": "operator.or",
+    "cases": [
+      {
+        "input": "{{true || throwExceptionFunction}}", "expectedResult": "true"
+      },
+      {
+        "input": "{{false || throwExceptionFunction}}",
+        "expectedException": {
+          "line": "1",
+          "message": "For input string: \"a\""
+        }
       }
     ]
   },

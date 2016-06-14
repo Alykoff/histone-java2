@@ -30,6 +30,6 @@ public class StringEvalNodeLenComparator implements Comparator<StringEvalNode>, 
     public int compare(StringEvalNode left, StringEvalNode right) {
         final long leftLength = left.getValue().length();
         final long rightLength = right.getValue().length();
-        return Long.valueOf(leftLength).compareTo(rightLength);
+        return Long.compare(leftLength, rightLength);
     }
 }

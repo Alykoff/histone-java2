@@ -163,7 +163,8 @@ public class ToJson extends AbstractFunction {
         mapper.registerModule(module);
 
         try {
-            String res = mapper.writeValueAsString(node.getValue());
+            String res = mapper.writeValueAsString(
+                    HistoneType.T_GLOBAL == node.getType() ? context.getGlobalProperties() : node.getValue());
             return EvalUtils.getValue(res);
         } catch (JsonProcessingException e) {
             throw new FunctionExecutionException("Failed to write object to json", e);

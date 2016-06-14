@@ -32,6 +32,7 @@ import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
+import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
@@ -199,11 +200,12 @@ public class Evaluator implements Serializable {
     }
 
     /**
-     * [AST_ID, MACRO_BODY, NUM_OF_VARS, VARS...]
+     * [AST_ID, [LINKS_TO_EXTERNAL_VARS], MACRO_BODY, NUM_OF_VARS, VARS...]
      */
     private CompletableFuture<EvalNode> processMacroNode(ExpAstNode node, Context context) {
-        final int bodyIndex = 0;
-        final int startVarIndex = 2;
+        final int bodyIndex = 1;
+        final int numVarIndex = 2;
+        final int startVarIndex = 3;
         final Context cloneContext = context.clone();
         final CompletableFuture<List<AstNode>> astArgsFuture = completedFuture(
                 node.size() < startVarIndex
@@ -212,8 +214,8 @@ public class Evaluator implements Serializable {
         );
         return astArgsFuture.thenApply(astNodes -> {
             final List<String> args = new ArrayList<>();
-            if (node.getNode(1) != null) {
-                LongEvalNode size = (LongEvalNode) evaluateNode(node.getNode(1), context).join();
+            if (node.getNode(numVarIndex) != null) {
+                LongEvalNode size = (LongEvalNode) evaluateNode(node.getNode(numVarIndex), context).join();
                 for (long i = 1; i <= size.getValue(); i++) {
                     args.add(i + "");
                 }
@@ -225,7 +227,9 @@ public class Evaluator implements Serializable {
                 argsDefaultValues.put(offset + 1 + "", defValue);
             }
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(args, body, cloneContext, argsDefaultValues));
+            return new MacroEvalNode(new HistoneMacro(
+                    args, body, cloneContext, argsDefaultValues, HistoneMacro.MACRO_IS_NOT_WRAPPED_GLOBAL_FUNC_FLAG
+            ));
         });
     }
 
@@ -255,7 +259,7 @@ public class Evaluator implements Serializable {
         } else if (callNode.getCallType() == CallType.RTTI_M_CALL) {
             return processMethodCall(context, callNode);
         } else {
-            return processSimpleCall(callNode, context);
+            return processSimpleCall(context, callNode);
         }
     }
 
@@ -270,7 +274,7 @@ public class Evaluator implements Serializable {
         } else {
             CallExpAstNode n = callNode.getNode(0);
             if (n.getCallType() == CallType.SIMPLE) {
-                valueNode = processSimpleCall(callNode.getNode(0), context);
+                valueNode = processSimpleCall(context, callNode.getNode(0));
             } else {
                 valueNode = evaluateNode(callNode.getNode(0), context);
             }
@@ -298,7 +302,7 @@ public class Evaluator implements Serializable {
                 );
     }
 
-    private CompletableFuture<EvalNode> processSimpleCall(ExpAstNode expNode, Context context) {
+    private CompletableFuture<EvalNode> processSimpleCall(Context context, ExpAstNode expNode) {
         if (expNode.size() == 2) {
             return evaluateNode(expNode.getNode(1), context)
                     .thenCompose(fNameNode -> {
@@ -552,34 +556,45 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(futures -> {
-            EvalNode left = futures.get(0);
-            EvalNode right = futures.get(1);
-
-            if ((isNumberNode(left) || left.getType() == HistoneType.T_STRING) &&
-                    (isNumberNode(right) || right.getType() == HistoneType.T_STRING)) {
-                Double leftValue = getValue(left).orElse(null);
-                Double rightValue = getValue(right).orElse(null);
-                if (leftValue == null || rightValue == null) {
-                    return EvalUtils.createEvalNode(null);
+        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
+            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode ->
+            {
+                if (isNumberNode(leftNode) || leftNode.getType() == HistoneType.T_STRING) {
+                    Double lValue = getValue(leftNode).orElse(null);
+                    if (lValue != null) {
+                        return evaluateNode(node.getNodes().get(1), context).thenCompose(rightNode -> {
+                            if (isNumberNode(rightNode) || rightNode.getType() == HistoneType.T_STRING) {
+                                return CompletableFuture.completedFuture(getValue(rightNode).orElse(null));
+                            }
+                            return CompletableFuture.completedFuture(null);
+                        }).thenCompose(rValue -> {
+                            if (rValue != null) {
+                                Double res = null;
+                                AstType type = node.getType();
+                                switch (type) {
+                                    case AST_SUB:
+                                        res = lValue - rValue;
+                                        break;
+                                    case AST_MUL:
+                                        res = lValue * rValue;
+                                        break;
+                                    case AST_DIV:
+                                        res = lValue / rValue;
+                                        break;
+                                    case AST_MOD:
+                                        res = lValue % rValue;
+                                        break;
+                                }
+                                return EvalUtils.getNumberFuture(res);
+                            }
+                            return EvalUtils.getValue(null);
+                        });
+                    }
                 }
-
-                Double res;
-                AstType type = node.getType();
-                if (type == AstType.AST_SUB) {
-                    res = leftValue - rightValue;
-                } else if (type == AstType.AST_MUL) {
-                    res = leftValue * rightValue;
-                } else if (type == AstType.AST_DIV) {
-                    res = leftValue / rightValue;
-                } else {
-                    res = leftValue % rightValue;
-                }
-                return EvalUtils.getNumberNode(res);
-            }
-            return EvalUtils.createEvalNode(null);
-        });
+                return EvalUtils.getValue(null);
+            });
+        }
+        return EvalUtils.getValue(null);
     }
 
     private Optional<Double> getValue(EvalNode node) { // TODO duplicate ???
@@ -853,37 +868,24 @@ public class Evaluator implements Serializable {
         return res != null ? res : EvalUtils.getValue(null);
     }
 
-    private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> {
-            final EvalNode evalNode = f.get(0);
-            if (evalNode.getType() == HistoneType.T_UNDEFINED
-                    || evalNode.getType() == HistoneType.T_NULL
-                    || !nodeAsBoolean(evalNode)) {
-                return f.get(1);
-            }
-            return evalNode;
-        });
+    private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
+        return processLogicalNode(node, context, true);
     }
 
-    private CompletableFuture<EvalNode> processAndNode(ExpAstNode node, Context context) {
-        CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenApply(f -> {
-            if (f.get(0).getType() == HistoneType.T_UNDEFINED
-                    || f.get(0).getType() == HistoneType.T_NULL
-                    || !nodeAsBoolean(f.get(0))) {
-                return f.get(0);
-            } else if (f.get(1).getType() == HistoneType.T_UNDEFINED
-                    || f.get(1).getType() == HistoneType.T_NULL
-                    || (!(f.get(0).getType() == HistoneType.T_BOOLEAN) && f.get(1).getType() == HistoneType.T_BOOLEAN)
-                    ) {
-                if (!nodeAsBoolean(f.get(0))) {
-                    return f.get(0);
+    private CompletableFuture<EvalNode> processOrNode(ExpAstNode node, Context context) {
+        return processLogicalNode(node, context, false);
+    }
+
+    private CompletableFuture<EvalNode> processLogicalNode(ExpAstNode node, Context context, boolean negateCheck) {
+        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
+            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode -> {
+                if (nodeAsBoolean(leftNode) ^ negateCheck) {
+                    return CompletableFuture.completedFuture(leftNode);
                 }
-                return f.get(1);
-            }
-            return f.get(1);
-        });
+                return evaluateNode(node.getNodes().get(1), context);
+            });
+        }
+        return EvalUtils.getValue(null);
     }
 
     /**
@@ -959,28 +961,27 @@ public class Evaluator implements Serializable {
     }
 
     private CompletableFuture<EvalNode> processRegExp(ExpAstNode node) {
-        return CompletableFuture.completedFuture(null)
-                .thenApply(nullValue -> {
-                    final StringAstNode flagsNumNode = node.getNode(1);
+        return AsyncUtils.initFuture().thenApply(ignore -> {
+            final StringAstNode flagsNumNode = node.getNode(1);
 
-                    boolean isIgnoreCase = false;
-                    boolean isMultiline = false;
-                    boolean isGlobal = false;
-                    int flags = 0;
+            boolean isIgnoreCase = false;
+            boolean isMultiline = false;
+            boolean isGlobal = false;
+            int flags = 0;
 
-                    if (flagsNumNode != null) {
-                        final String flagStr = flagsNumNode.getValue();
+            if (flagsNumNode != null) {
+                final String flagStr = flagsNumNode.getValue();
 
-                        isIgnoreCase = flagStr.contains("i");
-                        isMultiline = flagStr.contains("m");
-                        isGlobal = flagStr.contains("g");
-                    }
+                isIgnoreCase = flagStr.contains("i");
+                isMultiline = flagStr.contains("m");
+                isGlobal = flagStr.contains("g");
+            }
 
-                    final StringAstNode expNode = node.getNode(0);
-                    final String exp = expNode.getValue();
-                    final Pattern pattern = Pattern.compile(exp, flags);
-                    return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
-                });
+            final StringAstNode expNode = node.getNode(0);
+            final String exp = expNode.getValue();
+            final Pattern pattern = Pattern.compile(exp, flags);
+            return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
+        });
     }
 
 }

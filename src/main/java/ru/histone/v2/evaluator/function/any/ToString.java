@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.function.any;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
@@ -26,8 +27,6 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AsyncUtils;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,7 +86,12 @@ public class ToString extends AbstractFunction {
                 return CompletableFuture.completedFuture(EmptyEvalNode.HISTONE_VIEW);
             }
             case T_GLOBAL: {
-                return CompletableFuture.completedFuture(GLOBAL_OBJECT_STRING_REPRESENTATION);
+                if (CollectionUtils.isEmpty(context.getGlobalProperties().values())) {
+                    return CompletableFuture.completedFuture(GLOBAL_OBJECT_STRING_REPRESENTATION);
+                }
+                StringBuilder sb = new StringBuilder();
+                context.getGlobalProperties().values().forEach(value -> sb.append(value).append(" "));
+                return CompletableFuture.completedFuture(sb.toString().trim());
             }
             case T_REGEXP: {
                 HistoneRegex regex = (HistoneRegex) node.getValue();
@@ -114,7 +118,7 @@ public class ToString extends AbstractFunction {
                 .replaceAll("\\.0$", "")
                 .replaceAll("^-", "")
                 .replace(".", "");
-        Long exponent = Long.valueOf(value[1]) + 1;
+        Long exponent = Long.parseLong(value[1]) + 1;
         if (exponent < 0) {
             builder.append(sign).append("0.");
             while (exponent++ < 0) {

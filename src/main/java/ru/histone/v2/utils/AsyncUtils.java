@@ -57,4 +57,8 @@ public class AsyncUtils {
                 .collect(Collectors.<T>toList())
         );
     }
+
+    public static CompletableFuture<Object> initFuture() {
+        return CompletableFuture.completedFuture("");
+    }
 }

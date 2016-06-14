@@ -98,11 +98,6 @@ public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerClassTest {
     }
 
     @Test
-    public void doSomething() throws Exception {
-
-    }
-
-    @Test
     public void test() throws HistoneException {
         TestRunner.doTest(input, rtti, expected, evaluator, parser);
     }

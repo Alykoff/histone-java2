@@ -1,0 +1,23 @@
+[
+  {
+    "name": "String.strip",
+    "cases": [
+      {
+        "input": "{{'\t\n\r\r  \t\t\t\thistone     \t   \n'->strip}}",
+        "expectedResult": "histone"
+      },
+      {
+        "input": "{{'\t\n\r\r  \t    --\thistone  \ta \r\r  \n'->strip}}",
+        "expectedResult": "--\thistone  \ta"
+      },
+      {
+        "input": "{{'/X////foo////bar///X//'->strip('/X')}}",
+        "expectedResult": "foo////bar"
+      },
+      {
+        "input": "{{''->strip('/X')}}",
+        "expectedResult": ""
+      }
+    ]
+  }
+]

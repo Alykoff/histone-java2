@@ -20,11 +20,14 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.RegexEvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.rtti.HistoneType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
@@ -45,16 +48,34 @@ public class StringSplit extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final String value = ((StringEvalNode) args.get(ELEMENT_INDEX)).getValue();
-        final String separator;
-        if (args.size() > SEPARATOR_INDEX && EvalUtils.isStringNode(args.get(1))) {
-            separator = ((StringEvalNode) args.get(SEPARATOR_INDEX)).getValue();
-        } else {
-            separator = DEFAULT_SEPARATOR;
-        }
+        final String[] separator = getSplitArray(args, value);
         return CompletableFuture.completedFuture(
                 EvalUtils.constructFromList(
-                        Arrays.asList(value.split(Pattern.quote(separator)))
+                        Arrays.asList(separator)
                 )
         );
+    }
+
+    private static String[] getSplitArray(List<EvalNode> args, String value) {
+        return Optional.of(args)
+                .filter(a -> a.size() > SEPARATOR_INDEX)
+                .map(a -> a.get(SEPARATOR_INDEX))
+                .map(separatorNode -> {
+                    final HistoneType type = separatorNode.getType();
+                    switch (type) {
+                        case T_STRING:
+                            final String separator = Pattern.quote(
+                                    ((StringEvalNode) separatorNode).getValue()
+                            );
+                            return value.split(separator);
+                        case T_REGEXP:
+                            final Pattern pattern = ((RegexEvalNode) separatorNode)
+                                    .getValue()
+                                    .getPattern();
+                            return pattern.split(value);
+                        default:
+                            return value.split(DEFAULT_SEPARATOR);
+                    }
+                }).orElse(value.split(DEFAULT_SEPARATOR));
     }
 }

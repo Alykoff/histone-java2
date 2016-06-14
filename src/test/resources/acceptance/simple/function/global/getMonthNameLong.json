@@ -13,6 +13,57 @@
       {
         "input": "--{{getMonthNameLong(1.0)}}",
         "expectedResult": "--January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, 0)}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, 1)}}",
+        "expectedResult": "January1"
+      },
+      {
+        "input": "{{getMonthNameLong(1, 2)}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1)}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, true)}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, false)}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, '1')}}",
+        "expectedResult": "January1"
+      },
+      {
+        "input": "{{getMonthNameLong(1, '2')}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, -1)}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, dsf)}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, '-1')}}",
+        "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, -1ad)}}",
+        "expectedException": {
+          "line": "1",
+          "message": "unexpected 'ad', expected ')'"
+        }
       }
     ]
   }

@@ -74,26 +74,12 @@ public class Require extends AbstractFunction {
 
                     CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
-                    EvalNode rNode = nodeFuture.join();
-                    return CompletableFuture.completedFuture(rNode.clearReturned());
+                    return nodeFuture.thenApply(EvalNode::clearReturned);
                 })
                 .exceptionally(e -> {
                     logger.error(e.getMessage(), e);
                     return EvalUtils.createEvalNode(null);
                 });
-    }
-
-    private Context createCtx(Context baseContext, String baseUri, Object params) {
-        Context macroCtx = baseContext.cloneEmpty();
-        macroCtx.setBaseUri(baseUri);
-
-        if (params == null) {
-            return macroCtx;
-        }
-
-        EvalNode node = EvalUtils.constructFromObject(params);
-        macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
-        return macroCtx;
     }
 
     private ExpAstNode processTemplate(String template, Resource res) {

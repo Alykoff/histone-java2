@@ -16,12 +16,14 @@
 
 package ru.histone.v2;
 
+import com.google.common.base.Charsets;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.property.DefaultPropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.utils.AstJsonProcessor;
 
@@ -32,7 +34,6 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -46,7 +47,10 @@ public class HistoneV2StandardFromJs {
 
     public static void main(String[] args) throws IOException {
         final String baseURI = "";
-        final String tpl = "{{while}}{{if self.iteration != 1}}{{self.iteration}}{{else}}{{break}}{{/if}} {{/while}}";
+        final String tpl = "{{'ab$1safsd$1sdfsdf1sdfsdf1dfdfs'->split('$1')->toJSON}}";
+
+        //a {{2.9870654321 -> toFixed(8)}} b getDaysInMonth
+                //"{{var x = {{#{{var ui = require('static:///script/ui/ui.tpl')}}{{var info = ui.getPipe('lk/main/info')}}{{info->toJSON}}#}}}}{{x}}";
         System.out.println(getNodes(tpl));
         System.out.println(getTpl(tpl));
         System.out.println("--------");
@@ -57,7 +61,7 @@ public class HistoneV2StandardFromJs {
             final Parser parser = new Parser();
             RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(executor), evaluator, parser);
 
-            final Context context = Context.createRoot("", rtti);
+            final Context context = Context.createRoot("", rtti, new DefaultPropertyHolder());
             final ExpAstNode root = parser.process(tpl, baseURI);
             System.out.println(AstJsonProcessor.write(root));
             final String result = evaluator.process(root, context);
@@ -88,15 +92,15 @@ public class HistoneV2StandardFromJs {
         final Process process = builder.start();
         try (
                 final InputStream is = process.getInputStream();
-                final InputStreamReader inputStreamReader = new InputStreamReader(is);
+                final InputStreamReader inputStreamReader = new InputStreamReader(is, Charsets.UTF_8);
                 final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)
         ) {
             String line;
-            String processResult = "";
+            StringBuilder processResult = new StringBuilder("");
             while ((line = bufferedReader.readLine()) != null) {
-                processResult += line;
+                processResult.append(line);
             }
-            return processResult;
+            return processResult.toString();
         }
     }
 

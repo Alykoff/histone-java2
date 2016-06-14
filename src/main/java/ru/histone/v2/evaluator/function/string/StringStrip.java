@@ -17,11 +17,13 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,6 +41,25 @@ public class StringStrip extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         String value = ((StringEvalNode) args.get(0)).getValue();
-        return CompletableFuture.completedFuture(new StringEvalNode(value.trim()));
+
+        List<String> charsToRemove = Arrays.asList(" ", "\r", "\n", "\t");
+        if (args.size() == 2) {
+            charsToRemove = Arrays.asList(((StringEvalNode) args.get(1)).getValue().split(""));
+        }
+
+        int start = -1;
+        int length = value.length();
+
+        if (length == 0) {
+            return EvalUtils.getValue(value);
+        }
+
+        //строка может быть пустой
+        while (start < length && charsToRemove.contains(value.charAt(++start) + "")) {
+        }
+        while (length >= 0 && charsToRemove.contains(value.charAt(--length) + "")) {
+        }
+
+        return EvalUtils.getValue(value.substring(start, length + 1));
     }
 }

@@ -37,3 +37,69 @@ Distribution archive contents
     |- LICENSE.txt Apache v2.0 license file
     |- NOTICE.txt file with copyright info
     |- README.md this file
+
+Clone, Build and Run test
+-----------------------------
+For Windows users before clone repo:
+```bash
+git config —global core.autocrlf false
+```
+Clone repo:
+```bash
+git clone https://github.com/MegafonWebLab/histone-java2 histone-java2
+```
+Go to the repo:
+```bash
+cd histone-java2
+```
+Run test:
+```
+mvn clean test
+```
+Build and Run test:
+```bash
+mvn clean package
+```
+
+Base Example:
+-----------------------------
+```java
+import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
+import ru.histone.v2.parser.Parser;
+import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.property.DefaultPropertyHolder;
+import ru.histone.v2.rtti.RunTimeTypeInfo;
+
+import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Example {
+    public static void main(String[] args) {
+        // for evaluating AST-tree
+        final Evaluator evaluator = new Evaluator();
+        // for parsing string template
+        final Parser parser = new Parser();
+        // base executor service
+        final ExecutorService executorService = Executors.newFixedThreadPool(10); 
+        // base resource loader
+        final HistoneResourceLoader loader = new SchemaResourceLoader(executorService);
+        // singleton with predefined functions
+        final RunTimeTypeInfo runTimeTypeInfo = new RunTimeTypeInfo(executorService, loader, evaluator, parser); 
+        final String baseUri = "http://localhost/";
+        // context for evaluating
+        final Context ctx = Context.createRoot(baseUri, runTimeTypeInfo, new DefaultPropertyHolder()); 
+        
+        // parsing template and create AST-tree
+        final ExpAstNode node = parser.process("{{var x = 'Hello world!!'}}{{x}}", baseUri);
+        // evaluate AST-tree
+        final String res = evaluator.process(node, ctx);
+        
+        System.out.println(res);
+    }
+}
+```

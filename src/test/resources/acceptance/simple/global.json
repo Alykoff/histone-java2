@@ -39,12 +39,28 @@
         "expectedResult": "January February March April May June July August September October November December "
       },
       {
-        "input": "{{global->toString}}",
-        "expectedResult": "(Global)"
+        "input": "{{global->toString->length != 0}}",
+        "expectedResult": "true"
       },
       {
-        "input": "{{toString}}",
-        "expectedResult": "(Global)"
+        "input": "{{toString->length != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{global.server}}",
+        "expectedResult": "java"
+      },
+      {
+        "input": "{{global.version->length != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{global.incorrect}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{global->toJSON->length != 0}}",
+        "expectedResult": "true"
       }
     ]
   }

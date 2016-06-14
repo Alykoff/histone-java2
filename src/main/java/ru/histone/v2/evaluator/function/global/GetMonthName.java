@@ -15,16 +15,15 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
+import org.apache.commons.lang3.tuple.Pair;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -55,21 +54,26 @@ public class GetMonthName extends LocaleFunction {
     protected CompletableFuture<EvalNode> process(Context context, List<EvalNode> args) {
         final Properties properties = getCurrentProperties(context.getLocale());
 
-        final Optional<Integer> idOptional = Optional.of(args)
+        final Optional<Pair<Optional<Integer>, Optional<Integer>>> nameTypeMonth = Optional.of(args)
                 .filter(a -> !a.isEmpty())
-                .flatMap(a -> ParserUtils.tryIntNumber(a.get(0).getValue()));
-        if (!idOptional.isPresent()) {
+                .map(a -> {
+                    Optional<Integer> month = ParserUtils.tryIntNumber(a.get(0).getValue());
+                    Optional<Integer> type = Optional.empty();
+                    if (args.size() > 1) {
+                        type = ParserUtils.tryIntNumber(a.get(1).getValue());
+                    }
+                    return Pair.of(month, type);
+                });
+        if (!nameTypeMonth.isPresent() || !nameTypeMonth.get().getLeft().isPresent()) {
             return CompletableFuture.completedFuture(new EmptyEvalNode());
         }
-        int id = idOptional.get();
-
+        int id = nameTypeMonth.get().getLeft().get();
+        int type = nameTypeMonth.get().getRight().orElse(0);
         final StringBuilder sb = new StringBuilder("MONTH_NAMES_");
-        if (isShort) {
-            sb.append("SHORT");
-        } else {
-            sb.append("LONG");
-        }
-        sb.append("_").append(id);
-        return EvalUtils.getValue(properties.getProperty(sb.toString()));
+
+        sb.append(isShort ? "SHORT" : "LONG").append("_").append(id).append("_");
+        String defaultValue = properties.getProperty(sb.toString() + "0");
+        String value = properties.getProperty(sb.toString() + type);
+        return EvalUtils.getValue(value != null ? value : defaultValue);
     }
 }

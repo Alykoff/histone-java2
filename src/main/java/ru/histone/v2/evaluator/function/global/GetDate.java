@@ -82,6 +82,8 @@ public class GetDate extends LocaleFunction {
                     case SECOND_SYMBOL:
                         calendar.add(Calendar.SECOND, num);
                         break;
+                    default:
+                        break;
                 }
             }
         }

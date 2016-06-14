@@ -15,6 +15,7 @@
  */
 package ru.histone.v2.evaluator.resource.loader;
 
+import org.apache.commons.io.Charsets;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStreamResource;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
@@ -41,7 +42,11 @@ public class DataLoader implements Loader {
         if (stringUri.length > 1) {
             String toEncode = stringUri[1];
             if (stringUri[0].contains("base64")) {
-                InputStream stream = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(toEncode.getBytes()));
+                final InputStream stream = new ByteArrayInputStream(
+                        org.apache.commons.codec.binary.Base64.decodeBase64(
+                                toEncode.getBytes(Charsets.UTF_8)
+                        )
+                );
                 resource = new HistoneStreamResource(stream, url.toString(), ContentType.TEXT.getId());
             } else {
                 resource = new HistoneStringResource(toEncode, url.toString(), ContentType.TEXT.getId());

@@ -27,6 +27,6 @@ public class LongAstNode extends ValueNode<Long> implements Serializable {
         super(value);
     }
     public LongAstNode(Integer value) {
-        super(new Long(value));
+        super(Long.valueOf(value));
     }
 }

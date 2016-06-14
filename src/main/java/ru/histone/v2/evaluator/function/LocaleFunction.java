@@ -15,6 +15,12 @@
  */
 package ru.histone.v2.evaluator.function;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,30 +35,51 @@ import java.util.concurrent.ConcurrentMap;
  */
 public abstract class LocaleFunction extends AbstractFunction {
 
+    private static final String PROTOCOL_TYPE = "file";
+
     protected ConcurrentMap<String, Properties> props;
 
     public LocaleFunction() {
+        props = new ConcurrentHashMap<>();
+        loadDefaultProperties();
         loadProperties();
     }
 
-//    public LocaleFunction(Executor executor) {
-//        super(executor);
-//        loadProperties();
-//    }
-
     private void loadProperties() {
-        props = new ConcurrentHashMap<>();
-        try {
-            DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(LocaleFunction.class.getResource("/i18n/").toURI()));
+        URL resource = LocaleFunction.class.getResource("/i18n/");
+        if (resource == null || !PROTOCOL_TYPE.equalsIgnoreCase(resource.getProtocol())) {
+            return;
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(resource.toURI()))) {
             for (Path path : stream) {
-                String fileName = path.getFileName().toString().split("\\.")[0];
-                Properties properties = new Properties();
-                properties.load(Files.newInputStream(path));
-
-                props.put(fileName, properties);
+                if (path.getFileName().toString().matches(".+[.]properties")) {
+                    String fileName = path.getFileName().toString().split("\\.")[0];
+                    Properties properties = new Properties();
+                    properties.load(Files.newInputStream(path));
+                    props.put(fileName, properties);
+                }
             }
-            stream.close();
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void loadDefaultProperties() {
+        try (InputStream propertyListInputStream =
+                     Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/props.conf")) {
+            if (propertyListInputStream != null) {
+                BufferedReader propertyListReader =
+                        new BufferedReader(new InputStreamReader(propertyListInputStream, Charset.forName("UTF-8")));
+                for (String fileName : propertyListReader.readLine().split(" ")) {
+                    try (InputStreamReader inputStreamReader =
+                                 new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("i18n/" + fileName), Charset.forName("UTF-8"))) {
+                        Properties properties = new Properties();
+                        properties.load(inputStreamReader);
+                        props.put(fileName.split("\\.")[0], properties);
+                    }
+                }
+            }
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

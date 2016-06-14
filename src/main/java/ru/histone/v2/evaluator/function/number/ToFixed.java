@@ -24,8 +24,8 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +53,8 @@ public class ToFixed extends AbstractFunction {
                 .flatMap(EvalUtils::tryPureIntegerValue)
                 .filter(x -> x > 0)
                 .orElse(DEFAULT_INDEX_OF_CUT);
-        final double result = Double.parseDouble(new DecimalFormat(format(count)).format(input));
+        final double result = Double.parseDouble(new DecimalFormat(format(count),
+                new DecimalFormatSymbols(context.getLocale())).format(input));
         return EvalUtils.getNumberFuture(result);
     }
 

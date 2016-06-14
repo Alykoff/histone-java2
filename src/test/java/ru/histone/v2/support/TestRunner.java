@@ -28,6 +28,7 @@ import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.property.DefaultPropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.utils.AstJsonProcessor;
 
@@ -65,7 +66,7 @@ public class TestRunner {
                 if (p.toString().endsWith(".json")) {
                     Stream<String> stringStream = Files.lines(p);
                     List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
-                    histoneCases.forEach(histoneTestCase -> histoneTestCase.getCases().forEach(c -> c.setBaseURI("file://" + p.toString())));
+                    histoneCases.forEach(histoneTestCase -> histoneTestCase.getCases().forEach(c -> c.setBaseURI(p.toUri().toString())));
                     cases.addAll(histoneCases);
                 } else {
                     tplMap.put(p.getFileName().toString(), p);
@@ -109,7 +110,8 @@ public class TestRunner {
 
             root = AstJsonProcessor.read(stringAst);
             if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti);
+                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti,
+                        new DefaultPropertyHolder());
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {
@@ -120,11 +122,11 @@ public class TestRunner {
                     }
                 }
                 String result = evaluator.process(root, context);
-                Assert.assertEquals(testCase.getExpectedResult(), result);
+                Assert.assertEquals(normalizeLineEndings(testCase.getExpectedResult()), normalizeLineEndings(result));
             }
         } catch (ParserException ex) {
             if (testCase.getExpectedException() != null) {
-                HistoneTestCase.ExpectedException e = testCase.getExpectedException();
+                ExpectedException e = testCase.getExpectedException();
                 Assert.assertEquals(e.getLine(), ex.getLine());
                 if (e.getMessage() != null) {
                     Assert.assertEquals(e.getMessage(), ex.getMessage());
@@ -136,7 +138,7 @@ public class TestRunner {
             }
         } catch (Exception ex) {
             if (testCase.getExpectedException() != null) {
-                HistoneTestCase.ExpectedException e = testCase.getExpectedException();
+                ExpectedException e = testCase.getExpectedException();
                 if (e.getMessage() != null) {
                     Assert.assertEquals(e.getMessage(), ex.getMessage());
                 } else {
@@ -190,5 +192,9 @@ public class TestRunner {
             value = ((Integer) value).longValue();
         }
         return EvalUtils.createEvalNode(value);
+    }
+
+    private static String normalizeLineEndings(String value) {
+        return value.replaceAll("\\r\\n", "\n");
     }
 }

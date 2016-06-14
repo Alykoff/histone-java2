@@ -22,6 +22,8 @@ import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.ExpAstNode;
+import ru.histone.v2.property.DefaultPropertyHolder;
+import ru.histone.v2.property.PropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
 import java.util.Collections;
@@ -42,11 +44,13 @@ public class Histone {
     private SchemaResourceLoader resourceLoader;
     private Executor executor;
     private Locale locale;
+    private PropertyHolder propertyHolder;
 
     public Histone() {
         evaluator = new Evaluator();
         parser = new Parser();
         executor = new ForkJoinPool();
+        propertyHolder = new DefaultPropertyHolder();
         resourceLoader = new SchemaResourceLoader(executor);
         locale = Locale.getDefault();
         runTimeTypeInfo = new RunTimeTypeInfo(executor, resourceLoader, evaluator, parser);
@@ -67,7 +71,7 @@ public class Histone {
     }
 
     private Context createContext(String baseUri, Map<String, Object> params) {
-        Context ctx = Context.createRoot(baseUri, locale, runTimeTypeInfo);
+        Context ctx = Context.createRoot(baseUri, locale, runTimeTypeInfo, propertyHolder);
         ctx.getThisVars().put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(params)));
         return ctx;
     }

@@ -111,6 +111,13 @@ public class JerseyServerResource {
     }
 
     @GET
+    @Path("longRequest")
+    public String longRequest() throws InterruptedException {
+        Thread.sleep(3000);
+        return "done";
+    }
+
+    @GET
     @Path("redirect:200")
     public Response redirectGET() {
         return Response.temporaryRedirect(URI.create("/")).build();

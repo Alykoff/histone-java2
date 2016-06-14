@@ -664,5 +664,55 @@
         "expectedResult": "[123]"
       }
     ]
+  },
+  {
+    "name": "array methods -> first",
+    "cases": [
+      {
+        "input": "{{[1, 2, 3, 4] -> first}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{[foo: 'bar', bar: 'foo'] -> first}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{[1] -> first}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{[] -> first}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{[] -> first -> isUndefined}}",
+        "expectedResult": "true"
+      }
+    ]
+  },
+  {
+    "name": "array methods -> last",
+    "cases": [
+      {
+        "input": "{{[1, 2, 3, 4] -> last}}",
+        "expectedResult": "4"
+      },
+      {
+        "input": "{{[foo: 'bar', bar: 'foo'] -> last}}",
+        "expectedResult": "foo"
+      },
+      {
+        "input": "{{[1] -> last}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{[] -> last}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{[] -> last -> isUndefined}}",
+        "expectedResult": "true"
+      }
+    ]
   }
 ]

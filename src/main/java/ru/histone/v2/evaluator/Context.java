@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.property.PropertyHolder;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -42,7 +43,6 @@ public class Context implements Cloneable {
     private Locale locale;
     private RunTimeTypeInfo rttiInfo;
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
-    private ConcurrentMap<String, CompletableFuture<EvalNode>> thisVars = null;
     private PropertyHolder<String> propertyHolder;
     private Context parent;
 
@@ -57,47 +57,43 @@ public class Context implements Cloneable {
     /**
      * This method used for create a root node
      *
-     * @param baseUri  of context
-     * @param locale   environment locale
-     * @param rttiInfo is global run time type info
+     * @param baseUri        of context
+     * @param locale         environment locale
+     * @param rttiInfo       is global run time type info
      * @param propertyHolder holder with global properties
      * @return created root context
      */
     public static Context createRoot(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo,
                                      PropertyHolder<String> propertyHolder) {
-        Context ctx = new Context(baseUri, locale, rttiInfo, propertyHolder);
-        ctx.thisVars = new ConcurrentHashMap<>();
-        return ctx;
+        return new Context(baseUri, locale, rttiInfo, propertyHolder);
     }
 
     /**
      * This method used for create a root node using default locale
      *
-     * @param baseUri  of context
-     * @param rttiInfo is global run time type info
+     * @param baseUri        of context
+     * @param rttiInfo       is global run time type info
      * @param propertyHolder holder with global properties
      * @return created root context
      */
     public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo,
                                      PropertyHolder<String> propertyHolder) {
-        Context ctx = new Context(baseUri, Locale.getDefault(), rttiInfo, propertyHolder);
-        ctx.thisVars = new ConcurrentHashMap<>();
-        return ctx;
+        return new Context(baseUri, Locale.getDefault(), rttiInfo, propertyHolder);
     }
 
     @Override
     public Context clone() {
-        final Context that = new Context(baseUri, locale, rttiInfo, propertyHolder);
-        that.parent = this.parent;
-        that.thisVars = this.thisVars;
-        that.vars.putAll(this.vars);
-        return that;
+        try {
+            Context that = (Context) super.clone();
+            that.vars = new ConcurrentHashMap<>(this.vars);
+            return that;
+        } catch (CloneNotSupportedException e) {
+            throw new HistoneException(e);
+        }
     }
 
     public Context cloneEmpty() {
-        Context ctx = new Context(baseUri, locale, rttiInfo, propertyHolder);
-        ctx.thisVars = new ConcurrentHashMap<>();
-        return ctx;
+        return new Context(baseUri, locale, rttiInfo, propertyHolder);
     }
 
     /**
@@ -108,7 +104,7 @@ public class Context implements Cloneable {
     public Context createNew() {
         Context ctx = new Context(baseUri, locale, rttiInfo, propertyHolder);
         ctx.parent = this;
-        ctx.thisVars = thisVars;
+        ctx.put(Constants.THIS_CONTEXT_VALUE, getValue(Constants.THIS_CONTEXT_VALUE));
         return ctx;
     }
 
@@ -116,25 +112,8 @@ public class Context implements Cloneable {
         vars.put(key, value);
     }
 
-    public boolean contains(String key) {
-        Context ctx = this;
-        while (ctx != null) {
-            if (ctx.vars.containsKey(key)) {
-                return true;
-            }
-            ctx = ctx.getParent();
-        }
-        return false;
-    }
-
     public CompletableFuture<EvalNode> getValue(String key) {
-        if (key.equals(Constants.THIS_CONTEXT_VALUE)) {
-            if (thisVars.containsKey(key)) {
-                return thisVars.get(key);
-            }
-            return EvalUtils.getValue(null);
-        }
-        return vars.get(key);
+        return vars.getOrDefault(key, EvalUtils.getValue(null));
     }
 
     public Context getParent() {
@@ -147,10 +126,6 @@ public class Context implements Cloneable {
 
     public ConcurrentMap<String, CompletableFuture<EvalNode>> getVars() {
         return vars;
-    }
-
-    public ConcurrentMap<String, CompletableFuture<EvalNode>> getThisVars() {
-        return thisVars;
     }
 
     public String getBaseUri() {

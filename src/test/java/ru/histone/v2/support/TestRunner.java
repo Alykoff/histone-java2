@@ -27,6 +27,7 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.parser.Parser;
+import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.property.DefaultPropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -102,6 +103,17 @@ public class TestRunner {
                               Evaluator evaluator, Parser parser) throws HistoneException {
 
         try {
+            if (testCase.getInputAST() != null) {
+                ExpAstNode root = AstJsonProcessor.read(testCase.getInputAST());
+                SsaOptimizer optimizer = new SsaOptimizer();
+                optimizer.process(root);
+
+                String optimizedTree = AstJsonProcessor.write(root);
+
+                Assert.assertEquals(normalizeLineEndings(testCase.getExpectedAST()), normalizeLineEndings(optimizedTree));
+                return;
+            }
+
             ExpAstNode root = parser.process(input, "");
             String stringAst = AstJsonProcessor.write(root);
             if (testCase.getExpectedAST() != null) {
@@ -115,7 +127,7 @@ public class TestRunner {
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
                         if (entry.getKey().equals("this")) {
-                            context.getThisVars().put("this", entry.getValue());
+                            context.put("this", entry.getValue());
                         } else {
                             context.getVars().put(entry.getKey(), entry.getValue());
                         }

@@ -147,7 +147,7 @@ public abstract class AbstractFunction implements Function {
         }
 
         EvalNode node = EvalUtils.constructFromObject(params);
-        macroCtx.getThisVars().put("this", CompletableFuture.completedFuture(node));
+        macroCtx.put("this", CompletableFuture.completedFuture(node));
         return macroCtx;
     }
 

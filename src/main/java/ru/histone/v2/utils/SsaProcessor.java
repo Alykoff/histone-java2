@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.parser.node;
+package ru.histone.v2.utils;
 
-import java.io.Serializable;
+import ru.histone.v2.parser.node.AstNode;
 
 /**
- * @author Gali Alykoff
+ * @author Alexey Nevinsky
  */
-public class StringAstNode extends ValueNode<String> implements Serializable {
-    public StringAstNode(String value) {
-        super(value);
-    }
+public class SsaProcessor {
 
-    @Override
-    public String toString() {
-        return "{\"StringAstNode\": {\"value\": \"" + value + "\"}}";
+    public static AstNode process(AstNode root) {
+        return null;
     }
 }

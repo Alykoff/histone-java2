@@ -56,12 +56,17 @@ public class Parser {
             throw buildUnexpectedTokenException(wrapper, "EOF");
         }
 
-        final Optimizer optimizer = new Optimizer();
-        result = (ExpAstNode) optimizer.mergeStrings(result);
+        result = optimize(result);
 
-//        final Marker marker = new Marker();
-//        marker.markReferences(result);
         wrapper.leave();
+        return result;
+    }
+
+    private ExpAstNode optimize(ExpAstNode root) {
+        ExpAstNode result = (ExpAstNode) optimizer.mergeStrings(root);
+
+        final SsaOptimizer ssaOptimizer = new SsaOptimizer();
+//        ssaOptimizer.process(result);
         return result;
     }
 
@@ -86,7 +91,7 @@ public class Parser {
 
     private AstNode getStatement(TokenizerWrapper wrapper) throws ParserException {
         if (next(wrapper, T_AST_START)) {
-            return getASTStatement(wrapper);
+            return getAstStatement(wrapper);
         }
         if (next(wrapper, T_BLOCK_START)) {
             return getTemplateStatement(wrapper);
@@ -103,7 +108,7 @@ public class Parser {
         return new ExpAstNode(AST_T_BREAK);
     }
 
-    private AstNode getASTStatement(TokenizerWrapper wrapper) throws ParserException {
+    private AstNode getAstStatement(TokenizerWrapper wrapper) throws ParserException {
         final String baseURI = wrapper.getBaseURI();
         wrapper.setBaseURI("");
         final TokenizerWrapper cleanWrapper = wrapper.getCleanWrapper();
@@ -130,7 +135,7 @@ public class Parser {
         }
         wrapper.setBaseURI(baseURI);
         return new StringAstNode(
-                AstJsonProcessor.write(optimizer.mergeStrings(result))
+                AstJsonProcessor.write(optimize(result))
         );
     }
 
@@ -200,7 +205,6 @@ public class Parser {
         if (!next(wrapper, T_BLOCK_END)) {
             throw buildUnexpectedTokenException(wrapper, "}}");
         }
-//        AstNode res = new ExpAstNode(AST_EXPRESSION_STATEMENT, expression);
         wrapper.setFor(isParentFor);
         wrapper.setVar(isParentVar);
         return expression;
@@ -333,6 +337,13 @@ public class Parser {
         return res;
     }
 
+    /**
+     * [BODY [, CONDITION]]
+     *
+     * @param wrapper
+     * @return
+     * @throws ParserException
+     */
     private ExpAstNode getWhileStatement(TokenizerWrapper wrapper) throws ParserException {
         wrapper = new TokenizerWrapper(wrapper, Arrays.asList(T_SPACES.getId(), T_EOL.getId()));
         final boolean isParentReturn = wrapper.isReturn();
@@ -842,7 +853,7 @@ public class Parser {
         } else if (next(wrapper, T_SLASH)) {
             return getRegexpLiteral(wrapper);
         } else if (next(wrapper, T_AST_START)) {
-            return getASTStatement(wrapper);
+            return getAstStatement(wrapper);
         } else if (next(wrapper, T_LITERAL_START)) {
             return getLiteralStatement(wrapper);
         } else if (test(wrapper, T_SQUOTE)) {
@@ -989,7 +1000,7 @@ public class Parser {
                 builder.append(fragment.first().getValue());
             }
         }
-        return new StringAstNode(builder.toString()).escaped();
+        return new StringAstNode(builder.toString());
     }
 
     private StringAstNode getLiteralStatement(TokenizerWrapper wrapper) throws ParserException {

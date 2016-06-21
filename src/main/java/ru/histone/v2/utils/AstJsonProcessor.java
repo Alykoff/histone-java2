@@ -24,7 +24,8 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.parser.node.*;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Alexey Nevinsky
@@ -38,27 +39,28 @@ public class AstJsonProcessor {
         return (ExpAstNode) res;
     }
 
+    private static final Function<Object, AstNode> nodeConvertFunction = obj -> {
+        if (obj instanceof List) {
+            return convert((List) obj);
+        } else if (obj instanceof Integer) {
+            return new LongAstNode((Integer) obj);
+        } else if (obj instanceof Long) {
+            return new LongAstNode((Long) obj);
+        } else if (obj instanceof Double) {
+            return new DoubleAstNode((Double) obj);
+        } else if (obj instanceof Boolean) {
+            return new BooleanAstNode((Boolean) obj);
+        } else {
+            return new StringAstNode((String) obj);
+        }
+    };
+
     private static AstNode convert(List list) {
         AstType type = AstType.fromId((int) list.get(0));
         final ExpAstNode expAstNode;
         if (type == AstType.AST_CALL) {
             expAstNode = new CallExpAstNode(CallType.SIMPLE);
-            Object first = list.get(1);
-            final AstNode n;
-            if (first instanceof List) {
-                n = convert((List) first);
-            } else if (first instanceof Integer) {
-                n = new LongAstNode((Integer) first);
-            } else if (first instanceof Long) {
-                n = new LongAstNode((Long) first);
-            } else if (first instanceof Double) {
-                n = new DoubleAstNode((Double) first);
-            } else if (first instanceof Boolean) {
-                n = new BooleanAstNode((Boolean) first);
-            } else {
-                n = new StringAstNode((String) first);
-            }
-            expAstNode.add(n);
+            expAstNode.add(nodeConvertFunction.apply(list.get(1)));
             if (list.size() > 2) {
                 if (list.get(2) instanceof String) {
                     expAstNode.add(new StringAstNode((String) list.get(2)));
@@ -69,64 +71,19 @@ public class AstJsonProcessor {
             }
             if (list.size() > 3) {
                 for (int i = 3; i < list.size(); i++) {
-                    Object o = list.get(i);
-                    final AstNode node;
-                    if (o instanceof List) {
-                        node = convert((List) o);
-                    } else if (o instanceof Integer) {
-                        node = new LongAstNode((Integer) o);
-                    } else if (o instanceof Long) {
-                        node = new LongAstNode((Long) o);
-                    } else if (o instanceof Double) {
-                        node = new DoubleAstNode((Double) o);
-                    } else if (o instanceof Boolean) {
-                        node = new BooleanAstNode((Boolean) o);
-                    } else {
-                        node = new StringAstNode((String) o);
-                    }
-                    expAstNode.add(node);
+                    expAstNode.add(nodeConvertFunction.apply(list.get(i)));
                 }
             }
         } else if (type == AstType.AST_MACRO) {
             expAstNode = new ExpAstNode(type);
             expAstNode.add(new LongAstNode(0));
             for (int i = 2; i < list.size(); i++) {
-                Object o = list.get(i);
-                final AstNode node;
-                if (o instanceof List) {
-                    node = convert((List) o);
-                } else if (o instanceof Integer) {
-                    node = new LongAstNode((Integer) o);
-                } else if (o instanceof Long) {
-                    node = new LongAstNode((Long) o);
-                } else if (o instanceof Double) {
-                    node = new DoubleAstNode((Double) o);
-                } else if (o instanceof Boolean) {
-                    node = new BooleanAstNode((Boolean) o);
-                } else {
-                    node = new StringAstNode((String) o);
-                }
-                expAstNode.add(node);
+                expAstNode.add(nodeConvertFunction.apply(list.get(i)));
             }
         } else {
             expAstNode = new ExpAstNode(type);
             for (int i = 1; i < list.size(); i++) {
-                Object o = list.get(i);
-                final AstNode node;
-                if (o instanceof List) {
-                    node = convert((List) o);
-                } else if (o instanceof Integer) {
-                    node = new LongAstNode((Integer) o);
-                } else if (o instanceof Long) {
-                    node = new LongAstNode((Long) o);
-                } else if (o instanceof Double) {
-                    node = new DoubleAstNode((Double) o);
-                } else if (o instanceof Boolean) {
-                    node = new BooleanAstNode((Boolean) o);
-                } else {
-                    node = new StringAstNode((String) o);
-                }
-                expAstNode.add(node);
+                expAstNode.add(nodeConvertFunction.apply(list.get(i)));
             }
         }
         return expAstNode;

@@ -761,9 +761,8 @@ public class Evaluator implements Serializable {
                     return CompletableFuture.completedFuture(value.clearReturned());
                 });
 
-        CompletableFuture<List<EvalNode>> leftRightDone = sequence(valueNameFuture);
-        return leftRightDone.thenApply(f -> {
-            context.put(f.get(0).getValue() + "", valueNodeFuture);
+        return valueNameFuture.thenApply(f -> {
+            context.put(f.getValue() + "", valueNodeFuture);
             return EvalUtils.createEvalNode(null);
         });
     }

@@ -66,7 +66,7 @@ public class Parser {
         ExpAstNode result = (ExpAstNode) optimizer.mergeStrings(root);
 
         final SsaOptimizer ssaOptimizer = new SsaOptimizer();
-        ssaOptimizer.process(result);
+//        ssaOptimizer.process(result);
         return result;
     }
 

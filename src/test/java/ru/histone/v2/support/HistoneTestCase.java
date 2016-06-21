@@ -46,6 +46,7 @@ public class HistoneTestCase {
     }
 
     public static class Case {
+        private String inputAST;
         private String input;
         private String inputFile;
         private String baseURI;
@@ -108,6 +109,14 @@ public class HistoneTestCase {
 
         public void setBaseURI(String baseURI) {
             this.baseURI = baseURI;
+        }
+
+        public String getInputAST() {
+            return inputAST;
+        }
+
+        public void setInputAST(String inputAST) {
+            this.inputAST = inputAST;
         }
     }
 

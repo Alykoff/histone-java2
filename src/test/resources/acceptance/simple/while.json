@@ -4,6 +4,7 @@
     "cases": [
       {
         "input": "{{var y = 50}}{{while}}{{if self.iteration != 5}}{{self.iteration}}{{else}}{{break}}{{/if}} {{/while}}",
+        "expectedAST": "[29,[23,50,0],[39,[29,[24,[29,[22,[21,1,0],0,\"iteration\"]],[20,[22,[21,0,0],0,\"iteration\"],5],[29,[37]]],\" \"]]]",
         "expectedResult": "0 1 2 3 4 "
       },
       {
@@ -21,4 +22,3 @@
     ]
   }
 ]
-

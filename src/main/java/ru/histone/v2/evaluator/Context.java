@@ -57,9 +57,9 @@ public class Context implements Cloneable {
     /**
      * This method used for create a root node
      *
-     * @param baseUri  of context
-     * @param locale   environment locale
-     * @param rttiInfo is global run time type info
+     * @param baseUri        of context
+     * @param locale         environment locale
+     * @param rttiInfo       is global run time type info
      * @param propertyHolder holder with global properties
      * @return created root context
      */

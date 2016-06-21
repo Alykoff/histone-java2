@@ -40,11 +40,6 @@ public abstract class AstNode implements Serializable {
         return type.getId();
     }
 
-    public AstNode escaped() {
-        // TODO
-        return this;
-    }
-
     public abstract boolean hasValue();
 
     public abstract int size();

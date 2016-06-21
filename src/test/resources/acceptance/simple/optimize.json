@@ -1,0 +1,15 @@
+[
+  {
+    "name": "optimizing ast",
+    "cases": [
+      {
+        "inputAST": "[29,[23,[22,[4],\"asyncLoadText\",\"http://127.0.0.1:4442/longRequest\"],0],[23,[8,[21,0,0],[21,0,0]],0],\" \",[22,[21,0,0],\"toJSON\"]]",
+        "expectedAST": "[29,[23,[22,[4],\"asyncLoadText\",\"http://127.0.0.1:4442/longRequest\"],0],[23,[8,[21,0,0],[21,0,0]],1],\" \",[22,[21,0,1],\"toJSON\"]]"
+      },
+      {
+        "inputAST": "[29,[23,[22,[4],\"require\",\"ui.tpl\"],\"ui\"],[23,[22,[22,[21,0,\"ui\"],0,\"getPipe\"],1,\"lk/main/info\"],\"info\"],[22,[21,0,\"info\"],\"toJSON\"]]",
+        "expectedAST": "[29,[23,[22,[4],\"require\",\"ui.tpl\"],0],[23,[22,[22,[21,0,0],0,\"getPipe\"],1,\"lk/main/info\"],1],[22,[21,0,1],\"toJSON\"]]"
+      }
+    ]
+  }
+]

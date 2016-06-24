@@ -51,7 +51,7 @@ public class LoadJson extends LoadText {
                     String str = (String) res.getValue();
                     Object json;
                     if (StringUtils.isEmpty(str)) {
-                        return EvalUtils.constructFromObject(null);
+                        return EvalUtils.createEvalNode(null);
                     } else if (StringUtils.isNotEmpty(str)) {
                         json = fromJSON(str);
                     } else {

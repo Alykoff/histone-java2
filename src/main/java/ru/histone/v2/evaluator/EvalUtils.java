@@ -193,7 +193,7 @@ public class EvalUtils {
         } else if (object instanceof String && object.equals("undefined")) {
             return createEvalNode(null);
         } else if (object == null) {
-            createEvalNode(ObjectUtils.NULL);
+            return createEvalNode(ObjectUtils.NULL);
         }
         return createEvalNode(object);
     }

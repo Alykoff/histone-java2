@@ -46,13 +46,8 @@ public class SsaOptimizer {
             case AST_VAR: {
                 processNode(currentNode.getNode(0));
                 ValueNode n = currentNode.getNode(1);
-                if (n instanceof StringAstNode) {
-                    Long id = getVarName(((StringAstNode) currentNode.getNode(1)).getValue());
-                    currentNode.setNode(1, new LongAstNode(id));
-                } else {
-                    Long id = getVarName(n.getValue() + "");
-                    currentNode.setNode(1, new LongAstNode(id));
-                }
+                Long id = getVarName(n.getValue() + "");
+                currentNode.setNode(1, new LongAstNode(id));
             }
             break;
             case AST_NODES: {
@@ -67,7 +62,7 @@ public class SsaOptimizer {
                 }
 
                 enter();
-                getVarName(Constants.SELF_NAME);
+                getVarName(Constants.SELF_CONTEXT_NAME);
                 processNode(currentNode.getNode(0)); //bcz we don't need to process condition node in current scope
                 leave();
             }
@@ -88,7 +83,7 @@ public class SsaOptimizer {
             break;
             case AST_FOR: {
                 enter();
-                getVarName(Constants.SELF_NAME);
+                getVarName(Constants.SELF_CONTEXT_NAME);
                 if (((ValueNode) currentNode.getNode(0)).getValue() != null) {
                     getVarName(((ValueNode) currentNode.getNode(0)).getValue() + "");
                 }
@@ -115,7 +110,7 @@ public class SsaOptimizer {
             break;
             case AST_MACRO: {
                 enter();
-                getVarName(Constants.SELF_NAME);
+                getVarName(Constants.SELF_CONTEXT_NAME);
                 if (currentNode.size() > 2) {
                     LongAstNode argsSize = currentNode.getNode(2);
                     for (long i = 0; i < argsSize.getValue(); i++) {
@@ -138,7 +133,6 @@ public class SsaOptimizer {
                         leave();
                     } else {
                         processNode(n);
-                        int k = 0;
                     }
                     i++;
                 }

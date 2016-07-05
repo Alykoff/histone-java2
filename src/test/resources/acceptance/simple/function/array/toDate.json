@@ -109,6 +109,10 @@
       {
         "input": "--{{var now = [year: 2012, month: 2, day: 29, hour: 10, minute: 0, second: 59]->toDate.month}}{{var x = [year: 2012, month: 2, day: 29, hour: 10, minute: 0, second: 59]->toDate('+1M').month}}{{(now - x)->toAbs}}",
         "expectedResult": "--1"
+      },
+      {
+        "input": "--{{var now = getDate->toDate.month}}{{var x = getDate->toDate('+1M').month}}{{(now - x)->toAbs}}",
+        "expectedResult": "--1"
       }
     ]
   }

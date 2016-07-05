@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator.function.array;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.DateEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -40,6 +41,10 @@ public class ArrayToDate extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        if (args.get(0) instanceof DateEvalNode && (args.size() < 2 || args.get(1).getType() != HistoneType.T_STRING)) {
+            return CompletableFuture.completedFuture(args.get(0));
+        }
+
         Map<String, EvalNode> map = getValue(args, 0);
 
         LocalDateTime dateTime = DateUtils.createDate(map);

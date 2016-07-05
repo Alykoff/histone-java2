@@ -16,7 +16,6 @@
 
 package ru.histone.v2.evaluator.node;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,11 +23,9 @@ import java.util.Map;
  */
 public class DateEvalNode extends MapEvalNode {
 
-    public DateEvalNode(List<EvalNode> values) {
-        super(values);
-    }
-
     public DateEvalNode(Map<String, EvalNode> value) {
         super(value);
     }
+
+
 }

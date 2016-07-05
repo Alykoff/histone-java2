@@ -37,6 +37,34 @@
       {
         "input": "--{{getDate->slice(-3)->isDate}}XX",
         "expectedResult": "--falseXX"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a>b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a<b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a!=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a!=b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a>=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a<=b}}",
+        "expectedResult": "true"
       }
     ]
   }

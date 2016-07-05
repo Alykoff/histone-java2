@@ -123,6 +123,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_ARRAY, new ArraySlice());
         registerCommon(T_ARRAY, new ArrayHtmlEntities());
         registerCommon(T_ARRAY, new ArrayHas());
+        registerCommon(T_ARRAY, new ArrayToDate());
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor, loader, evaluator, parser));

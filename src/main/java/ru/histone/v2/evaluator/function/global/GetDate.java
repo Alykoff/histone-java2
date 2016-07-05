@@ -21,11 +21,11 @@ import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.DateUtils;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Method returns current date
@@ -33,15 +33,6 @@ import java.util.regex.Pattern;
  * @author Alexey Nevinsky
  */
 public class GetDate extends LocaleFunction {
-    private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([+-])(\\d+)([DMYhms])");
-    private static final String NEGATIVE_SIGN = "-";
-    private static final String DAY_SYMBOL = "D";
-    private static final String MONTH_SYMBOL = "M";
-    private static final String YEAR_SYMBOL = "Y";
-    private static final String HOUR_SYMBOL = "h";
-    private static final String MINUTE_SYMBOL = "m";
-    private static final String SECOND_SYMBOL = "s";
-
     @Override
     public String getName() {
         return "getDate";
@@ -53,56 +44,13 @@ public class GetDate extends LocaleFunction {
     }
 
     private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
-        final Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
+        LocalDateTime dateTime = LocalDateTime.now();
         if (args.size() >= 1 && args.get(0).getType() == HistoneType.T_STRING) {
             final String value = (String) args.get(0).getValue();
-            final Matcher matcher = PATTERN_DELTA_DATE.matcher(value);
-            while (matcher.find()) {
-                final String sign = matcher.group(1);
-                final Integer num = Integer.parseInt(matcher.group(2)) * (sign.equals(NEGATIVE_SIGN) ? -1 : 1);
-                final String period = matcher.group(3);
-                switch (period) {
-                    case DAY_SYMBOL:
-                        calendar.add(Calendar.DAY_OF_MONTH, num);
-                        break;
-                    case MONTH_SYMBOL:
-                        calendar.add(Calendar.MONTH, num);
-                        break;
-                    case YEAR_SYMBOL:
-                        calendar.add(Calendar.YEAR, num);
-                        break;
-                    case HOUR_SYMBOL:
-                        calendar.add(Calendar.HOUR, num);
-                        break;
-                    case MINUTE_SYMBOL:
-                        calendar.add(Calendar.MINUTE, num);
-                        break;
-                    case SECOND_SYMBOL:
-                        calendar.add(Calendar.SECOND, num);
-                        break;
-                    default:
-                        break;
-                }
-            }
+            dateTime = DateUtils.applyOffset(dateTime, value);
         }
-        final Map<String, EvalNode> res = new LinkedHashMap<>();
-        res.put("day", getCalendarParam(calendar, Calendar.DAY_OF_MONTH));
-        res.put("month", getCalendarParam(calendar, Calendar.MONTH));
-        res.put("year", getCalendarParam(calendar, Calendar.YEAR));
-        res.put("hour", getCalendarParam(calendar, Calendar.HOUR_OF_DAY));
-        res.put("minute", getCalendarParam(calendar, Calendar.MINUTE));
-        res.put("second", getCalendarParam(calendar, Calendar.SECOND));
 
-        EvalNode node = EvalUtils.createEvalNode(res, true);
+        EvalNode node = EvalUtils.createEvalNode(DateUtils.createMapFromDate(dateTime), true);
         return CompletableFuture.completedFuture(node);
-    }
-
-    private EvalNode<?> getCalendarParam(Calendar calendar, int param) {
-        int value = calendar.get(param);
-        if (param == Calendar.MONTH) {
-            value += 1;
-        }
-        return EvalUtils.createEvalNode(value);
     }
 }

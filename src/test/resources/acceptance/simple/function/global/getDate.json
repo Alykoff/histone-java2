@@ -13,6 +13,30 @@
       {
         "input": "--{{var now = getDate().second}}{{now < 60}}",
         "expectedResult": "--true"
+      },
+      {
+        "input": "--{{123->hasMethod('isDate')}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{'string'->isDate}}XX",
+        "expectedResult": "--falseXX"
+      },
+      {
+        "input": "--{{getDate->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->slice(-3)->isDate}}XX",
+        "expectedResult": "--falseXX"
       }
     ]
   }

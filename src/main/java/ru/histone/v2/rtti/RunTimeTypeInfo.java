@@ -94,6 +94,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerForAlltypes(new GetFunction());
         registerForAlltypes(new CallFunction());
         registerForAlltypes(new HasMethod());
+        registerForAlltypes(new IsDate());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());

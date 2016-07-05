@@ -17,7 +17,6 @@ package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -59,7 +58,7 @@ public class GetDate extends LocaleFunction {
         if (args.size() >= 1 && args.get(0).getType() == HistoneType.T_STRING) {
             final String value = (String) args.get(0).getValue();
             final Matcher matcher = PATTERN_DELTA_DATE.matcher(value);
-            while(matcher.find()) {
+            while (matcher.find()) {
                 final String sign = matcher.group(1);
                 final Integer num = Integer.parseInt(matcher.group(2)) * (sign.equals(NEGATIVE_SIGN) ? -1 : 1);
                 final String period = matcher.group(3);
@@ -95,7 +94,8 @@ public class GetDate extends LocaleFunction {
         res.put("minute", getCalendarParam(calendar, Calendar.MINUTE));
         res.put("second", getCalendarParam(calendar, Calendar.SECOND));
 
-        return EvalUtils.getValue(res);
+        EvalNode node = EvalUtils.createEvalNode(res, true);
+        return CompletableFuture.completedFuture(node);
     }
 
     private EvalNode<?> getCalendarParam(Calendar calendar, int param) {

@@ -160,6 +160,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_STRING, new StringSlice());
         registerCommon(T_STRING, new StringSplit());
         registerCommon(T_STRING, new StringStrip());
+        registerCommon(T_STRING, new StringToDate());
 
         registerCommon(T_MACRO, new MacroCall(executor, loader, evaluator, parser));
         registerCommon(T_MACRO, new MacroBind());

@@ -16,7 +16,7 @@
 
 package ru.histone.v2.evaluator.function.string;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
@@ -25,11 +25,14 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.DateUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Alexey Nevinsky
@@ -49,10 +52,8 @@ public class StringToDate extends AbstractFunction {
         String value = getValue(args, 0);
         String format = getValue(args, 1);
 
-        LocalDateTime dateTime;
-        try {
-            dateTime = parseDate(value, format);
-        } catch (IllegalArgumentException ex) {
+        LocalDateTime dateTime = parseDate(value, format);
+        if (dateTime == null) {
             return EvalUtils.getValue(null);
         }
         if (args.size() >= 3 && args.get(2).getType() == HistoneType.T_STRING) {
@@ -64,11 +65,49 @@ public class StringToDate extends AbstractFunction {
         return CompletableFuture.completedFuture(node);
     }
 
+//    private LocalDateTime parseDate(String value, String format) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+//        if (StringUtils.containsAny(format, "Hms")) {
+//            return LocalDateTime.parse(value, formatter);
+//        }
+//        return LocalDate.parse(value, formatter).atStartOfDay();
+//    }
+
     private LocalDateTime parseDate(String value, String format) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-        if (StringUtils.containsAny(format, "Hms")) {
-            return LocalDateTime.parse(value, formatter);
+        Pair<String, List<String>> regexpObject = createRegexpString(format);
+        Pattern pattern = Pattern.compile(regexpObject.getKey());
+        Matcher m = pattern.matcher(value);
+
+        Map<String, Integer> map = new HashMap<>();
+        map.put("Y", 0);
+        map.put("M", 1);
+        map.put("D", 1);
+        map.put("h", 0);
+        map.put("m", 0);
+        map.put("s", 0);
+        if (m.matches()) {
+            for (int i = 1; i <= m.groupCount(); i++) {
+                map.put(regexpObject.getValue().get(i - 1), Integer.valueOf(m.group(i)));
+            }
+        } else {
+            return null;
         }
-        return LocalDate.parse(value, formatter).atStartOfDay();
+
+        return LocalDateTime.of(map.get("Y"), map.get("M"), map.get("D"), map.get("h"), map.get("m"), map.get("s"));
+    }
+
+    private Pair<String, List<String>> createRegexpString(String format) {
+        Pattern pattern = Pattern.compile("([YMDhms])");
+        Matcher m = pattern.matcher(format);
+        List<String> keys = new ArrayList<>();
+        int start = 0;
+        while (m.find(start) || start > format.length()) {
+            String key = format.substring(m.start(), m.end());
+            keys.add(key);
+            start = m.end();
+        }
+
+        String res = "^" + format.replaceAll("([YMDhms])", "([0-9]{1,4})") + "$";
+        return Pair.of(res, keys);
     }
 }

@@ -113,6 +113,10 @@
       {
         "input": "--{{var now = getDate->toDate.month}}{{var x = getDate->toDate('+1M').month}}{{(now - x)->toAbs}}",
         "expectedResult": "--1"
+      },
+      {
+        "input": "--{{var x = getDate}}{{x->toDate('-10s') = x}}XX",
+        "expectedResult": "--falseXX"
       }
     ]
   }

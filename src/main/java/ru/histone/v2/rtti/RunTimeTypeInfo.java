@@ -99,6 +99,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
         registerCommon(T_NUMBER, new ToChar());
+        registerCommon(T_NUMBER, new ToDate());
         registerCommon(T_NUMBER, new ToFloor());
         registerCommon(T_NUMBER, new ToRound());
         registerCommon(T_NUMBER, new ToFixed());

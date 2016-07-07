@@ -13,6 +13,58 @@
       {
         "input": "--{{var now = getDate().second}}{{now < 60}}",
         "expectedResult": "--true"
+      },
+      {
+        "input": "--{{123->hasMethod('isDate')}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{'string'->isDate}}XX",
+        "expectedResult": "--falseXX"
+      },
+      {
+        "input": "--{{getDate->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->slice(-3)->isDate}}XX",
+        "expectedResult": "--falseXX"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a>b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a<b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a!=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a!=b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a>=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a<=b}}",
+        "expectedResult": "true"
       }
     ]
   }

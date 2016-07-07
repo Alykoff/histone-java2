@@ -94,10 +94,12 @@ public class RunTimeTypeInfo implements Irtti {
         registerForAlltypes(new GetFunction());
         registerForAlltypes(new CallFunction());
         registerForAlltypes(new HasMethod());
+        registerForAlltypes(new IsDate());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
         registerCommon(T_NUMBER, new ToChar());
+        registerCommon(T_NUMBER, new ToDate());
         registerCommon(T_NUMBER, new ToFloor());
         registerCommon(T_NUMBER, new ToRound());
         registerCommon(T_NUMBER, new ToFixed());
@@ -122,6 +124,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_ARRAY, new ArraySlice());
         registerCommon(T_ARRAY, new ArrayHtmlEntities());
         registerCommon(T_ARRAY, new ArrayHas());
+        registerCommon(T_ARRAY, new ArrayToDate());
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor, loader, evaluator, parser));
@@ -158,6 +161,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_STRING, new StringSlice());
         registerCommon(T_STRING, new StringSplit());
         registerCommon(T_STRING, new StringStrip());
+        registerCommon(T_STRING, new StringToDate());
 
         registerCommon(T_MACRO, new MacroCall(executor, loader, evaluator, parser));
         registerCommon(T_MACRO, new MacroBind());

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.histone.v2.evaluator.function.global;
+
+package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.function.LocaleFunction;
+import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.DateEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -25,32 +27,38 @@ import ru.histone.v2.utils.DateUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Method returns current date
- *
  * @author Alexey Nevinsky
  */
-public class GetDate extends LocaleFunction {
+public class ArrayToDate extends AbstractFunction {
     @Override
     public String getName() {
-        return "getDate";
+        return "toDate";
     }
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return doExecute(clearGlobal(args));
-    }
+        if (args.get(0) instanceof DateEvalNode && (args.size() < 2 || args.get(1).getType() != HistoneType.T_STRING)) {
+            return CompletableFuture.completedFuture(args.get(0));
+        }
 
-    private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
-        LocalDateTime dateTime = LocalDateTime.now();
-        if (args.size() >= 1 && args.get(0).getType() == HistoneType.T_STRING) {
-            final String value = (String) args.get(0).getValue();
+        Map<String, EvalNode> map = getValue(args, 0);
+
+        LocalDateTime dateTime = DateUtils.createDate(map);
+        if (dateTime == null) {
+            return EvalUtils.getValue(null);
+        }
+
+        if (args.size() >= 2 && args.get(1).getType() == HistoneType.T_STRING) {
+            final String value = (String) args.get(1).getValue();
             dateTime = DateUtils.applyOffset(dateTime, value);
         }
 
         EvalNode node = EvalUtils.createEvalNode(DateUtils.createMapFromDate(dateTime), true);
         return CompletableFuture.completedFuture(node);
     }
+
 }

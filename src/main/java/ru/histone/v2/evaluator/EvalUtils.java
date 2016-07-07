@@ -168,6 +168,13 @@ public class EvalUtils {
         throw new HistoneException("Didn't resolve object class: " + object.getClass());
     }
 
+    public static EvalNode<?> createEvalNode(Object object, boolean isDate) {
+        if (object instanceof Map && isDate) {
+            return new DateEvalNode((Map<String, EvalNode>) object);
+        }
+        return createEvalNode(object);
+    }
+
     public static MapEvalNode constructFromMap(Map<String, Object> map) {
         Map<String, EvalNode> res = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -193,7 +200,7 @@ public class EvalUtils {
         } else if (object instanceof String && object.equals("undefined")) {
             return createEvalNode(null);
         } else if (object == null) {
-            createEvalNode(ObjectUtils.NULL);
+            return createEvalNode(ObjectUtils.NULL);
         }
         return createEvalNode(object);
     }

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "string -> toDate",
+    "cases": [
+      {
+        "input": "--{{'2006.10.05'->toDate('yyyy.MM.dd')->toJSON}}XX",
+        "expectedResult": "--nullXX"
+      },
+      {
+        "input": "{{'2006.10.05 05:33:22'->toDate('Y.M.D h:m:s')->toJSON}}",
+        "expectedResult": "{\"day\":5,\"month\":10,\"year\":2006,\"hour\":5,\"minute\":33,\"second\":22}"
+      },
+      {
+        "input": "{{'2006.10.05'->toDate('Y.M.D','+5M')->toJSON}}",
+        "expectedResult": "{\"day\":5,\"month\":3,\"year\":2007,\"hour\":0,\"minute\":0,\"second\":0}"
+      },
+      {
+        "input": "{{'2006.10.05 05:33:22'->toDate('Y.M.D h:m:s','+40s')->toJSON}}",
+        "expectedResult": "{\"day\":5,\"month\":10,\"year\":2006,\"hour\":5,\"minute\":34,\"second\":2}"
+      },
+      {
+        "input": "--{{var DATE_FORMAT = 'D.M.Y h:m:s'}}{{'10.01.2016 20:08:32'->toDate(DATE_FORMAT)->toJSON}}XX",
+        "expectedResult": "--{\"day\":10,\"month\":1,\"year\":2016,\"hour\":20,\"minute\":8,\"second\":32}XX"
+      }
+    ]
+  }
+]

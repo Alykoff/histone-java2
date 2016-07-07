@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.parser.node;
+package ru.histone.v2.evaluator.node;
+
+import java.util.Map;
 
 /**
- * @author Alexey Nevinsky on 24.12.2015.
+ * @author Alexey Nevinsky
  */
-public enum SupportAstType {
-    TEXT_CACHE(0),
-    JSON_CACHE(1),
-    TPL_RESULT_CACHE(2),
-    TPL_AST_CACHE(3);
+public class DateEvalNode extends MapEvalNode {
 
-    private final int id;
-
-    SupportAstType(int id) {
-        this.id = id;
+    public DateEvalNode(Map<String, EvalNode> value) {
+        super(value);
     }
 
-    public int getId() {
-        return id;
-    }
+
 }

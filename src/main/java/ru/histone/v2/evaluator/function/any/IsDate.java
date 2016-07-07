@@ -13,44 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.histone.v2.evaluator.function.global;
+
+package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.function.LocaleFunction;
+import ru.histone.v2.evaluator.node.DateEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
-import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.DateUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Method returns current date
- *
  * @author Alexey Nevinsky
  */
-public class GetDate extends LocaleFunction {
+public class IsDate extends IsArray {
     @Override
     public String getName() {
-        return "getDate";
+        return "isDate";
     }
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return doExecute(clearGlobal(args));
-    }
-
-    private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
-        LocalDateTime dateTime = LocalDateTime.now();
-        if (args.size() >= 1 && args.get(0).getType() == HistoneType.T_STRING) {
-            final String value = (String) args.get(0).getValue();
-            dateTime = DateUtils.applyOffset(dateTime, value);
-        }
-
-        EvalNode node = EvalUtils.createEvalNode(DateUtils.createMapFromDate(dateTime), true);
-        return CompletableFuture.completedFuture(node);
+        return EvalUtils.getValue(args.get(0) instanceof DateEvalNode);
     }
 }

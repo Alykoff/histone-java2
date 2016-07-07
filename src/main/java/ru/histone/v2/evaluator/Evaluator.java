@@ -33,11 +33,13 @@ import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
 import ru.histone.v2.utils.AsyncUtils;
+import ru.histone.v2.utils.DateUtils;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -642,6 +644,12 @@ public class Evaluator implements Serializable {
             } else {
                 result = processRelationToString(stringRight, left, context, stringNodeComparator, true);
             }
+        } else if (left instanceof DateEvalNode && right instanceof DateEvalNode) {
+            LocalDateTime leftValue = DateUtils.createDate(((DateEvalNode) left).getValue());
+            LocalDateTime rightValue = DateUtils.createDate(((DateEvalNode) right).getValue());
+            //leftValue and rightValue always has value, bcz functions which create DateEvalNode checks it
+            // or return EmptyEvalNode
+            result = CompletableFuture.completedFuture(leftValue.compareTo(rightValue));
         } else if (!isNumberNode(left) || !isNumberNode(right)) {
             if (isStringNode(left) && isStringNode(right)) {
                 result = processRelationStringHelper(left, right, stringNodeComparator);

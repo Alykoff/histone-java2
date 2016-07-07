@@ -24,6 +24,7 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
+import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.AstJsonProcessor;
@@ -85,7 +86,10 @@ public class Require extends AbstractFunction {
     private ExpAstNode processTemplate(String template, Resource res) {
         if (EvalUtils.isAst(template)) {
             try {
-                return AstJsonProcessor.read(template);
+                ExpAstNode root = AstJsonProcessor.read(template);
+                SsaOptimizer optimizer = new SsaOptimizer();
+                optimizer.process(root);
+                return root;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

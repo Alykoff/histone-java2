@@ -26,19 +26,19 @@ public class DateUtils implements Serializable {
     public static final int MIN_MONTH = 1;
     public static final int MAX_MONTH = 12;
     public static final int MIN_DAY = 1;
+    public static final String DAY_SYMBOL = "D";
+    public static final String WEEK_SYMBOL = "W";
+    public static final String MONTH_SYMBOL = "M";
+    public static final String YEAR_SYMBOL = "Y";
+    public static final String HOUR_SYMBOL = "h";
+    public static final String MINUTE_SYMBOL = "m";
+    public static final String SECOND_SYMBOL = "s";
 
     private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([\\^\\$+-])(\\d*)([DMWYhms])");
     private static final String NEGATIVE_SIGN = "-";
     private static final String POSITIVE_SIGN = "+";
     private static final String START_SIGN = "^";
     private static final String END_SIGN = "$";
-    private static final String DAY_SYMBOL = "D";
-    private static final String WEEK_SYMBOL = "W";
-    private static final String MONTH_SYMBOL = "M";
-    private static final String YEAR_SYMBOL = "Y";
-    private static final String HOUR_SYMBOL = "h";
-    private static final String MINUTE_SYMBOL = "m";
-    private static final String SECOND_SYMBOL = "s";
 
     private static final TemporalAdjuster LAST_SECOND_OF_MINUTE_ADJUSTER = temporal -> temporal
             .with(ChronoField.SECOND_OF_MINUTE, 59);

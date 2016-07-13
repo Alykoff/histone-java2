@@ -23,6 +23,7 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.exceptions.StopExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.ExpAstNode;
@@ -78,6 +79,9 @@ public class Require extends AbstractFunction {
                     return nodeFuture.thenApply(EvalNode::clearReturned);
                 })
                 .exceptionally(e -> {
+                    if (e.getCause() instanceof StopExecutionException) {
+                        throw (StopExecutionException) e.getCause();
+                    }
                     logger.error(e.getMessage(), e);
                     return EvalUtils.createEvalNode(null);
                 });

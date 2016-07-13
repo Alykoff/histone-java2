@@ -53,6 +53,65 @@
       {
         "input": "--{{(-1363636633636)->toDate->toJSON}}XX",
         "expectedResult": "--{\"day\":16,\"month\":10,\"year\":1926,\"hour\":6,\"minute\":2,\"second\":46}XX"
+      },
+      {
+        "input": "--{{1->toDate('+1W')->toJSON}}XX",
+        "expectedResult": "--{\"day\":8,\"month\":1,\"year\":1970,\"hour\":3,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('-1W')->toJSON}}XX",
+        "expectedResult": "--{\"day\":25,\"month\":12,\"year\":1969,\"hour\":3,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('^W')->toJSON}}XX",
+        "expectedResult": "--{\"day\":29,\"month\":12,\"year\":1969,\"hour\":0,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('$W')->toJSON}}XX",
+        "expectedResult": "--{\"day\":4,\"month\":1,\"year\":1970,\"hour\":23,\"minute\":59,\"second\":59}XX"
+      },
+      {
+        "input": "--{{1->toDate('^Y')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":0,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('$Y')->toJSON}}XX",
+        "expectedResult": "--{\"day\":31,\"month\":12,\"year\":1970,\"hour\":23,\"minute\":59,\"second\":59}XX"
+      },
+      {
+        "input": "--{{1->toDate('^M')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":0,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('$M')->toJSON}}XX",
+        "expectedResult": "--{\"day\":31,\"month\":1,\"year\":1970,\"hour\":23,\"minute\":59,\"second\":59}XX"
+      },
+
+      {
+        "input": "--{{1->toDate('^D')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":0,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('$D')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":23,\"minute\":59,\"second\":59}XX"
+      },
+
+      {
+        "input": "--{{1->toDate('^h')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":3,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('$h')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":3,\"minute\":59,\"second\":59}XX"
+      },
+
+      {
+        "input": "--{{1->toDate('^m')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":3,\"minute\":0,\"second\":0}XX"
+      },
+      {
+        "input": "--{{1->toDate('$m')->toJSON}}XX",
+        "expectedResult": "--{\"day\":1,\"month\":1,\"year\":1970,\"hour\":3,\"minute\":0,\"second\":59}XX"
       }
     ]
   }

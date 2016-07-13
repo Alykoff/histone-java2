@@ -101,7 +101,7 @@ public class TestRunner {
 
     public static void doTest(String input, RunTimeTypeInfo rtti, HistoneTestCase.Case testCase,
                               Evaluator evaluator, Parser parser) throws HistoneException {
-
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"));
         try {
             if (testCase.getInputAST() != null) {
                 ExpAstNode root = AstJsonProcessor.read(testCase.getInputAST());

@@ -1,11 +1,17 @@
 package ru.histone.v2.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.node.EvalNode;
 
 import java.io.Serializable;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -21,14 +27,27 @@ public class DateUtils implements Serializable {
     public static final int MAX_MONTH = 12;
     public static final int MIN_DAY = 1;
 
-    private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([+-])(\\d+)([DMYhms])");
+    private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([\\^\\$+-])(\\d*)([DMWYhms])");
     private static final String NEGATIVE_SIGN = "-";
+    private static final String POSITIVE_SIGN = "+";
+    private static final String START_SIGN = "^";
+    private static final String END_SIGN = "$";
     private static final String DAY_SYMBOL = "D";
+    private static final String WEEK_SYMBOL = "W";
     private static final String MONTH_SYMBOL = "M";
     private static final String YEAR_SYMBOL = "Y";
     private static final String HOUR_SYMBOL = "h";
     private static final String MINUTE_SYMBOL = "m";
     private static final String SECOND_SYMBOL = "s";
+
+    private static final TemporalAdjuster LAST_SECOND_OF_MINUTE_ADJUSTER = temporal -> temporal
+            .with(ChronoField.SECOND_OF_MINUTE, 59);
+
+    private static final TemporalAdjuster LAST_MINUTE_OF_HOUR_ADJUSTER = temporal -> temporal
+            .with(ChronoField.MINUTE_OF_HOUR, 59).with(LAST_SECOND_OF_MINUTE_ADJUSTER);
+
+    private static final TemporalAdjuster LAST_HOUR_OF_DAY_ADJUSTER = temporal -> temporal
+            .with(ChronoField.HOUR_OF_DAY, 23).with(LAST_MINUTE_OF_HOUR_ADJUSTER);
 
     public static int getDaysInMonth(int year, int month) throws IllegalArgumentException {
         final int day = 1;
@@ -45,28 +64,120 @@ public class DateUtils implements Serializable {
         final Matcher matcher = PATTERN_DELTA_DATE.matcher(offset);
         while (matcher.find()) {
             final String sign = matcher.group(1);
-            final Integer num = Integer.parseInt(matcher.group(2)) * (sign.equals(NEGATIVE_SIGN) ? -1 : 1);
+            final int num = StringUtils.isNotEmpty(matcher.group(2)) ? Integer.parseInt(matcher.group(2)) : 0;
             final String period = matcher.group(3);
             switch (period) {
                 case DAY_SYMBOL:
-                    result = result.plusDays(num);
+                    switch (sign) {
+                        case START_SIGN:
+                            result = result.truncatedTo(ChronoUnit.DAYS);
+                            break;
+                        case END_SIGN:
+                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER);
+                            break;
+                        case NEGATIVE_SIGN:
+                            result = result.minusDays(num);
+                            break;
+                        case POSITIVE_SIGN:
+                            result = result.plusDays(num);
+                            break;
+                    }
+                    break;
+                case WEEK_SYMBOL:
+                    switch (sign) {
+                        case START_SIGN:
+                            result = result.truncatedTo(ChronoUnit.DAYS)
+                                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                            break;
+                        case END_SIGN:
+                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER)
+                                    .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+                            break;
+                        case NEGATIVE_SIGN:
+                            result = result.minusWeeks(num);
+                            break;
+                        case POSITIVE_SIGN:
+                            result = result.plusWeeks(num);
+                            break;
+                    }
                     break;
                 case MONTH_SYMBOL:
-                    result = result.plusMonths(num);
+                    switch (sign) {
+                        case START_SIGN:
+                            result = result.truncatedTo(ChronoUnit.DAYS)
+                                    .with(TemporalAdjusters.firstDayOfMonth());
+                            break;
+                        case END_SIGN:
+                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER)
+                                    .with(TemporalAdjusters.lastDayOfMonth());
+                            break;
+                        case NEGATIVE_SIGN:
+                            result = result.minusMonths(num);
+                            break;
+                        case POSITIVE_SIGN:
+                            result = result.plusMonths(num);
+                            break;
+                    }
                     break;
                 case YEAR_SYMBOL:
-                    result = result.plusYears(num);
+                    switch (sign) {
+                        case START_SIGN:
+                            result = result.truncatedTo(ChronoUnit.DAYS)
+                                    .with(TemporalAdjusters.firstDayOfYear());
+                            break;
+                        case END_SIGN:
+                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER)
+                                    .with(TemporalAdjusters.lastDayOfYear());
+                            break;
+                        case NEGATIVE_SIGN:
+                            result = result.minusYears(num);
+                            break;
+                        case POSITIVE_SIGN:
+                            result = result.plusYears(num);
+                            break;
+                    }
                     break;
                 case HOUR_SYMBOL:
-                    result = result.plusHours(num);
+                    switch (sign) {
+                        case START_SIGN:
+                            result = result.truncatedTo(ChronoUnit.HOURS);
+                            break;
+                        case END_SIGN:
+                            result = result.with(LAST_MINUTE_OF_HOUR_ADJUSTER);
+                            break;
+                        case NEGATIVE_SIGN:
+                            result = result.minusHours(num);
+                            break;
+                        case POSITIVE_SIGN:
+                            result = result.plusHours(num);
+                            break;
+                    }
                     break;
                 case MINUTE_SYMBOL:
-                    result = result.plusMinutes(num);
+                    switch (sign) {
+                        case START_SIGN:
+                            result = result.truncatedTo(ChronoUnit.MINUTES);
+                            break;
+                        case END_SIGN:
+                            result = result.with(LAST_SECOND_OF_MINUTE_ADJUSTER);
+                            break;
+                        case NEGATIVE_SIGN:
+                            result = result.minusMinutes(num);
+                            break;
+                        case POSITIVE_SIGN:
+                            result = result.plusMinutes(num);
+                            break;
+                    }
                     break;
                 case SECOND_SYMBOL:
-                    result = result.plusSeconds(num);
-                    break;
-                default:
+                    switch (sign) {
+                        case NEGATIVE_SIGN:
+                            result = result.minusSeconds(num);
+                            break;
+                        case POSITIVE_SIGN:
+                            result = result.plusSeconds(num);
+                            break;
+                    }
                     break;
             }
         }

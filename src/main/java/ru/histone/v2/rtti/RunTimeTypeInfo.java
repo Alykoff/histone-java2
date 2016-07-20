@@ -95,6 +95,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerForAlltypes(new CallFunction());
         registerForAlltypes(new HasMethod());
         registerForAlltypes(new IsDate());
+        registerForAlltypes(new GetMethod());
 
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
@@ -147,7 +148,6 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());
         registerCommon(T_GLOBAL, new Require(executor, loader, evaluator, parser));
-        registerCommon(T_GLOBAL, new GetMethod());
         registerCommon(T_GLOBAL, new Eval(executor, loader, evaluator, parser));
 
         registerCommon(T_REGEXP, new Test());

@@ -229,9 +229,9 @@ public class Evaluator implements Serializable {
                 argsDefaultValues.put(offset + 1 + "", defValue);
             }
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(
-                    args, body, cloneContext, argsDefaultValues, HistoneMacro.MACRO_IS_NOT_WRAPPED_GLOBAL_FUNC_FLAG
-            ));
+            return new MacroEvalNode(
+                    new HistoneMacro(args, body, cloneContext, argsDefaultValues, HistoneMacro.WrappingType.NONE)
+            );
         });
     }
 

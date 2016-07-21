@@ -79,7 +79,7 @@ public class Eval extends AbstractFunction {
         return evaluator.evaluateNode(ast, evalCtx);
     }
 
-    private ExpAstNode processTemplate(String template, String baseURI) {
+    protected ExpAstNode processTemplate(String template, String baseURI) {
         if (EvalUtils.isAst(template)) {
             try {
                 ExpAstNode root = AstJsonProcessor.read(template);

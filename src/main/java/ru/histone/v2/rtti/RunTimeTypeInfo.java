@@ -146,7 +146,6 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_GLOBAL, new GetMinMax(false));
         registerCommon(T_GLOBAL, new GetMinMax(true));
         registerCommon(T_GLOBAL, new GetDate());
-        registerCommon(T_GLOBAL, new GetTimeStamp());
         registerCommon(T_GLOBAL, new Wait());
         registerCommon(T_GLOBAL, new GetDayOfWeek());
         registerCommon(T_GLOBAL, new GetDaysInMonth());

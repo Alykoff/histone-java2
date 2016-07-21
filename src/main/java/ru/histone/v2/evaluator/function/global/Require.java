@@ -87,7 +87,7 @@ public class Require extends AbstractFunction {
                 });
     }
 
-    private ExpAstNode processTemplate(String template, Resource res) {
+    protected ExpAstNode processTemplate(String template, Resource res) {
         if (EvalUtils.isAst(template)) {
             try {
                 ExpAstNode root = AstJsonProcessor.read(template);

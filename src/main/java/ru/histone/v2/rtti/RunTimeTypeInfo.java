@@ -35,10 +35,7 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.utils.AsyncUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -78,7 +75,6 @@ public class RunTimeTypeInfo implements Irtti {
         registerForAlltypes(new ToJson());
         registerForAlltypes(new ToString());
         registerForAlltypes(new ToBoolean());
-        registerForAlltypes(new ToNumber());
         registerForAlltypes(new IsUndefined());
         registerForAlltypes(new IsNull());
         registerForAlltypes(new IsBoolean());
@@ -97,6 +93,10 @@ public class RunTimeTypeInfo implements Irtti {
         registerForAlltypes(new IsDate());
         registerForAlltypes(new GetMethod());
 
+        ToNumber toNumber = new ToNumber();
+
+        registerCommon(T_BOOLEAN, toNumber);
+
         registerCommon(T_NUMBER, new ToAbs());
         registerCommon(T_NUMBER, new ToCeil());
         registerCommon(T_NUMBER, new ToChar());
@@ -104,6 +104,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_NUMBER, new ToFloor());
         registerCommon(T_NUMBER, new ToRound());
         registerCommon(T_NUMBER, new ToFixed());
+        registerCommon(T_NUMBER, toNumber);
 
         registerCommon(T_ARRAY, new ArrayLength());
         registerCommon(T_ARRAY, new Keys(true));
@@ -126,6 +127,8 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_ARRAY, new ArrayHtmlEntities());
         registerCommon(T_ARRAY, new ArrayHas());
         registerCommon(T_ARRAY, new ArrayToDate());
+
+        registerCommon(T_DATE, toNumber);
 
         registerCommon(T_GLOBAL, new Range());
         registerCommon(T_GLOBAL, new LoadJson(executor, loader, evaluator, parser));
@@ -162,6 +165,7 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(T_STRING, new StringSplit());
         registerCommon(T_STRING, new StringStrip());
         registerCommon(T_STRING, new StringToDate());
+        registerCommon(T_STRING, toNumber);
 
         registerCommon(T_MACRO, new MacroCall(executor, loader, evaluator, parser));
         registerCommon(T_MACRO, new MacroBind());
@@ -184,7 +188,6 @@ public class RunTimeTypeInfo implements Irtti {
         if (f == null) {
             f = typeMembers.get(type).get(funcName);
             if (f == null) {
-//                throw new FunctionExecutionException("Couldn't find function '" + funcName + "' for type " + type);
                 return Optional.empty();
             }
         }
@@ -223,6 +226,15 @@ public class RunTimeTypeInfo implements Irtti {
 
     @Override
     public CompletableFuture<EvalNode> callFunction(Context context, EvalNode node, String funcName, List<EvalNode> args) {
+        List<HistoneType> additional = node.getAdditionalTypes();
+        ListIterator<HistoneType> iterator = additional.listIterator(additional.size());
+        while (iterator.hasPrevious()) {
+            HistoneType type = iterator.previous();
+            if (getFunc(type, funcName).isPresent()) {
+                return callFunction(context, type, funcName, args);
+            }
+        }
+
         return callFunction(context, node.getType(), funcName, args);
     }
 

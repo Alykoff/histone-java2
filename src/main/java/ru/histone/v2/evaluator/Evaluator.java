@@ -644,7 +644,7 @@ public class Evaluator implements Serializable {
             } else {
                 result = processRelationToString(stringRight, left, context, stringNodeComparator, true);
             }
-        } else if (left instanceof DateEvalNode && right instanceof DateEvalNode) {
+        } else if (left.hasAdditionalType(HistoneType.T_DATE) && right.hasAdditionalType(HistoneType.T_DATE)) {
             LocalDateTime leftValue = DateUtils.createDate(((DateEvalNode) left).getValue());
             LocalDateTime rightValue = DateUtils.createDate(((DateEvalNode) right).getValue());
             //leftValue and rightValue always has value, bcz functions which create DateEvalNode checks it

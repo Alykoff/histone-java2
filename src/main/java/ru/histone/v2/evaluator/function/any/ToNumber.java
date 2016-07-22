@@ -19,12 +19,14 @@ package ru.histone.v2.evaluator.function.any;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.node.DateEvalNode;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 
+import java.time.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,6 +50,17 @@ public class ToNumber extends AbstractFunction {
         } else if (node.getType() == HistoneType.T_STRING && EvalUtils.isNumeric((StringEvalNode) node)) {
             Double v = Double.parseDouble(((StringEvalNode) node).getValue());
             return EvalUtils.getNumberFuture(v);
+        } else if (node.hasAdditionalType(HistoneType.T_DATE)) {
+            DateEvalNode dateNode = (DateEvalNode) node;
+            LocalDateTime dateTime = ru.histone.v2.utils.DateUtils.createDate(dateNode.getValue());
+            ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.systemDefault());
+            ZoneOffset offset = zonedDateTime.getOffset();
+            Instant instant = dateTime.toInstant(offset);
+            Long res = instant.getEpochSecond() * 1000 + instant.getNano() / 1000;
+            return EvalUtils.getValue(res);
+        } else if (node.getType() == HistoneType.T_BOOLEAN) {
+            long res = ((Boolean) node.getValue()) ? 1L : 0L;
+            return EvalUtils.getValue(res);
         } else if (args.size() > 1) {
             return CompletableFuture.completedFuture(args.get(1));
         }

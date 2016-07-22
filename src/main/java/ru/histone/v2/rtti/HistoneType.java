@@ -31,7 +31,8 @@ public enum HistoneType {
     T_ARRAY(8),
     T_GLOBAL(9),
     T_BREAK(10),
-    T_CONTINUE(11);
+    T_CONTINUE(11),
+    T_DATE(12);
 
     private int id;
 

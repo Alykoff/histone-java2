@@ -9,6 +9,7 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.node.*;
+import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.util.Collections;
@@ -28,16 +29,43 @@ public class GetMethod extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return doExecute(context, clearGlobal(args));
-    }
-
-    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         if (args.isEmpty()) {
             return EvalUtils.getValue(ObjectUtils.NULL);
         }
 
-        final EvalNode methodName = args.get(0);
-        return RttiUtils.callToStringResult(context, methodName).thenCompose(name -> {
+        if (args.size() == 1) {
+            return createGlobalWrapper(context, args.get(0));
+        }
+
+        //ok, we have two or more arguments
+
+        if (args.get(0).getType() == HistoneType.T_GLOBAL) {
+            return createGlobalWrapper(context, args.get(1));
+        }
+
+        return RttiUtils.callToStringResult(context, args.get(1)).thenCompose(name -> {
+            if (!context.findFunction(args.get(0), name)) {
+                return EvalUtils.getValue(ObjectUtils.NULL);
+            }
+
+            AstNode body = new CallExpAstNode(CallType.SIMPLE, new StringAstNode("null"), new StringAstNode(name));
+
+            HistoneMacro macro = new HistoneMacro(
+                    Collections.emptyList(),
+                    body,
+                    context.clone(),
+                    Collections.emptyList(),
+                    Collections.emptyMap(),
+                    args.get(0),
+                    HistoneMacro.WrappingType.VALUE
+            );
+
+            return CompletableFuture.completedFuture(new MacroEvalNode(macro));
+        });
+    }
+
+    private CompletableFuture<EvalNode> createGlobalWrapper(Context context, EvalNode node) {
+        return RttiUtils.callToStringResult(context, node).thenCompose(name -> {
             if (!context.findFunction(name)) {
                 return EvalUtils.getValue(ObjectUtils.NULL);
             }
@@ -48,7 +76,7 @@ public class GetMethod extends AbstractFunction {
                             context.clone(),
                             Collections.emptyList(),
                             Collections.emptyMap(),
-                            HistoneMacro.MACRO_IS_WRAPPED_GLOBAL_FUNC_FLAG
+                            HistoneMacro.WrappingType.GLOBAL
                     ))
             );
         });

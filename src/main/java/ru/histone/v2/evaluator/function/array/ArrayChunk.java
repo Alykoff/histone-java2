@@ -62,16 +62,16 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
                 .callToNumber(context, args.get(SPLIT_SIZE_INDEX))
                 .thenApply(x -> EvalUtils.tryPureIntegerValue(x).filter(v -> v > 0));
         return splitSizeValue.thenApply(sizeOptional ->
-            sizeOptional.map(size -> {
-                final List<EvalNode> valuesRaw = new ArrayList<>(
-                        mapEvalNode.getValue().values()
-                );
-                final List<EvalNode> innerNewValues = chunk(valuesRaw, size)
-                        .stream()
-                        .map(MapEvalNode::new)
-                        .collect(Collectors.toList());
-                return new MapEvalNode(innerNewValues);
-            }).orElse(mapEvalNode)
+                sizeOptional.map(size -> {
+                    final List<EvalNode> valuesRaw = new ArrayList<>(
+                            mapEvalNode.getValue().values()
+                    );
+                    final List<EvalNode> innerNewValues = chunk(valuesRaw, size)
+                            .stream()
+                            .map(MapEvalNode::new)
+                            .collect(Collectors.toList());
+                    return new MapEvalNode(innerNewValues);
+                }).orElse(mapEvalNode)
         );
     }
 }

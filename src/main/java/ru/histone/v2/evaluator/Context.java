@@ -25,6 +25,7 @@ import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -148,13 +149,16 @@ public class Context implements Cloneable {
         return rttiInfo.callFunction(this, HistoneType.T_MACRO, "call", args);
     }
 
-    public boolean findFunction(EvalNode node, String name) {
-        try {
-            return rttiInfo.getFunc(node.getType(), name).isPresent();
-        } catch (FunctionExecutionException ignore) {
-            // yeah, we couldn't find function with this name
+    public boolean findFunction(EvalNode<?> node, String name) {
+        List<HistoneType> additional = node.getAdditionalTypes();
+        ListIterator<HistoneType> iterator = additional.listIterator(additional.size());
+        while (iterator.hasPrevious()) {
+            if (rttiInfo.getFunc(iterator.previous(), name).isPresent()) {
+                return true;
+            }
         }
-        return false;
+
+        return rttiInfo.getFunc(node.getType(), name).isPresent();
     }
 
     public boolean findFunction(String name) {

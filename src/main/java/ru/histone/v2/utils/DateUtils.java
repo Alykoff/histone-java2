@@ -26,19 +26,19 @@ public class DateUtils implements Serializable {
     public static final int MIN_MONTH = 1;
     public static final int MAX_MONTH = 12;
     public static final int MIN_DAY = 1;
+    public static final String DAY_SYMBOL = "D";
+    public static final String WEEK_SYMBOL = "W";
+    public static final String MONTH_SYMBOL = "M";
+    public static final String YEAR_SYMBOL = "Y";
+    public static final String HOUR_SYMBOL = "h";
+    public static final String MINUTE_SYMBOL = "m";
+    public static final String SECOND_SYMBOL = "s";
 
     private static final Pattern PATTERN_DELTA_DATE = Pattern.compile("([\\^\\$+-])(\\d*)([DMWYhms])");
     private static final String NEGATIVE_SIGN = "-";
     private static final String POSITIVE_SIGN = "+";
     private static final String START_SIGN = "^";
     private static final String END_SIGN = "$";
-    private static final String DAY_SYMBOL = "D";
-    private static final String WEEK_SYMBOL = "W";
-    private static final String MONTH_SYMBOL = "M";
-    private static final String YEAR_SYMBOL = "Y";
-    private static final String HOUR_SYMBOL = "h";
-    private static final String MINUTE_SYMBOL = "m";
-    private static final String SECOND_SYMBOL = "s";
 
     private static final TemporalAdjuster LAST_SECOND_OF_MINUTE_ADJUSTER = temporal -> temporal
             .with(ChronoField.SECOND_OF_MINUTE, 59);
@@ -68,116 +68,25 @@ public class DateUtils implements Serializable {
             final String period = matcher.group(3);
             switch (period) {
                 case DAY_SYMBOL:
-                    switch (sign) {
-                        case START_SIGN:
-                            result = result.truncatedTo(ChronoUnit.DAYS);
-                            break;
-                        case END_SIGN:
-                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER);
-                            break;
-                        case NEGATIVE_SIGN:
-                            result = result.minusDays(num);
-                            break;
-                        case POSITIVE_SIGN:
-                            result = result.plusDays(num);
-                            break;
-                    }
+                    result = applyDayOffset(sign, result, num);
                     break;
                 case WEEK_SYMBOL:
-                    switch (sign) {
-                        case START_SIGN:
-                            result = result.truncatedTo(ChronoUnit.DAYS)
-                                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-                            break;
-                        case END_SIGN:
-                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER)
-                                    .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-                            break;
-                        case NEGATIVE_SIGN:
-                            result = result.minusWeeks(num);
-                            break;
-                        case POSITIVE_SIGN:
-                            result = result.plusWeeks(num);
-                            break;
-                    }
+                    result = applyWeekOffset(sign, result, num);
                     break;
                 case MONTH_SYMBOL:
-                    switch (sign) {
-                        case START_SIGN:
-                            result = result.truncatedTo(ChronoUnit.DAYS)
-                                    .with(TemporalAdjusters.firstDayOfMonth());
-                            break;
-                        case END_SIGN:
-                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER)
-                                    .with(TemporalAdjusters.lastDayOfMonth());
-                            break;
-                        case NEGATIVE_SIGN:
-                            result = result.minusMonths(num);
-                            break;
-                        case POSITIVE_SIGN:
-                            result = result.plusMonths(num);
-                            break;
-                    }
+                    result = applyMonthOffset(sign, result, num);
                     break;
                 case YEAR_SYMBOL:
-                    switch (sign) {
-                        case START_SIGN:
-                            result = result.truncatedTo(ChronoUnit.DAYS)
-                                    .with(TemporalAdjusters.firstDayOfYear());
-                            break;
-                        case END_SIGN:
-                            result = result.with(LAST_HOUR_OF_DAY_ADJUSTER)
-                                    .with(TemporalAdjusters.lastDayOfYear());
-                            break;
-                        case NEGATIVE_SIGN:
-                            result = result.minusYears(num);
-                            break;
-                        case POSITIVE_SIGN:
-                            result = result.plusYears(num);
-                            break;
-                    }
+                    result = applyYearOffset(sign, result, num);
                     break;
                 case HOUR_SYMBOL:
-                    switch (sign) {
-                        case START_SIGN:
-                            result = result.truncatedTo(ChronoUnit.HOURS);
-                            break;
-                        case END_SIGN:
-                            result = result.with(LAST_MINUTE_OF_HOUR_ADJUSTER);
-                            break;
-                        case NEGATIVE_SIGN:
-                            result = result.minusHours(num);
-                            break;
-                        case POSITIVE_SIGN:
-                            result = result.plusHours(num);
-                            break;
-                    }
+                    result = applyHourOffset(sign, result, num);
                     break;
                 case MINUTE_SYMBOL:
-                    switch (sign) {
-                        case START_SIGN:
-                            result = result.truncatedTo(ChronoUnit.MINUTES);
-                            break;
-                        case END_SIGN:
-                            result = result.with(LAST_SECOND_OF_MINUTE_ADJUSTER);
-                            break;
-                        case NEGATIVE_SIGN:
-                            result = result.minusMinutes(num);
-                            break;
-                        case POSITIVE_SIGN:
-                            result = result.plusMinutes(num);
-                            break;
-                    }
+                    result = applyMinuteOffset(sign, result, num);
                     break;
                 case SECOND_SYMBOL:
-                    switch (sign) {
-                        case NEGATIVE_SIGN:
-                            result = result.minusSeconds(num);
-                            break;
-                        case POSITIVE_SIGN:
-                            result = result.plusSeconds(num);
-                            break;
-                    }
+                    result = applySecondOffset(sign, result, num);
                     break;
             }
         }
@@ -310,5 +219,105 @@ public class DateUtils implements Serializable {
         ProcessResult(int value) {
             this.value = value;
         }
+    }
+
+    private static LocalDateTime applyDayOffset(String sign, LocalDateTime date, int offset) {
+        switch (sign) {
+            case START_SIGN:
+                return date.truncatedTo(ChronoUnit.DAYS);
+            case END_SIGN:
+                return date.with(LAST_HOUR_OF_DAY_ADJUSTER);
+            case NEGATIVE_SIGN:
+                return date.minusDays(offset);
+            case POSITIVE_SIGN:
+                return date.plusDays(offset);
+        }
+        return date;
+    }
+
+    private static LocalDateTime applyWeekOffset(String sign, LocalDateTime date, int offset) {
+        switch (sign) {
+            case START_SIGN:
+                return date.truncatedTo(ChronoUnit.DAYS)
+                        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            case END_SIGN:
+                return date.with(LAST_HOUR_OF_DAY_ADJUSTER)
+                        .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+            case NEGATIVE_SIGN:
+                return date.minusWeeks(offset);
+            case POSITIVE_SIGN:
+                return date.plusWeeks(offset);
+        }
+        return date;
+    }
+
+    private static LocalDateTime applyMonthOffset(String sign, LocalDateTime date, int offset) {
+        switch (sign) {
+            case START_SIGN:
+                return date.truncatedTo(ChronoUnit.DAYS)
+                        .with(TemporalAdjusters.firstDayOfMonth());
+            case END_SIGN:
+                return date.with(LAST_HOUR_OF_DAY_ADJUSTER)
+                        .with(TemporalAdjusters.lastDayOfMonth());
+            case NEGATIVE_SIGN:
+                return date.minusMonths(offset);
+            case POSITIVE_SIGN:
+                return date.plusMonths(offset);
+        }
+        return date;
+    }
+
+    private static LocalDateTime applyYearOffset(String sign, LocalDateTime date, int offset) {
+        switch (sign) {
+            case START_SIGN:
+                return date.truncatedTo(ChronoUnit.DAYS)
+                        .with(TemporalAdjusters.firstDayOfYear());
+            case END_SIGN:
+                return date.with(LAST_HOUR_OF_DAY_ADJUSTER)
+                        .with(TemporalAdjusters.lastDayOfYear());
+            case NEGATIVE_SIGN:
+                return date.minusYears(offset);
+            case POSITIVE_SIGN:
+                return date.plusYears(offset);
+        }
+        return date;
+    }
+
+    private static LocalDateTime applyHourOffset(String sign, LocalDateTime date, int offset) {
+        switch (sign) {
+            case START_SIGN:
+                return date.truncatedTo(ChronoUnit.HOURS);
+            case END_SIGN:
+                return date.with(LAST_MINUTE_OF_HOUR_ADJUSTER);
+            case NEGATIVE_SIGN:
+                return date.minusHours(offset);
+            case POSITIVE_SIGN:
+                return date.plusHours(offset);
+        }
+        return date;
+    }
+
+    private static LocalDateTime applyMinuteOffset(String sign, LocalDateTime date, int offset) {
+        switch (sign) {
+            case START_SIGN:
+                return date.truncatedTo(ChronoUnit.MINUTES);
+            case END_SIGN:
+                return date.with(LAST_SECOND_OF_MINUTE_ADJUSTER);
+            case NEGATIVE_SIGN:
+                return date.minusMinutes(offset);
+            case POSITIVE_SIGN:
+                return date.plusMinutes(offset);
+        }
+        return date;
+    }
+
+    private static LocalDateTime applySecondOffset(String sign, LocalDateTime date, int offset) {
+        switch (sign) {
+            case NEGATIVE_SIGN:
+                return date.minusSeconds(offset);
+            case POSITIVE_SIGN:
+                return date.plusSeconds(offset);
+        }
+        return date;
     }
 }

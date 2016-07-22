@@ -34,6 +34,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static ru.histone.v2.utils.DateUtils.*;
+
 /**
  * @author Alexey Nevinsky
  */
@@ -79,12 +81,12 @@ public class StringToDate extends AbstractFunction {
         Matcher m = pattern.matcher(value);
 
         Map<String, Integer> map = new HashMap<>();
-        map.put("Y", 0);
-        map.put("M", 1);
-        map.put("D", 1);
-        map.put("h", 0);
-        map.put("m", 0);
-        map.put("s", 0);
+        map.put(YEAR_SYMBOL, 0);
+        map.put(MONTH_SYMBOL, 1);
+        map.put(DAY_SYMBOL, 1);
+        map.put(HOUR_SYMBOL, 0);
+        map.put(MINUTE_SYMBOL, 0);
+        map.put(SECOND_SYMBOL, 0);
         if (m.matches()) {
             for (int i = 1; i <= m.groupCount(); i++) {
                 map.put(regexpObject.getValue().get(i - 1), Integer.valueOf(m.group(i)));

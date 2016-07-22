@@ -16,6 +16,10 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.rtti.HistoneType;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,5 +31,13 @@ public class DateEvalNode extends MapEvalNode {
         super(value);
     }
 
+    @Override
+    public List<HistoneType> getAdditionalTypes() {
+        return Collections.singletonList(HistoneType.T_DATE);
+    }
 
+    @Override
+    public boolean hasAdditionalType(HistoneType type) {
+        return type == HistoneType.T_DATE;
+    }
 }

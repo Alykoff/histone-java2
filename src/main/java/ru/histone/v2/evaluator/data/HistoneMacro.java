@@ -20,7 +20,6 @@ import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.parser.node.AstNode;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,11 +36,11 @@ public class HistoneMacro implements Cloneable {
     private List<String> args = new ArrayList<>();
     private Map<String, CompletableFuture<EvalNode>> defaultValues = new LinkedHashMap<>();
     private List<EvalNode> bindArgs = new ArrayList<>();
-    private final boolean isMacroWrappedGlobalFunc;
+    private final WrappingType wrappingType;
 
     public HistoneMacro(EvalNode result) {
         this.result = result;
-        this.isMacroWrappedGlobalFunc = false;
+        this.wrappingType = WrappingType.NONE;
     }
 
     public HistoneMacro(
@@ -49,13 +48,13 @@ public class HistoneMacro implements Cloneable {
             AstNode body,
             Context context,
             Map<String, CompletableFuture<EvalNode>> defaultValues,
-            boolean isMacroWrappedGlobalFunc
+            WrappingType wrappingType
     ) {
         this.args.addAll(args);
         this.body = body;
         this.context = context;
         this.defaultValues = defaultValues;
-        this.isMacroWrappedGlobalFunc = isMacroWrappedGlobalFunc;
+        this.wrappingType = wrappingType;
     }
 
     public HistoneMacro(
@@ -64,14 +63,27 @@ public class HistoneMacro implements Cloneable {
             Context context,
             List<EvalNode> bindArgs,
             Map<String, CompletableFuture<EvalNode>> defaultValues,
-            boolean isMacroWrappedGlobalFunc
+            WrappingType wrappingType
     ) {
         this.args.addAll(args);
         this.body = body;
         this.context = context;
         this.bindArgs = bindArgs;
         this.defaultValues = defaultValues;
-        this.isMacroWrappedGlobalFunc = isMacroWrappedGlobalFunc;
+        this.wrappingType = wrappingType;
+    }
+
+    public HistoneMacro(
+            List<String> args,
+            AstNode body,
+            Context context,
+            List<EvalNode> bindArgs,
+            Map<String, CompletableFuture<EvalNode>> defaultValues,
+            EvalNode result,
+            WrappingType wrappingType
+    ) {
+        this(args, body, context, bindArgs, defaultValues, wrappingType);
+        this.result = result;
     }
 
     public void addBindArgs(List<EvalNode> bindArgs) {
@@ -104,7 +116,7 @@ public class HistoneMacro implements Cloneable {
                 this.context.clone(),
                 copyBindArgs,
                 copyValues,
-                this.isMacroWrappedGlobalFunc
+                this.wrappingType
         );
     }
 
@@ -178,7 +190,11 @@ public class HistoneMacro implements Cloneable {
         return result;
     }
 
-    public boolean isMacroWrappedGlobalFunc() {
-        return isMacroWrappedGlobalFunc;
+    public enum WrappingType {
+        NONE, GLOBAL, VALUE;
+    }
+
+    public WrappingType getWrappingType() {
+        return wrappingType;
     }
 }

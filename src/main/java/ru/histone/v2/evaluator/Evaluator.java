@@ -229,9 +229,9 @@ public class Evaluator implements Serializable {
                 argsDefaultValues.put(offset + 1 + "", defValue);
             }
             final AstNode body = node.getNode(bodyIndex);
-            return new MacroEvalNode(new HistoneMacro(
-                    args, body, cloneContext, argsDefaultValues, HistoneMacro.MACRO_IS_NOT_WRAPPED_GLOBAL_FUNC_FLAG
-            ));
+            return new MacroEvalNode(
+                    new HistoneMacro(args, body, cloneContext, argsDefaultValues, HistoneMacro.WrappingType.NONE)
+            );
         });
     }
 
@@ -644,7 +644,7 @@ public class Evaluator implements Serializable {
             } else {
                 result = processRelationToString(stringRight, left, context, stringNodeComparator, true);
             }
-        } else if (left instanceof DateEvalNode && right instanceof DateEvalNode) {
+        } else if (left.hasAdditionalType(HistoneType.T_DATE) && right.hasAdditionalType(HistoneType.T_DATE)) {
             LocalDateTime leftValue = DateUtils.createDate(((DateEvalNode) left).getValue());
             LocalDateTime rightValue = DateUtils.createDate(((DateEvalNode) right).getValue());
             //leftValue and rightValue always has value, bcz functions which create DateEvalNode checks it

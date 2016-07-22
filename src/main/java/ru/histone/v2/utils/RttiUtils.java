@@ -51,7 +51,7 @@ public class RttiUtils implements Serializable {
     }
 
     public static CompletableFuture<EvalNode> callToNumber(Context context, EvalNode node) {
-        return context.call(ToNumber.NAME, Collections.singletonList(node));
+        return context.call(node, ToNumber.NAME, Collections.singletonList(node));
     }
 
     public static CompletableFuture<EvalNode> callToBoolean(Context context, EvalNode node) {

@@ -140,6 +140,13 @@
       {
         "input": "--{{var ui = require('../../tpl/function/summFormat.ast.tpl')}}{{ui.summFormat(10)}}XX",
         "expectedResult": "--10 <i class=\"rub\">&#8381;</i>XX"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/stopExecutionException.tpl')}}{{ui}}XX",
+        "expectedException": {
+          "line": "1",
+          "message": "ru.histone.v2.exceptions.StopExecutionException: Exception thrown"
+        }
       }
     ]
   }

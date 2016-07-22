@@ -326,7 +326,7 @@
         "input": "{{true && throwExceptionFunction}}",
         "expectedException": {
         "line": "1",
-        "message": "For input string: \"a\""
+          "message": "ru.histone.v2.exceptions.FunctionExecutionException: Exception thrown"
         }
       }
     ]
@@ -341,7 +341,7 @@
         "input": "{{false || throwExceptionFunction}}",
         "expectedException": {
           "line": "1",
-          "message": "For input string: \"a\""
+          "message": "ru.histone.v2.exceptions.FunctionExecutionException: Exception thrown"
         }
       }
     ]

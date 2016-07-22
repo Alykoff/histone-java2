@@ -19,6 +19,8 @@ package ru.histone.v2.evaluator.node;
 import ru.histone.v2.rtti.HistoneType;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,6 +53,14 @@ public abstract class EvalNode<T> implements Serializable {
     }
 
     public abstract HistoneType getType();
+
+    public List<HistoneType> getAdditionalTypes() {
+        return Collections.emptyList();
+    }
+
+    public boolean hasAdditionalType(HistoneType type) {
+        return false;
+    }
 
     @Override
     public String toString() {

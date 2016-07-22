@@ -59,8 +59,8 @@ public class MacroCall extends AbstractFunction implements Serializable {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final HistoneMacro histoneMacro = getMacro(args);
 
-        //if result was set, we return it immediately
-        if (histoneMacro.getResult() != null) {
+        //if result was set and macros is not wrapper, we return it immediately
+        if (histoneMacro.getResult() != null && histoneMacro.getWrappingType() == HistoneMacro.WrappingType.NONE) {
             return CompletableFuture.completedFuture(histoneMacro.getResult());
         }
 
@@ -74,8 +74,10 @@ public class MacroCall extends AbstractFunction implements Serializable {
         params.addAll(bindArgs);
         params.addAll(paramsInput);
 
-        if (histoneMacro.isMacroWrappedGlobalFunc()) {
+        if (histoneMacro.getWrappingType() == HistoneMacro.WrappingType.GLOBAL) {
             return callWrappedGlobalFunction(context, paramsInput, body);
+        } else if (histoneMacro.getWrappingType() == HistoneMacro.WrappingType.VALUE) {
+            return callWrappedValueFunction(context, paramsInput, (ExpAstNode) body, histoneMacro.getResult());
         }
 
         final Context currentContext = contextInner.createNew();
@@ -151,13 +153,20 @@ public class MacroCall extends AbstractFunction implements Serializable {
     // if macro is wrapped global function:
     // body := [AST_CALL, [AST_GLOBAL], METHOD_NAME],
     // body := [22, [4], METHOD_NAME]
-    private static CompletableFuture<EvalNode> callWrappedGlobalFunction(
-            Context context, List<EvalNode> args, AstNode body
-    ) {
+    private CompletableFuture<EvalNode> callWrappedGlobalFunction(Context context, List<EvalNode> args, AstNode body) {
         final ExpAstNode bodyExt = (ExpAstNode) body;
         final StringAstNode methodNameNode = bodyExt.getNode(METHOD_NAME_INDEX_IN_WRAPPED_MACRO_BODY);
         final String methodName = methodNameNode.getValue();
         return context.call(methodName, args);
+    }
+
+    private CompletableFuture<EvalNode> callWrappedValueFunction(Context context, List<EvalNode> args, ExpAstNode body,
+                                                                 EvalNode result) {
+        final String functionName = ((StringAstNode) body.getNode(METHOD_NAME_INDEX_IN_WRAPPED_MACRO_BODY)).getValue();
+        List<EvalNode> arguments = new ArrayList<>();
+        arguments.add(result);
+        arguments.addAll(args);
+        return context.call(result, functionName, arguments);
     }
 
     @Override

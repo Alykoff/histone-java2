@@ -17,6 +17,30 @@
       {
         "input": "{{''->strip('/X')}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{'aaaaaaa'->strip('a')}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'a'->strip('a')}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'    '->strip}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'   \t\n '->strip}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'\t\n'->strip}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{'\t\nt\n'->strip}}",
+        "expectedResult": "t"
       }
     ]
   }

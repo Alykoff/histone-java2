@@ -47,19 +47,20 @@ public class StringStrip extends AbstractFunction {
             charsToRemove = Arrays.asList(((StringEvalNode) args.get(1)).getValue().split(""));
         }
 
-        int start = -1;
-        int length = value.length();
-
-        if (length == 0) {
+        if (value.length() == 0) {
             return EvalUtils.getValue(value);
         }
+        int head = 0;
+        int tail = value.length();
 
         //строка может быть пустой
-        while (start < length && charsToRemove.contains(value.charAt(++start) + "")) {
+        while (head < tail && charsToRemove.contains(value.charAt(head) + "")) {
+            head++;
         }
-        while (length >= 0 && charsToRemove.contains(value.charAt(--length) + "")) {
+        while (tail > head && charsToRemove.contains(value.charAt(tail - 1) + "")) {
+            tail--;
         }
 
-        return EvalUtils.getValue(value.substring(start, length + 1));
+        return EvalUtils.getValue(value.substring(head, tail));
     }
 }

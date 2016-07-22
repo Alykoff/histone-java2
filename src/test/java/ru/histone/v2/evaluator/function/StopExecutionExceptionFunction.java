@@ -19,6 +19,7 @@ package ru.histone.v2.evaluator.function;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.exceptions.StopExecutionException;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -26,11 +27,11 @@ import java.util.concurrent.CompletableFuture;
 public class StopExecutionExceptionFunction extends AbstractFunction {
     @Override
     public String getName() {
-        return "throwExceptionFunction";
+        return "stopExecutionExceptionFunction";
     }
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        throw new FunctionExecutionException("Exception thrown");
+        throw new StopExecutionException("Exception thrown");
     }
 }

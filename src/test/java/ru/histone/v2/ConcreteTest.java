@@ -62,7 +62,7 @@ public class ConcreteTest {
 //        testCase.setContext(getMap());
 //        testCase.setExpectedAST("[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]");
 //        TestRunner.doTest("{{var f = (n) => n <= 1 ? n : self.callee(n - 1) + self.callee(n - 2)}}{{f(100)}}", rtti, testCase, evaluator, parser);
-        TestRunner.doTest("{{(-3.14)->getMethod('toCeil')->call()}}", rtti, testCase, evaluator, parser);
+        TestRunner.doTest("{{var ui = require('../../tpl/stopExecutionException.tpl')}}{{ui}}", rtti, testCase, evaluator, parser);
 //        TestRunner.doTest("{{var a = 6}}{{a}}", rtti, testCase, evaluator, parser);
     }
 

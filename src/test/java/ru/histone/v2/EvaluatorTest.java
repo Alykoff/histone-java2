@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.function.StopExecutionExceptionFunction;
 import ru.histone.v2.evaluator.function.ThrowExceptionFunction;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
@@ -60,6 +61,7 @@ public class EvaluatorTest {
         loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
         rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
+        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
     }
 
     private String input;

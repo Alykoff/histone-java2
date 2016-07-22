@@ -135,6 +135,10 @@ public class TestRunner {
                 }
                 String result = evaluator.process(root, context);
                 Assert.assertEquals(normalizeLineEndings(testCase.getExpectedResult()), normalizeLineEndings(result));
+            } else if (testCase.getExpectedException() != null) {
+                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti,
+                        new DefaultPropertyHolder());
+                evaluator.process(root, context);
             }
         } catch (ParserException ex) {
             if (testCase.getExpectedException() != null) {

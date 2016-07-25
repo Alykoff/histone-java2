@@ -24,6 +24,7 @@ import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
+import ru.histone.v2.utils.ParserUtils;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -186,8 +187,8 @@ public class EvalUtils {
     public static MapEvalNode constructFromList(List<Object> list) {
         List<EvalNode> res = new ArrayList<>(list.size());
         res.addAll(list.stream()
-                .map(EvalUtils::constructFromObject)
-                .collect(Collectors.toList())
+                        .map(EvalUtils::constructFromObject)
+                        .collect(Collectors.toList())
         );
         return new MapEvalNode(res);
     }
@@ -231,5 +232,16 @@ public class EvalUtils {
     public static boolean isAst(String template) {
         Pattern pattern = Pattern.compile("^\\s*\\[\\s*[0-9]+.*\\]\\s*$");
         return pattern.matcher(template).matches();
+    }
+
+    public static boolean isArray(Set<String> indexKeys) {
+        int i = 0;
+        for (String key : indexKeys) {
+            if (!isNumeric(key) || ParserUtils.tryInt(key).get() != i) {
+                return false;
+            }
+            i++;
+        }
+        return true;
     }
 }

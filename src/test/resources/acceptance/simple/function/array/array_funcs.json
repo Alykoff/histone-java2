@@ -200,6 +200,22 @@
         "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
       },
       {
+        "input": "{{[foo: 'bar', x: 10, y: 20, z: 30]->chunk('2')->toJSON}}",
+        "expectedResult": "[{\"foo\":\"bar\",\"x\":10},{\"y\":20,\"z\":30}]"
+      },
+      {
+        "input": "{{[1: 'bar', 2: 10, y: 20, z: 30]->chunk('2')->toJSON}}",
+        "expectedResult": "[{\"1\":\"bar\",\"2\":10},{\"y\":20,\"z\":30}]"
+      },
+      {
+        "input": "{{[foo: 'bar', x: 10]->chunk('1')->toJSON}}",
+        "expectedResult": "[{\"foo\":\"bar\"},{\"x\":10}]"
+      },
+      {
+        "input": "{{[1: 'bar', 2: 10, y: 20, z: 30, e: 2]->chunk('2')->toJSON}}",
+        "expectedResult": "[{\"1\":\"bar\",\"2\":10},{\"y\":20,\"z\":30},{\"e\":2}]"
+      },
+      {
         "input": "{{['sdf':'hhhh', 'dfdf', 'rrr']->chunk()->toJSON()}}",
         "expectedResult": "{\"sdf\":\"hhhh\",\"0\":\"dfdf\",\"1\":\"rrr\"}"
       },

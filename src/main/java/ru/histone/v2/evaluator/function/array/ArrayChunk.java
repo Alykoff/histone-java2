@@ -25,9 +25,7 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -39,10 +37,22 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
     private static final int MAP_EVAL_INDEX = 0;
     private static final int SPLIT_SIZE_INDEX = 1;
 
-    public static <T> List<List<T>> chunk(List<T> original, int n) {
-        final List<List<T>> partitions = new ArrayList<>();
-        for (int i = 0; i < original.size(); i += n) {
-            partitions.add(original.subList(i, Math.min(i + n, original.size())));
+    @SuppressWarnings("unchecked")
+    public static List<Map<String, EvalNode>> chunk(Map<String, EvalNode> original, int n) {
+        if (n < 1) {
+            throw new IllegalArgumentException("Chunk size should be non zero positive value");
+        }
+        int i = -1;
+        Map<String, EvalNode> partition = Collections.EMPTY_MAP;
+        boolean isArray = EvalUtils.isArray(original.keySet());
+        final List<Map<String, EvalNode>> partitions = new ArrayList<>();
+        for (Map.Entry<String, EvalNode> entry : original.entrySet()) {
+            if (++i % n == 0) {
+                i = 0;
+                partition = new LinkedHashMap<>();
+                partitions.add(partition);
+            }
+            partition.put(isArray ? String.valueOf(i) : entry.getKey(), entry.getValue());
         }
         return partitions;
     }
@@ -62,16 +72,13 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
                 .callToNumber(context, args.get(SPLIT_SIZE_INDEX))
                 .thenApply(x -> EvalUtils.tryPureIntegerValue(x).filter(v -> v > 0));
         return splitSizeValue.thenApply(sizeOptional ->
-                sizeOptional.map(size -> {
-                    final List<EvalNode> valuesRaw = new ArrayList<>(
-                            mapEvalNode.getValue().values()
-                    );
-                    final List<EvalNode> innerNewValues = chunk(valuesRaw, size)
-                            .stream()
-                            .map(MapEvalNode::new)
-                            .collect(Collectors.toList());
-                    return new MapEvalNode(innerNewValues);
-                }).orElse(mapEvalNode)
+                        sizeOptional.map(size -> {
+                            final List<EvalNode> chunkedValues = chunk(mapEvalNode.getValue(), size)
+                                    .stream()
+                                    .map(MapEvalNode::new)
+                                    .collect(Collectors.toList());
+                            return new MapEvalNode(chunkedValues);
+                        }).orElse(mapEvalNode)
         );
     }
 }

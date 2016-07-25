@@ -74,18 +74,10 @@ public class ToJson extends AbstractFunction {
         SimpleModule module = new SimpleModule();
         module.addSerializer(LinkedHashMap.class, new JsonSerializer<LinkedHashMap>() {
             //todo add generics to map
+            @SuppressWarnings("unchecked")
             @Override
             public void serialize(LinkedHashMap value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                Set<?> keys = value.keySet();
-                boolean isArray = true;
-                int i = 0;
-                for (Object key : keys) {
-                    if (!EvalUtils.isNumeric((String) key) || ParserUtils.tryInt((String) key).get() != i) {
-                        isArray = false;
-                        break;
-                    }
-                    i++;
-                }
+                boolean isArray = EvalUtils.isArray(value.keySet());
 
                 if (isArray) {
                     JsonSerializer<Object> serializer = provider.findValueSerializer(Collection.class, null);

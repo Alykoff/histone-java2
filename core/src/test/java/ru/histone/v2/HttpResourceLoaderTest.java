@@ -15,90 +15,67 @@
  */
 package ru.histone.v2;
 
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.StdErrLog;
+import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTestNg;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
-import ru.histone.v2.evaluator.resource.loader.DataLoader;
-import ru.histone.v2.evaluator.resource.loader.FileLoader;
-import ru.histone.v2.evaluator.resource.loader.HttpLoader;
-import ru.histone.v2.exceptions.HistoneException;
-import ru.histone.v2.parser.Parser;
-import ru.histone.v2.rtti.RunTimeTypeInfo;
-import ru.histone.v2.support.HistoneTestCase;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.extension.ExtendWith;
+import ru.histone.v2.support.CasePack;
 import ru.histone.v2.support.JerseyServerResource;
-import ru.histone.v2.support.TestRunner;
+import ru.histone.v2.support.StringParamResolver;
 
-import javax.ws.rs.core.Application;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 /**
  * @author Alexey Nevinsky
  */
-@RunWith(Parameterized.class)
-public class HttpResourceLoaderTest extends JerseyTestNg.ContainerPerClassTest {
+@ExtendWith(StringParamResolver.class)
+@CasePack("http")
+public class HttpResourceLoaderTest extends HistoneTest {
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(20);
-    private static final RunTimeTypeInfo rtti;
-    private static final Evaluator evaluator;
-    private static final Parser parser;
+    private final String BASE_URI = "http://127.0.0.1:4442/";
+    private Server server;
 
-    static {
-        parser = new Parser();
-        evaluator = new Evaluator();
-        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
-        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
-        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
-        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
-        rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
+    //    @BeforeEach
+    public void setUp() throws Exception {
+        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
+        server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
+        Log.setLog(new StdErrLog());
     }
 
-    private String input;
-    private HistoneTestCase.Case expected;
-    private Integer index;
-
-    public HttpResourceLoaderTest(Integer index, Integer testIndex, String testCaseName, String input, HistoneTestCase.Case expected) {
-        this.index = index;
-        this.input = input;
-        this.expected = expected;
-    }
-
-    @Parameterized.Parameters(name = " {0}: {2}[{1}] `{3}` ")
-    public static Collection<Object[]> data() throws IOException, URISyntaxException {
-        final List<Object[]> result = new ArrayList<>();
-        final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCases("http");
-        int i = 1;
-        for (HistoneTestCase histoneTestCase : histoneTestCases) {
-            System.out.println("Run test '" + histoneTestCase.getName() + "'");
-            int j = 1;
-            for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
-                System.out.println("Expression: " + testCase.getInput());
-                String testName = histoneTestCase.getName();
-                result.add(new Object[]{i++, j++, testName, testCase.getInput(), testCase});
-            }
-        }
-        return result;
-    }
-
+    @TestFactory
     @Override
-    protected Application configure() {
-        forceSet(TestProperties.CONTAINER_PORT, "4442");
+    public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
+        return super.loadCases(param)
+                .map(test -> DynamicTest.dynamicTest(test.getDisplayName(), () -> {
+                    try {
+                        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
+                        server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
+                        Log.setLog(new StdErrLog());
 
-        return new ResourceConfig(JerseyServerResource.class);
+                        test.getExecutable().execute();
+                    } finally {
+                        try {
+                            server.stop();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }));
     }
 
-    @Test
-    public void test() throws HistoneException {
-        TestRunner.doTest(input, rtti, expected, evaluator, parser);
+    //    @AfterEach
+    public void tearDown() throws Exception {
+        try {
+            server.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

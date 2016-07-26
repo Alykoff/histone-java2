@@ -1,6 +1,6 @@
 package ru.histone.v2.support;
 
-class ExpectedException {
+public class ExpectedException {
     private int line;
     private String expected;
     private String found;

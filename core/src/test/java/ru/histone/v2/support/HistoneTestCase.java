@@ -46,6 +46,7 @@ public class HistoneTestCase {
     }
 
     public static class Case {
+        private String inputClass;
         private String inputAST;
         private String input;
         private String inputFile;
@@ -117,6 +118,14 @@ public class HistoneTestCase {
 
         public void setInputAST(String inputAST) {
             this.inputAST = inputAST;
+        }
+
+        public String getInputClass() {
+            return inputClass;
+        }
+
+        public void setInputClass(String inputClass) {
+            this.inputClass = inputClass;
         }
     }
 

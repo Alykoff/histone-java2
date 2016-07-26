@@ -16,47 +16,28 @@
 
 package ru.histone.v2;
 
+import org.eclipse.jetty.server.Server;
+import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTestNg;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Test;
-import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
-import ru.histone.v2.evaluator.resource.loader.DataLoader;
-import ru.histone.v2.evaluator.resource.loader.FileLoader;
-import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ru.histone.v2.exceptions.HistoneException;
-import ru.histone.v2.parser.Parser;
-import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.support.HistoneTestCase;
 import ru.histone.v2.support.JerseyServerResource;
 import ru.histone.v2.support.TestRunner;
 
-import javax.ws.rs.core.Application;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author Alexey Nevinsky
  */
-public class HttpConcreteTest extends JerseyTestNg.ContainerPerMethodTest {
-    private static final ExecutorService executor = Executors.newFixedThreadPool(20);
-    private static final RunTimeTypeInfo rtti;
-    private static final Evaluator evaluator;
-    private static final Parser parser;
-
-    static {
-        parser = new Parser();
-        evaluator = new Evaluator();
-        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
-        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
-        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
-        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
-        rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
-    }
+public class HttpConcreteTest extends HistoneTest {
+    public static final String BASE_URI = "http://127.0.0.1:4442/";
+    public Server server;
 
     @Test
     public void concreteTest() throws HistoneException {
@@ -80,10 +61,14 @@ public class HttpConcreteTest extends JerseyTestNg.ContainerPerMethodTest {
         return res;
     }
 
-    @Override
-    protected Application configure() {
-        forceSet(TestProperties.CONTAINER_PORT, "4442");
+    @BeforeEach
+    public void setUp() throws Exception {
+        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
+        server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
+    }
 
-        return new ResourceConfig(JerseyServerResource.class);
+    @AfterEach
+    public void tearDown() throws Exception {
+        server.stop();
     }
 }

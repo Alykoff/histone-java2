@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_histone;
-
-import ru.histone.v2.bcompiler.Compiler;
-import ru.histone.v2.parser.node.ExpAstNode;
-import ru.histone.v2.support.HistoneTestCase;
+package ru.histone.v2.java_compiler;
 
 /**
  * @author Alexey Nevinsky
@@ -35,17 +31,17 @@ public class TestCompiler {
 
     }
 
-    private HistoneTestCase createCase(String path) {
-        return null;
-    }
-
-    private ExpAstNode getAst(HistoneTestCase.Case testCase) {
-        return null;
-    }
-
-    private byte[] createClassFromAst(ExpAstNode root) {
-        return null;
-    }
+//    private HistoneTestCase createCase(String path) {
+//        return null;
+//    }
+//
+//    private ExpAstNode getAst(HistoneTestCase.Case testCase) {
+//        return null;
+//    }
+//
+//    private byte[] createClassFromAst(ExpAstNode root) {
+//        return null;
+//    }
 
     private void modifyTests() {
 

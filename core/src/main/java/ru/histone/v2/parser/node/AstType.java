@@ -47,6 +47,10 @@ public enum AstType {
     AST_IF(24),
     AST_FOR(25),
     AST_MACRO(26),
+    // {{if ...}} {{return 10}} {{/if}} - throws from the template
+    // {{for ...}} {{return 10}} {{/for}} - throws from the template
+    // {{macro ...}} {{return 10}} {{/macro}} - throws from the macro
+    // {{[foo: {{ bla bla {{return 10}} }} ] }} - throws from the block of code
     AST_RETURN(27),
     AST_NODES(28),
     AST_NODELIST(29),
@@ -63,22 +67,6 @@ public enum AstType {
     AST_BREAK(37),
     AST_CONTINUE(38),
     AST_WHILE(39),
-
-//
-//    RTTI_T_BASE: 0,
-//    RTTI_T_UNDEFINED: 1,
-//    RTTI_T_NULL: 2,
-//    RTTI_T_BOOLEAN: 3,
-//    RTTI_T_NUMBER: 4,
-//    RTTI_T_STRING: 5,
-//    RTTI_T_REGEXP: 6,
-//    RTTI_T_MACRO: 7,
-//    RTTI_T_ARRAY: 8,
-//    RTTI_T_GLOBAL: 9,
-//
-//    RTTI_V_CLEAN: 0,
-//    RTTI_V_DIRTY: 1
-
 
     AST_T_NOP(-1),
     AST_T_BREAK(-2),

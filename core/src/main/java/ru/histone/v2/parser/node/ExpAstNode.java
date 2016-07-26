@@ -29,8 +29,6 @@ import java.util.List;
 public class ExpAstNode extends AstNode implements Serializable {
     protected List<AstNode> nodes = new ArrayList<>();
 
-    private boolean isExpressionStatement = false;
-
     public ExpAstNode(AstType type) {
         super(type);
     }
@@ -82,11 +80,6 @@ public class ExpAstNode extends AstNode implements Serializable {
         return nodes.size() >= index + 1 ? (X) nodes.get(index) : null;
     }
 
-    public AstNode escaped() {
-        //todo
-        return this;
-    }
-
 
     public boolean hasValue() {
         return false;
@@ -95,13 +88,5 @@ public class ExpAstNode extends AstNode implements Serializable {
     public int size() {
         if (this.nodes == null) return 0;
         return this.nodes.size();
-    }
-
-    public boolean isExpressionStatement() {
-        return isExpressionStatement;
-    }
-
-    public void setExpressionStatement(boolean expressionStatement) {
-        isExpressionStatement = expressionStatement;
     }
 }

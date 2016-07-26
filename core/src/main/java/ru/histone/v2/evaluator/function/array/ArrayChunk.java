@@ -36,9 +36,10 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
     public static final String NAME = "chunk";
     private static final int MAP_EVAL_INDEX = 0;
     private static final int SPLIT_SIZE_INDEX = 1;
+    private static final int DEFAULT_CHUNK_SIZE = 1;
 
     @SuppressWarnings("unchecked")
-    public static List<Map<String, EvalNode>> chunk(Map<String, EvalNode> original, int n) {
+    private static List<Map<String, EvalNode>> chunk(Map<String, EvalNode> original, int n) {
         if (n < 1) {
             throw new IllegalArgumentException("Chunk size should be non zero positive value");
         }
@@ -65,12 +66,15 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
-        if (args.size() <= SPLIT_SIZE_INDEX) {
-            return CompletableFuture.completedFuture(mapEvalNode);
+        CompletableFuture<Optional<Integer>> splitSizeValue = CompletableFuture.completedFuture(Optional.of(DEFAULT_CHUNK_SIZE));
+        if (!(args.size() <= SPLIT_SIZE_INDEX)) {
+            splitSizeValue = RttiUtils
+                    .callToNumber(context, args.get(SPLIT_SIZE_INDEX))
+                    .thenApply(x -> {
+                        Optional<Integer> result = EvalUtils.tryPureIntegerValue(x).filter(v -> v > 0);
+                        return !result.isPresent() ? Optional.of(DEFAULT_CHUNK_SIZE) : result;
+                    });
         }
-        final CompletableFuture<Optional<Integer>> splitSizeValue = RttiUtils
-                .callToNumber(context, args.get(SPLIT_SIZE_INDEX))
-                .thenApply(x -> EvalUtils.tryPureIntegerValue(x).filter(v -> v > 0));
         return splitSizeValue.thenApply(sizeOptional ->
                         sizeOptional.map(size -> {
                             final List<EvalNode> chunkedValues = chunk(mapEvalNode.getValue(), size)

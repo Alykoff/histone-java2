@@ -196,6 +196,22 @@
         "expectedResult": "[[0,1],[2,3],[4,5]]"
       },
       {
+        "input": "{{range(6)->chunk(-1)->toJSON}}",
+        "expectedResult": "[[0],[1],[2],[3],[4],[5]]"
+      },
+      {
+        "input": "{{range(6)->chunk(0)->toJSON}}",
+        "expectedResult": "[[0],[1],[2],[3],[4],[5]]"
+      },
+      {
+        "input": "{{range(6)->chunk('hello')->toJSON}}",
+        "expectedResult": "[[0],[1],[2],[3],[4],[5]]"
+      },
+      {
+        "input": "{{range(6)->chunk->toJSON}}",
+        "expectedResult": "[[0],[1],[2],[3],[4],[5]]"
+      },
+      {
         "input": "{{range(7)->chunk('2')->toJSON}}",
         "expectedResult": "[[0,1],[2,3],[4,5],[6]]"
       },
@@ -217,23 +233,23 @@
       },
       {
         "input": "{{['sdf':'hhhh', 'dfdf', 'rrr']->chunk()->toJSON()}}",
-        "expectedResult": "{\"sdf\":\"hhhh\",\"0\":\"dfdf\",\"1\":\"rrr\"}"
+        "expectedResult": "[{\"sdf\":\"hhhh\"},[\"dfdf\"],{\"1\":\"rrr\"}]"
       },
       {
         "input": "{{['sdf':'hhhh', 'dfdf', 'rrr']->chunk('dffd')->toJSON()}}",
-        "expectedResult": "{\"sdf\":\"hhhh\",\"0\":\"dfdf\",\"1\":\"rrr\"}"
+        "expectedResult": "[{\"sdf\":\"hhhh\"},[\"dfdf\"],{\"1\":\"rrr\"}]"
       },
       {
         "input": "{{['sdf':'hhhh', 'dfdf', 'rrr']->chunk(2.5)->toJSON()}}",
-        "expectedResult": "{\"sdf\":\"hhhh\",\"0\":\"dfdf\",\"1\":\"rrr\"}"
+        "expectedResult": "[{\"sdf\":\"hhhh\"},[\"dfdf\"],{\"1\":\"rrr\"}]"
       },
       {
         "input": "{{['sdf':'hhhh', 'dfdf', 'rrr']->chunk(-1)->toJSON()}}",
-        "expectedResult": "{\"sdf\":\"hhhh\",\"0\":\"dfdf\",\"1\":\"rrr\"}"
+        "expectedResult": "[{\"sdf\":\"hhhh\"},[\"dfdf\"],{\"1\":\"rrr\"}]"
       },
       {
         "input": "{{['sdf':'hhhh', 'dfdf', 'rrr']->chunk(0)->toJSON()}}",
-        "expectedResult": "{\"sdf\":\"hhhh\",\"0\":\"dfdf\",\"1\":\"rrr\"}"
+        "expectedResult": "[{\"sdf\":\"hhhh\"},[\"dfdf\"],{\"1\":\"rrr\"}]"
       }
     ]
   },

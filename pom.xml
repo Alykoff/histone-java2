@@ -19,9 +19,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.megafonweblab.histone</groupId>
-    <artifactId>histone-java-v2</artifactId>
-    <version>1.3.2</version>
-    <packaging>jar</packaging>
+    <artifactId>parent-histone-java-v2</artifactId>
+    <version>1.3.3</version>
+    <packaging>pom</packaging>
     <name>Histone - Java Implementation</name>
     <description>Java implementation for Histone Template Engine</description>
     <url>https://github.com/MegafonWebLab/histone-java2/</url>
@@ -29,17 +29,11 @@
         <license>
             <name>The Apache Software License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <comments>Copyright 2012 MegaFon</comments>
+            <comments>Copyright 2016 MegaFon</comments>
             <distribution>repo</distribution>
         </license>
     </licenses>
     <developers>
-        <developer>
-            <name>Ruslan Matveev</name>
-            <email>matveev.ruslan@gmail.com</email>
-            <organization>Megafon</organization>
-            <organizationUrl>http://www.megafon.ru</organizationUrl>
-        </developer>
         <developer>
             <name>Alexey Nevinsky</name>
             <email>anevinsky@gmail.com</email>
@@ -52,11 +46,21 @@
             <organization>Megafon</organization>
             <organizationUrl>http://www.megafon.ru</organizationUrl>
         </developer>
+        <developer>
+            <name>Aleksander Melnichnikov</name>
+            <email>aleksander.melnichnikov@gmail.com</email>
+            <organization>Megafon</organization>
+            <organizationUrl>http://www.megafon.ru</organizationUrl>
+        </developer>
     </developers>
     <issueManagement>
         <system>GitHub Issues</system>
         <url>https://github.com/MegafonWebLab/histone-java2/issues</url>
     </issueManagement>
+    <modules>
+        <module>core</module>
+        <module>spring</module>
+    </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -68,6 +72,8 @@
         <logback.version>1.1.2</logback.version>
 
         <junit.version>4.12</junit.version>
+        <junit5.version>1.0.0-M2</junit5.version>
+
         <mockito.version>1.10.19</mockito.version>
         <javax.servlet.version>3.1-b02</javax.servlet.version>
         <jetty.version>8.1.8.v20121106</jetty.version>
@@ -76,31 +82,159 @@
         <commons-io.version>2.4</commons-io.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
-
+        <jersey-rx-client-java8.version>2.22.1</jersey-rx-client-java8.version>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.jersey.ext.rx</groupId>
+                <artifactId>jersey-rx-client-java8</artifactId>
+                <version>${jersey-rx-client-java8.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-json-jackson</artifactId>
+                <version>${jersey-rx-client-java8.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.ext.rx</groupId>
+                <artifactId>jersey-rx-client-java8</artifactId>
+                <version>${jersey-rx-client-java8.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${apache.httpcomponents.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+                <artifactId>jersey-test-framework-provider-jetty</artifactId>
+                <version>2.22.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.test-framework</groupId>
+                <artifactId>jersey-test-framework-core</artifactId>
+                <version>2.22.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>6.9.10</version>
+            </dependency>
+
+            <!-- Logging -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <!--<dependency>-->
+            <!--<groupId>junit</groupId>-->
+            <!--<artifactId>junit</artifactId>-->
+            <!--<version>${junit.version}</version>-->
+            <!--</dependency>-->
+
+            <!--New version of junit-->
+            <!--<dependency>-->
+            <!--<groupId>org.junit.platform</groupId>-->
+            <!--<artifactId>junit-platform-engine</artifactId>-->
+            <!--<version>${junit5.version}</version>-->
+            <!--</dependency>-->
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.aggregate</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${google-reflections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+                <exclusions>
+                    <!-- Exclude Commons Logging in favor of SLF4j -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/*version.properties</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*version.properties</include>
-                </includes>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -145,13 +279,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-            <!--<artifactId>maven-surefire-plugin</artifactId>-->
-            <!--<version>2.19.1</version>-->
-            <!--<configuration>-->
-            <!--<argLine>-Dfile.encoding=UTF-8</argLine>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -184,14 +311,18 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18</version>
+                <version>2.19</version>
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
-                    <excludes>
-                        <exclude>**/HistonePlaygroundTest.java</exclude>
-                    </excludes>
                     <argLine>${surefireArgLine}</argLine>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.0.0-M2</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
@@ -306,154 +437,13 @@
         </profile>
     </profiles>
 
-    <dependencies>
-        <!-- Jackson -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.ext.rx</groupId>
-            <artifactId>jersey-rx-client-java8</artifactId>
-            <version>2.22.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-            <version>2.22.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.ext.rx</groupId>
-            <artifactId>jersey-rx-client-java8</artifactId>
-            <version>2.22.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${apache.httpcomponents.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>${commons-collections.version}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-jetty</artifactId>
-            <version>2.22.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.test-framework</groupId>
-            <artifactId>jersey-test-framework-core</artifactId>
-            <version>2.22.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.9.10</version>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.aggregate</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${google-reflections.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <!-- Exclude Commons Logging in favor of SLF4j -->
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-    </dependencies>
     <scm>
         <url>https://github.com/MegafonWebLab/histone-java2</url>
         <connection>scm:git:https://github.com/MegafonWebLab/histone-java2.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/MegafonWebLab/histone-java2.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -464,4 +454,5 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
+
 </project>

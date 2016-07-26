@@ -1,0 +1,55 @@
+[
+  {
+    "name": "type -> htmlentities",
+    "cases": [
+      {
+        "input": "{{undefined->htmlentities->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{null->htmlentities->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{true->htmlentities->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{false->htmlentities->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{0->htmlentities->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{10->htmlentities->toJSON}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{''->htmlentities->toJSON}}",
+        "expectedResult": "\"\""
+      },
+      {
+        "input": "{{'string>'->htmlentities->toJSON}}",
+        "expectedResult": "\"string&gt;\""
+      },
+      {
+        "input": "{{[]->htmlentities->toJSON}}",
+        "expectedResult": "[]"
+      },
+      {
+        "input": "{{[1, 'al<>']->htmlentities->toJSON}}",
+        "expectedResult": "[1,\"al&lt;&gt;\"]"
+      },
+      {
+        "input": "{{[foo: 'bar']->htmlentities->toJSON}}",
+        "expectedResult": "{\"foo\":\"bar\"}"
+      },
+      {
+        "input": "{{[1,2,3,'>>']->htmlentities->toJSON}}",
+        "expectedResult": "[1,2,3,\"&gt;&gt;\"]"
+      }
+    ]
+  }
+]

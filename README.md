@@ -6,40 +6,18 @@ Histone — powerful and flexible template engine, which can be used for HTML - 
 Histone Template Engine Java Implementation
 -------------------------------------------
 
-[Project web site](http://weblab.megafon.ru/histone/)  
-[Documentation](https://github.com/inver/histone-java2/wiki)
-[For contributors](http://weblab.megafon.ru/histone/contributors/#Java)  
+[Documentation](https://github.com/MegafonWebLab/histone-java2/wiki)
 
 Using Histone from Maven
 ------------------------
-To use histone in your maven project you should add histone repository to your maven `settings.xml` file
-```xml
-<repository>
-	<id>central</id>
-	<snapshots>
-		<enabled>false</enabled>
-	</snapshots>
-	<name>release</name>
-	<url>http://weblab.megafon.ru/maven/release-weblab</url>
-</repository>
-<repository>
-	<id>snapshots</id>
-	<snapshots>
-		<enabled>true</enabled>
-	</snapshots>
-	<name>snapshot</name>
-	<url>http://weblab.megafon.ru/maven/snapshot-weblab</url>
-</repository>
-```
-and then add new maven dependency to your pom.xml
+To use histone in your maven project you should add new maven dependency to your pom.xml
 ```xml
 <dependency>
-    <groupId>ru.histone</groupId>
-    <artifactId>histone</artifactId>
-    <version>HISTONE LATEST VERSION</version>
+    <groupId>com.github.megafonweblab.histone</groupId>
+    <artifactId>histone-java-v2</artifactId>
+    <version>1.0.1</version>
 </dependency>
 ```
-
 
 Sources tree
 ------------

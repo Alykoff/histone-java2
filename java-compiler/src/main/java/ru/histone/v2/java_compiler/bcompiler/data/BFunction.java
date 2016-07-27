@@ -17,6 +17,8 @@
 package ru.histone.v2.java_compiler.bcompiler.data;
 
 
+import ru.histone.v2.evaluator.node.EvalNode;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -24,5 +26,5 @@ import java.util.function.Function;
 /**
  * @author Alexey Nevinsky
  */
-public interface BFunction extends Function<List<CompletableFuture<Value<?>>>, CompletableFuture<Value<?>>> {
+public interface BFunction extends Function<List<CompletableFuture<EvalNode>>, CompletableFuture<EvalNode>> {
 }

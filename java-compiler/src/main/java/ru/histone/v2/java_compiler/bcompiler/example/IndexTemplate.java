@@ -16,9 +16,9 @@
 
 package ru.histone.v2.java_compiler.bcompiler.example;
 
-import ru.histone.v2.java_compiler.bcompiler.data.BContext;
+import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
-import ru.histone.v2.java_compiler.bcompiler.data.Value;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -30,7 +30,8 @@ public class IndexTemplate implements Template {
     private static final String AST_TREE = "";
 
     @Override
-    public CompletableFuture<Value> render(BContext ctx) {
+    public CompletableFuture<EvalNode> render(Context ctx) {
+        CompletableFuture<StringBuilder> csb = CompletableFuture.completedFuture(new StringBuilder());
 //        CompletableFuture<Object> ui = StdLibrary.require(CompletableFuture.completedFuture("bla.tpl"), ctx);
 //
 //        StringBuilder sb = new StringBuilder();

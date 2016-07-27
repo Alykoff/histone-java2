@@ -16,6 +16,7 @@
 
 package ru.histone.v2.java_compiler.bcompiler.data;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.EvalNode;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public interface Template {
-    CompletableFuture<EvalNode> render(BContext ctx);
+    CompletableFuture<EvalNode> render(Context ctx);
 
     String getStringAst();
 }

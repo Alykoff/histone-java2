@@ -16,12 +16,14 @@
 
 package ru.histone.v2.java_compiler.bcompiler.example;
 
+import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
-import ru.histone.v2.java_compiler.bcompiler.data.BContext;
 import ru.histone.v2.java_compiler.bcompiler.data.BFunction;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
-import ru.histone.v2.java_compiler.bcompiler.data.Value;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,17 +35,26 @@ public class BlaTemplate implements Template {
     private static final String AST_TREE = "";
 
     @Override
-    public CompletableFuture<Value> render(BContext ctx) {
-        final CompletableFuture<Object> a = CompletableFuture.completedFuture(5);
+    public CompletableFuture<EvalNode> render(Context ctx) {
+        CompletableFuture<StringBuilder> csb = CompletableFuture.completedFuture(new StringBuilder());
+
+        final CompletableFuture<EvalNode> a = EvalUtils.getValue(5);
 
         final BFunction doSome = new BFunction() {
             @Override
-            public CompletableFuture<Value<?>> apply(List<CompletableFuture<Value<?>>> args) {
-                return StdLibrary.add(a, CompletableFuture.completedFuture(10));
+            public CompletableFuture<EvalNode> apply(List<CompletableFuture<EvalNode>> args) {
+//                return StdLibrary.add(a, EvalUtils.getValue(10));
+                return null;
             }
         };
 
-        return StdLibrary.arr("doSome", doSome);
+//        csb = StdLibrary.append(ctx, csb, "ololololol");
+
+        final CompletableFuture<EvalNode> b = doSome.apply(Collections.emptyList());
+
+//        csb = StdLibrary.append(ctx, csb, "ololololol1ß");
+
+        return StdLibrary.arr("variable", b, "doSome", doSome);
     }
 
     @Override

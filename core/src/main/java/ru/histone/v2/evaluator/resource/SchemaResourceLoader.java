@@ -36,11 +36,9 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
     public static final String FILE_SCHEME = "file";
     public static final String DATA_SCHEME = "data";
     private static final Logger log = LoggerFactory.getLogger(SchemaResourceLoader.class);
-    private final Executor executor;
     private final Map<String, Loader> loaders;
 
     public SchemaResourceLoader(Executor executor) {
-        this.executor = executor;
         loaders = new HashMap<>();
     }
 
@@ -106,7 +104,6 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
         if (baseLocation != null) {
             baseLocation = baseLocation.replace("\\", "/");
-//            baseLocation = baseLocation.replace("file://", "file:/");
         }
         URI baseLocationURI = (baseLocation != null) ? URI.create(baseLocation) : null;
 
@@ -120,29 +117,5 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
         return locationURI;
     }
-
-//    private class RedirectStrategy extends DefaultRedirectStrategy {
-//        @Override
-//        public boolean isRedirected(
-//                final HttpRequest request,
-//                final HttpResponse response,
-//                final HttpContext context) throws ProtocolException {
-//            if (request == null) {
-//                throw new IllegalArgumentException("HTTP request may not be null");
-//            }
-//            if (response == null) {
-//                throw new IllegalArgumentException("HTTP response may not be null");
-//            }
-//
-//            int statusCode = response.getStatusLine().getStatusCode();
-//            String method = request.getRequestLine().getMethod();
-//            Header locationHeader = response.getFirstHeader("location");
-//            if (301 <= statusCode && statusCode <= 399) {
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        }
-//    }
 
 }

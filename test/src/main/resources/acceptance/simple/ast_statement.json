@@ -1,0 +1,32 @@
+[
+  {
+    "name": "ast statement - {{# #}}",
+    "cases": [
+      {
+        "input": "START {{var a = {{#{{5+7}}#}}}}{{a}} END",
+        "expectedResult": "START [29,[9,5,7]] END"
+      },
+      {
+        "input": "START {{var a = {{#{{5+7}}#}}}}{{a->toJSON}} END",
+        "expectedResult": "START \"[29,[9,5,7]]\" END"
+      },
+      {
+        "input": "START {{var a = {{#{{a+7}}#}}}}{{a}} END",
+        "expectedResult": "START [29,[9,[22,[4],\"a\"],7]] END"
+      },
+      {
+        "input": "{{var x = {{#{{*var ui = require('static:///script/ui/ui.tpl')*}}HELLO#}}}}{{x}}",
+        "expectedResult": "[29,\"HELLO\"]"
+      },
+      {
+        "input": "{{var x = {{#{{var ui = require('ui.tpl')}}{{var info = ui.getPipe('lk/main/info')}}{{info->toJSON}}#}}}}{{x}}",
+        "expectedResult": "[29,[23,[22,[4],\"require\",\"ui.tpl\"],0],[23,[22,[22,[21,0,0],0,\"getPipe\"],1,\"lk/main/info\"],1],[22,[21,0,1],\"toJSON\"]]"
+      },
+      {
+        "input": "{{macro foo}}{{var ui = 10}}{{ui->toJSON}}{{#{{var ui = 30}}{{ui}}#}}{{ui->toJSON}}{{/macro}}{{foo()}}",
+        "expectedAST": "[29,[23,[26,0,[29,[23,10,1],[22,[21,0,1],\"toJSON\"],\"[29,[23,30,0],[21,0,0]]\",[22,[21,0,1],\"toJSON\"]]],0],[22,[21,0,0],1]]",
+        "expectedResult": "10[29,[23,30,0],[21,0,0]]10"
+      }
+    ]
+  }
+]

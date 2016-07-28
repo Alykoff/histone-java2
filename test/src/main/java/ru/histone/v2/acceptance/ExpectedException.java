@@ -14,36 +14,27 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler;
+package ru.histone.v2.acceptance;
 
-/**
- * @author Alexey Nevinsky
- */
-public class TestCompiler {
+public class ExpectedException {
+    private int line;
+    private String expected;
+    private String found;
+    private String message;
 
-    private Compiler compiler;
-
-    public TestCompiler(Compiler compiler) {
-        this.compiler = compiler;
+    public int getLine() {
+        return line;
     }
 
-    public void compile(String path) {
-
+    public String getExpected() {
+        return expected;
     }
 
-//    private HistoneTestCase createCase(String path) {
-//        return null;
-//    }
-//
-//    private ExpAstNode getAst(HistoneTestCase.Case testCase) {
-//        return null;
-//    }
-//
-//    private byte[] createClassFromAst(ExpAstNode root) {
-//        return null;
-//    }
+    public String getFound() {
+        return found;
+    }
 
-    private void modifyTests() {
-
+    public String getMessage() {
+        return message;
     }
 }

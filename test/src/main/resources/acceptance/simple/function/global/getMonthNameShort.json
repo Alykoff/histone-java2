@@ -1,0 +1,70 @@
+[
+  {
+    "name": "global -> getMonthNameShort",
+    "cases": [
+      {
+        "input": "{{for day in range(1, 12)}}{{getMonthNameShort(day)}} {{/for}}",
+        "expectedResult": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec "
+      },
+      {
+        "input": "--{{getMonthNameShort(1.2)}}",
+        "expectedResult": "--"
+      },
+      {
+        "input": "--{{getMonthNameShort(1.0)}}",
+        "expectedResult": "--Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, 0)}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, 1)}}",
+        "expectedResult": "Jan1"
+      },
+      {
+        "input": "{{getMonthNameShort(1, 2)}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1)}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, true)}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, false)}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, '1')}}",
+        "expectedResult": "Jan1"
+      },
+      {
+        "input": "{{getMonthNameShort(1, '2')}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, -1)}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, dsf)}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, '-1')}}",
+        "expectedResult": "Jan"
+      },
+      {
+        "input": "{{getMonthNameShort(1, -1ad)}}",
+        "expectedException": {
+          "line": "1",
+          "message": "unexpected 'ad', expected ')'"
+        }
+      }
+    ]
+  }
+]

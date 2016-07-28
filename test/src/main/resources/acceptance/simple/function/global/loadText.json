@@ -1,0 +1,166 @@
+[
+  {
+    "name": "data URI - wrong format",
+    "cases": [
+      {
+        "input": "a {{loadText('data:') -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadText('data:e3syICogMn19') -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadText('data:base64,e3syICogMn19') -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadText('data:,base64,e3syICogMn19') -> isUndefined}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  },
+  {
+    "name": "data URI - no encoding",
+    "cases": [
+      {
+        "input": "a {{loadText('data:;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:;charset=UTF-8;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:;charset=BLA-BLA;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;charset=UTF-8;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;charset=UTF-8;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;charset=BLA-BLA;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;charset=BLA-BLA;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:application/javascript;charset=UTF-8;x=y;foo=bar;,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      }
+    ]
+  },
+  {
+    "name": "data URI - unsupported encoding",
+    "cases": [
+      {
+        "input": "a {{loadText('data:;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:;charset=UTF-8;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:;charset=BLA-BLA;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;charset=UTF-8;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;charset=UTF-8;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;charset=BLA-BLA;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;charset=BLA-BLA;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      },
+      {
+        "input": "a {{loadText('data:application/javascript;charset=UTF-8;x=y;foo=bar;base65,e3syICogMn19')}} b",
+        "expectedResult": "a e3syICogMn19 b"
+      }
+    ]
+  },
+  {
+    "name": "data URI - base64 encoding: loadText",
+    "cases": [
+      {
+        "input": "a {{loadText('data:;base64,')}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadText('data:;base64,') -> isString()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadText('data:;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:;charset=UTF-8;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:;charset=BLA-BLA;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;charset=UTF-8;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;charset=UTF-8;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:text/plain;charset=BLA-BLA;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:text/foobar;charset=BLA-BLA;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      },
+      {
+        "input": "a {{loadText('data:application/javascript;charset=UTF-8;x=y;foo=bar;base64,e3syICogMn19')}} b",
+        "expectedResult": "a {{2 * 2}} b"
+      }
+    ]
+  }
+]

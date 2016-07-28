@@ -1,0 +1,11 @@
+[
+  {
+    "name": "global -> getBaseURI",
+    "cases": [
+      {
+        "input": "{{global->getBaseURI()-> isString()}}",
+        "expectedResult": "true"
+      }
+    ]
+  }
+]

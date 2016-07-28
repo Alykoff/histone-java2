@@ -1,0 +1,77 @@
+[
+  {
+    "name": "array",
+    "cases": [
+      {
+        "input": "{{[[1,2,3]]}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{[[1.2:4,2,3]]}}",
+        "expectedResult": "4 2 3"
+      },
+      {
+        "input": "{{[['12':4,2,3]]}}",
+        "expectedResult": "4 2 3"
+      },
+      {
+        "input": "{{[[0.1:4,0.2:2,3]]}}",
+        "expectedResult": "2 3"
+      },
+      {
+        "input": "{{var array = [if: 'if', for: 'for', return: 'return']}}{{array.if}} = if{{array.for}} = for{{array.return}} = return",
+        "expectedResult": "if = iffor = forreturn = return"
+      },
+      {
+        "input": "{{['Moscow', 'New York', 'Paris', 'London'][1]}}",
+        "expectedResult": "New York"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444'][1]}}",
+        "expectedResult": "1111"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444']['foo']}}",
+        "expectedResult": "2222"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444'].x}}",
+        "expectedResult": "3333"
+      },
+      {
+        "input": "{{[1: '1111', 'foo': '2222', x: '3333', 'mmm': '4444']['mmm']}}",
+        "expectedResult": "4444"
+      },
+      {
+        "input": "{{[a: [x: 1]]['a.x']}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{[a: [x: 1]].a.x}}",
+        "expectedResult": "1"
+      },
+      {
+        "input": "{{[,,,,1, 2, 3,,,,]}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->filter(getRand)->toJSON}}",
+        "expectedResult": "[1,2,3,4]"
+      },
+      {
+        "input": "{{[1, 2, 3, 4]->filter(true)->toJSON}}",
+        "expectedResult": "[1,2,3,4]"
+      },
+      {
+        "input": "{{range()->isArray}}",
+        "expectedAST": "[29,[22,[22,[4],\"range\"],\"isArray\"]]",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{range(-10.3, 0)}}",
+        "expectedResult": ""
+      }
+    ]
+  }
+]
+

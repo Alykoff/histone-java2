@@ -1,0 +1,135 @@
+[
+  {
+    "name": "Expression.if",
+    "cases": [
+      {
+        "input": "a {{if dfds}} true {{/if}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{if true",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{if true}}{{else",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{if true}}{{else}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/if}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{if null}} true {{/if}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{if true}} true {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if false}} true {{/if}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{if -10}} true {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if 0}} true {{/if}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{if 10}} true {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if ''}} true {{/if}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{if 'string'}} true {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if []}} true {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if [1, 2, 3]}} true {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if [foo: 1]}} true {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if dfds}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  false  b"
+      },
+      {
+        "input": "a {{if null}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  false  b"
+      },
+      {
+        "input": "a {{if true}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if false}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  false  b"
+      },
+      {
+        "input": "a {{if -10}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if 0}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  false  b"
+      },
+      {
+        "input": "a {{if 10}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if ''}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  false  b"
+      },
+      {
+        "input": "a {{if 'string'}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if []}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if [1, 2, 3]}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "a {{if [foo: 1]}} true {{else}} false {{/if}} b",
+        "expectedResult": "a  true  b"
+      },
+      {
+        "input": "{{for x in [1,2,3,4,5,6,7,8,9,10]}}{{if x > 7}}{{true}} {{elseif x > 5}}{{false}} {{else}}{{\"ha\"}} {{/if}}{{/for}}",
+        "expectedResult": "ha ha ha ha ha false false true true true "
+      },
+      {
+        "input": "{{var x = 1}}{{if x > 7}}{{true}} {{elseif x > 5}}{{x > 5}} {{else}}{{\"ha\"}}{{/if}}",
+        "expectedResult": "ha"
+      }
+    ]
+  }
+]

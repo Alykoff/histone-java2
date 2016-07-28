@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Number.toFloor",
+    "cases": [
+      {
+        "input": "<div>{{4.3->toFloor}} = 4</div>",
+        "expectedResult": "<div>4 = 4</div>"
+      },
+      {
+        "input": "<div>{{9.999->toFloor}} = 9</div>",
+        "expectedResult": "<div>9 = 9</div>"
+      },
+      {
+        "input": "<div>{{(-3.14)->toFloor}} = -4</div>",
+        "expectedResult": "<div>-4 = -4</div>"
+      },
+      {
+        "input": "a {{0.60 -> toFloor()}} b",
+        "expectedResult": "a 0 b"
+      },
+      {
+        "input": "a {{0.40 -> toFloor()}} b",
+        "expectedResult": "a 0 b"
+      },
+      {
+        "input": "a {{5 -> toFloor()}} b",
+        "expectedResult": "a 5 b"
+      },
+      {
+        "input": "a {{5.1 -> toFloor()}} b",
+        "expectedResult": "a 5 b"
+      },
+      {
+        "input": "a {{(-5.9) -> toFloor()}} b",
+        "expectedResult": "a -6 b"
+      },
+      {
+        "input": "a {{(-5.9) -> toFloor() -> isNumber()}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  }
+]
+
+
+

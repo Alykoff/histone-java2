@@ -1,0 +1,498 @@
+[
+  {
+    "name": "Expression.for",
+    "cases": [
+      {
+        "input": "a {{for x in sfgsag}}{{x}}{{/for}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x: in []}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "in"
+        }
+      },
+      {
+        "input": "a {{for x:y []}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "in",
+          "found": "["
+        }
+      },
+      {
+        "input": "a {{for x:y in []",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{for x:y in []}}{{else",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{for x:y in []}}{{else}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/for}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": null
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": true
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": false
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": -10
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": 0
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": 10
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": "string"
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b1",
+        "expectedAST": "[29,\"a \",[25,null,1,[29,[21,0,1]],[22,[4],\"items\"]],\" b1\"]",
+        "context": {
+          "items": [
+            1,
+            2,
+            3
+          ]
+        },
+        "expectedResult": "a 123 b1"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{/for}} b",
+        "context": {
+          "items": {
+            "foo": 1,
+            "bar": 2,
+            "x": 3
+          }
+        },
+        "expectedResult": "a 123 b"
+      },
+      {
+        "input": "a {{for key:x in sfgsag}}{{key}}:{{x}}{{/for}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "context": {
+          "items": null
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "context": {
+          "items": true
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "context": {
+          "items": false
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "context": {
+          "items": -10
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "context": {
+          "items": 0
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "context": {
+          "items": 10
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b",
+        "context": {
+          "items": "string"
+        },
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b0",
+        "expectedAST": "[29,\"a \",[25,1,2,[29,[21,0,1],\":\",[21,0,2]],[22,[4],\"items\"]],\" b0\"]",
+        "context": {
+          "items": [
+            1,
+            2,
+            3
+          ]
+        },
+        "expectedResult": "a 0:11:22:3 b0"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{/for}} b2",
+        "context": {
+          "items": {
+            "foo": 1,
+            "bar": 2,
+            "x": 3
+          }
+        },
+        "expectedResult": "a foo:1bar:2x:3 b2"
+      },
+      {
+        "input": "a {{for x in sfgsag}}{{x}}{{else}}#{{/for}} b",
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": null
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b1",
+        "context": {
+          "items": true
+        },
+        "expectedResult": "a # b1"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": false
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": -10
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": 0
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": 10
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": "string"
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": [
+            1,
+            2,
+            3
+          ]
+        },
+        "expectedResult": "a 123 b"
+      },
+      {
+        "input": "a {{for x in items}}{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": {
+            "foo": 1,
+            "bar": 2,
+            "x": 3
+          }
+        },
+        "expectedResult": "a 123 b"
+      },
+      {
+        "input": "a {{for key:x in sfgsag}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "--{{for in []}}??{{else}}HELLO{{/for}}",
+        "expectedResult": "--HELLO"
+      },
+      {
+        "input": "---{{for in []}}??{{/for}}",
+        "expectedResult": "---"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": null
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": true
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": false
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": -10
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": 0
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": 10
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}}{{else}}#{{/for}} b",
+        "context": {
+          "items": "string"
+        },
+        "expectedResult": "a # b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}} {{else}}#{{/for}} b",
+        "context": {
+          "items": [
+            1,
+            2,
+            3
+          ]
+        },
+        "expectedResult": "a 0:1 1:2 2:3  b"
+      },
+      {
+        "input": "a {{for k1:v1 in items}}{{k1}}:{{v1}} {{for k2:v2 in items}}({{k2}}:{{v2}}){{/for}} {{/for}}b",
+        "expectedAST": "[29,\"a \",[25,1,2,[29,[21,0,1],\":\",[21,0,2],\" \",[25,1,2,[29,\"(\",[21,0,1],\":\",[21,0,2],\")\"],[22,[4],\"items\"]],\" \"],[22,[4],\"items\"]],\"b\"]",
+        "context": {
+          "items": [
+            1,
+            2,
+            3
+          ]
+        },
+        "expectedResult": "a 0:1 (0:1)(1:2)(2:3) 1:2 (0:1)(1:2)(2:3) 2:3 (0:1)(1:2)(2:3) b"
+      },
+      {
+        "input": "a {{var x = 10}}{{for r in range(1, 10)}}{{var x = r + 10}}{{x}} {{/for}} b",
+        "expectedResult": "a 11 12 13 14 15 16 17 18 19 20  b"
+      },
+      {
+        "input": "a {{for key:x in items}}{{key}}:{{x}} {{else}}#{{/for}} b",
+        "context": {
+          "items": {
+            "foo": 1,
+            "bar": 2,
+            "x": 3
+          }
+        },
+        "expectedResult": "a foo:1 bar:2 x:3  b"
+      },
+      {
+        "inputFile": "for1.tpl",
+        "context": {
+          "some_condition": true
+        },
+        "expectedResult": "    collection is empty and some_condition"
+      },
+      {
+        "inputFile": "for1.tpl",
+        "context": {
+          "some_condition": false
+        },
+        "expectedResult": "    collection is empty"
+      },
+      {
+        "inputFile": "for2.tpl",
+        "context": {
+          "collection": {
+            "foo": 1,
+            "bar": 2,
+            "x": 3
+          }
+        },
+        "expectedResult": "    1    2    3    foo = 1    bar = 2    x = 3"
+      },
+      {
+        "inputFile": "for3.tpl",
+        "expectedResult": "    << 0, 3 >>    << 1, 3 >>    << 2, 3 >>    << 3, 3 >>"
+      },
+      {
+        "inputFile": "for4.tpl",
+        "expectedResult": "    <div>0 = 1</div>    <div>1 = 2</div>    <div>2 = 3</div>"
+      },
+      {
+        "inputFile": "for5.tpl",
+        "expectedResult": "    <div style=\"color: black\">{\"key\":\"0\",\"value\":0,\"index\":0,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"1\",\"value\":1,\"index\":1,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"2\",\"value\":2,\"index\":2,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"3\",\"value\":3,\"index\":3,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"4\",\"value\":4,\"index\":4,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"5\",\"value\":5,\"index\":5,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"6\",\"value\":6,\"index\":6,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"7\",\"value\":7,\"index\":7,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"8\",\"value\":8,\"index\":8,\"last\":9}</div>    <div style=\"color: blue\">{\"key\":\"9\",\"value\":9,\"index\":9,\"last\":9}</div>"
+      }
+    ]
+  },
+  {
+    "name": "expression.for: break and continue",
+    "cases": [
+      {
+        "input": "{{for i in range(0, 10)}}{{if i = 5}}{{continue}}{{else}}{{i}}{{/if}}{{/for}}",
+        "expectedResult": "01234678910"
+      },
+      {
+        "input": "{{for i in range(0, 10)}}{{if i = 5}}{{break}}{{else}}{{i}}{{/if}}{{/for}}",
+        "expectedResult": "01234"
+      },
+      {
+        "input": "--{{for in [1, 2, 3, 4]}}HELLO{{break}}{{/for}}",
+        "expectedResult": "--HELLO"
+      },
+      {
+        "input": "--{{for in [1, 2, 3, 4]}}HELLO{{continue}}{{/for}}",
+        "expectedResult": "--HELLOHELLOHELLOHELLO"
+      },
+      {
+        "input": "{{for value in [1, 2, 3, 4]}}HELLO{{value}}_{{continue}}{{/for}}",
+        "expectedResult": "HELLO1_HELLO2_HELLO3_HELLO4_"
+      },
+      {
+        "input": "{{for value in [1, 2, 3, 4]}}HELLO{{value}}_{{continue}}!!!{{/for}}",
+        "expectedResult": "HELLO1_HELLO2_HELLO3_HELLO4_"
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{break}}{{/return}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{break}}{{/var}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{continue}}{{/return}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Continue statement must be only in loop!"
+        }
+      },
+      {
+        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{continue}}{{/var}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Continue statement must be only in loop!"
+        }
+      },
+      {
+        "input": "{{for x:x in [1]}}{{x}}{{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "key and value must differ"
+        }
+      },
+      {
+        "input": "{{for in [1,2,3,4]}}HELLO{{break}}{{/for}}",
+        "expectedResult": "HELLO"
+      },
+      {
+        "input": "{{for in [1,2,3,4]}}HELLO_{{continue}}{{/for}}",
+        "expectedResult": "HELLO_HELLO_HELLO_HELLO_"
+      },
+      {
+        "input": "{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{break}} }} }} {{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "Break statement must be only in loop!"
+        }
+      },
+      {
+        "input": "---{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{return 10}} }} }} {{/for}}",
+        "expectedException": {
+          "line": "1",
+          "message": "illegal break statement"
+        }
+      }
+    ]
+  }
+]
+
+

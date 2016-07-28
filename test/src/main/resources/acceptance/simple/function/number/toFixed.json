@@ -1,0 +1,178 @@
+[
+  {
+    "name": "Number.toFixed",
+    "cases": [
+      {
+        "input": "<div>{{12.123->toFixed(0)}} = 12</div>",
+        "expectedResult": "<div>12 = 12</div>"
+      },
+      {
+        "input": "<div>{{12.123->toFixed(1)}} = 12.1</div>",
+        "expectedResult": "<div>12.1 = 12.1</div>"
+      },
+      {
+        "input": "<div>{{12.123->toFixed(2)}} = 12.12</div>",
+        "expectedResult": "<div>12.12 = 12.12</div>"
+      },
+      {
+        "input": "<div>{{12.123->toFixed(3)}} = 12.123</div>",
+        "expectedResult": "<div>12.123 = 12.123</div>"
+      },
+      {
+        "input": "a {{2 -> toFixed()}} b",
+        "expectedResult": "a 2 b"
+      },
+      {
+        "input": "a {{3.14 -> toFixed()}} b",
+        "expectedResult": "a 3 b"
+      },
+      {
+        "input": "a {{2.123456789 -> toFixed(0)}} b",
+        "expectedResult": "a 2 b"
+      },
+      {
+        "input": "a {{2.123456789 -> toFixed(1)}} b",
+        "expectedResult": "a 2.1 b"
+      },
+      {
+        "input": "a {{2.123456789 -> toFixed(-3)}} b",
+        "expectedResult": "a 2 b"
+      },
+      {
+        "input": "a {{-2 -> toFixed()}} b",
+        "expectedResult": "a -2 b"
+      },
+      {
+        "input": "a {{(-3.14) -> toFixed()}} b",
+        "expectedResult": "a -3 b"
+      },
+      {
+        "input": "a {{(-2.123456789) -> toFixed(0)}} b",
+        "expectedResult": "a -2 b"
+      },
+      {
+        "input": "a {{(-2.123456789) -> toFixed(1)}} b",
+        "expectedResult": "a -2.1 b"
+      },
+      {
+        "input": "a {{(-2.123456789) -> toFixed(-3)}} b",
+        "expectedResult": "a -2 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(0)}} b",
+        "expectedResult": "a 3 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(1)}} b",
+        "expectedResult": "a 3 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(2)}} b",
+        "expectedResult": "a 2.99 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(3)}} b",
+        "expectedResult": "a 2.987 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(4)}} b",
+        "expectedResult": "a 2.9871 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(5)}} b",
+        "expectedResult": "a 2.98707 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(6)}} b",
+        "expectedResult": "a 2.987065 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(7)}} b",
+        "expectedResult": "a 2.9870654 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(8)}} b",
+        "expectedResult": "a 2.98706543 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(9)}} b",
+        "expectedResult": "a 2.987065432 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(10)}} b",
+        "expectedResult": "a 2.9870654321 b"
+      },
+      {
+        "input": "a {{2.9870654321 -> toFixed(11)}} b",
+        "expectedResult": "a 2.9870654321 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(0)}} b",
+        "expectedResult": "a -3 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(1)}} b",
+        "expectedResult": "a -3 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(2)}} b",
+        "expectedResult": "a -2.99 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(3)}} b",
+        "expectedResult": "a -2.987 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(4)}} b",
+        "expectedResult": "a -2.9871 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(5)}} b",
+        "expectedResult": "a -2.98707 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(6)}} b",
+        "expectedResult": "a -2.987065 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(7)}} b",
+        "expectedResult": "a -2.9870654 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(8)}} b",
+        "expectedResult": "a -2.98706543 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(9)}} b",
+        "expectedResult": "a -2.987065432 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(10)}} b",
+        "expectedResult": "a -2.9870654321 b"
+      },
+      {
+        "input": "a {{(-2.9870654321) -> toFixed(11)}} b",
+        "expectedResult": "a -2.9870654321 b"
+      },
+      {
+        "input": "{{57.323->toFixed(1.0)}}",
+        "expectedResult": "57.3"
+      },
+      {
+        "input": "{{57.323->toFixed('BLA')}}",
+        "expectedResult": "57"
+      },
+      {
+        "input": "{{123.192->toFixed('2')->toJSON}}",
+        "expectedResult": "123.19"
+      },
+      {
+        "input": "{{123.192->toFixed->toJSON}}",
+        "expectedResult": "123"
+      }
+    ]
+  }
+]
+
+
+

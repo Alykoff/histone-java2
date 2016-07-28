@@ -1,0 +1,19 @@
+[
+  {
+    "name": "global.loadText",
+    "cases": [
+      {
+        "input": "a {{loadText('../testresources/txt/DOESNT_EXIST.txt') = '' }} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadText('../simple/tpl/txt/file_with_markup.txt')}} b",
+        "expectedResult": "a text file {{'test'}} content b"
+      },
+      {
+        "input": "a {{loadText('../simple/tpl/txt/file.txt')}} b",
+        "expectedResult": "a text file content b"
+      }
+    ]
+  }
+]

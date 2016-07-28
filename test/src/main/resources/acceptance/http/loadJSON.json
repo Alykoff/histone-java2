@@ -1,0 +1,746 @@
+[
+  {
+    "name": "global.loadJSON (local)",
+    "cases": [
+      {
+        "input": "a {{loadJSON('../testresources/json/DOESNT_EXIST.json') -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('../../responses/test_for_json_array.json') -> toJSON()}} b",
+        "expectedResult": "a [1,2,3] b"
+      },
+      {
+        "input": "a {{loadJSON('../../responses/test_for_json_invalid.json') -> toJSON()}} b",
+        "expectedResult": "a null b"
+      },
+      {
+        "input": "a {{loadJSON('../../responses/test_for_json_string.json') -> toJSON()}} b",
+        "expectedResult": "a \"test string\" b"
+      },
+      {
+        "input": "a {{loadJSON('../../responses/test_for_json.json') -> toJSON()}} b",
+        "expectedResult": "a {\"key\":123} b"
+      },
+      {
+        "input": "a {{loadJSON('../../responses/test_for_json.jsonp') -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "{{loadText('../../responses/thisToJson.tpl', 33)}}",
+        "expectedResult": "{{this->toJSON}}"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: request method)",
+    "comment": "make sure that the request method = passed correctly",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/').method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'get']).method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'post']).method}} b",
+        "expectedResult": "a POST b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST']).method}} b",
+        "expectedResult": "a POST b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['a':5]]).method}} b",
+        "expectedResult": "a PUT b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE']).method}} b",
+        "expectedResult": "a DELETE b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS']) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DeLeTe']).method}} b",
+        "expectedResult": "a DELETE b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 123]).method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: true]).method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: false]).method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: []]).method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: null]).method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: undefined]).method}} b",
+        "expectedResult": "a GET b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: getUniqueId()]) -> isUndefined()}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD']) -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: handling urls)",
+    "comment": "make sure that request path && query string are correctly passed to the server",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/').path}} b",
+        "expectedResult": "a / b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news').path}} b",
+        "expectedResult": "a /news b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/').path}} b",
+        "expectedResult": "a /news/ b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar').path}} b",
+        "expectedResult": "a / b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/#fragment').path}} b",
+        "expectedResult": "a / b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar#fragment').path}} b",
+        "expectedResult": "a / b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar').path}} b",
+        "expectedResult": "a / b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/#fragment').path}} b",
+        "expectedResult": "a / b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar#fragment').path}} b",
+        "expectedResult": "a / b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news?foo=bar').path}} b",
+        "expectedResult": "a /news b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news#fragment').path}} b",
+        "expectedResult": "a /news b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news?foo=bar#fragment').path}} b",
+        "expectedResult": "a /news b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/?foo=bar').path}} b",
+        "expectedResult": "a /news/ b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/#fragment').path}} b",
+        "expectedResult": "a /news/ b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/?foo=bar#fragment').path}} b",
+        "expectedResult": "a /news/ b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/').query}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news').query}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/').query}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar').query}} b",
+        "expectedResult": "a foo=bar b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/#fragment').query}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar#fragment').query}} b",
+        "expectedResult": "a foo=bar b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar').query}} b",
+        "expectedResult": "a foo=bar b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/#fragment').query}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/?foo=bar#fragment').query}} b",
+        "expectedResult": "a foo=bar b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news?foo=bar').query}} b",
+        "expectedResult": "a foo=bar b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news#fragment').query}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news?foo=bar#fragment').query}} b",
+        "expectedResult": "a foo=bar b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/?foo=bar').query}} b",
+        "expectedResult": "a foo=bar b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/#fragment').query}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/news/?foo=bar#fragment').query}} b",
+        "expectedResult": "a foo=bar b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: GET HEAD DELETE OPTIONS, shouldn't pass request body)",
+    "comment": "make sure that request data will only be passed to the server for PUT && POST request methods",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: undefined]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: null]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: true]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: false]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: 123]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: 'my data']).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: ['my data']]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [data: [foo: 'my data']]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: undefined]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: null]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: true]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: false]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: 123]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: 'my data']).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: ['my data']]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'GET', data: [foo: 'my data']]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: undefined]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: null]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: true]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: false]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: 123]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: 'my data']) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: ['my data']]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'HEAD', data: [foo: 'my data']]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: undefined]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: null]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: true]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: false]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: 123]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: 'my data']).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: ['my data']]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', data: [foo: 'my data']]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: undefined]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: null]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: true]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: false]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: 123]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: 'my data']) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: ['my data']]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'OPTIONS', data: [foo: 'my data']]) -> isUndefined}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: custom request headers)",
+    "comment": "make sure that request headers are passed correctly",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Custom-Header': 'Custom-Value']]).headers['Custom-Header'] = 'Custom-Value'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', headers: ['Custom-Header': 'Custom-Value']]).headers['Custom-Header'] = 'Custom-Value'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'DELETE', headers: ['Custom-Header': 'Custom-Value']]).headers['Custom-Header'] = 'Custom-Value'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Custom-Header': 111]]).headers['Custom-Header'] = '111'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Custom-Header': true]]).headers['Custom-Header'] = 'true'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Custom-Header': false]]).headers['Custom-Header'] = 'false'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Custom-Header': null]]).headers['Custom-Header'] -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Custom-Header': undefined]]).headers['Custom-Header'] -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Accept-Language': 'en']]).headers['Accept-Language'] = 'en'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['Content-Language': 'en, ru']]).headers['Content-Language'] = 'en, ru'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['From': 'admin@domain.com']]).headers['From'] = 'admin@domain.com'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['X-Requested-With': 'XMLHttpRequest']]).headers['X-Requested-With'] = 'XMLHttpRequest'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['X-Requested-With': 111]]).headers['X-Requested-With'] = '111'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['X-Requested-With': true]]).headers['X-Requested-With'] = 'true'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['X-Requested-With': false]]).headers['X-Requested-With'] = 'false'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['X-Requested-With': null]]).headers['X-Requested-With'] -> isUndefined}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [headers: ['X-Requested-With': undefined]]).headers['X-Requested-With'] -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: invalid request headers)",
+    "comment": "make sure that those request headers won't reach the server",
+    "cases": [
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['content-Length': 123]])}}{{response -> isArray() && response.headers['content-length'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['accept-charset': 123]])}}{{response -> isArray() && response.headers['accept-charset'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['accept-encoding': 123]])}}{{response -> isArray() && response.headers['accept-encoding'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['access-control-request-headers': 123]])}}{{response -> isArray() && response.headers['access-control-request-headers'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['access-control-request-method': 123]])}}{{response -> isArray() && response.headers['access-control-request-method'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['connection': 123]])}}{{response -> isArray() && response.headers['connection'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['cookie': 123]])}}{{response -> isArray() && response.headers['cookie'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['cookie2': 123]])}}{{response -> isArray() && response.headers['cookie2'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['content-transfer-encoding': 123]])}}{{response -> isArray() && response.headers['content-transfer-encoding'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['date': 123]])}}{{response -> isArray() && response.headers['date'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['expect': 123]])}}{{response -> isArray() && response.headers['expect'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['host': 123]])}}{{response -> isArray() && response.headers['host'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['keep-alive': 123]])}}{{response -> isArray() && response.headers['keep-alive'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['origin': 123]])}}{{response -> isArray() && response.headers['origin'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['referer': 123]])}}{{response -> isArray() && response.headers['referer'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['te': 123]])}}{{response -> isArray() && response.headers['te'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['trailer': 123]])}}{{response -> isArray() && response.headers['trailer'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['transfer-encoding': 123]])}}{{response -> isArray() && response.headers['transfer-encoding'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['upgrade': 123]])}}{{response -> isArray() && response.headers['upgrade'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['user-agent': 123]])}}{{response -> isArray() && response.headers['user-agent'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['via': 123]])}}{{response -> isArray() && response.headers['via'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['sec-': 123]])}}{{response -> isArray() && response.headers['sec-'] != '123'}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['proxy-': 123]])}}{{response -> isArray() && response.headers['proxy-'] != '123'}} b",
+        "expectedResult": "a true b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: POST, PUT + plain request body & controlling response body)",
+    "comment": "make sure that the plain request data = correctly passed to the server",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: undefined]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: undefined]).body}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: null]).body = []}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: null]).body = []}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: true]).body}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: true]).body}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: false]).body}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: false]).body}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 123]).body}} b",
+        "expectedResult": "a 123 b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 123]).body}} b",
+        "expectedResult": "a 123 b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 'string']).body}} b",
+        "expectedResult": "a string b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 'string']).body}} b",
+        "expectedResult": "a string b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: POST, PUT + map request body & controlling response body)",
+    "comment": "make sure that the map request data = correctly passed to the server",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar']]).body -> toJSON}} b",
+        "expectedResult": "a [\"foo\",\"bar\"] b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar']]).body -> toJSON}} b",
+        "expectedResult": "a [\"foo\",\"bar\"] b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar bar']]).body -> toJSON}} b",
+        "expectedResult": "a [\"foo\",\"bar bar\"] b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar bar']]).body -> toJSON}} b",
+        "expectedResult": "a [\"foo\",\"bar bar\"] b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: [foo: 'bar', bar: 'x y z']]).body -> toJSON}} b",
+        "expectedResult": "a {\"bar\":\"x y z\",\"foo\":\"bar\"} b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z']]).body -> toJSON}} b",
+        "expectedResult": "a {\"bar\":\"x y z\",\"foo\":\"bar\"} b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: POST, PUT + plain request body & controlling response Content-Type)",
+    "comment": "make sure that the plain request data = correctly passed to the server",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: undefined]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: undefined]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: null]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: null]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: true]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: true]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: false]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: false]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 123]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 123]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 'string']).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 'string']).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      }
+    ]
+  },
+  {
+    "ignore": "javascript",
+    "name": "global.loadJSON (remote: POST, PUT + map request body & controlling response Content-Type)",
+    "comment": "make sure that sending map request body switches the Content-Type request header value to application/x-www-form-urlencoded",
+    "cases": [
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar']]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar']]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar bar']]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar bar']]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: [foo: 'bar', bar: 'x y z']]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z']]).headers['Content-Type']}} b",
+        "expectedResult": "a application/x-www-form-urlencoded b"
+      }
+    ]
+  }
+]

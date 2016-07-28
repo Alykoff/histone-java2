@@ -1,0 +1,85 @@
+[
+  {
+    "name": "regexp",
+    "cases": [
+      {
+        "input": "{{var re = /ab+c/}}{{re->test('ac')}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/foo/->test}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var re = /ab+c}}{{re->test('ac')}}",
+        "expectedException": {
+          "line": "1",
+          "message": "unterminated regexp literal"
+        }
+      },
+      {
+        "input": "{{var re = /ab+c/fff}}{{re->test('ac')}}",
+        "expectedException": {
+          "line": "1",
+          "message": "invalid flags supplied to regular expression 'fff'"
+        }
+      },
+      {
+        "input": "{{/^[a-z]+$/igm->test('abc3')}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/[0-9]+/->test('answer is 42')}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/^[0-9]+$/->test(42)}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/^[0-9]+$/->test(0.42)}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/^[0-9.]+$/->test(0.42)}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/^[0-9.]+\\$/->test(0.42)}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/^[0-9.]+$/->test(0.42)}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{null->isRegExp}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{true->isRegExp}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{/reg/->isRegExp}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{/reg/->toString}}",
+        "expectedResult": "/reg/"
+      },
+      {
+        "input": "{{/reg/im->toString}}",
+        "expectedResult": "/reg/im"
+      },
+      {
+        "input": "{{/reg/->toJSON}}",
+        "expectedResult": "\"/reg/\""
+      },
+      {
+        "input": "{{57.323->isRegExp}}",
+        "expectedResult": "false"
+      }
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "name": "complex tests",
+    "cases": [
+      {
+        "input": "--{{require('../../tpl/function/complex1.tpl')}}XX",
+        "expectedResult": "--+7 932 400 0993XX"
+      }
+    ]
+  }
+]

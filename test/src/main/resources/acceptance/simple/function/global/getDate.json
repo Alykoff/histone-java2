@@ -1,0 +1,251 @@
+[
+  {
+    "name": "global -> getDate",
+    "cases": [
+      {
+        "input": "{{global->getDate() != undefined}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "--{{var now = getDate().month}}{{var x = getDate('+1M').month}}{{(now - x)->toAbs}}",
+        "expectedResult": "--1"
+      },
+      {
+        "input": "--{{var now = getDate().second}}{{now < 60}}",
+        "expectedResult": "--true"
+      },
+      {
+        "input": "--{{123->hasMethod('isDate')}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{'string'->isDate}}XX",
+        "expectedResult": "--falseXX"
+      },
+      {
+        "input": "--{{getDate->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate->slice(-3)->isDate}}XX",
+        "expectedResult": "--falseXX"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a>b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a<b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3M')}}{{a!=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a!=b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a>=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = a}}{{a<=b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3W')}}{{a<b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('-3W')}}{{a>b}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('+3W')}}{{a>b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var a = getDate}}{{var b = getDate('-3W')}}{{a<b}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "--{{getDate('^Y')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^Y')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^Y')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^M')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^M')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^M')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^W')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^W')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^W')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^D')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^D')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^D')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^h')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^h')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^h')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^m')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^m')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('^m')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$Y')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$Y')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$Y')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$M')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$M')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$M')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$W')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$W')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$W')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$D')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$D')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$D')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$h')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$h')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$h')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$m')->isArray}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$m')->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$m')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('$m+3W$Y')->toArray->isDate}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('+3W')->toString != getDate->toString}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('-3W')->toString != getDate->toString}}XX",
+        "expectedResult": "--trueXX"
+      },
+      {
+        "input": "--{{getDate('3W')->toString != getDate->toString}}XX",
+        "expectedResult": "--falseXX"
+      },
+      {
+        "input": "--{{getDate('+3W-3W')->toString = getDate->toString}}XX",
+        "expectedResult": "--trueXX"
+      }
+    ]
+  }
+]

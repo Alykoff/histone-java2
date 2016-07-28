@@ -21,7 +21,7 @@
     <parent>
         <artifactId>parent-histone-java-v2</artifactId>
         <groupId>com.github.megafonweblab.histone</groupId>
-        <version>1.3.5</version>
+        <version>1.3.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>java-compiler</artifactId>
@@ -32,53 +32,90 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-acceptance-tests</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/test-classes/ru/histone/v2
+                            </outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>../test/src/main/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.groovy.maven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
                 <version>1.0</version>
                 <executions>
                     <execution>
-                        <id>createPropertiesListFile</id>
-                        <phase>compile</phase>
+                        <id>compile-acceptance-tests</id>
+                        <phase>process-test-resources</phase>
                         <goals>
                             <goal>execute</goal>
                         </goals>
                         <configuration>
                             <properties>
-                                <baseDir>${project.basedir}</baseDir>
+                                <baseDir>${project.build.directory}</baseDir>
                             </properties>
                             <source>
-                                import java.io.IOException;
-                                import java.io.InputStream;
-                                import java.io.File;
-                                import java.nio.charset.Charset;
-                                import java.nio.file.Paths;
-                                import java.nio.file.Path;
-                                import java.nio.file.Files;
+                                import ru.histone.v2.java_compiler.support.TestProcessor
 
-                                String baseDir = project.properties['baseDir'];
-                                Path out = Paths.get(baseDir + '/src/main/resources/i18n/props.conf');
-                                Files.deleteIfExists(out);
-
-                                File file = new File(baseDir + '/src/main/resources/i18n');
-                                StringBuilder sb = new StringBuilder();
-                                if (file.exists()) {
-                                    for (String str : file.list()) {
-                                        if (str.matches(/.+[.]properties/)) {
-                                            sb.append(str).append(" ");
-                                        }
-                                    }
-                                    BufferedWriter bw =
-                                            Files.newBufferedWriter(Files.createFile(out),
-                                                    Charset.forName("UTF-8"));
-
-                                    bw.write(sb.toString().trim());
-                                    bw.flush();
-                                    bw.close();
+                                try {
+                                    TestProcessor processor = new TestProcessor();
+                                    processor.doCompile(project.properties['baseDir']);
+                                } catch (Exception e) {
+                                    e.printStackTrace(System.out)
                                 }
                             </source>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-test-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19</version>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <argLine>${surefireArgLine}</argLine>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.0.0-M2</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
@@ -87,6 +124,11 @@
         <dependency>
             <groupId>com.github.megafonweblab.histone</groupId>
             <artifactId>histone-java-v2</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.megafonweblab.histone</groupId>
+            <artifactId>histone-acceptance-test</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>

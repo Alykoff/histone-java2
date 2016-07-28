@@ -54,7 +54,6 @@ public class Compiler {
      */
     public byte[] compile(String name, AstNode root) throws IOException {
         JavaFile file = createFile(name, root);
-        file.writeTo(System.out);
 
         File resDir = new File("./src/test/java/");
         boolean exists = resDir.createNewFile();
@@ -70,14 +69,22 @@ public class Compiler {
         return res;
     }
 
-
     public boolean isSimpleTemplate(AstNode node) {
         return false;
     }
 
-    private JavaFile createFile(String name, AstNode root) throws IOException {
+    public JavaFile createFile(String name, AstNode root) throws IOException {
         JavaFile javaFile = JavaFile
                 .builder("ru.histone.v2.acceptance", createClass(name, root))
+                //todo check this
+//                .addStaticImport(StdLibrary.class)
+                .build();
+        return javaFile;
+    }
+
+    public JavaFile createFile(String packageName, String name, AstNode root) throws IOException {
+        JavaFile javaFile = JavaFile
+                .builder(packageName, createClass(name, root))
                 //todo check this
 //                .addStaticImport(StdLibrary.class)
                 .build();

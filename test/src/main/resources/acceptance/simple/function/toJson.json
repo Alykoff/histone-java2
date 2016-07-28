@@ -1,0 +1,55 @@
+[
+  {
+    "name": "toJson function",
+    "cases": [
+      {
+        "input": "<div>{{'string'->toJSON}} = 'string'</div>",
+        "expectedResult": "<div>\"string\" = 'string'</div>"
+      },
+      {
+        "input": "<div>{{''->toJSON}} = \"\"</div>",
+        "expectedResult": "<div>\"\" = \"\"</div>"
+      },
+      {
+        "input": "<div>{{0.42->toJSON}} = 0.42</div>",
+        "expectedResult": "<div>0.42 = 0.42</div>"
+      },
+      {
+        "input": "<div>{{true->toJSON}} = true</div>",
+        "expectedResult": "<div>true = true</div>"
+      },
+      {
+        "input": "<div>{{false->toJSON}} = false</div>",
+        "expectedResult": "<div>false = false</div>"
+      },
+      {
+        "input": "<div>{{UNDEFINED_VALUE->toJSON}} = null</div>",
+        "expectedResult": "<div>null = null</div>"
+      },
+      {
+        "input": "<div>{{null->toJSON}} = null</div>",
+        "expectedResult": "<div>null = null</div>"
+      },
+      {
+        "input": "<div>{{[1, 2, 3]->toJSON}} = [1,2,3]</div>",
+        "expectedResult": "<div>[1,2,3] = [1,2,3]</div>"
+      },
+      {
+        "input": "<div>{{0->toJSON}} = 0</div>",
+        "expectedResult": "<div>0 = 0</div>"
+      },
+      {
+        "input": "<div>{{10->toJSON}} = 10</div>",
+        "expectedResult": "<div>10 = 10</div>"
+      },
+      {
+        "input": "{{toJSON()->length != 0}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{[1,2,3].toJSON}}",
+        "expectedResult": ""
+      }
+    ]
+  }
+]

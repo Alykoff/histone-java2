@@ -19,13 +19,11 @@ package ru.histone.v2.java_compiler.bcompiler;
 import com.squareup.javapoet.MethodSpec;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.ObjectUtils;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.exceptions.HistoneException;
-import ru.histone.v2.parser.node.AstNode;
-import ru.histone.v2.parser.node.AstType;
-import ru.histone.v2.parser.node.ExpAstNode;
-import ru.histone.v2.parser.node.ValueNode;
+import ru.histone.v2.parser.node.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,6 +42,10 @@ public class TemplateProcessor {
         if (node.hasValue()) {
             ValueNode valueNode = (ValueNode) node;
             Object v = valueNode.getValue();
+            if (v == null) {
+                return builder.addCode("$T.getValue($T.NULL)", EvalUtils.class, ObjectUtils.class);
+            }
+
             if (v instanceof String) {
                 return builder.addCode("$T.getValue(\"" + v + "\")", EvalUtils.class);
             }
@@ -52,8 +54,8 @@ public class TemplateProcessor {
 
         ExpAstNode expNode = (ExpAstNode) node;
         switch (node.getType()) {
-//            case AST_ARRAY:
-//                return processArrayNode(expNode, context);
+            case AST_ARRAY:
+                return processArrayNode(builder, expNode);
 //            case AST_REGEXP:
 //                return processRegExp(expNode);
 //            case AST_THIS:
@@ -68,27 +70,24 @@ public class TemplateProcessor {
 //                return processOrNode(expNode, context);
 //            case AST_TERNARY:
 //                return processTernary(expNode, context);
-//            case AST_ADD:
-//                return processAddNode(expNode, context);
+            case AST_ADD:
             case AST_SUB:
             case AST_MUL:
             case AST_DIV:
             case AST_MOD:
+            case AST_USUB:
                 return processArithmetical(builder, expNode);
-//            case AST_USUB:
-//                return processUnaryMinus(expNode, context);
-//            case AST_LT:
-//            case AST_GT:
-//            case AST_LE:
-//            case AST_GE:
-//                return processRelation(expNode, context, STRING_EVAL_NODE_LEN_COMPARATOR);
-//            case AST_EQ:
-//            case AST_NEQ:
-//                return processRelation(expNode, context, STRING_EVAL_NODE_STRONG_COMPARATOR);
+            case AST_LT:
+            case AST_GT:
+            case AST_LE:
+            case AST_GE:
+            case AST_EQ:
+            case AST_NEQ:
+                return processRelation(builder, expNode);
 //            case AST_REF:
 //                return processReferenceNode(expNode, context);
-//            case AST_CALL:
-//                return processCall(expNode, context);
+            case AST_CALL:
+                return processCall(builder, expNode);
 //            case AST_VAR:
 //                return processVarNode(expNode, context);
 //            case AST_IF:
@@ -118,61 +117,74 @@ public class TemplateProcessor {
 //            case AST_BREAK:
 //                return processBreakContinueNode(expNode, true);
         }
-        throw new HistoneException("Unknown AST Histone Type: " + node.getType());
+        return builder;
+//        throw new HistoneException("Unknown AST Histone Type: " + node.getType());
+    }
+
+    private MethodSpec.Builder processRelation(MethodSpec.Builder builder, ExpAstNode node) {
+        builder = builder.addCode("StdLibrary." + getRelationMethod(node) + "(ctx, ");
+        builder = processNode(builder, node.getNodes().get(0));
+        builder = builder.addCode(",");
+        builder = processNode(builder, node.getNodes().get(1));
+        builder.addCode(")");
+        return builder;
+    }
+
+    private MethodSpec.Builder processArrayNode(MethodSpec.Builder builder, ExpAstNode node) {
+        if (CollectionUtils.isEmpty(node.getNodes())) {
+            return builder.addCode("StdLibrary.array()");
+        }
+        if (node.getNode(0).getType() == AstType.AST_VAR) {
+            throw new RuntimeException("0_J do it");
+//            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EvalUtils.createEvalNode(null));
+        }
+
+        builder.addCode("StdLibrary.array(");
+        for (int i = 0; i < node.size(); i++) {
+            process(builder, node.getNode(i));
+            if (i != node.size() - 1) {
+                builder.addCode(",");
+            }
+        }
+        builder.addCode(")");
+        return builder;
+    }
+
+    private MethodSpec.Builder processCall(MethodSpec.Builder builder, ExpAstNode expNode) {
+        CallExpAstNode callNode = (CallExpAstNode) expNode;
+        if (callNode.getCallType() == CallType.SIMPLE) {
+            builder.addCode("StdLibrary.simpleCall(ctx,");
+            //todo
+            if (expNode.size() == 2) {
+                builder.addCode("\"" + ((ValueNode) expNode.getNode(1)).getValue() + "\", $T.emptyList()", Collections.class);
+            }
+            builder.addCode(")");
+        } else if (callNode.getCallType() == CallType.RTTI_M_GET) {
+            builder.addCode("StdLibrary.mGet(ctx, ");
+            for (int i = 0; i < expNode.size(); i++) {
+                process(builder, expNode.getNode(i));
+                if (i != expNode.size() - 1) {
+                    builder.addCode(",");
+                }
+            }
+            builder.addCode(")");
+        } else {
+            throw new NotImplementedException("!!!!");
+        }
+        return builder;
     }
 
     private MethodSpec.Builder processArithmetical(MethodSpec.Builder builder, ExpAstNode node) {
         if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
-            builder = builder.addCode("StdLibrary." + getArithmeticalMethod(node) + "(");
+            builder = builder.addCode("StdLibrary." + getArithmeticalMethod(node) + "(ctx, ");
             builder = processNode(builder, node.getNodes().get(0));
             builder = builder.addCode(",");
             builder = processNode(builder, node.getNodes().get(1));
             builder.addCode(")");
-            return builder;
-//
-//            AstNode left = node.getNodes().get(0);
-//            AstNode right = node.getNodes().get(1);
-//
-//
-//            return processNode(builder, left)
-//
-//
-//            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode ->
-//            {
-//                if (isNumberNode(leftNode) || leftNode.getType() == HistoneType.T_STRING) {
-//                    Double lValue = getValue(leftNode).orElse(null);
-//                    if (lValue != null) {
-//                        return evaluateNode(node.getNodes().get(1), context).thenCompose(rightNode -> {
-//                            if (isNumberNode(rightNode) || rightNode.getType() == HistoneType.T_STRING) {
-//                                return CompletableFuture.completedFuture(getValue(rightNode).orElse(null));
-//                            }
-//                            return CompletableFuture.completedFuture(null);
-//                        }).thenCompose(rValue -> {
-//                            if (rValue != null) {
-//                                Double res = null;
-//                                AstType type = node.getType();
-//                                switch (type) {
-//                                    case AST_SUB:
-//                                        res = lValue - rValue;
-//                                        break;
-//                                    case AST_MUL:
-//                                        res = lValue * rValue;
-//                                        break;
-//                                    case AST_DIV:
-//                                        res = lValue / rValue;
-//                                        break;
-//                                    case AST_MOD:
-//                                        res = lValue % rValue;
-//                                        break;
-//                                }
-//                                return EvalUtils.getNumberFuture(res);
-//                            }
-//                            return EvalUtils.getValue(null);
-//                        });
-//                    }
-//                }
-//                return EvalUtils.getValue(null);
-//            });
+        } else {
+            builder = builder.addCode("StdLibrary." + getArithmeticalMethod(node) + "(ctx, ");
+            builder = processNode(builder, node.getNodes().get(0));
+            builder.addCode(")");
         }
         return builder;
     }
@@ -184,12 +196,32 @@ public class TemplateProcessor {
                 return "add";
             case AST_SUB:
                 return "sub";
+            case AST_USUB:
+                return "uSub";
             case AST_MUL:
                 return "mul";
             case AST_DIV:
                 return "div";
             default:
                 return "mod";
+        }
+    }
+
+    private String getRelationMethod(ExpAstNode node) {
+        AstType type = node.getType();
+        switch (type) {
+            case AST_LT:
+                return "lt";
+            case AST_GT:
+                return "gt";
+            case AST_LE:
+                return "le";
+            case AST_GE:
+                return "ge";
+            case AST_EQ:
+                return "eq";
+            default:
+                return "neq";
         }
     }
 
@@ -200,7 +232,8 @@ public class TemplateProcessor {
         }
 
         if (checkReturnNode(expNode.getNodes())) {
-            throw new NotImplementedException("Oops! to do it");
+            //todo
+//            throw new NotImplementedException("Oops! to do it");
         } else {
             builder = builder.addCode("CompletableFuture<StringBuilder> csb = CompletableFuture.completedFuture(new StringBuilder());\n");
             for (AstNode node : expNode.getNodes()) {

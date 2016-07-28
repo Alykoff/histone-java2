@@ -29,6 +29,7 @@ import ru.histone.v2.evaluator.global.StringEvalNodeLenComparator;
 import ru.histone.v2.evaluator.global.StringEvalNodeStrongComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
+import ru.histone.v2.exceptions.StopExecutionException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
@@ -251,9 +252,9 @@ public class Evaluator implements Serializable {
             final CompletableFuture<EvalNode> fieldNode = evaluateNode(callNode.getNode(1), context);
             return valueNode
                     .thenCompose(value -> fieldNode
-                                    .thenCompose(fieldName ->
-                                                    context.call(value, RttiMethod.RTTI_M_GET.getId(), Arrays.asList(value, fieldName))
-                                    )
+                            .thenCompose(fieldName ->
+                                    context.call(value, RttiMethod.RTTI_M_GET.getId(), Arrays.asList(value, fieldName))
+                            )
                     );
         } else if (callNode.getCallType() == CallType.RTTI_M_CALL) {
             return processMethodCall(context, callNode);
@@ -285,19 +286,19 @@ public class Evaluator implements Serializable {
                 .collect(Collectors.toList()));
         return valueNode
                 .thenCompose(value -> argsFuture
-                                .thenCompose(args -> {
-                                            if (value.getType() == HistoneType.T_MACRO) {
-                                                List<EvalNode> arguments = new ArrayList<>();
-                                                arguments.add(value);
-                                                arguments.addAll(args);
-                                                return context.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
-                                            }
-                                            if (value.getType() != HistoneType.T_STRING) {
-                                                return EvalUtils.getValue(null);
-                                            }
-                                            return context.call((String) value.getValue(), args);
-                                        }
-                                )
+                        .thenCompose(args -> {
+                                    if (value.getType() == HistoneType.T_MACRO) {
+                                        List<EvalNode> arguments = new ArrayList<>();
+                                        arguments.add(value);
+                                        arguments.addAll(args);
+                                        return context.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
+                                    }
+                                    if (value.getType() != HistoneType.T_STRING) {
+                                        return EvalUtils.getValue(null);
+                                    }
+                                    return context.call((String) value.getValue(), args);
+                                }
+                        )
                 );
     }
 
@@ -317,7 +318,8 @@ public class Evaluator implements Serializable {
                         }
                         return evaluateNode(expNode.getNode(0), context)
                                 .thenCompose(value -> context.call(value, name, Collections.singletonList(value)));
-                    });
+                    })
+                    .exceptionally(checkThrowable());
         }
 
         CompletableFuture<List<EvalNode>> nodesFuture = evalAllNodesOfCurrent(expNode, context);
@@ -329,7 +331,17 @@ public class Evaluator implements Serializable {
             args.add(value);
             args.addAll(nodes.subList(2, nodes.size()));
             return context.call(value, name, args);
-        });
+        }).exceptionally(checkThrowable());
+    }
+
+    private java.util.function.Function<Throwable, EvalNode> checkThrowable() {
+        return e -> {
+            if (!(e instanceof StopExecutionException)) {
+                LOG.error(e.getMessage(), e);
+                return EvalUtils.createEvalNode(null);
+            }
+            throw new RuntimeException(e);
+        };
     }
 
     private CompletableFuture<EvalNode> processWhileNode(ExpAstNode expNode, Context context) {
@@ -419,13 +431,13 @@ public class Evaluator implements Serializable {
         CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
         CompletableFuture<List<EvalNode>> leftRightDone = AsyncUtils.sequence(keyVarName, valueVarName);
         CompletableFuture<EvalNode> res = leftRightDone.thenCompose(keyValueNames ->
-                        iterate(
-                                expNode,
-                                context,
-                                objToIterate,
-                                keyValueNames.get(0),
-                                keyValueNames.get(1)
-                        )
+                iterate(
+                        expNode,
+                        context,
+                        objToIterate,
+                        keyValueNames.get(0),
+                        keyValueNames.get(1)
+                )
         );
         return res.thenApply(node -> {
             if (node.getType() == HistoneType.T_BREAK) {
@@ -556,8 +568,7 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
         if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
-            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode ->
-            {
+            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode -> {
                 if (isNumberNode(leftNode) || leftNode.getType() == HistoneType.T_STRING) {
                     Double lValue = getValue(leftNode).orElse(null);
                     if (lValue != null) {
@@ -617,7 +628,7 @@ public class Evaluator implements Serializable {
             final CompletableFuture<Integer> compareResultRaw = compareNodes(left, right, context, stringNodeComparator);
 
             return compareResultRaw.thenApply(compareResult ->
-                            processRelationComparatorHelper(node.getType(), compareResult)
+                    processRelationComparatorHelper(node.getType(), compareResult)
             );
         });
     }
@@ -666,7 +677,7 @@ public class Evaluator implements Serializable {
         final CompletableFuture<EvalNode> rightFuture = RttiUtils.callToString(context, right);
         final int inverter = isInvert ? -1 : 1;
         return rightFuture.thenApply(stringRight ->
-                        inverter * stringNodeComparator.compare(left, (StringEvalNode) stringRight)
+                inverter * stringNodeComparator.compare(left, (StringEvalNode) stringRight)
         );
     }
 
@@ -697,9 +708,9 @@ public class Evaluator implements Serializable {
         final CompletableFuture<EvalNode> rightF = RttiUtils.callToBoolean(context, right);
 
         return leftF.thenCompose(leftBooleanRaw -> rightF.thenApply(rightBooleanRaw ->
-                        BOOLEAN_EVAL_NODE_COMPARATOR.compare(
-                                (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
-                        )
+                BOOLEAN_EVAL_NODE_COMPARATOR.compare(
+                        (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
+                )
         ));
     }
 
@@ -954,13 +965,13 @@ public class Evaluator implements Serializable {
         }
 
         return evaluateNode(conditionNode, context).thenCompose(condNode ->
-                        RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
-                            if (predicate) {
-                                return evaluateNode(bodyNode, context.createNew());
-                            } else {
-                                return processIfNodeHelper(node, context, i + 2);
-                            }
-                        })
+                RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
+                    if (predicate) {
+                        return evaluateNode(bodyNode, context.createNew());
+                    } else {
+                        return processIfNodeHelper(node, context, i + 2);
+                    }
+                })
         );
     }
 

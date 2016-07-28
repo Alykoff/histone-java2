@@ -73,8 +73,8 @@ public class SimpleCompilerTest {
     // "expectedResult": "8"
     @Test
     public void doTest() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        String expectedAST = "[29,[10,\"10\",2]]";
-        String expectedResult = "8";
+        String expectedAST = "[29,[9,\"foo-\",null]]";
+        String expectedResult = "foo-null";
 
         Compiler compiler = new Compiler();
         byte[] classBytes = compiler.compile("Template1", AstJsonProcessor.read(expectedAST));

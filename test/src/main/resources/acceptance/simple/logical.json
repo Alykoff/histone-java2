@@ -1,6 +1,6 @@
 [
   {
-    "name": "operator.logical",
+    "name": "logical",
     "cases": [
       {
         "inputFile": "not.tpl",
@@ -13,12 +13,7 @@
       {
         "input": "{{null || true}}",
         "expectedResult": "true"
-      }
-    ]
-  },
-  {
-    "name": "operator.and",
-    "cases": [
+      },
       {
         "input": "{{null && null}}",
         "expectedResult": "null"
@@ -422,13 +417,6 @@
       {
         "input": "{{false && throwExceptionFunction}}",
         "expectedResult": "false"
-      },
-      {
-        "input": "{{true && throwExceptionFunction}}",
-        "expectedException": {
-          "line": "1",
-          "message": "ru.histone.v2.exceptions.FunctionExecutionException: Exception thrown"
-        }
       }
     ]
   },
@@ -438,13 +426,6 @@
       {
         "input": "{{true || throwExceptionFunction}}",
         "expectedResult": "true"
-      },
-      {
-        "input": "{{false || throwExceptionFunction}}",
-        "expectedException": {
-          "line": "1",
-          "message": "ru.histone.v2.exceptions.FunctionExecutionException: Exception thrown"
-        }
       }
     ]
   },

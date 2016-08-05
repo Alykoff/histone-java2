@@ -1,6 +1,6 @@
 [
   {
-    "name": "array - size",
+    "name": "array -> size",
     "cases": [
       {
         "input": "{{['size': 'XL', 'color': 'gold']->values}}",
@@ -8,6 +8,7 @@
       },
       {
         "input": "{{[\"size\": \"XL\", \"color\": \"gold\"]->values->toJSON}} = [\"XL\",\"gold\"]",
+        "expectedAST": "[29,[22,[22,[1,\"XL\",\"size\",\"gold\",\"color\"],\"values\"],\"toJSON\"],\" = [\\\"XL\\\",\\\"gold\\\"]\"]",
         "expectedResult": "[\"XL\",\"gold\"] = [\"XL\",\"gold\"]"
       },
       {
@@ -17,4 +18,3 @@
     ]
   }
 ]
-

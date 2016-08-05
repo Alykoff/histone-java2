@@ -186,7 +186,7 @@
     ]
   },
   {
-    "name": "string -> toNumber",
+    "name": "date -> toNumber",
     "cases": [
       {
         "input": "{{var a = getDate}}{{var b = a -> toNumber -> toDate}}{{a=b}}",

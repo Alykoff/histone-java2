@@ -1,6 +1,6 @@
 [
   {
-    "name": "Number.toFixed",
+    "name": "number -> toFixed",
     "cases": [
       {
         "input": "<div>{{12.123->toFixed(0)}} = 12</div>",

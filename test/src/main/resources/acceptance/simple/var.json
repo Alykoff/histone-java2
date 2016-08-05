@@ -1,7 +1,7 @@
 [
   {
-    "name": "variable defenition",
-    "ignore": [
+    "name": "var",
+    "cases": [
       {
         "input": "a {{var x = 10}} f",
         "expectedAST": "[31,\"a \",[1,[25,\"x\",10]],\" f\"]"
@@ -29,80 +29,6 @@
         "input": "a {{var extended}} b {{/var}} c {{extended}} d",
         "expectedAST": "[31,\"a \",[25,\"extended\",[30,\" b \"]],\" c \",[21,\"extended\"],\" d\"]",
         "expectedResult": "a  c  b  d"
-      }
-    ],
-    "cases": [
-      {
-        "input": "{{var name = 10",
-        "expectedException": {
-          "line": "1",
-          "expected": "}}",
-          "found": "EOF"
-        }
-      },
-      {
-        "input": "{{var name 10",
-        "expectedException": {
-          "line": "1",
-          "expected": "}}",
-          "found": "10"
-        }
-      },
-      {
-        "input": "a {{var this = 10}} f",
-        "expectedException": {
-          "line": "1",
-          "expected": "IDENTIFIER",
-          "found": "this"
-        }
-      },
-      {
-        "input": "a {{var self = 10}} f",
-        "expectedException": {
-          "line": "1",
-          "expected": "IDENTIFIER",
-          "found": "self"
-        }
-      },
-      {
-        "input": "a {{var x}} blablabla",
-        "expectedException": {
-          "line": "1",
-          "expected": "{{/var}}",
-          "found": "EOF"
-        }
-      },
-      {
-        "input": "a {{var x = 6, d=7}}",
-        "expectedException": {
-          "line": "1",
-          "expected": "{{/var}}",
-          "found": "EOF"
-        }
-      },
-      {
-        "input": "a {{var x =7, y}}",
-        "expectedException": {
-          "line": "1",
-          "expected": "=",
-          "found": "}}"
-        }
-      },
-      {
-        "input": "a {{var x =7,}}",
-        "expectedException": {
-          "line": "1",
-          "expected": "IDENTIFIER",
-          "found": "}}"
-        }
-      },
-      {
-        "input": "a {{var global = 10}} f",
-        "expectedException": {
-          "line": "1",
-          "expected": "IDENTIFIER",
-          "found": "global"
-        }
       },
       {
         "input": "{{var x = 10}}",

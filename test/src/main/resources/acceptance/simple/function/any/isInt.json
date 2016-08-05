@@ -1,6 +1,6 @@
 [
   {
-    "name": "number -> isInt",
+    "name": "type -> isInt",
     "cases": [
       {
         "input": "a {{10 -> isInt()}} b",

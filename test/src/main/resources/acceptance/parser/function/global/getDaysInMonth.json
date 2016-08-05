@@ -1,0 +1,14 @@
+[
+  {
+    "name": "global -> getDaysInMonth",
+    "cases": [
+      {
+        "input": "a {{getDaysInMonth(1900).isUndefined()}} b",
+        "expectedException": {
+          "line": "1",
+          "message": "Expected length of arguments is '2', but current is '1'"
+        }
+      }
+    ]
+  }
+]

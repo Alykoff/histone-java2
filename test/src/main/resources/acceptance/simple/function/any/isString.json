@@ -1,6 +1,6 @@
 [
   {
-    "name": "String.isString",
+    "name": "type ->isString",
     "cases": [
       {
         "input": "<div>{{'string'->isString}} = true</div>",

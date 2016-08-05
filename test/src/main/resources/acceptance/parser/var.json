@@ -1,0 +1,79 @@
+[
+  {
+    "name": "var",
+    "cases": [
+      {
+        "input": "{{var name = 10",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{var name 10",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "10"
+        }
+      },
+      {
+        "input": "a {{var this = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "this"
+        }
+      },
+      {
+        "input": "a {{var self = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "self"
+        }
+      },
+      {
+        "input": "a {{var x}} blablabla",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/var}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{var x = 6, d=7}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/var}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{var x =7, y}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "=",
+          "found": "}}"
+        }
+      },
+      {
+        "input": "a {{var x =7,}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "}}"
+        }
+      },
+      {
+        "input": "a {{var global = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "global"
+        }
+      }
+    ]
+  }
+]

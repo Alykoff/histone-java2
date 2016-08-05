@@ -1,0 +1,23 @@
+[
+  {
+    "name": "return",
+    "cases": [
+      {
+        "input": "{{return 5 ",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{return}} 5",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/return}}",
+          "found": "EOF"
+        }
+      }
+    ]
+  }
+]

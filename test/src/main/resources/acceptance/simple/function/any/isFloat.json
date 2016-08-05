@@ -1,6 +1,6 @@
 [
   {
-    "name": "number -> isFloat",
+    "name": "type -> isFloat",
     "cases": [
       {
         "input": "a {{10 -> isFloat()}} b",

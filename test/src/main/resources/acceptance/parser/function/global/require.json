@@ -1,0 +1,28 @@
+[
+  {
+    "name": "global -> require",
+    "cases": [
+      {
+        "input": "a {{require('../../tpl/function/DOESNT_EXISTS.tpl') -> isUndefined()}} b",
+        "expectedException": {
+          "line": "1",
+          "message": "../../tpl/function/DOESNT_EXISTS.tpl"
+        }
+      },
+      {
+        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e",
+        "expectedException": {
+          "line": "1",
+          "message": "../../tpl/function/DOESNT_EXISTS.tpl"
+        }
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/stopExecutionException.tpl')}}{{ui}}XX",
+        "expectedException": {
+          "line": "1",
+          "message": "ru.histone.v2.exceptions.StopExecutionException: Exception thrown"
+        }
+      }
+    ]
+  }
+]

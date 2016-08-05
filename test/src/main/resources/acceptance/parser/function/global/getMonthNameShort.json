@@ -1,0 +1,14 @@
+[
+  {
+    "name": "global -> getMonthNameShort",
+    "cases": [
+      {
+        "input": "{{getMonthNameShort(1, -1ad)}}",
+        "expectedException": {
+          "line": "1",
+          "message": "unexpected 'ad', expected ')'"
+        }
+      }
+    ]
+  }
+]

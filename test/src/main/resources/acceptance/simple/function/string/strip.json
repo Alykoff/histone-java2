@@ -1,6 +1,6 @@
 [
   {
-    "name": "String.strip",
+    "name": "string -> strip",
     "cases": [
       {
         "input": "{{'\t\n\r\r  \t\t\t\thistone     \t   \n'->strip}}",

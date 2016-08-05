@@ -1,50 +1,10 @@
 [
   {
-    "name": "Expression.for",
+    "name": "for",
     "cases": [
       {
         "input": "a {{for x in sfgsag}}{{x}}{{/for}} b",
         "expectedResult": "a  b"
-      },
-      {
-        "input": "a {{for x: in []}}{{/for}}",
-        "expectedException": {
-          "line": "1",
-          "expected": "IDENTIFIER",
-          "found": "in"
-        }
-      },
-      {
-        "input": "a {{for x:y []}}{{/for}}",
-        "expectedException": {
-          "line": "1",
-          "expected": "in",
-          "found": "["
-        }
-      },
-      {
-        "input": "a {{for x:y in []",
-        "expectedException": {
-          "line": "1",
-          "expected": "}}",
-          "found": "EOF"
-        }
-      },
-      {
-        "input": "a {{for x:y in []}}{{else",
-        "expectedException": {
-          "line": "1",
-          "expected": "}}",
-          "found": "EOF"
-        }
-      },
-      {
-        "input": "a {{for x:y in []}}{{else}}",
-        "expectedException": {
-          "line": "1",
-          "expected": "{{/for}}",
-          "found": "EOF"
-        }
       },
       {
         "input": "a {{for x in this.items}}{{x}}{{/for}} b",
@@ -490,12 +450,7 @@
       {
         "inputFile": "for5.tpl",
         "expectedResult": "    <div style=\"color: black\">{\"key\":\"0\",\"value\":0,\"index\":0,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"1\",\"value\":1,\"index\":1,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"2\",\"value\":2,\"index\":2,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"3\",\"value\":3,\"index\":3,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"4\",\"value\":4,\"index\":4,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"5\",\"value\":5,\"index\":5,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"6\",\"value\":6,\"index\":6,\"last\":9}</div>    <div style=\"color: red\">{\"key\":\"7\",\"value\":7,\"index\":7,\"last\":9}</div>    <div style=\"color: black\">{\"key\":\"8\",\"value\":8,\"index\":8,\"last\":9}</div>    <div style=\"color: blue\">{\"key\":\"9\",\"value\":9,\"index\":9,\"last\":9}</div>"
-      }
-    ]
-  },
-  {
-    "name": "expression.for: break and continue",
-    "cases": [
+      },
       {
         "input": "{{for i in range(0, 10)}}{{if i = 5}}{{continue}}{{else}}{{i}}{{/if}}{{/for}}",
         "expectedResult": "01234678910"
@@ -521,54 +476,12 @@
         "expectedResult": "HELLO1_HELLO2_HELLO3_HELLO4_"
       },
       {
-        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{break}}{{/return}}{{/for}}",
-        "expectedException": {
-          "line": "1",
-          "message": "Break statement must be only in loop!"
-        }
-      },
-      {
-        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{break}}{{/var}}{{/for}}",
-        "expectedException": {
-          "line": "1",
-          "message": "Break statement must be only in loop!"
-        }
-      },
-      {
-        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{return}}{{continue}}{{/return}}{{/for}}",
-        "expectedException": {
-          "line": "1",
-          "message": "Continue statement must be only in loop!"
-        }
-      },
-      {
-        "input": "--{{for value in [1, 2, 3, 4]}}HELLO{{var x}}{{continue}}{{/var}}{{/for}}",
-        "expectedException": {
-          "line": "1",
-          "message": "Continue statement must be only in loop!"
-        }
-      },
-      {
-        "input": "{{for x:x in [1]}}{{x}}{{/for}}",
-        "expectedException": {
-          "line": "1",
-          "message": "key and value must differ"
-        }
-      },
-      {
         "input": "{{for in [1,2,3,4]}}HELLO{{break}}{{/for}}",
         "expectedResult": "HELLO"
       },
       {
         "input": "{{for in [1,2,3,4]}}HELLO_{{continue}}{{/for}}",
         "expectedResult": "HELLO_HELLO_HELLO_HELLO_"
-      },
-      {
-        "input": "{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{break}} }} }} {{/for}}",
-        "expectedException": {
-          "line": "1",
-          "message": "Break statement must be only in loop!"
-        }
       },
       {
         "input": "---{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{return 10}} }} }} {{/for}}",

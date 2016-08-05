@@ -1,0 +1,31 @@
+[
+  {
+    "name": "if",
+    "cases": [
+      {
+        "input": "a {{if true",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{if true}}{{else",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{if true}}{{else}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/if}}",
+          "found": "EOF"
+        }
+      }
+    ]
+  }
+]

@@ -13,6 +13,14 @@
       {
         "input": "{{\"foobar\"->slice(0, -1)}}",
         "expectedResult": "fooba"
+      },
+      {
+        "input": "{{'12345667'->slice('1',22)}}",
+        "expectedResult": "2345667"
+      },
+      {
+        "input": "{{'12345667'->slice('1')}}",
+        "expectedResult": "2345667"
       }
     ]
   }

@@ -486,10 +486,7 @@
       },
       {
         "input": "---{{for value in [1, 2, 3, 4]}} HELLO {{ {{ {{return 10}} }} }} {{/for}}",
-        "expectedException": {
-          "line": "1",
-          "message": "illegal break statement"
-        }
+        "expectedResult": "--- HELLO 10  HELLO 10  HELLO 10  HELLO 10 "
       }
     ]
   }

@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.support.HistoneTestCase;
 import ru.histone.v2.support.JerseyServerResource;
-import ru.histone.v2.support.TestRunner;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -46,7 +45,7 @@ public class HttpConcreteTest extends HistoneTest {
         testCase.setExpectedResult("GET");
         testCase.setContext(getMap());
 //        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'GET']).method}}", rtti, testCase, evaluator, parser);
+//        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'GET']).method}}", rtti, testCase, evaluator, parser);
     }
 
     private Map<String, Object> getMap() {

@@ -42,13 +42,6 @@ public class HttpResourceLoaderTest extends HistoneTest {
     private final String BASE_URI = "http://127.0.0.1:4442/";
     private Server server;
 
-    //    @BeforeEach
-    public void setUp() throws Exception {
-        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
-        server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
-        Log.setLog(new StdErrLog());
-    }
-
     @TestFactory
     @Override
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
@@ -68,14 +61,5 @@ public class HttpResourceLoaderTest extends HistoneTest {
                         }
                     }
                 }));
-    }
-
-    //    @AfterEach
-    public void tearDown() throws Exception {
-        try {
-            server.stop();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

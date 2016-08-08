@@ -21,7 +21,6 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -63,9 +62,7 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
                     }
 
                     if (valueNode.getType() == HistoneType.T_MACRO) {
-                        final MacroEvalNode macro = (MacroEvalNode) valueNode;
-
-                        final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
+                        final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(valueNode));
                         arguments.add(new BooleanEvalNode(false));
                         if (param != null) {
                             arguments.add(param);
@@ -93,10 +90,10 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         return calcByPredicate(context, args)
                 .thenApply(pairs ->
-                                pairs.stream()
-                                        .filter(Tuple::getRight)
-                                        .map(Tuple::getLeft)
-                                        .collect(Collectors.toList())
+                        pairs.stream()
+                                .filter(Tuple::getRight)
+                                .map(Tuple::getLeft)
+                                .collect(Collectors.toList())
                 )
                 .thenApply(MapEvalNode::new);
     }

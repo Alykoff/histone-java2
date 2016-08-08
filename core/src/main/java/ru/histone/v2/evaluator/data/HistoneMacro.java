@@ -18,7 +18,6 @@ package ru.histone.v2.evaluator.data;
 
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.parser.node.AstNode;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -27,10 +26,8 @@ import java.util.concurrent.CompletableFuture;
  * @author Gali Alykoff
  */
 public class HistoneMacro implements Cloneable {
-    public static final boolean MACRO_IS_WRAPPED_GLOBAL_FUNC_FLAG = true;
-    public static final boolean MACRO_IS_NOT_WRAPPED_GLOBAL_FUNC_FLAG = false;
     private final WrappingType wrappingType;
-    private AstNode body;
+    private Object body;
     private EvalNode result = null;
     private Context context;
     private List<String> args = new ArrayList<>();
@@ -44,7 +41,7 @@ public class HistoneMacro implements Cloneable {
 
     public HistoneMacro(
             List<String> args,
-            AstNode body,
+            Object body,
             Context context,
             Map<String, CompletableFuture<EvalNode>> defaultValues,
             WrappingType wrappingType
@@ -58,7 +55,7 @@ public class HistoneMacro implements Cloneable {
 
     public HistoneMacro(
             List<String> args,
-            AstNode body,
+            Object body,
             Context context,
             List<EvalNode> bindArgs,
             Map<String, CompletableFuture<EvalNode>> defaultValues,
@@ -74,7 +71,7 @@ public class HistoneMacro implements Cloneable {
 
     public HistoneMacro(
             List<String> args,
-            AstNode body,
+            Object body,
             Context context,
             List<EvalNode> bindArgs,
             Map<String, CompletableFuture<EvalNode>> defaultValues,
@@ -112,7 +109,7 @@ public class HistoneMacro implements Cloneable {
         return new HistoneMacro(
                 copyArgs,
                 this.body,
-                this.context.clone(),
+                this.context != null ? this.context.clone() : null,
                 copyBindArgs,
                 copyValues,
                 this.wrappingType
@@ -153,11 +150,11 @@ public class HistoneMacro implements Cloneable {
         this.defaultValues = defaultValues;
     }
 
-    public AstNode getBody() {
-        return body;
+    public <T> T getBody() {
+        return (T) body;
     }
 
-    public void setBody(AstNode body) {
+    public void setBody(Object body) {
         this.body = body;
     }
 

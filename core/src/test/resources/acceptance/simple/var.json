@@ -74,11 +74,7 @@
       },
       {
         "input": "a {{var x = 6, d=7}}",
-        "expectedException": {
-          "line": "1",
-          "expected": "{{/var}}",
-          "found": "EOF"
-        }
+        "expectedResult": "a "
       },
       {
         "input": "a {{var x =7, y}}",

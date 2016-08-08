@@ -15,10 +15,10 @@
         }
       },
       {
-        "input": "{{}}",
+        "input": "{{",
         "expectedException": {
           "line": "1",
-          "expected": "}}",
+          "expected": "EXPRESSION",
           "found": "EOF"
         }
       },

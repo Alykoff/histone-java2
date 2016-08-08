@@ -55,12 +55,12 @@ public class MacroCall extends AbstractFunction implements Serializable {
         super(executor, resourceLoader, evaluator, parser);
     }
 
-    private static HistoneMacro getMacro(List<EvalNode> args) {
+    private HistoneMacro getMacro(List<EvalNode> args) {
         final MacroEvalNode macroNode = (MacroEvalNode) args.get(MACRO_NODE_INDEX);
         return macroNode.getValue();
     }
 
-    private static CompletableFuture<EvalNode> createSelfObject(MacroEvalNode macro, String baseURI, List<EvalNode> args) {
+    protected CompletableFuture<EvalNode> createSelfObject(EvalNode macro, String baseURI, List<EvalNode> args) {
         Map<String, EvalNode> res = new LinkedHashMap<>();
         res.put(Constants.SELF_CONTEXT_CALLEE, macro);
         res.put(Constants.SELF_CONTEXT_CALLER, EvalUtils.createEvalNode(baseURI));
@@ -69,7 +69,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
         return EvalUtils.getValue(res);
     }
 
-    private static List<EvalNode> getParams(List<EvalNode> args) {
+    protected static List<EvalNode> getParams(List<EvalNode> args) {
         final List<EvalNode> params = new ArrayList<>();
         int start = 1;
         boolean isUnwrapArgsArrays = true;

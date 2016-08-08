@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.bcompiler.data;
+package ru.histone.v2.test;
 
-/**
- * @author Alexey Nevinsky
- */
-public class Value<T> {
+public class ExpectedException {
+    private int line;
+    private String expected;
+    private String found;
+    private String message;
+
+    public int getLine() {
+        return line;
+    }
+
+    public String getExpected() {
+        return expected;
+    }
+
+    public String getFound() {
+        return found;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }

@@ -47,11 +47,8 @@
         "expectedResult": "a true b"
       },
       {
-        "input": "a {{getDaysInMonth(1900).isUndefined()}} b",
-        "expectedException": {
-          "line": "1",
-          "message": "Expected length of arguments is '2', but current is '1'"
-        }
+        "input": "a {{getDaysInMonth(1900) -> isUndefined()}} b",
+        "expectedResult": "a true b"
       },
       {
         "input": "a {{getDaysInMonth('2012',2)}} b",

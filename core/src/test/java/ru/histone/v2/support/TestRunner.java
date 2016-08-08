@@ -18,20 +18,8 @@ package ru.histone.v2.support;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.ObjectUtils;
 import org.junit.Assert;
-import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.exceptions.HistoneException;
-import ru.histone.v2.exceptions.ParserException;
-import ru.histone.v2.parser.Parser;
-import ru.histone.v2.parser.SsaOptimizer;
-import ru.histone.v2.parser.node.ExpAstNode;
-import ru.histone.v2.property.DefaultPropertyHolder;
-import ru.histone.v2.rtti.RunTimeTypeInfo;
-import ru.histone.v2.utils.AstJsonProcessor;
+import org.junit.jupiter.api.DynamicTest;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -40,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,9 +36,9 @@ import java.util.stream.Stream;
  * @author Alexey Nevinsky
  */
 public class TestRunner {
-    private static final Locale US_LOCALE = Locale.US;
+    public static final Locale US_LOCALE = Locale.US;
 
-    public static List<HistoneTestCase> loadTestCases(String testPath) throws URISyntaxException, IOException {
+    private List<HistoneTestCase> loadTestCases(String testPath) throws URISyntaxException, IOException {
         DirectoryStream<Path> stream = Files.newDirectoryStream(
                 Paths.get(TestRunner.class.getResource("/acceptance/" + testPath).toURI())
         );
@@ -67,7 +55,10 @@ public class TestRunner {
                 if (p.toString().endsWith(".json")) {
                     Stream<String> stringStream = Files.lines(p);
                     List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
-                    histoneCases.forEach(histoneTestCase -> histoneTestCase.getCases().forEach(c -> c.setBaseURI(p.toUri().toString())));
+                    histoneCases
+                            .forEach(histoneTestCase -> histoneTestCase.getCases()
+                                    .forEach(c -> c.setBaseURI(p.toUri().toString()))
+                            );
                     cases.addAll(histoneCases);
                 } else {
                     tplMap.put(p.getFileName().toString(), p);
@@ -98,115 +89,32 @@ public class TestRunner {
         return files;
     }
 
-    public static void doTest(String input, RunTimeTypeInfo rtti, HistoneTestCase.Case testCase,
-                              Evaluator evaluator, Parser parser) throws HistoneException {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"));
-        try {
-            if (testCase.getInputAST() != null) {
-                ExpAstNode root = AstJsonProcessor.read(testCase.getInputAST());
-                SsaOptimizer optimizer = new SsaOptimizer();
-                optimizer.process(root);
-
-                String optimizedTree = AstJsonProcessor.write(root);
-
-                Assert.assertEquals(normalizeLineEndings(testCase.getExpectedAST()), normalizeLineEndings(optimizedTree));
-                return;
+    public Stream<DynamicTest> loadCases(String param, Consumer<HistoneTestCase.Case> testConsumer) throws IOException, URISyntaxException {
+        final List<DynamicTest> result = new ArrayList<>();
+        final List<HistoneTestCase> histoneTestCases = loadTestCases(param);
+        for (HistoneTestCase histoneTestCase : histoneTestCases) {
+            for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
+                DynamicTest test =
+                        DynamicTest.dynamicTest("Expression: " + testCase.getInput(), () -> testConsumer.accept(testCase));
+                result.add(test);
             }
-
-            ExpAstNode root = parser.process(input, "");
-            String stringAst = AstJsonProcessor.write(root);
-            if (testCase.getExpectedAST() != null) {
-                Assert.assertEquals(testCase.getExpectedAST(), stringAst);
-            }
-
-            root = AstJsonProcessor.read(stringAst);
-            if (testCase.getExpectedResult() != null) {
-                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti,
-                        new DefaultPropertyHolder());
-                if (testCase.getContext() != null) {
-                    for (Map.Entry<String, CompletableFuture<EvalNode>> entry : convertContext(testCase).entrySet()) {
-                        if (entry.getKey().equals("this")) {
-                            context.put("this", entry.getValue());
-                        } else {
-                            context.getVars().put(entry.getKey(), entry.getValue());
-                        }
-                    }
-                }
-                String result = evaluator.process(root, context);
-                Assert.assertEquals(normalizeLineEndings(testCase.getExpectedResult()), normalizeLineEndings(result));
-            } else if (testCase.getExpectedException() != null) {
-                Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti,
-                        new DefaultPropertyHolder());
-                evaluator.process(root, context);
-            }
-        } catch (Exception ex) {
-            checkException(testCase, ex);
         }
+        return result.stream();
     }
 
-    private static void checkException(HistoneTestCase.Case testCase, Exception ex) {
-        if (testCase.getExpectedException() != null) {
-            ExpectedException e = testCase.getExpectedException();
-            if (ex instanceof ParserException) {
-                Assert.assertEquals(e.getLine(), ((ParserException) ex).getLine());
-            }
-            if (e.getMessage() != null) {
-                Assert.assertEquals(e.getMessage(), ex.getMessage());
-            } else {
-                Assert.assertEquals("unexpected '" + e.getFound() + "', expected '" + e.getExpected() + "'", ex.getMessage());
-            }
+    public void checkException(Exception e, ExpectedException expectedException) {
+        if (expectedException.getMessage() != null) {
+            Assert.assertEquals(expectedException.getMessage(), e.getMessage());
         } else {
-            throw new RuntimeException(ex);
+            Assert.assertEquals("unexpected '" + expectedException.getFound() + "', expected '" + expectedException.getExpected() + "'", e.getMessage());
         }
     }
 
-    public static Map<String, CompletableFuture<EvalNode>> convertContext(HistoneTestCase.Case testCase) {
-        Map<String, CompletableFuture<EvalNode>> res = new HashMap<>();
-        for (Map.Entry<String, Object> entry : testCase.getContext().entrySet()) {
-            final CompletableFuture<EvalNode> v;
-            if (entry.getValue() == null) {
-                v = EvalUtils.getValue(ObjectUtils.NULL);
-            } else if (entry.getValue() instanceof List) {
-                List list = (List) entry.getValue();
-                Map<String, Object> map = new LinkedHashMap<>(list.size());
-                for (int i = 0; i < list.size(); i++) {
-                    map.put(i + "", getObjectValue(list.get(i)));
-                }
-                v = EvalUtils.getValue(map);
-            } else if (entry.getValue() instanceof Map) {
-                Map<String, Object> m = (Map<String, Object>) entry.getValue();
-                Map<String, Object> map = new LinkedHashMap<>(m.size());
-                for (Map.Entry<String, Object> e : m.entrySet()) {
-                    map.put(e.getKey(), getObjectValue(e.getValue()));
-                }
-                v = EvalUtils.getValue(map);
-
-            } else {
-                v = EvalUtils.getValue(entry.getValue());
-            }
-            res.putIfAbsent(entry.getKey(), v);
-        }
-        return res;
-    }
-
-    public static boolean isDouble(Object value) {
-        return value instanceof Double;
-    }
-
-    public static EvalNode getObjectValue(Object rawValue) {
-        Object value = rawValue;
-        if (isDouble(value)) {
-            Double v = (Double) value;
-            if (EvalUtils.canBeLong(v)) {
-                value = v.longValue();
-            }
-        } else if (value instanceof Integer) {
-            value = ((Integer) value).longValue();
-        }
-        return EvalUtils.createEvalNode(value);
-    }
-
-    private static String normalizeLineEndings(String value) {
+    private String normalizeLineEndings(String value) {
         return value.replaceAll("\\r\\n", "\n");
+    }
+
+    public void assertEquals(String expected, String actual) {
+        Assert.assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 }

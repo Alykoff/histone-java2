@@ -187,8 +187,8 @@ public class EvalUtils {
     public static MapEvalNode constructFromList(List<Object> list) {
         List<EvalNode> res = new ArrayList<>(list.size());
         res.addAll(list.stream()
-                        .map(EvalUtils::constructFromObject)
-                        .collect(Collectors.toList())
+                .map(EvalUtils::constructFromObject)
+                .collect(Collectors.toList())
         );
         return new MapEvalNode(res);
     }

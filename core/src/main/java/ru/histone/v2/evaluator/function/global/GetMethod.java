@@ -48,11 +48,9 @@ public class GetMethod extends AbstractFunction {
                 return EvalUtils.getValue(ObjectUtils.NULL);
             }
 
-            AstNode body = new CallExpAstNode(CallType.SIMPLE, new StringAstNode("null"), new StringAstNode(name));
-
             HistoneMacro macro = new HistoneMacro(
                     Collections.emptyList(),
-                    body,
+                    buildValueBody(context, name),
                     context.clone(),
                     Collections.emptyList(),
                     Collections.emptyMap(),
@@ -72,7 +70,7 @@ public class GetMethod extends AbstractFunction {
             return CompletableFuture.completedFuture(
                     new MacroEvalNode(new HistoneMacro(
                             Collections.emptyList(),
-                            buildBody(name),
+                            buildGlobalBody(context, name),
                             context.clone(),
                             Collections.emptyList(),
                             Collections.emptyMap(),
@@ -82,11 +80,11 @@ public class GetMethod extends AbstractFunction {
         });
     }
 
-    private AstNode buildBody(String funcName) {
-        return new CallExpAstNode(
-                CallType.SIMPLE,
-                new ExpAstNode(AstType.AST_GLOBAL),
-                new StringAstNode(funcName)
-        );
+    protected Object buildGlobalBody(Context ctx, String funcName) {
+        return new CallExpAstNode(CallType.SIMPLE, new ExpAstNode(AstType.AST_GLOBAL), new StringAstNode(funcName));
+    }
+
+    protected Object buildValueBody(Context ctx, String funcName) {
+        return new CallExpAstNode(CallType.SIMPLE, new StringAstNode("null"), new StringAstNode(funcName));
     }
 }

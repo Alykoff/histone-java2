@@ -425,10 +425,7 @@
       },
       {
         "input": "{{true && throwExceptionFunction}}",
-        "expectedException": {
-          "line": "1",
-          "message": "ru.histone.v2.exceptions.FunctionExecutionException: Exception thrown"
-        }
+        "expectedResult": ""
       }
     ]
   },
@@ -441,10 +438,7 @@
       },
       {
         "input": "{{false || throwExceptionFunction}}",
-        "expectedException": {
-          "line": "1",
-          "message": "ru.histone.v2.exceptions.FunctionExecutionException: Exception thrown"
-        }
+        "expectedResult": "false"
       }
     ]
   },

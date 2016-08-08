@@ -34,13 +34,11 @@ import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
 import ru.histone.v2.utils.AsyncUtils;
-import ru.histone.v2.utils.DateUtils;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -48,7 +46,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.evaluator.EvalUtils.isNumberNode;
+import static ru.histone.v2.evaluator.EvalUtils.nodeAsBoolean;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 
@@ -67,6 +66,12 @@ public class Evaluator implements Serializable {
     private static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
     private static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private final NodesComparator comparator;
+
+    public Evaluator() {
+        comparator = new NodesComparator();
+    }
 
     public String process(ExpAstNode node, Context context) {
         return processFuture(node, context).join();
@@ -118,10 +123,9 @@ public class Evaluator implements Serializable {
             case AST_GT:
             case AST_LE:
             case AST_GE:
-                return processRelation(expNode, context, STRING_EVAL_NODE_LEN_COMPARATOR);
             case AST_EQ:
             case AST_NEQ:
-                return processRelation(expNode, context, STRING_EVAL_NODE_STRONG_COMPARATOR);
+                return processRelation(expNode, context);
             case AST_REF:
                 return processReferenceNode(expNode, context);
             case AST_CALL:
@@ -336,11 +340,11 @@ public class Evaluator implements Serializable {
 
     private java.util.function.Function<Throwable, EvalNode> checkThrowable() {
         return e -> {
-            if (!(e instanceof StopExecutionException)) {
-                LOG.error(e.getMessage(), e);
-                return EvalUtils.createEvalNode(null);
+            if (e.getCause() instanceof StopExecutionException) {
+                throw (StopExecutionException) e.getCause();
             }
-            throw new RuntimeException(e);
+            LOG.error(e.getMessage(), e);
+            return EvalUtils.createEvalNode(null);
         };
     }
 
@@ -615,126 +619,12 @@ public class Evaluator implements Serializable {
         }
     }
 
-    // ==============================
-    // =========== Relation =========
-    // ==============================
-    private CompletableFuture<EvalNode> processRelation(
-            ExpAstNode node, Context context, Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenCompose(evalNodeList -> {
-            final EvalNode left = evalNodeList.get(0);
-            final EvalNode right = evalNodeList.get(1);
-            final CompletableFuture<Integer> compareResultRaw = compareNodes(left, right, context, stringNodeComparator);
-
-            return compareResultRaw.thenApply(compareResult ->
-                    processRelationComparatorHelper(node.getType(), compareResult)
-            );
-        });
+    private CompletableFuture<EvalNode> processRelation(ExpAstNode node, Context context) {
+        CompletableFuture<EvalNode> left = evaluateNode(node.getNode(0), context);
+        CompletableFuture<EvalNode> right = evaluateNode(node.getNode(1), context);
+        return comparator.processRelation(left, right, node.getType(), context);
     }
 
-    private CompletableFuture<Integer> compareNodes(
-            EvalNode left, EvalNode right, Context context,
-            Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final CompletableFuture<Integer> result;
-        if (isStringNode(left) && isNumberNode(right)) {
-            final StringEvalNode stringLeft = (StringEvalNode) left;
-            if (isNumeric(stringLeft)) {
-                result = processRelationNumberHelper(left, right);
-            } else {
-                result = processRelationToString(stringLeft, right, context, stringNodeComparator, false);
-            }
-        } else if (isNumberNode(left) && isStringNode(right)) {
-            final StringEvalNode stringRight = (StringEvalNode) right;
-            if (isNumeric(stringRight)) {
-                result = processRelationNumberHelper(left, right);
-            } else {
-                result = processRelationToString(stringRight, left, context, stringNodeComparator, true);
-            }
-        } else if (left.hasAdditionalType(HistoneType.T_DATE) && right.hasAdditionalType(HistoneType.T_DATE)) {
-            LocalDateTime leftValue = DateUtils.createDate(((DateEvalNode) left).getValue());
-            LocalDateTime rightValue = DateUtils.createDate(((DateEvalNode) right).getValue());
-            //leftValue and rightValue always has value, bcz functions which create DateEvalNode checks it
-            // or return EmptyEvalNode
-            result = CompletableFuture.completedFuture(leftValue.compareTo(rightValue));
-        } else if (!isNumberNode(left) || !isNumberNode(right)) {
-            if (isStringNode(left) && isStringNode(right)) {
-                result = processRelationStringHelper(left, right, stringNodeComparator);
-            } else {
-                result = processRelationBooleanHelper(left, right, context);
-            }
-        } else {
-            result = processRelationNumberHelper(left, right);
-        }
-        return result;
-    }
-
-    private CompletableFuture<Integer> processRelationToString(
-            StringEvalNode left, EvalNode right, Context context,
-            Comparator<StringEvalNode> stringNodeComparator, boolean isInvert
-    ) {
-        final CompletableFuture<EvalNode> rightFuture = RttiUtils.callToString(context, right);
-        final int inverter = isInvert ? -1 : 1;
-        return rightFuture.thenApply(stringRight ->
-                inverter * stringNodeComparator.compare(left, (StringEvalNode) stringRight)
-        );
-    }
-
-    private CompletableFuture<Integer> processRelationStringHelper(
-            EvalNode left, EvalNode right, Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final StringEvalNode stringRight = (StringEvalNode) right;
-        final StringEvalNode stringLeft = (StringEvalNode) left;
-        return completedFuture(
-                stringNodeComparator.compare(stringLeft, stringRight)
-        );
-    }
-
-    private CompletableFuture<Integer> processRelationNumberHelper(
-            EvalNode left, EvalNode right
-    ) {
-        final Number rightValue = getNumberValue(right);
-        final Number leftValue = getNumberValue(left);
-        return completedFuture(
-                NUMBER_COMPARATOR.compare(leftValue, rightValue)
-        );
-    }
-
-    private CompletableFuture<Integer> processRelationBooleanHelper(
-            EvalNode left, EvalNode right, Context context
-    ) {
-        final CompletableFuture<EvalNode> leftF = RttiUtils.callToBoolean(context, left);
-        final CompletableFuture<EvalNode> rightF = RttiUtils.callToBoolean(context, right);
-
-        return leftF.thenCompose(leftBooleanRaw -> rightF.thenApply(rightBooleanRaw ->
-                BOOLEAN_EVAL_NODE_COMPARATOR.compare(
-                        (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
-                )
-        ));
-    }
-
-    private EvalNode processRelationComparatorHelper(AstType astType, int compareResult) {
-        switch (astType) {
-            case AST_LT:
-                return new BooleanEvalNode(compareResult < 0);
-            case AST_GT:
-                return new BooleanEvalNode(compareResult > 0);
-            case AST_LE:
-                return new BooleanEvalNode(compareResult <= 0);
-            case AST_GE:
-                return new BooleanEvalNode(compareResult >= 0);
-            case AST_EQ:
-                return new BooleanEvalNode(compareResult == 0);
-            case AST_NEQ:
-                return new BooleanEvalNode(compareResult != 0);
-        }
-        throw new RuntimeException("Unknown type for this case");
-    }
-
-    // ==============================
-    // ======= End Relation =========
-    // ==============================
     private CompletableFuture<EvalNode> processBorNode(ExpAstNode node, Context context) {
         return processBitwiseNode(node, context, (a, b) -> a | b);
     }

@@ -22,7 +22,6 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MacroEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -65,9 +64,8 @@ public class ArrayMap extends AbstractFunction implements Serializable {
                 continue;
             }
 
-            MacroEvalNode macro = (MacroEvalNode) node;
-            final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(macro));
-            arguments.add(new BooleanEvalNode(false));
+            final List<EvalNode> arguments = new ArrayList<>(Collections.singletonList(node));
+            arguments.add(new BooleanEvalNode(false)); //do not unwrap arguments
             if (param != null) {
                 arguments.add(param);
             }

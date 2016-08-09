@@ -17,13 +17,14 @@
 package ru.histone.v2;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.StdErrLog;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.histone.v2.acceptance.HistoneTestCase;
 import ru.histone.v2.exceptions.HistoneException;
-import ru.histone.v2.support.HistoneTestCase;
+import ru.histone.v2.support.CoreTestConsumer;
 import ru.histone.v2.support.JerseyServerResource;
 
 import java.net.URI;
@@ -44,8 +45,20 @@ public class HttpConcreteTest extends HistoneTest {
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("GET");
         testCase.setContext(getMap());
-//        testCase.setExpectedAST("[31,[25,[2,\"ab+c\",0],\"re\"],[24,[22,[21,\"re\"],\"test\"],\"ac\"]]");
-//        TestRunner.doTest("{{loadJSON('http://127.0.0.1:4442/', [method: 'GET']).method}}", rtti, testCase, evaluator, parser);
+        testCase.setInput("{{loadJSON('http://127.0.0.1:4442/', [method: 'GET']).method}}");
+        try {
+            final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
+            server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
+            Log.setLog(new StdErrLog());
+
+            new CoreTestConsumer(parser, rtti, evaluator).accept(testCase);
+        } finally {
+            try {
+                server.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private Map<String, Object> getMap() {
@@ -58,16 +71,5 @@ public class HttpConcreteTest extends HistoneTest {
 
         res.put("this", values);
         return res;
-    }
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
-        server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        server.stop();
     }
 }

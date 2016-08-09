@@ -22,10 +22,8 @@ import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.extension.ExtendWith;
 import ru.histone.v2.support.CasePack;
 import ru.histone.v2.support.JerseyServerResource;
-import ru.histone.v2.support.StringParamResolver;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,7 +33,6 @@ import java.util.stream.Stream;
 /**
  * @author Alexey Nevinsky
  */
-@ExtendWith(StringParamResolver.class)
 @CasePack("http")
 public class HttpResourceLoaderTest extends HistoneTest {
 

@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.test;
+package ru.histone.v2;
 
-public class ExpectedException {
-    private int line;
-    private String expected;
-    private String found;
-    private String message;
+import ru.histone.v2.support.CasePack;
 
-    public int getLine() {
-        return line;
-    }
-
-    public String getExpected() {
-        return expected;
-    }
-
-    public String getFound() {
-        return found;
-    }
-
-    public String getMessage() {
-        return message;
-    }
+/**
+ * @author Alexey Nevinsky
+ */
+@CasePack("parser")
+public class ParserTest extends HistoneTest {
 }

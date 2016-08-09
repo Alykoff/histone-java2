@@ -20,6 +20,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.jupiter.api.DynamicTest;
+import ru.histone.v2.acceptance.ExpectedException;
+import ru.histone.v2.acceptance.HistoneTestCase;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,6 +35,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * todo: move to test module
+ *
  * @author Alexey Nevinsky
  */
 public class TestRunner {

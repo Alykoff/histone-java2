@@ -63,11 +63,11 @@ public class FileLoader implements Loader {
                 stream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
                 LOG.error(e.getMessage(), e);
-                stream = EmptyInputStream.INSTANCE;
+                throw new RuntimeException(e);
             }
         } else {
             LOG.error(String.format("Can't read file '%s'", location.toString()));
-            stream = EmptyInputStream.INSTANCE;
+            throw new RuntimeException(new FileNotFoundException(String.format("Can't read file '%s'", location.toString())));
         }
         return stream;
     }

@@ -438,7 +438,7 @@
       },
       {
         "input": "{{false || throwExceptionFunction}}",
-        "expectedResult": "false"
+        "expectedResult": ""
       }
     ]
   },

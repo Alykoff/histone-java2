@@ -17,8 +17,9 @@
 package ru.histone.v2;
 
 import org.junit.jupiter.api.Test;
+import ru.histone.v2.acceptance.HistoneTestCase;
 import ru.histone.v2.exceptions.HistoneException;
-import ru.histone.v2.support.HistoneTestCase;
+import ru.histone.v2.support.CoreTestConsumer;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -34,12 +35,10 @@ public class ConcreteTest extends HistoneTest {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("-3");
-//        testCase.setContext(getMap());
-//        testCase.setContext(getMap());
-//        testCase.setExpectedAST("[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]");
-//        TestRunner.doTest("{{var f = (n) => n <= 1 ? n : self.callee(n - 1) + self.callee(n - 2)}}{{f(100)}}", rtti, testCase, evaluator, parser);
-//        TestRunner.doTest("{{(-3.14)->getMethod('toCeil')->call()}}", rtti, testCase, evaluator, parser);
-//        TestRunner.doTest("{{var a = 6}}{{a}}", rtti, testCase, evaluator, parser);
+        //        testCase.setContext(getMap());
+        //        testCase.setExpectedAST("[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]");
+        testCase.setInput("{{(-3.14)->getMethod('toCeil')->call()}}");
+        new CoreTestConsumer(parser, rtti, evaluator).accept(testCase);
     }
 
     private Map<String, Object> getMap() {

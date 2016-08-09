@@ -22,8 +22,8 @@ import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import ru.histone.v2.support.CasePack;
-import ru.histone.v2.support.JerseyServerResource;
+import ru.histone.v2.acceptance.CasePack;
+import ru.histone.v2.acceptance.JerseyServerResource;
 
 import java.io.IOException;
 import java.net.URI;

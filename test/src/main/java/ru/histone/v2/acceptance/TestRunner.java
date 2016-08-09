@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.support;
+package ru.histone.v2.acceptance;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
-import ru.histone.v2.acceptance.ExpectedException;
-import ru.histone.v2.acceptance.HistoneTestCase;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,8 +33,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * todo: move to test module
- *
  * @author Alexey Nevinsky
  */
 public class TestRunner {
@@ -108,9 +104,9 @@ public class TestRunner {
 
     public void checkException(Exception e, ExpectedException expectedException) {
         if (expectedException.getMessage() != null) {
-            Assert.assertEquals(expectedException.getMessage(), e.getMessage());
+            Assertions.assertEquals(expectedException.getMessage(), e.getMessage());
         } else {
-            Assert.assertEquals("unexpected '" + expectedException.getFound() + "', expected '" + expectedException.getExpected() + "'", e.getMessage());
+            Assertions.assertEquals("unexpected '" + expectedException.getFound() + "', expected '" + expectedException.getExpected() + "'", e.getMessage());
         }
     }
 
@@ -119,6 +115,6 @@ public class TestRunner {
     }
 
     public void assertEquals(String expected, String actual) {
-        Assert.assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
+        Assertions.assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 }

@@ -16,7 +16,7 @@
 
 package ru.histone.v2;
 
-import ru.histone.v2.support.CasePack;
+import ru.histone.v2.acceptance.CasePack;
 
 /**
  * @author Alexey Nevinsky

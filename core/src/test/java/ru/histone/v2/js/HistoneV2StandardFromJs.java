@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.histone.v2;
+package ru.histone.v2.js;
 
 import com.google.common.base.Charsets;
 import ru.histone.v2.evaluator.Context;

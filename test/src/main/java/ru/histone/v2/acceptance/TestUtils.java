@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package ru.histone.v2;
+package ru.histone.v2.acceptance;
 
-import org.junit.Assert;
-import ru.histone.v2.acceptance.ExpectedException;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author Alexey Nevinsky
@@ -29,14 +28,14 @@ public class TestUtils {
     }
 
     public static void assertEquals(String expected, String actual) {
-        Assert.assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
+        Assertions.assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 
     public static void checkException(Exception e, ExpectedException expectedException) {
         if (expectedException.getMessage() != null) {
-            Assert.assertEquals(expectedException.getMessage(), e.getMessage());
+            Assertions.assertEquals(expectedException.getMessage(), e.getMessage());
         } else {
-            Assert.assertEquals("unexpected '" + expectedException.getFound() + "', expected '" + expectedException.getExpected() + "'", e.getMessage());
+            Assertions.assertEquals("unexpected '" + expectedException.getFound() + "', expected '" + expectedException.getExpected() + "'", e.getMessage());
         }
     }
 }

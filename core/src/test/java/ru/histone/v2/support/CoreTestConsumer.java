@@ -16,10 +16,10 @@
 
 package ru.histone.v2.support;
 
-import org.junit.Assert;
-import ru.histone.v2.TestUtils;
+import org.junit.jupiter.api.Assertions;
 import ru.histone.v2.acceptance.ExpectedException;
 import ru.histone.v2.acceptance.HistoneTestCase;
+import ru.histone.v2.acceptance.TestUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
@@ -36,7 +36,7 @@ import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import static ru.histone.v2.support.TestRunner.US_LOCALE;
+import static ru.histone.v2.acceptance.TestRunner.US_LOCALE;
 
 /**
  * @author Alexey Nevinsky
@@ -70,7 +70,7 @@ public class CoreTestConsumer implements Consumer<HistoneTestCase.Case> {
             ExpAstNode root = parser.process(testCase.getInput(), "");
             String stringAst = AstJsonProcessor.write(root);
             if (testCase.getExpectedAST() != null) {
-                Assert.assertEquals(testCase.getExpectedAST(), stringAst);
+                Assertions.assertEquals(testCase.getExpectedAST(), stringAst);
             }
 
             root = AstJsonProcessor.read(stringAst);
@@ -95,13 +95,13 @@ public class CoreTestConsumer implements Consumer<HistoneTestCase.Case> {
             }
 
             if (testCase.getExpectedException() != null) {
-                Assert.fail("Test doesn't thrown expected exception!");
+                Assertions.fail("Test doesn't thrown expected exception!");
             }
         } catch (Exception ex) {
             if (testCase.getExpectedException() != null) {
                 ExpectedException e = testCase.getExpectedException();
                 if (ex instanceof ParserException) {
-                    Assert.assertEquals(e.getLine(), ((ParserException) ex).getLine());
+                    Assertions.assertEquals(e.getLine(), ((ParserException) ex).getLine());
                 }
                 TestUtils.checkException(ex, e);
             } else {

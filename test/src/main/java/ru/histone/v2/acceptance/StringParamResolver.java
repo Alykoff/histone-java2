@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.support;
+package ru.histone.v2.acceptance;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;

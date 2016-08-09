@@ -18,7 +18,7 @@ package ru.histone.v2;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import ru.histone.v2.support.CasePack;
+import ru.histone.v2.acceptance.CasePack;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

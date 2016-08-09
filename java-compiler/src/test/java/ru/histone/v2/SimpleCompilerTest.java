@@ -57,7 +57,7 @@ public class SimpleCompilerTest {
         parser = new Parser();
         evaluator = new Evaluator();
 
-        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
+        SchemaResourceLoader loader = new SchemaResourceLoader();
         loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
         loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
         loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());

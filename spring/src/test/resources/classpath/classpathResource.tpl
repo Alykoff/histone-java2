@@ -1,0 +1,1 @@
+<div>Some ClassPathResource </div>

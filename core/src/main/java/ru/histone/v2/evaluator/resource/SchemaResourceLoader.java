@@ -26,7 +26,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 /**
  * @author Alexey Nevinsky
@@ -35,10 +34,11 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
     public static final String HTTP_SCHEME = "http";
     public static final String FILE_SCHEME = "file";
     public static final String DATA_SCHEME = "data";
-    private static final Logger log = LoggerFactory.getLogger(SchemaResourceLoader.class);
-    private final Map<String, Loader> loaders;
 
-    public SchemaResourceLoader(Executor executor) {
+    private static final Logger log = LoggerFactory.getLogger(SchemaResourceLoader.class);
+    protected final Map<String, Loader> loaders;
+
+    public SchemaResourceLoader() {
         loaders = new HashMap<>();
     }
 
@@ -72,10 +72,13 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
             URI loadUri;
             try {
-                if (!DATA_SCHEME.equals(uri.getScheme())) {
-                    loadUri = makeFullLocation(href, baseHref);
-                } else {
-                    loadUri = makeFullLocation(href, "");
+                switch (uri.getScheme()) {
+                    case DATA_SCHEME:
+                        loadUri = makeFullLocation(href, "");
+                        break;
+                    default:
+                        loadUri = makeFullLocation(href, baseHref);
+                        break;
                 }
             } catch (IllegalAccessException e) {
                 throw new ResourceLoadException(e.getMessage(), e);

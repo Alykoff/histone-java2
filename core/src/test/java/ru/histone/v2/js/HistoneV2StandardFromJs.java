@@ -59,7 +59,7 @@ public class HistoneV2StandardFromJs {
             ExecutorService executor = Executors.newFixedThreadPool(20);
             final Evaluator evaluator = new Evaluator();
             final Parser parser = new Parser();
-            RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(executor), evaluator, parser);
+            RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(), evaluator, parser);
 
             final Context context = Context.createRoot("", rtti, new DefaultPropertyHolder());
             final ExpAstNode root = parser.process(tpl, baseURI);

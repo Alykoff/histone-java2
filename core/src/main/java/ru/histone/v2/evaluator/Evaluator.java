@@ -23,10 +23,6 @@ import org.slf4j.LoggerFactory;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
-import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
-import ru.histone.v2.evaluator.global.NumberComparator;
-import ru.histone.v2.evaluator.global.StringEvalNodeLenComparator;
-import ru.histone.v2.evaluator.global.StringEvalNodeStrongComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.StopExecutionException;
@@ -59,12 +55,6 @@ import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
  */
 public class Evaluator implements Serializable {
 
-    public static final String SELF_WHILE_PARAM_ITERATION = "iteration";
-    public static final String SELF_WHILE_PARAM_CONDITION = "condition";
-    private static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
-    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_LEN_COMPARATOR = new StringEvalNodeLenComparator();
-    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
-    private static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final NodesComparator comparator;
@@ -388,8 +378,8 @@ public class Evaluator implements Serializable {
     private Context createWhileContext(Context context, EvalNode condition, long counter) {
         Context iterableContext = context.createNew();
         final Map<String, EvalNode> selfVars = new LinkedHashMap<>();
-        selfVars.put(SELF_WHILE_PARAM_ITERATION, EvalUtils.createEvalNode(counter));
-        selfVars.put(SELF_WHILE_PARAM_CONDITION, condition);
+        selfVars.put(Constants.SELF_WHILE_ITERATION, EvalUtils.createEvalNode(counter));
+        selfVars.put(Constants.SELF_WHILE_CONDITION, condition);
         iterableContext.put(Constants.SELF_CONTEXT_NAME, EvalUtils.getValue(selfVars));
         return iterableContext;
     }

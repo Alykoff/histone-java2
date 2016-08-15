@@ -30,6 +30,8 @@ public final class Constants {
     public static final String SELF_CONTEXT_ARGUMENTS = "arguments";
     public static final String SELF_CONTEXT_CALLER = "caller";
     public static final String THIS_CONTEXT_VALUE = "this";
+    public static final String SELF_WHILE_ITERATION = "iteration";
+    public static final String SELF_WHILE_CONDITION = "condition";
 
     private Constants() {
     }

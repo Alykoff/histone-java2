@@ -117,19 +117,6 @@
     ]
   },
   {
-    "name": "String.slice",
-    "cases": [
-      {
-        "input": "{{'12345667'->slice('1',22)}}",
-        "expectedResult": "2345667"
-      },
-      {
-        "input": "{{'12345667'->slice('1')}}",
-        "expectedResult": "2345667"
-      }
-    ]
-  },
-  {
     "name": "String.[]",
     "cases": [
       {

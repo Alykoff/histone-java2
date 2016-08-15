@@ -297,12 +297,7 @@
       {
         "input": "{{macro re(prev, curr)}}{{curr}}{{/macro}}{{[1,2,3]->sort(re)->toJSON}}",
         "expectedResult": "[3,2,1]"
-      }
-    ]
-  },
-  {
-    "name": "array methods -> sort",
-    "cases": [
+      },
       {
         "input": "{{macro re(v1,v2,k1,k2)}}{{return v1 < v2}}{{/macro}}{{[4,3,2,1,22,0,-1,1]->sort(re)->toJSON}}",
         "expectedResult": "[22,4,3,2,1,1,0,-1]"

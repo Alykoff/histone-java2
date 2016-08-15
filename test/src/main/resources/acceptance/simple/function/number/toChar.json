@@ -1,6 +1,6 @@
 [
   {
-    "name": "number -> toChar",
+    "name": "Number.toChar",
     "cases": [
       {
         "input": "<div>{{65->toChar}} = A</div>",

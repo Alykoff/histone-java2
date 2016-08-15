@@ -1,6 +1,6 @@
 [
   {
-    "name": "global -> loadJSON",
+    "name": "data URI - base64 encoding: loadJSON",
     "cases": [
       {
         "input": "a {{loadJSON('data:;base64,WzEsIDIsIDNd')}} b",

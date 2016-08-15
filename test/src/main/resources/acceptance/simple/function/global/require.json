@@ -51,6 +51,14 @@
         "expectedResult": "START:footrue:END"
       },
       {
+        "input": "a {{require('../../tpl/function/DOESNT_EXISTS.tpl') -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{var x = require('../../tpl/function/test_for_require.tpl')}} b {{x.x}} c {{x.Z.a}} d {{x.Z.b}} e",
+        "expectedResult": "a  b  c  d  e"
+      },
+      {
         "input": "{{var f = 100}}{{var mac = require('../../tpl/function/customFunction.tpl')}}{{mac.x}}{{mac.thisParam}}",
         "expectedResult": ""
       },
@@ -126,6 +134,13 @@
       {
         "input": "--{{var ui = require('../../tpl/function/summFormat.ast.tpl')}}{{ui.summFormat(10)}}XX",
         "expectedResult": "--10 <i class=\"rub\">&#8381;</i>XX"
+      },
+      {
+        "input": "--{{var ui = require('../../tpl/stopExecutionException.tpl')}}{{ui}}XX",
+        "expectedException": {
+          "line": "1",
+          "message": "ru.histone.v2.exceptions.StopExecutionException: Exception thrown"
+        }
       }
     ]
   }

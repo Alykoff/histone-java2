@@ -1,6 +1,6 @@
 [
   {
-    "name": "number -> toCeil",
+    "name": "Number.toCeil",
     "cases": [
       {
         "input": "<div>{{4.3->toCeil}} = 5</div>",

@@ -1,6 +1,6 @@
 [
   {
-    "name": "global -> eval",
+    "name": "eval tests",
     "cases": [
       {
         "input": "{{eval('{{this->toJSON}}', 123)}}",

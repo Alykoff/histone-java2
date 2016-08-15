@@ -1,6 +1,6 @@
 [
   {
-    "name": "number -> toRound",
+    "name": "Number.toRound",
     "cases": [
       {
         "input": "<div>{{3.4->toRound}} = 3</div>",

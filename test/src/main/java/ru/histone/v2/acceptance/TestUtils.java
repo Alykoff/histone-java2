@@ -18,10 +18,14 @@ package ru.histone.v2.acceptance;
 
 import org.junit.jupiter.api.Assertions;
 
+import java.util.Locale;
+
 /**
  * @author Alexey Nevinsky
  */
 public class TestUtils {
+
+    public static final Locale US_LOCALE = Locale.US;
 
     private static String normalizeLineEndings(String value) {
         return value.replaceAll("\\r\\n", "\n");

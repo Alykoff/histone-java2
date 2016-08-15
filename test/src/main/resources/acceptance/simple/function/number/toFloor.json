@@ -1,6 +1,6 @@
 [
   {
-    "name": "nunmber -> toFloor",
+    "name": "Number.toFloor",
     "cases": [
       {
         "input": "<div>{{4.3->toFloor}} = 4</div>",

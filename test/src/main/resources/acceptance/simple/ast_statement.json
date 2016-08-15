@@ -1,6 +1,6 @@
 [
   {
-    "name": "statement",
+    "name": "ast statement - {{# #}}",
     "cases": [
       {
         "input": "START {{var a = {{#{{5+7}}#}}}}{{a}} END",

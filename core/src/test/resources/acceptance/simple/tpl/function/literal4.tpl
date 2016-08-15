@@ -1,7 +1,0 @@
-{{
-    'START' +
-    {{
-        HELLO WORLD
-    }} +
-    'END'
-}}

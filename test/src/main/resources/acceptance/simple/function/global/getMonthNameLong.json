@@ -57,6 +57,13 @@
       {
         "input": "{{getMonthNameLong(1, '-1')}}",
         "expectedResult": "January"
+      },
+      {
+        "input": "{{getMonthNameLong(1, -1ad)}}",
+        "expectedException": {
+          "line": "1",
+          "message": "unexpected 'ad', expected ')'"
+        }
       }
     ]
   }

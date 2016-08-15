@@ -18,7 +18,6 @@ package ru.histone.v2.acceptance;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
 
 import java.io.IOException;
@@ -27,7 +26,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,11 +38,10 @@ import java.util.stream.Stream;
  * @author Alexey Nevinsky
  */
 public class TestRunner {
-    public static final Locale US_LOCALE = Locale.US;
 
     private List<HistoneTestCase> loadTestCases(String testPath) throws URISyntaxException, IOException {
         DirectoryStream<Path> stream = Files.newDirectoryStream(
-                Paths.get(TestRunner.class.getResource("/acceptance/" + testPath).toURI())
+                Paths.get(TestRunner.class.getClassLoader().getResource("ru/histone/v2/acceptance/" + testPath).toURI())
         );
 
         ObjectMapper mapper = new ObjectMapper();
@@ -77,6 +78,7 @@ public class TestRunner {
         return cases;
     }
 
+    //todo replace to Files.walk()
     private static List<Path> getFiles(Path path) throws IOException {
         List<Path> files = new ArrayList<>();
         if (Files.isDirectory(path)) {
@@ -89,9 +91,9 @@ public class TestRunner {
         return files;
     }
 
-    public Stream<DynamicTest> loadCases(String param, Consumer<HistoneTestCase.Case> testConsumer) throws IOException, URISyntaxException {
+    public Stream<DynamicTest> loadCases(String testPath, Consumer<HistoneTestCase.Case> testConsumer) throws IOException, URISyntaxException {
         final List<DynamicTest> result = new ArrayList<>();
-        final List<HistoneTestCase> histoneTestCases = loadTestCases(param);
+        final List<HistoneTestCase> histoneTestCases = loadTestCases(testPath);
         for (HistoneTestCase histoneTestCase : histoneTestCases) {
             for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
                 DynamicTest test =
@@ -100,21 +102,5 @@ public class TestRunner {
             }
         }
         return result.stream();
-    }
-
-    public void checkException(Exception e, ExpectedException expectedException) {
-        if (expectedException.getMessage() != null) {
-            Assertions.assertEquals(expectedException.getMessage(), e.getMessage());
-        } else {
-            Assertions.assertEquals("unexpected '" + expectedException.getFound() + "', expected '" + expectedException.getExpected() + "'", e.getMessage());
-        }
-    }
-
-    private String normalizeLineEndings(String value) {
-        return value.replaceAll("\\r\\n", "\n");
-    }
-
-    public void assertEquals(String expected, String actual) {
-        Assertions.assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 }

@@ -1,6 +1,6 @@
 [
   {
-    "name": "global",
+    "name": "Global.functions",
     "cases": [
       {
         "input": "{{global -> range}}",

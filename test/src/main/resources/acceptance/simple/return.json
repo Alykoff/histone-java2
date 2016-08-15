@@ -1,6 +1,6 @@
 [
   {
-    "name": "return",
+    "name": "Expression.return",
     "cases": [
       {
         "input": "{{return 5}}",
@@ -25,6 +25,22 @@
       {
         "input": "a {{var x = 10}}{{for r in range(1, 10)}}{{if r = 5}}{{return 100500}}{{/if}}{{/for}} b",
         "expectedResult": "100500"
+      },
+      {
+        "input": "{{return 5 ",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{return}} 5",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/return}}",
+          "found": "EOF"
+        }
       },
       {
         "input": "{{@getRand}}",

@@ -1,6 +1,6 @@
 [
   {
-    "name": "type -> hasMethod",
+    "name": "any -> hasMethod",
     "cases": [
       {
         "input": "{{hasMethod('asyncLoadJSON')}}",

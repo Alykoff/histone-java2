@@ -1,6 +1,6 @@
 [
   {
-    "name": "string -> replace",
+    "name": "String -> replace",
     "cases": [
       {
         "input": "--{{\"foobar\"->replace}}",

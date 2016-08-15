@@ -71,6 +71,18 @@
         "expectedResult": "a 2 b"
       },
       {
+        "input": "a {{getDayOfWeek('a',3,1)}} b",
+        "expectedResult": "a  b"
+      },
+      {
+        "input": "a {{getDayOfWeek(2011,'a',1) -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a {{getDayOfWeek(2011,3,'a') -> isUndefined()}} b",
+        "expectedResult": "a true b"
+      },
+      {
         "input": "{{global->getDayOfWeek(2016, 12, 10)}}",
         "expectedResult": "6"
       },

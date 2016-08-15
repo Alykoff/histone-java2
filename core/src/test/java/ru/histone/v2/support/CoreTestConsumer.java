@@ -19,7 +19,6 @@ package ru.histone.v2.support;
 import org.junit.jupiter.api.Assertions;
 import ru.histone.v2.acceptance.ExpectedException;
 import ru.histone.v2.acceptance.HistoneTestCase;
-import ru.histone.v2.acceptance.TestUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
@@ -36,7 +35,7 @@ import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import static ru.histone.v2.acceptance.TestRunner.US_LOCALE;
+import static ru.histone.v2.acceptance.TestUtils.*;
 
 /**
  * @author Alexey Nevinsky
@@ -63,7 +62,7 @@ public class CoreTestConsumer implements Consumer<HistoneTestCase.Case> {
                 optimizer.process(root);
 
                 String optimizedTree = AstJsonProcessor.write(root);
-                TestUtils.assertEquals(testCase.getExpectedAST(), optimizedTree);
+                assertEquals(testCase.getExpectedAST(), optimizedTree);
                 return;
             }
 
@@ -87,7 +86,7 @@ public class CoreTestConsumer implements Consumer<HistoneTestCase.Case> {
                 }
 
                 String result = evaluator.process(root, context);
-                TestUtils.assertEquals(testCase.getExpectedResult(), result);
+                assertEquals(testCase.getExpectedResult(), result);
             } else if (testCase.getExpectedException() != null) {
                 Context context = Context.createRoot(testCase.getBaseURI(), US_LOCALE, rtti,
                         new DefaultPropertyHolder());
@@ -103,7 +102,7 @@ public class CoreTestConsumer implements Consumer<HistoneTestCase.Case> {
                 if (ex instanceof ParserException) {
                     Assertions.assertEquals(e.getLine(), ((ParserException) ex).getLine());
                 }
-                TestUtils.checkException(ex, e);
+                checkException(ex, e);
             } else {
                 throw new RuntimeException(ex);
             }

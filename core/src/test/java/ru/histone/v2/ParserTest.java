@@ -16,11 +16,22 @@
 
 package ru.histone.v2;
 
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import ru.histone.v2.acceptance.CasePack;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.stream.Stream;
 
 /**
  * @author Alexey Nevinsky
  */
 @CasePack("parser")
 public class ParserTest extends HistoneTest {
+    @Override
+    @TestFactory
+    public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
+        return super.loadCases(param);
+    }
 }

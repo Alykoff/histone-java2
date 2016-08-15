@@ -57,9 +57,9 @@ public class HistoneTest {
         evaluator = new Evaluator();
 
         SchemaResourceLoader loader = new SchemaResourceLoader();
-        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
-        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
-        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        loader.addLoader(new DataLoader());
+        loader.addLoader(new HttpLoader(executor));
+        loader.addLoader(new FileLoader());
 
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
         rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class ServletContextLoader implements Loader {
 
+    public static final String SERVLET_CONTEXT_SCHEME = "servletContext";
     private static final Pattern SPLIT_SLASH_PATTERN = Pattern.compile("^/*(.*)");
     private ServletContext servletContext;
 
@@ -42,6 +43,11 @@ public class ServletContextLoader implements Loader {
             }
         }
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public String getScheme() {
+        return SERVLET_CONTEXT_SCHEME;
     }
 
     protected InputStream getResourceStream(String location) {

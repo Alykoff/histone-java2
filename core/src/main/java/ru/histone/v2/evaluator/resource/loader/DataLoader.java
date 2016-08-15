@@ -31,6 +31,9 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class DataLoader implements Loader {
+
+    public static final String DATA_SCHEME = "data";
+
     @Override
     public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
         if (!url.toString().matches("data:(.*);(.*),(.*)")) {
@@ -56,5 +59,10 @@ public class DataLoader implements Loader {
         }
 
         return CompletableFuture.completedFuture(resource);
+    }
+
+    @Override
+    public String getScheme() {
+        return DATA_SCHEME;
     }
 }

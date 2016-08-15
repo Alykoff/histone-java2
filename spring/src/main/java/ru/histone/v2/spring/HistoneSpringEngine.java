@@ -23,7 +23,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class HistoneSpringEngine extends Histone implements ServletContextAware {
 
-    private ServletContext servletContext;
+    protected ServletContext servletContext;
 
     public HistoneSpringEngine() {
         this(new ForkJoinPool());
@@ -52,9 +52,9 @@ public class HistoneSpringEngine extends Histone implements ServletContextAware 
     protected void postConstruct() {
         Assert.notNull(servletContext, "HistoneSpringEngine must run within application context");
         //Init default loaders
-        resourceLoader.addLoader("default", new ServletContextLoader(servletContext));
-        resourceLoader.addLoader("file", new FileLoader());
-        resourceLoader.addLoader("classpath", new ClassPathLoader());
+        resourceLoader.addLoader(new ServletContextLoader(servletContext));
+        resourceLoader.addLoader(new FileLoader());
+        resourceLoader.addLoader(new ClassPathLoader());
     }
 
     @Override

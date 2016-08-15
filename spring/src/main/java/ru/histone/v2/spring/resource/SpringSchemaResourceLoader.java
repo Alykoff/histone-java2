@@ -1,5 +1,7 @@
 package ru.histone.v2.spring.resource;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.resource.Resource;
@@ -13,12 +15,13 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static ru.histone.v2.evaluator.resource.loader.DataLoader.DATA_SCHEME;
+import static ru.histone.v2.spring.resource.loader.ServletContextLoader.SERVLET_CONTEXT_SCHEME;
+
 /**
  * @author Aleksander Melnichnikov
  */
 public class SpringSchemaResourceLoader extends SchemaResourceLoader {
-
-    public static final String DEFAULT_LOADER = "default";
 
     private static final Logger log = LoggerFactory.getLogger(SpringSchemaResourceLoader.class);
 
@@ -31,17 +34,20 @@ public class SpringSchemaResourceLoader extends SchemaResourceLoader {
         log.debug("Trying to load resource from location={}, with baseLocation={}", new Object[]{href, baseHref});
 
         return AsyncUtils.initFuture().thenCompose(ignore -> {
-            String fullLocation = PathUtils.resolveUrl(href, baseHref);
-            ru.histone.v2.utils.URI uri = PathUtils.parseURI(fullLocation);
+            if (href != null) {
+                if (CollectionUtils.isEmpty(loaders.entrySet())) {
+                    throw new ResourceLoadException("No loaders find, register loader");
+                }
+                String fullLocation = PathUtils.resolveUrl(href, baseHref != null ? baseHref : StringUtils.EMPTY);
+                ru.histone.v2.utils.URI uri = PathUtils.parseURI(fullLocation);
 
-            if (baseHref == null && uri.getScheme() == null) {
-                throw new ResourceLoadException("Base HREF is empty and resource location is not absolute!");
-            }
-            URI loadUri;
-            Loader loader;
-            if (uri.getScheme() != null) {
                 try {
-                    switch (uri.getScheme()) {
+                    URI loadUri;
+                    String scheme = uri.getScheme() == null ? SERVLET_CONTEXT_SCHEME : uri.getScheme();
+                    switch (scheme) {
+                        case SERVLET_CONTEXT_SCHEME:
+                            loadUri = baseHref != null ? URI.create(baseHref).resolve(href) : URI.create(href);
+                            break;
                         case DATA_SCHEME:
                             loadUri = makeFullLocation(href, "");
                             break;
@@ -49,19 +55,16 @@ public class SpringSchemaResourceLoader extends SchemaResourceLoader {
                             loadUri = makeFullLocation(href, baseHref);
                             break;
                     }
-                    loader = loaders.get(uri.getScheme());
+                    Loader loader = loaders.get(scheme);
+                    if (loader != null) {
+                        return loader.loadResource(loadUri, args);
+                    }
                 } catch (IllegalAccessException e) {
                     throw new ResourceLoadException(e.getMessage(), e);
                 }
-            } else {
-                loadUri = URI.create(baseHref).resolve(href);
-                loader = loaders.get(DEFAULT_LOADER);
+                throw new ResourceLoadException(String.format("Unsupported scheme for resource loading: '%s'", uri.getScheme()));
             }
-            if (loader != null) {
-                return loader.loadResource(loadUri, args);
-            }
-
-            throw new ResourceLoadException(String.format("Unsupported scheme for resource loading: '%s'", uri.getScheme()));
+            throw new ResourceLoadException("HREF is null. Unsupported value");
         });
     }
 

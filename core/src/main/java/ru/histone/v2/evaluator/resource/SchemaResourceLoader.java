@@ -27,13 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static ru.histone.v2.evaluator.resource.loader.DataLoader.DATA_SCHEME;
+
 /**
  * @author Alexey Nevinsky
  */
 public class SchemaResourceLoader implements HistoneResourceLoader {
-    public static final String HTTP_SCHEME = "http";
-    public static final String FILE_SCHEME = "file";
-    public static final String DATA_SCHEME = "data";
 
     private static final Logger log = LoggerFactory.getLogger(SchemaResourceLoader.class);
     protected final Map<String, Loader> loaders;
@@ -44,6 +43,10 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
     public void addLoader(String scheme, Loader loader) {
         loaders.put(scheme, loader);
+    }
+
+    public void addLoader(Loader loader) {
+        loaders.put(loader.getScheme(), loader);
     }
 
     @Override

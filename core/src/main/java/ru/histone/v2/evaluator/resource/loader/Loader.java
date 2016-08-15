@@ -26,4 +26,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface Loader {
     CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params);
+
+    String getScheme();
 }

@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
  */
 public class ClassPathLoader implements Loader {
 
+    public static final String CLASSPATH_SCHEME = "classpath";
     protected static final Pattern SPLIT_SLASH_PATTERN = Pattern.compile("^/*(.*)");
 
     @Override
@@ -41,6 +42,11 @@ public class ClassPathLoader implements Loader {
             }
         }
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public String getScheme() {
+        return CLASSPATH_SCHEME;
     }
 
     protected InputStream getResourceStream(String location) {

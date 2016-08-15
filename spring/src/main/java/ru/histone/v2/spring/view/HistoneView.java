@@ -1,7 +1,5 @@
 package ru.histone.v2.spring.view;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +21,6 @@ import java.util.stream.Collectors;
 /**
  * @author Aleksander Melnichnikov
  */
-@Getter
-@Setter
 public class HistoneView extends AbstractUrlBasedView {
 
     private static final Logger log = LoggerFactory.getLogger(HistoneView.class);
@@ -76,5 +72,45 @@ public class HistoneView extends AbstractUrlBasedView {
             templateData = histoneTemplatePostProcessor.postProcess(templateData, request, response);
         }
         return templateData;
+    }
+
+    public String getTemplateLocation() {
+        return templateLocation;
+    }
+
+    public void setTemplateLocation(String templateLocation) {
+        this.templateLocation = templateLocation;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public HistoneEngine getHistone() {
+        return histone;
+    }
+
+    public void setHistone(HistoneEngine histone) {
+        this.histone = histone;
+    }
+
+    public List<HistoneTemplatePostProcessor> getHistoneTemplatePostProcessors() {
+        return histoneTemplatePostProcessors;
+    }
+
+    public void setHistoneTemplatePostProcessors(List<HistoneTemplatePostProcessor> histoneTemplatePostProcessors) {
+        this.histoneTemplatePostProcessors = histoneTemplatePostProcessors;
+    }
+
+    public HistoneProcessingExceptionProcessor getHistoneProcessingExceptionProcessor() {
+        return histoneProcessingExceptionProcessor;
+    }
+
+    public void setHistoneProcessingExceptionProcessor(HistoneProcessingExceptionProcessor histoneProcessingExceptionProcessor) {
+        this.histoneProcessingExceptionProcessor = histoneProcessingExceptionProcessor;
     }
 }

@@ -1,7 +1,5 @@
 package ru.histone.v2.spring.view;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
@@ -19,14 +17,12 @@ import java.util.Locale;
 /**
  * @author Aleksander Melnichnikov
  */
-@Setter
-@Getter
+
 public class HistoneViewResolver extends UrlBasedViewResolver {
 
     private static final String DEFAULT_ENCODING = "UTF-8";
     protected String templateLocation = "";
     protected String encoding;
-    protected boolean cachingEnabled;
     protected Histone histone;
     protected HistoneProcessingExceptionProcessor processorChain = initExceptionProcessingChain();
     protected List<HistoneTemplatePostProcessor> postProcessors = Collections.emptyList();
@@ -70,5 +66,43 @@ public class HistoneViewResolver extends UrlBasedViewResolver {
         return this;
     }
 
+    public String getTemplateLocation() {
+        return templateLocation;
+    }
 
+    public void setTemplateLocation(String templateLocation) {
+        this.templateLocation = templateLocation;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public Histone getHistone() {
+        return histone;
+    }
+
+    public void setHistone(Histone histone) {
+        this.histone = histone;
+    }
+
+    public List<HistoneTemplatePostProcessor> getPostProcessors() {
+        return postProcessors;
+    }
+
+    public void setPostProcessors(List<HistoneTemplatePostProcessor> postProcessors) {
+        this.postProcessors = postProcessors;
+    }
+
+    public HistoneProcessingExceptionProcessor getProcessorChain() {
+        return processorChain;
+    }
+
+    public void setProcessorChain(HistoneProcessingExceptionProcessor processorChain) {
+        this.processorChain = processorChain;
+    }
 }

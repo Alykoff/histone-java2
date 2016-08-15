@@ -1,6 +1,5 @@
 package ru.histone.v2.spring.resource.loader;
 
-import lombok.AllArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
@@ -20,12 +19,15 @@ import java.util.regex.Pattern;
 /**
  * @author Aleksander Melnichnikov
  */
-@AllArgsConstructor
 public class ServletContextLoader implements Loader {
 
     public static final String SERVLET_CONTEXT_SCHEME = "servletContext";
     private static final Pattern SPLIT_SLASH_PATTERN = Pattern.compile("^/*(.*)");
     private ServletContext servletContext;
+
+    public ServletContextLoader(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
 
     @Override
     public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {

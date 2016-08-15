@@ -46,7 +46,7 @@ public class PathUtils {
         StringBuilder result = new StringBuilder();
 
         URI relUri = parseURI(relativeUrl);
-        URI baseUri = parseURI(baseUrl != null ? baseUrl : "");
+        URI baseUri = parseURI(baseUrl);
 
         if (StringUtils.isNotEmpty(relUri.getScheme())) {
             result.append(relUri.getScheme()).append(COLON);

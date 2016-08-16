@@ -129,6 +129,10 @@
       {
         "input": "{{var x = 1}}{{if x > 7}}{{true}} {{elseif x > 5}}{{x > 5}} {{else}}{{\"ha\"}}{{/if}}",
         "expectedResult": "ha"
+      },
+      {
+        "inputFile": "completeIfReturn.tpl",
+        "expectedResult": "ifelse"
       }
     ]
   }

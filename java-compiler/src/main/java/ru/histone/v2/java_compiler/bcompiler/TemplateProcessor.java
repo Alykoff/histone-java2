@@ -300,7 +300,6 @@ public class TemplateProcessor {
                 }
                 addCode(params, ";\n");
             }
-//            .thenApply(v -> v.getType() == HistoneType.T_UNDEFINED ? EvalUtils.createEvalNode("") : v);
         }
         processNode(params.withNode(1));
         if (!node.getNode(1).hasValue() && !checkReturnNode(((ExpAstNode) node.getNode(1)).getNodes())) {
@@ -308,7 +307,6 @@ public class TemplateProcessor {
         }
 
         addCode(params, "}, " + argsSize + ")");
-
     }
 
     private void processGlobalNode(Params params) {
@@ -476,11 +474,6 @@ public class TemplateProcessor {
             addCode(params, "std.array()");
             return;
         }
-        if (n.getNode(0).getType() == AstType.AST_VAR) {
-            throw new RuntimeException("0_J do it");
-//            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EvalUtils.createEvalNode(null));
-        }
-
         addCode(params, "std.array(");
         for (int i = 0; i < n.size(); i++) {
             processNode(params.withNode(i));
@@ -489,7 +482,6 @@ public class TemplateProcessor {
             }
         }
         addCode(params, ")");
-
     }
 
     private void processCall(Params params) {
@@ -608,11 +600,15 @@ public class TemplateProcessor {
     private void processNodeList(Params params, boolean returnIsNeeded) {
         ExpAstNode n = (ExpAstNode) params.node;
         for (AstNode node : n.getNodes()) {
-            if (node.getType() == AstType.AST_RETURN) {
-//                    processNode(params.with(node).withNode(0));
-                addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
-                processNode(params.with(node).withNode(0));
-                addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+            if (checkIsCompleteNode(node)) {
+                if (node.getType() == AstType.AST_RETURN) {
+                    //                    processNode(params.with(node).withNode(0));
+                    addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
+                    processNode(params.with(node).withNode(0));
+                    addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+                } else {
+                    processNode(params.with(node));
+                }
                 break;
             }
             if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
@@ -646,8 +642,41 @@ public class TemplateProcessor {
         return !types.contains(node.getType());
     }
 
+
+    private boolean checkIfCompleteAndReturn(ExpAstNode node) {
+        if (node.size() % 2 != 1) {
+            return false;
+        }
+        int returnCount = 0;
+        for (int i = 0; i < node.size(); i++) {
+            if (i % 2 == 1) {
+                continue;
+            }
+            AstNode n = node.getNode(i);
+            if (!n.hasValue() && checkReturnNode(((ExpAstNode) n).getNodes())) {
+                returnCount++;
+            }
+        }
+        return returnCount == (node.size() / 2) + 1;
+    }
+
+    private boolean checkIsCompleteNode(AstNode node) {
+        if (node.getType() == AstType.AST_RETURN) {
+            return true;
+        }
+        if (node.getType() == AstType.AST_IF && checkIfCompleteAndReturn((ExpAstNode) node)) {
+            return true;
+        }
+        return false;
+    }
+
     private boolean checkReturnNode(List<AstNode> nodes) {
-        return nodes.stream().filter(n -> n.getType() == AstType.AST_RETURN).findFirst().isPresent();
+        for (AstNode node : nodes) {
+            if (checkIsCompleteNode(node)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean checkBreakContinueNode(List<AstNode> nodes) {

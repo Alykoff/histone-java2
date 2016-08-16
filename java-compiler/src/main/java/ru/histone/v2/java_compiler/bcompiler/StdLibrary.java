@@ -235,17 +235,6 @@ public class StdLibrary {
     }
 
     public CompletableFuture<EvalNode> mCall(Context ctx, CompletableFuture<EvalNode> valueNode, CompletableFuture<EvalNode>... nodes) {
-//        final CompletableFuture<EvalNode> valueNode;
-//        if (!(callNode.getNode(0) instanceof CallExpAstNode)) {
-//            valueNode = evaluateNode(callNode.getNode(0), context);
-//        } else {
-//            CallExpAstNode n = callNode.getNode(0);
-//            if (n.getCallType() == CallType.SIMPLE) {
-//                valueNode = processSimpleCall(context, callNode.getNode(0));
-//            } else {
-//                valueNode = evaluateNode(callNode.getNode(0), context);
-//            }
-//        }
         final CompletableFuture<List<EvalNode>> argsFuture = AsyncUtils.sequence(nodes);
         return valueNode
                 .thenCompose(value -> argsFuture

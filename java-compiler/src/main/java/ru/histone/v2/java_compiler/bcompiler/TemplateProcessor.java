@@ -18,175 +18,537 @@ package ru.histone.v2.java_compiler.bcompiler;
 
 import com.squareup.javapoet.MethodSpec;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
+import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.data.HistoneRegex;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.GlobalEvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
+import ru.histone.v2.java_compiler.bcompiler.data.MacroFunction;
 import ru.histone.v2.parser.node.*;
+import ru.histone.v2.rtti.HistoneType;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Alexey Nevinsky
  */
 public class TemplateProcessor {
-    public MethodSpec.Builder process(MethodSpec.Builder builder, AstNode root) {
-        return processNode(builder, root);
+    public void processTemplate(MethodSpec.Builder builder, AstNode root) {
+        Params params = new Params(builder, root);
+        addStatement(params, "CompletableFuture<StringBuilder> csb0 = CompletableFuture.completedFuture(new StringBuilder())");
+        processNode(params);
+        if (!checkReturnNode(((ExpAstNode) root).getNodes())) {
+            addStatement(params, "return $T.asString(ctx, csb0)", StdLibrary.class);
+        }
     }
 
-    public MethodSpec.Builder processNode(MethodSpec.Builder builder, AstNode node) {
-        if (node == null) {
-            return builder;
+    public void processNode(Params params) {
+        if (params.node == null) {
+            return;
         }
 
-        if (node.hasValue()) {
-            ValueNode valueNode = (ValueNode) node;
+        if (params.node.hasValue()) {
+            ValueNode valueNode = (ValueNode) params.node;
             Object v = valueNode.getValue();
             if (v == null) {
-                return builder.addCode("$T.getValue($T.NULL)", EvalUtils.class, ObjectUtils.class);
+                params.builder.addCode("$T.getValue($T.NULL)", EvalUtils.class, ObjectUtils.class);
+                return;
             }
 
             if (v instanceof String) {
-                return builder.addCode("$T.getValue(\"" + v + "\")", EvalUtils.class);
+                params.builder.addCode("$T.getValue($S)", EvalUtils.class, v);
+                return;
+            } else if (valueNode instanceof DoubleAstNode) {
+                if (((Double) v).isInfinite() || ((Double) v).isNaN()) {
+                    params.builder.addCode("$T.getValue($T.NULL)", EvalUtils.class, ObjectUtils.class);
+                    return;
+                }
+            } else if (valueNode instanceof LongAstNode) {
+                params.builder.addCode("$T.getValue(" + v + "L)", EvalUtils.class);
+                return;
             }
-            return builder.addCode("$T.getValue(" + v + ")", EvalUtils.class);
+            params.builder.addCode("$T.getValue(" + v + ")", EvalUtils.class);
+            return;
         }
 
-        ExpAstNode expNode = (ExpAstNode) node;
-        switch (node.getType()) {
+        switch (params.node.getType()) {
             case AST_ARRAY:
-                return processArrayNode(builder, expNode);
-//            case AST_REGEXP:
-//                return processRegExp(expNode);
-//            case AST_THIS:
-//                return processThisNode(context);
-//            case AST_GLOBAL:
-//                return processGlobalNode();
-//            case AST_NOT:
-//                return processNotNode(expNode, context);
-//            case AST_AND:
-//                return processAndNode(expNode, context);
-//            case AST_OR:
-//                return processOrNode(expNode, context);
-//            case AST_TERNARY:
-//                return processTernary(expNode, context);
+                processArrayNode(params);
+                break;
+            case AST_REGEXP:
+                processRegExp(params);
+                break;
+            case AST_THIS:
+                processThisNode(params);
+                break;
+            case AST_GLOBAL:
+                processGlobalNode(params);
+                break;
+            case AST_NOT:
+                processNotNode(params);
+                break;
+            case AST_AND:
+                processLogical(params, true);
+                break;
+            case AST_OR:
+                processLogical(params, false);
+                break;
+            case AST_TERNARY:
+                processTernary(params);
+                break;
             case AST_ADD:
             case AST_SUB:
             case AST_MUL:
             case AST_DIV:
             case AST_MOD:
             case AST_USUB:
-                return processArithmetical(builder, expNode);
+                processArithmetical(params);
+                break;
             case AST_LT:
             case AST_GT:
             case AST_LE:
             case AST_GE:
             case AST_EQ:
             case AST_NEQ:
-                return processRelation(builder, expNode);
-//            case AST_REF:
-//                return processReferenceNode(expNode, context);
+                processRelation(params);
+                break;
+            case AST_REF:
+                processReferenceNode(params);
+                break;
             case AST_CALL:
-                return processCall(builder, expNode);
-//            case AST_VAR:
-//                return processVarNode(expNode, context);
-//            case AST_IF:
-//                return processIfNode(expNode, context);
-//            case AST_FOR:
-//                return processForNode(expNode, context);
-//            case AST_WHILE:
-//                return processWhileNode(expNode, context);
-//            case AST_MACRO:
-//                return processMacroNode(expNode, context);
+                processCall(params);
+                break;
+            case AST_VAR:
+                processVarNode(params);
+                break;
+            case AST_IF:
+                processIfNode(params);
+                break;
+            case AST_FOR:
+                processForNode(params.addCtx().addForCtx().incLoop());
+                break;
+            case AST_WHILE:
+                processWhileNode(params.addCtx().addForCtx().incLoop());
+                break;
+            case AST_MACRO:
+                processMacroNode(params.addMacroCtx().addCtx().incMacro());
+                break;
 //            case AST_RETURN:
-//                return processReturnNode(expNode, context);
+//                processReturnNode(expNode, context);
             case AST_NODES:
-                return processNodeList(builder, expNode, true);
+                processNodes(params.addMacroCtx().addCtx().incMacro());
+                break;
             case AST_NODELIST:
-                return processNodeList(builder, expNode, false);
-//            case AST_BOR:
-//                return processBorNode(expNode, context);
-//            case AST_BXOR:
-//                return processBxorNode(expNode, context);
-//            case AST_BAND:
-//                return processBandNode(expNode, context);
-//            case AST_SUPPRESS:
-//                return processSuppressNode(expNode, context);
-//            case AST_CONTINUE:
-//                return processBreakContinueNode(expNode, false);
-//            case AST_BREAK:
-//                return processBreakContinueNode(expNode, true);
+                processNodeList(params);
+                break;
+            case AST_BOR:
+                processBorNode(params);
+                break;
+            case AST_BXOR:
+                processBxorNode(params);
+                break;
+            case AST_BAND:
+                processBandNode(params);
+                break;
+            case AST_SUPPRESS:
+                processSuppressNode(params);
+                break;
+            case AST_CONTINUE:
+                processContinueNode(params);
+                break;
+            case AST_BREAK:
+                processBreakNode(params);
         }
-        return builder;
-//        throw new HistoneException("Unknown AST Histone Type: " + node.getType());
     }
 
-    private MethodSpec.Builder processRelation(MethodSpec.Builder builder, ExpAstNode node) {
-        builder = builder.addCode("StdLibrary." + getRelationMethod(node) + "(ctx, ");
-        builder = processNode(builder, node.getNodes().get(0));
-        builder = builder.addCode(",");
-        builder = processNode(builder, node.getNodes().get(1));
-        builder.addCode(")");
-        return builder;
+    private void processBorNode(Params params) {
+        addCode(params, "StdLibrary.processBorNode(");
+        processNode(params.withNode(0));
+        addCode(params, " ,");
+        processNode(params.withNode(1));
+        addCode(params, ")");
     }
 
-    private MethodSpec.Builder processArrayNode(MethodSpec.Builder builder, ExpAstNode node) {
-        if (CollectionUtils.isEmpty(node.getNodes())) {
-            return builder.addCode("StdLibrary.array()");
+    private void processBxorNode(Params params) {
+        addCode(params, "StdLibrary.processBxorNode(");
+        processNode(params.withNode(0));
+        addCode(params, " ,");
+        processNode(params.withNode(1));
+        addCode(params, ")");
+    }
+
+    private void processBandNode(Params params) {
+        addCode(params, "StdLibrary.processBandNode(");
+        processNode(params.withNode(0));
+        addCode(params, " ,");
+        processNode(params.withNode(1));
+        addCode(params, ")");
+    }
+
+    private void processLogical(Params params, boolean negateCheck) {
+        addCode(params, "StdLibrary.processLogicalNode(");
+        processNode(params.withNode(0));
+        addCode(params, " ,");
+        processNode(params.withNode(1));
+        addCode(params, ", %s)", negateCheck);
+    }
+
+    private void processThisNode(Params params) {
+        addCode(params, "ctx.getValue($T.THIS_CONTEXT_VALUE)", Constants.class);
+    }
+
+    private void processRegExp(Params params) {
+//todo copypaste from evaluator
+        ExpAstNode n = (ExpAstNode) params.node;
+        final StringAstNode flagsNumNode = n.getNode(1);
+
+        boolean isIgnoreCase = false;
+        boolean isMultiline = false;
+        boolean isGlobal = false;
+        int flags = 0;
+
+        if (flagsNumNode != null) {
+            final String flagStr = flagsNumNode.getValue();
+
+            isIgnoreCase = flagStr.contains("i");
+            isMultiline = flagStr.contains("m");
+            isGlobal = flagStr.contains("g");
         }
-        if (node.getNode(0).getType() == AstType.AST_VAR) {
+
+        final StringAstNode expNode = n.getNode(0);
+        final String exp = expNode.getValue();
+        final Pattern pattern = Pattern.compile(exp, flags);
+
+        addCode(params, "$T.getValue(", EvalUtils.class);
+        addCode(params, "new $T(", HistoneRegex.class);
+        params.builder.addCode("$L, $L, $L, $T.compile($S, $L)))", isGlobal, isIgnoreCase, isMultiline, Pattern.class, exp, flags);
+//        addCode(params, "%s, %s, %s, $T.compile(\"%s\", %s)))", Pattern.class, isGlobal, isIgnoreCase, isMultiline, exp, flags);
+
+//        return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
+    }
+
+    private void processSuppressNode(Params params) {
+        processNode(params.withNode(0));
+        addCode(params, ";\n");
+    }
+
+    private void processTernary(Params params) {
+        ExpAstNode node = (ExpAstNode) params.node;
+
+        addCode(params, "StdLibrary.toBoolean(");
+        processNode(params.with(node.getNode(0)));
+        addCode(params, ") \n? ");
+        processNode(params.with(node.getNode(1)));
+        addCode(params, " \n: ");
+        if (node.size() > 2) {
+            processNode(params.with(node.getNode(2)));
+        } else {
+            addCode(params, "EvalUtils.getValue(null)", EvalUtils.class);
+        }
+    }
+
+    private void processBreakNode(Params params) {
+        addStatement(params, "break");
+    }
+
+    private void processContinueNode(Params params) {
+        addStatement(params, "index%s++", params.forCtxNumber);
+        addStatement(params, "continue");
+
+    }
+
+    private void processNotNode(Params params) {
+        addCode(params, "StdLibrary.asBooleanNot(ctx, ");
+        processNode(params.withNode(0));
+        addCode(params, ")");
+
+    }
+
+    private void processMacroNode(Params params) {
+        ExpAstNode node = (ExpAstNode) params.node;
+
+        addCode(params, "StdLibrary.toMacro(args%s -> {\n", params.macroCounter.count);
+        addCode(params, "CompletableFuture<$T> csb%s = CompletableFuture.completedFuture(new StringBuilder());\n", StringBuilder.class, params.macroCtxNum);
+        addCode(params, "CompletableFuture<$T> v%s0 = args%s.get(0);\n", EvalNode.class, params.ctxNum - (Long) value(node.getNode(0)), params.macroCounter.count);
+
+        long argsSize = 0;
+        if (node.size() > 2) {
+            argsSize = ((LongAstNode) node.getNode(2)).getValue();
+
+            Map<Long, AstNode> defValue = new HashMap<>();
+            for (int i = 0; i < (node.size() - 3) / 2; i++) {
+                defValue.put(((LongAstNode) node.getNode(i * 2 + 3)).getValue() + 1, node.getNode(i * 2 + 4));
+            }
+
+            for (long i = 1; i < argsSize + 1; i++) {
+                addCode(params, "CompletableFuture<EvalNode> v%s%s = args%s.get(%s)", params.ctxNum - (Long) value(node.getNode(0)), i, params.macroCounter.count, i);
+                if (defValue.size() > 0) {
+                    if (defValue.get(i) != null) {
+                        addCode(params, "\n.thenCompose(v -> v.getType() == $T.T_UNDEFINED \n? ", HistoneType.class);
+                        processNode(params.with(defValue.get(i)).decCtx());
+                        addCode(params, " \n: CompletableFuture.completedFuture(v))");
+                    }
+                }
+                addCode(params, ";\n");
+            }
+//            .thenApply(v -> v.getType() == HistoneType.T_UNDEFINED ? EvalUtils.createEvalNode("") : v);
+        }
+        processNode(params.withNode(1));
+        if (!node.getNode(1).hasValue() && !checkReturnNode(((ExpAstNode) node.getNode(1)).getNodes())) {
+            addStatement(params, "return $T.asString(ctx, csb%s)", StdLibrary.class, params.macroCtxNum);
+        }
+
+        addCode(params, "}, " + argsSize + ")");
+
+    }
+
+    private void processGlobalNode(Params params) {
+        addCode(params, "CompletableFuture.completedFuture(new $T())", GlobalEvalNode.class);
+    }
+
+    private void processVarNode(Params params) {
+        ValueNode n = ((ExpAstNode) params.node).getNode(1);
+        addCode(params, "CompletableFuture<$T> v%s%s = ", EvalNode.class, params.ctxNum, value(n));
+        processNode(params.withNode(0));
+        addCode(params, ";\n");
+    }
+
+    private void processReferenceNode(Params params) {
+        ExpAstNode n = (ExpAstNode) params.node;
+        addCode(params, "v%s%s", params.ctxNum - (Long) value(n.getNode(0)), value(n.getNode(1)));
+
+    }
+
+    private void processWhileNode(Params params) {
+        addStatement(params, "int i%s = -1", params.ctxNum);
+        addCode(params, "while (");
+        if (params.node.size() > 1) {
+            addCode(params, "StdLibrary.toBoolean(");
+            processNode(params.withNode(1));
+            addCode(params, ")");
+        } else {
+            addCode(params, "true");
+        }
+        addCode(params, ") {\n");
+        addStatement(params, "$T self%s = StdLibrary.constructWhileSelfValue(++i%s)",
+                MapEvalNode.class, params.ctxNum, params.ctxNum);
+        addStatement(params, "CompletableFuture<$T> v%s0 = CompletableFuture.completedFuture(self%s)",
+                EvalNode.class, params.ctxNum, params.ctxNum);
+        processNode(params.withNode(0));
+
+        addCode(params, "}\n");
+    }
+
+    private void processForNode(Params params) {
+//        final String arrObjName = "arrObj" + params.ctxNum;
+        addCode(params, "$T arrObj%s = ", EvalNode.class, params.loopCounter.count);
+        processNode(params.withNode(3).decCtx());
+        addCode(params, ".join();\n");
+        beginControlFlow(params, "if (arrObj%s instanceof $T && ((MapEvalNode) arrObj%s).getValue().size() > 0)", MapEvalNode.class, params.loopCounter.count, params.loopCounter.count);
+        addStatement(params, "$T arr%s = (MapEvalNode) arrObj%s", MapEvalNode.class, params.ctxNum, params.loopCounter.count);
+        addStatement(params, "$T index%s = 0", Integer.class, params.forCtxNumber);
+        addStatement(params, "$T size%s = arr%s.getValue().size()", Integer.class, params.ctxNum, params.ctxNum);
+
+        ExpAstNode n = (ExpAstNode) params.node;
+
+        final boolean hasKey = ((ValueNode) n.getNode(0)).getValue() != null;
+        final boolean hasValue = ((ValueNode) n.getNode(1)).getValue() != null;
+
+
+        beginControlFlow(params, "while (index%s < size%s)", params.forCtxNumber, params.ctxNum);
+        addStatement(params, "MapEvalNode self%s = StdLibrary.constructForSelfValue(arr%s, index%s, ((MapEvalNode) arrObj%s).getValue().size() -1)",
+                MapEvalNode.class, params.ctxNum, params.ctxNum, params.forCtxNumber, params.loopCounter.count);
+        addStatement(params, "CompletableFuture<EvalNode> v%s0 = CompletableFuture.completedFuture(self%s)", params.ctxNum, params.ctxNum);
+        if (hasKey) {
+            addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(\"key\"))",
+                    params.ctxNum, value(n.getNode(0)), params.ctxNum);
+        }
+        if (hasValue) {
+            addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(\"value\"))",
+                    params.ctxNum, value(n.getNode(1)), params.ctxNum);
+        }
+
+        processNode(params.withNode(2));
+
+        if (!n.hasValue() && !checkBreakContinueNode(((ExpAstNode) n.getNode(2)).getNodes()) && !checkReturnNode(((ExpAstNode) n.getNode(2)).getNodes())) {
+            addStatement(params, "index%s++", params.forCtxNumber);
+        }
+        endControlFlow(params);
+
+        int startIndex = 4;
+        //todo replace with if node
+        if (n.size() > startIndex) {
+            for (int i = 0; i < (n.size() - startIndex) / 2; i++) {
+                addCode(params, "} else if (StdLibrary.toBoolean(");
+                processNode(params.withNode(2 * i + startIndex + 1));
+                addCode(params, ")) {\n");
+                processNode(params.withNode(2 * i + startIndex).addCtx());
+            }
+            if ((n.size() - 4) % 2 == 1) {
+                addCode(params, "} else {\n");
+                processNode(params.withNode(n.size() - 1).addCtx());
+            }
+        }
+        addCode(params, "}\n");
+    }
+
+    private <T> T value(AstNode node) {
+        return (T) ((ValueNode) node).getValue();
+    }
+
+    private void addCode(Params params, String str, Class clazz, Object... args) {
+        params.builder.addCode(String.format(str, args), clazz);
+    }
+
+    private void addCode(Params params, String str, Object... args) {
+        params.builder.addCode(String.format(str, args));
+    }
+
+    private void addStatement(Params params, String str, Class clazz, Object... args) {
+        params.builder.addStatement(String.format(str, args), clazz);
+    }
+
+    private void addStatement(Params params, String str, Object... args) {
+        params.builder.addStatement(String.format(str, args));
+    }
+
+    private void beginControlFlow(Params params, String str, Object... args) {
+        params.builder.beginControlFlow(String.format(str, args));
+    }
+
+    private void beginControlFlow(Params params, String str, Class clazz, Object... args) {
+        params.builder.beginControlFlow(String.format(str, args), clazz);
+    }
+
+    private void endControlFlow(Params params) {
+        params.builder.endControlFlow();
+    }
+
+    private void processIfNode(Params params) {
+        ExpAstNode n = (ExpAstNode) params.node;
+        for (int i = 0; i < n.size() / 2; i++) {
+            if (i != 0) {
+                addCode(params, "} else ");
+            }
+            addCode(params, "if (StdLibrary.toBoolean(");
+            processNode(params.withNode(2 * i + 1));
+            addCode(params, ")) {\n");
+            if (((ExpAstNode) params.node).getNode(2 * i).hasValue()) {
+                ExpAstNode node = new ExpAstNode(AstType.AST_NODELIST, ((ExpAstNode) params.node).getNode(2 * i));
+                processNode(params.with(node));
+            } else {
+                processNode(params.withNode(2 * i).addCtx());
+            }
+        }
+        if (n.size() % 2 == 1) {
+            addCode(params, "} else {\n");
+            processNode(params.withNode(n.size() - 1).addCtx());
+            //todo do logic if node is simple string
+        }
+        addCode(params, "}\n");
+    }
+
+    private void processRelation(Params params) {
+        addCode(params, "StdLibrary.%s(ctx, ", getRelationMethod((ExpAstNode) params.node));
+        processNode(params.withNode(0));
+        addCode(params, ",");
+        processNode(params.withNode(1));
+        addCode(params, ")");
+
+    }
+
+    private void processArrayNode(Params params) {
+        ExpAstNode n = (ExpAstNode) params.node;
+        if (CollectionUtils.isEmpty(n.getNodes())) {
+            addCode(params, "$T.array()", StdLibrary.class);
+            return;
+        }
+        if (n.getNode(0).getType() == AstType.AST_VAR) {
             throw new RuntimeException("0_J do it");
 //            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EvalUtils.createEvalNode(null));
         }
 
-        builder.addCode("StdLibrary.array(");
-        for (int i = 0; i < node.size(); i++) {
-            process(builder, node.getNode(i));
-            if (i != node.size() - 1) {
-                builder.addCode(",");
+        addCode(params, "$T.array(", StdLibrary.class);
+        for (int i = 0; i < n.size(); i++) {
+            processNode(params.withNode(i));
+            if (i != n.size() - 1) {
+                addCode(params, ",");
             }
         }
-        builder.addCode(")");
-        return builder;
+        addCode(params, ")");
+
     }
 
-    private MethodSpec.Builder processCall(MethodSpec.Builder builder, ExpAstNode expNode) {
-        CallExpAstNode callNode = (CallExpAstNode) expNode;
+    private void processCall(Params params) {
+        CallExpAstNode callNode = (CallExpAstNode) params.node;
         if (callNode.getCallType() == CallType.SIMPLE) {
-            builder.addCode("StdLibrary.simpleCall(ctx,");
+            addCode(params, "$T.simpleCall(ctx,", StdLibrary.class);
             //todo
-            if (expNode.size() == 2) {
-                builder.addCode("\"" + ((ValueNode) expNode.getNode(1)).getValue() + "\", $T.emptyList()", Collections.class);
+            if (callNode.size() == 2) {
+                if (callNode.getNode(0).getType() == AstType.AST_GLOBAL) {
+                    addCode(params, "\"" + ((ValueNode) callNode.getNode(1)).getValue() + "\", $T.singletonList(", Collections.class);
+                    addCode(params, "CompletableFuture.completedFuture(new $T()))", GlobalEvalNode.class);
+                } else {
+                    addCode(params, "\"" + ((ValueNode) callNode.getNode(1)).getValue() + "\", $T.singletonList(\n", Collections.class);
+                    processNode(params.withNode(0));
+                    addCode(params, "\n)");
+                }
+            } else {
+                addCode(params, "\"" + ((ValueNode) callNode.getNode(1)).getValue() + "\", $T.asList(\n", Arrays.class);
+                processNode(params.withNode(0));
+                addCode(params, ",\n");
+                for (int i = 2; i < callNode.size(); i++) {
+                    processNode(params.withNode(i));
+                    if (i != callNode.size() - 1) {
+                        addCode(params, ",");
+                    }
+                }
+                addCode(params, "\n)");
             }
-            builder.addCode(")");
+            addCode(params, ")");
         } else if (callNode.getCallType() == CallType.RTTI_M_GET) {
-            builder.addCode("StdLibrary.mGet(ctx, ");
-            for (int i = 0; i < expNode.size(); i++) {
-                process(builder, expNode.getNode(i));
-                if (i != expNode.size() - 1) {
-                    builder.addCode(",");
+            if (callNode.getNode(0).getType() == AstType.AST_THIS) {
+                addCode(params, "StdLibrary.getFromCtx(ctx, ");
+                processNode(params.withNode(1));
+            } else {
+                addCode(params, "StdLibrary.mGet(ctx, ");
+                for (int i = 0; i < callNode.size(); i++) {
+                    processNode(params.withNode(i));
+                    if (i != callNode.size() - 1) {
+                        addCode(params, ",");
+                    }
                 }
             }
-            builder.addCode(")");
+            addCode(params, ")");
+        } else if (!(callNode.getNode(0) instanceof ValueNode)) {
+            addCode(params, "StdLibrary.mCall(ctx, ");
+            for (int i = 0; i < callNode.size(); i++) {
+                processNode(params.withNode(i));
+                if (i != callNode.size() - 1) {
+                    addCode(params, ",");
+                }
+            }
+            addCode(params, ")");
         } else {
-            throw new NotImplementedException("!!!!");
+            addCode(params, "null");
         }
-        return builder;
+
     }
 
-    private MethodSpec.Builder processArithmetical(MethodSpec.Builder builder, ExpAstNode node) {
-        if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
-            builder = builder.addCode("StdLibrary." + getArithmeticalMethod(node) + "(ctx, ");
-            builder = processNode(builder, node.getNodes().get(0));
-            builder = builder.addCode(",");
-            builder = processNode(builder, node.getNodes().get(1));
-            builder.addCode(")");
-        } else {
-            builder = builder.addCode("StdLibrary." + getArithmeticalMethod(node) + "(ctx, ");
-            builder = processNode(builder, node.getNodes().get(0));
-            builder.addCode(")");
+    private void processArithmetical(Params params) {
+        ExpAstNode n = (ExpAstNode) params.node;
+        addCode(params, "StdLibrary.%s(ctx, ", getArithmeticalMethod(n));
+        processNode(params.withNode(0));
+
+        if (CollectionUtils.isNotEmpty(n.getNodes()) && n.getNodes().size() == 2) {
+            addCode(params, ",");
+            processNode(params.withNode(1));
         }
-        return builder;
+
+        addCode(params, ")");
     }
 
     private String getArithmeticalMethod(ExpAstNode node) {
@@ -225,32 +587,198 @@ public class TemplateProcessor {
         }
     }
 
-    private MethodSpec.Builder processNodeList(MethodSpec.Builder builder, ExpAstNode expNode, boolean createContext) {
-        if (createContext) {
-            //todo check this
-            builder = builder.beginControlFlow("");
-        }
+    private void processNodes(Params params) {
+        ExpAstNode n = (ExpAstNode) params.node;
+        addCode(params, "(($T) args%s -> {", MacroFunction.class, params.macroCounter.count);
+        addCode(params, "CompletableFuture<$T> csb%s = CompletableFuture.completedFuture(new StringBuilder());\n", StringBuilder.class, params.macroCtxNum);
+        if (checkReturnNode(n.getNodes())) {
+            for (AstNode node : n.getNodes()) {
+                if (node.getType() == AstType.AST_RETURN) {
+//                    addCode(params, "return ");
+//                    processNode(params.with(((ExpAstNode) node).getNode(0)));
+//                    addCode(params, ";\n");
 
-        if (checkReturnNode(expNode.getNodes())) {
-            //todo
-//            throw new NotImplementedException("Oops! to do it");
-        } else {
-            builder = builder.addCode("CompletableFuture<StringBuilder> csb = CompletableFuture.completedFuture(new StringBuilder());\n");
-            for (AstNode node : expNode.getNodes()) {
-                builder = builder.addCode("csb = StdLibrary.append(ctx, csb, ");
-                builder = processNode(builder, node);
-                builder = builder.addCode(");\n");
+                    addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
+                    processNode(params.with(node).withNode(0));
+                    addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+                    break;
+                }
+                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
+                    processNode(params);
+                    break;
+                }
+                processNodeInNodeList(params.with(node));
             }
-            builder.addStatement("return $T.asString(ctx, csb)", StdLibrary.class);
+        } else {
+            for (AstNode node : n.getNodes()) {
+                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
+                    processNode(params.with(node));
+                    break;
+                }
+                processNodeInNodeList(params.with(node));
+            }
+            addStatement(params, "return $T.asString(ctx, csb%s)", StdLibrary.class, params.macroCtxNum);
         }
 
-        if (createContext) {
-            builder = builder.endControlFlow();
+        addCode(params, "}).apply($T.emptyList())", Collections.class);
+    }
+
+    private void processNodeList(Params params) {
+        ExpAstNode n = (ExpAstNode) params.node;
+        if (checkReturnNode(n.getNodes())) {
+            for (AstNode node : n.getNodes()) {
+                if (node.getType() == AstType.AST_RETURN) {
+                    addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
+                    processNode(params.with(node).withNode(0));
+                    addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+                    break;
+                }
+                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
+                    processNode(params.with(node));
+                    break;
+                }
+                processNodeInNodeList(params.with(node));
+            }
+        } else {
+            for (AstNode node : n.getNodes()) {
+                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
+                    processNode(params.with(node));
+                    break;
+                }
+                processNodeInNodeList(params.with(node));
+            }
         }
-        return builder;
+
+    }
+
+    private void processNodeInNodeList(Params params) {
+        if (isPrintNode(params.node)) {
+            addCode(params, "csb%s = ", params.macroCtxNum);
+            addCode(params, "$T.append(ctx, csb%s, ", StdLibrary.class, params.macroCtxNum);
+            processNode(params);
+            addCode(params, ")");
+            addCode(params, ";\n");
+        } else {
+            processNode(params);
+        }
+
+    }
+
+    private boolean isPrintNode(AstNode node) {
+        List<AstType> types = Arrays.asList(AstType.AST_FOR, AstType.AST_IF, AstType.AST_VAR, AstType.AST_CONTINUE,
+                AstType.AST_BREAK, AstType.AST_SUPPRESS, AstType.AST_WHILE);
+        return !types.contains(node.getType());
     }
 
     private boolean checkReturnNode(List<AstNode> nodes) {
         return nodes.stream().filter(n -> n.getType() == AstType.AST_RETURN).findFirst().isPresent();
+    }
+
+    private boolean checkBreakContinueNode(List<AstNode> nodes) {
+        return nodes.stream()
+                .filter(n -> n.getType() == AstType.AST_BREAK || n.getType() == AstType.AST_CONTINUE)
+                .findFirst()
+                .isPresent();
+    }
+
+    private static class Params {
+        MethodSpec.Builder builder;
+        AstNode node;
+        int macroCtxNum = 0;
+        int forCtxNumber = 0;
+        int ctxNum = 0;
+        Counter loopCounter = new Counter();
+        Counter macroCounter = new Counter();
+
+        Params(MethodSpec.Builder builder, AstNode node) {
+            this.builder = builder;
+            this.node = node;
+        }
+
+        Params with(AstNode node) {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            return params;
+        }
+
+        Params withNode(int index) {
+            Params params = new Params(this.builder, ((ExpAstNode) node).getNode(index));
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            return params;
+        }
+
+        Params addCtx() {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum + 1;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            return params;
+        }
+
+        Params decCtx() {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum - 1;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            return params;
+        }
+
+        Params addMacroCtx() {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum + 1;
+            params.ctxNum = this.ctxNum;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            return params;
+        }
+
+        Params addForCtx() {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum;
+            params.forCtxNumber = this.forCtxNumber + 1;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            return params;
+        }
+
+        Params incLoop() {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.loopCounter.count++;
+            params.macroCounter = this.macroCounter;
+            return params;
+        }
+
+        Params incMacro() {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            params.macroCounter.count++;
+            return params;
+        }
+    }
+
+    private static class Counter {
+        int count = 0;
     }
 }

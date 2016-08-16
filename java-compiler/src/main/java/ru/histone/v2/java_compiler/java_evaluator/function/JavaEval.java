@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.bcompiler.data;
+package ru.histone.v2.java_compiler.java_evaluator.function;
 
 /**
  * @author Alexey Nevinsky
  */
-public class StringValue {
+public class JavaEval {
 }

@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.bcompiler.data;
+package ru.histone.v2.java_compiler.bcompiler;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Alexey Nevinsky
  */
-public interface BContext {
+public class JavaCompilerPreprocessor {
+
+    //ru.megafon.lk.ui.repository
+
+    private ObjectMapper mapper = new ObjectMapper();
+
+    public void process(String basePath) {
+
+    }
+
+    private void writeConfig(ClassesConfig config) {
+
+    }
+
 }

@@ -18,28 +18,28 @@ package ru.histone.v2.java_compiler.bcompiler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
-import ru.histone.v2.evaluator.global.NumberComparator;
-import ru.histone.v2.evaluator.global.StringEvalNodeLenComparator;
-import ru.histone.v2.evaluator.global.StringEvalNodeStrongComparator;
+import ru.histone.v2.evaluator.NodesComparator;
+import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.java_compiler.bcompiler.data.MacroFunction;
 import ru.histone.v2.parser.node.AstType;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
 import ru.histone.v2.utils.AsyncUtils;
-import ru.histone.v2.utils.DateUtils;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.evaluator.EvalUtils.isNumberNode;
+import static ru.histone.v2.evaluator.EvalUtils.nodeAsBoolean;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 
@@ -48,16 +48,13 @@ import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
  */
 public class StdLibrary {
 
-    private static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
-    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_LEN_COMPARATOR = new StringEvalNodeLenComparator();
-    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
-    private static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     private static final Logger LOG = LoggerFactory.getLogger(StdLibrary.class);
+
+    private static final NodesComparator comparator = new NodesComparator(); //todo do init in constructor and remove static modificator
 
     public static CompletableFuture<EvalNode> sub(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return doArithmetic(first, second, (x, y) -> x - y);
     }
-
 
     public static CompletableFuture<EvalNode> mod(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return doArithmetic(first, second, (x, y) -> x % y);
@@ -83,7 +80,12 @@ public class StdLibrary {
                             if (isNumberNode(right) || right.getType() == HistoneType.T_STRING) {
                                 Double rValue = getValue(right).orElse(null);
                                 if (rValue != null) {
-                                    return EvalUtils.getValue(sup.applyAsDouble(lValue, rValue));
+                                    Double res = sup.applyAsDouble(lValue, rValue);
+                                    Optional<Long> longValue = ParserUtils.tryLongNumber(res);
+                                    if (longValue.isPresent()) {
+                                        return EvalUtils.getValue(longValue.get());
+                                    }
+                                    return EvalUtils.getValue(res);
                                 }
                             }
                         }
@@ -100,6 +102,10 @@ public class StdLibrary {
         }
     }
 
+    public static boolean toBoolean(CompletableFuture<EvalNode> node) {
+        return nodeAsBoolean(node.join());
+    }
+
     public static CompletableFuture<EvalNode> arr(Object... args) {
         return null;
     }
@@ -110,6 +116,10 @@ public class StdLibrary {
 
     public static CompletableFuture<StringBuilder> append(Context ctx, CompletableFuture<StringBuilder> csb,
                                                           CompletableFuture<EvalNode> var) {
+        if (var == null) {
+            return csb;
+        }
+
         return var
                 .thenCompose(node -> RttiUtils.callToString(ctx, node)
                         .thenCompose(v -> csb.thenApply(sb -> sb.append(v.getValue())))
@@ -118,6 +128,10 @@ public class StdLibrary {
 
     public static CompletableFuture<EvalNode> asString(Context ctx, CompletableFuture<StringBuilder> csb) {
         return csb.thenCompose(sb -> RttiUtils.callToString(ctx, EvalUtils.createEvalNode(sb.toString())));
+    }
+
+    public static CompletableFuture<EvalNode> asBooleanNot(Context context, CompletableFuture<EvalNode> node) {
+        return node.thenCompose(n -> EvalUtils.getValue(!nodeAsBoolean(n)));
     }
 
     public static CompletableFuture<EvalNode> add(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
@@ -177,6 +191,12 @@ public class StdLibrary {
         });
     }
 
+    /**
+     * Method creates MapEvalNode from arguments: [CompletableFuture<EvalNode>, String]...
+     *
+     * @param nodes arguments for create map
+     * @return completable future of result map
+     */
     public static CompletableFuture<EvalNode> array(CompletableFuture<EvalNode>... nodes) {
         if (nodes.length == 0) {
             return completedFuture(new MapEvalNode(new LinkedHashMap<>(0)));
@@ -210,126 +230,153 @@ public class StdLibrary {
 
     public static CompletableFuture<EvalNode> simpleCall(Context ctx, String functionName, List<CompletableFuture<EvalNode>> args) {
         return AsyncUtils.sequence(args)
-                .thenCompose(argList -> ctx.call(functionName, argList))
-                .exceptionally(e -> {
-                    LOG.error(e.getMessage(), e);
+                .thenCompose(argList -> {
+                    if (argList.size() >= 1) {
+                        return ctx.call(argList.get(0), functionName, argList);
+                    }
+                    return ctx.call(functionName, argList);
+                })
+                .exceptionally(EvalUtils.checkThrowable(LOG));
+    }
+
+    public static CompletableFuture<EvalNode> mCall(Context ctx, CompletableFuture<EvalNode> valueNode, CompletableFuture<EvalNode>... nodes) {
+//        final CompletableFuture<EvalNode> valueNode;
+//        if (!(callNode.getNode(0) instanceof CallExpAstNode)) {
+//            valueNode = evaluateNode(callNode.getNode(0), context);
+//        } else {
+//            CallExpAstNode n = callNode.getNode(0);
+//            if (n.getCallType() == CallType.SIMPLE) {
+//                valueNode = processSimpleCall(context, callNode.getNode(0));
+//            } else {
+//                valueNode = evaluateNode(callNode.getNode(0), context);
+//            }
+//        }
+        final CompletableFuture<List<EvalNode>> argsFuture = AsyncUtils.sequence(nodes);
+        return valueNode
+                .thenCompose(value -> argsFuture
+                        .thenCompose(args -> {
+                                    if (value.getType() == HistoneType.T_MACRO) {
+                                        List<EvalNode> arguments = new ArrayList<>();
+                                        arguments.add(value);
+                                        arguments.addAll(args);
+                                        return ctx.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
+                                    }
+                                    if (value.getType() != HistoneType.T_STRING) {
+                                        return EvalUtils.getValue(null);
+                                    }
+                                    return ctx.call((String) value.getValue(), args);
+                                }
+                        )
+                );
+    }
+
+    public static CompletableFuture<EvalNode> lt(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+        return comparator.processRelation(first, second, AstType.AST_LT, ctx);
+    }
+
+    public static CompletableFuture<EvalNode> eq(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+        return comparator.processRelation(first, second, AstType.AST_EQ, ctx);
+    }
+
+    public static CompletableFuture<EvalNode> ge(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+        return comparator.processRelation(first, second, AstType.AST_GE, ctx);
+    }
+
+    public static CompletableFuture<EvalNode> gt(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+        return comparator.processRelation(first, second, AstType.AST_GT, ctx);
+    }
+
+    public static CompletableFuture<EvalNode> le(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+        return comparator.processRelation(first, second, AstType.AST_LE, ctx);
+    }
+
+    public static CompletableFuture<EvalNode> neq(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+        return comparator.processRelation(first, second, AstType.AST_NEQ, ctx);
+    }
+
+    public static MapEvalNode constructForSelfValue(MapEvalNode array, int currentIndex, int lastIndex) {
+        List<Map.Entry<String, EvalNode>> nodes = new ArrayList<>(array.getValue().entrySet());
+
+        Map<String, EvalNode> res = new LinkedHashMap<>();
+        res.put(Constants.SELF_CONTEXT_KEY, EvalUtils.createEvalNode(nodes.get(currentIndex).getKey()));
+        res.put(Constants.SELF_CONTEXT_VALUE, nodes.get(currentIndex).getValue());
+        res.put(Constants.SELF_CONTEXT_CURRENT_INDEX, EvalUtils.createEvalNode(currentIndex));
+        res.put(Constants.SELF_CONTEXT_LAST_INDEX, EvalUtils.createEvalNode(lastIndex));
+        return (MapEvalNode) EvalUtils.createEvalNode(res);
+    }
+
+    public static MapEvalNode constructWhileSelfValue(int currentIndex) {
+        Map<String, EvalNode> res = new LinkedHashMap<>();
+        res.put(Constants.SELF_WHILE_ITERATION, EvalUtils.createEvalNode(currentIndex));
+//        res.put(Constants.SELF_WHILE_CONDITION, nodes.get(currentIndex).getValue());
+        return (MapEvalNode) EvalUtils.createEvalNode(res);
+    }
+
+    public static CompletableFuture<EvalNode> toMacro(MacroFunction macroFunction, long argsSize) {
+        List<String> args = new ArrayList<>();
+        for (int i = 1; i <= argsSize; i++) {
+            args.add(i + "");
+        }
+
+        HistoneMacro f = new HistoneMacro(args, macroFunction, null, Collections.emptyMap(), HistoneMacro.WrappingType.NONE);
+
+        return CompletableFuture.completedFuture(new MacroEvalNode(f));
+    }
+
+    public static CompletableFuture<EvalNode> getFromCtx(Context ctx, CompletableFuture<EvalNode> nameNode) {
+        return AsyncUtils.sequence(ctx.getValue(Constants.THIS_CONTEXT_VALUE), nameNode)
+                .thenApply(list -> {
+                    EvalNode fromCtx = list.get(0);
+                    if (fromCtx instanceof HasProperties) {
+                        String name = (String) list.get(1).getValue();
+                        return ((HasProperties) fromCtx).getProperty(name);
+                    }
                     return EvalUtils.createEvalNode(null);
                 });
     }
 
-    //todo rework this fucking copypaste!
-    public static CompletableFuture<EvalNode> gt(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
-        return AsyncUtils.sequence(first, second)
-                .thenCompose(nodes -> {
-                    final EvalNode left = nodes.get(0);
-                    final EvalNode right = nodes.get(1);
-                    final CompletableFuture<Integer> compareResultRaw = compareNodes(left, right, ctx, STRING_EVAL_NODE_LEN_COMPARATOR);
-//                    final CompletableFuture<Integer> compareResultRaw = compareNodes(left, right, ctx, stringNodeComparator);
+    public static CompletableFuture<EvalNode> processLogicalNode(CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second, boolean negateCheck) {
+        return first.thenCompose(f -> {
+            if (nodeAsBoolean(f) ^ negateCheck) {
+                return CompletableFuture.completedFuture(f);
+            }
+            return second;
+        });
+    }
 
-                    return compareResultRaw.thenApply(compareResult ->
-//                            processRelationComparatorHelper(node.getType(), compareResult)
-                                    processRelationComparatorHelper(AstType.AST_GT, compareResult)
-                    );
+    public static CompletableFuture<EvalNode> processBorNode(CompletableFuture<EvalNode> first,
+                                                             CompletableFuture<EvalNode> second) {
+        return processBitwiseNode(first, second, (a, b) -> a | b);
+    }
+
+    public static CompletableFuture<EvalNode> processBxorNode(CompletableFuture<EvalNode> first,
+                                                              CompletableFuture<EvalNode> second) {
+        return processBitwiseNode(first, second, (a, b) -> a ^ b);
+    }
+
+    public static CompletableFuture<EvalNode> processBandNode(CompletableFuture<EvalNode> first,
+                                                              CompletableFuture<EvalNode> second) {
+        return processBitwiseNode(first, second, (a, b) -> a & b);
+    }
+
+    private static CompletableFuture<EvalNode> processBitwiseNode(CompletableFuture<EvalNode> firstFuture,
+                                                                  CompletableFuture<EvalNode> secondFuture,
+                                                                  BiFunction<Long, Long, Long> function) {
+        return AsyncUtils.sequence(firstFuture, secondFuture)
+                .thenApply(f -> {
+                    long first = 0;
+                    if (f.get(0).getType() == HistoneType.T_NUMBER) {
+                        first = (long) f.get(0).getValue();
+                    } else if (f.get(0).getType() == HistoneType.T_BOOLEAN) {
+                        first = nodeAsBoolean(f.get(0)) ? 1 : 0;
+                    }
+                    long second = 0;
+                    if (f.get(1).getType() == HistoneType.T_NUMBER) {
+                        second = (long) f.get(1).getValue();
+                    } else if (f.get(1).getType() == HistoneType.T_BOOLEAN) {
+                        second = nodeAsBoolean(f.get(1)) ? 1 : 0;
+                    }
+                    return EvalUtils.createEvalNode(function.apply(first, second));
                 });
     }
-
-    private static CompletableFuture<Integer> compareNodes(
-            EvalNode left, EvalNode right, Context context,
-            Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final CompletableFuture<Integer> result;
-        if (isStringNode(left) && isNumberNode(right)) {
-            final StringEvalNode stringLeft = (StringEvalNode) left;
-            if (isNumeric(stringLeft)) {
-                result = processRelationNumberHelper(left, right);
-            } else {
-                result = processRelationToString(stringLeft, right, context, stringNodeComparator, false);
-            }
-        } else if (isNumberNode(left) && isStringNode(right)) {
-            final StringEvalNode stringRight = (StringEvalNode) right;
-            if (isNumeric(stringRight)) {
-                result = processRelationNumberHelper(left, right);
-            } else {
-                result = processRelationToString(stringRight, left, context, stringNodeComparator, true);
-            }
-        } else if (left.hasAdditionalType(HistoneType.T_DATE) && right.hasAdditionalType(HistoneType.T_DATE)) {
-            LocalDateTime leftValue = DateUtils.createDate(((DateEvalNode) left).getValue());
-            LocalDateTime rightValue = DateUtils.createDate(((DateEvalNode) right).getValue());
-            //leftValue and rightValue always has value, bcz functions which create DateEvalNode checks it
-            // or return EmptyEvalNode
-            result = CompletableFuture.completedFuture(leftValue.compareTo(rightValue));
-        } else if (!isNumberNode(left) || !isNumberNode(right)) {
-            if (isStringNode(left) && isStringNode(right)) {
-                result = processRelationStringHelper(left, right, stringNodeComparator);
-            } else {
-                result = processRelationBooleanHelper(left, right, context);
-            }
-        } else {
-            result = processRelationNumberHelper(left, right);
-        }
-        return result;
-    }
-
-    private static CompletableFuture<Integer> processRelationToString(
-            StringEvalNode left, EvalNode right, Context context,
-            Comparator<StringEvalNode> stringNodeComparator, boolean isInvert
-    ) {
-        final CompletableFuture<EvalNode> rightFuture = RttiUtils.callToString(context, right);
-        final int inverter = isInvert ? -1 : 1;
-        return rightFuture.thenApply(stringRight ->
-                inverter * stringNodeComparator.compare(left, (StringEvalNode) stringRight)
-        );
-    }
-
-    private static CompletableFuture<Integer> processRelationStringHelper(
-            EvalNode left, EvalNode right, Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final StringEvalNode stringRight = (StringEvalNode) right;
-        final StringEvalNode stringLeft = (StringEvalNode) left;
-        return completedFuture(
-                stringNodeComparator.compare(stringLeft, stringRight)
-        );
-    }
-
-    private static CompletableFuture<Integer> processRelationNumberHelper(
-            EvalNode left, EvalNode right
-    ) {
-        final Number rightValue = getNumberValue(right);
-        final Number leftValue = getNumberValue(left);
-        return completedFuture(
-                NUMBER_COMPARATOR.compare(leftValue, rightValue)
-        );
-    }
-
-    private static CompletableFuture<Integer> processRelationBooleanHelper(
-            EvalNode left, EvalNode right, Context context
-    ) {
-        final CompletableFuture<EvalNode> leftF = RttiUtils.callToBoolean(context, left);
-        final CompletableFuture<EvalNode> rightF = RttiUtils.callToBoolean(context, right);
-
-        return leftF.thenCompose(leftBooleanRaw -> rightF.thenApply(rightBooleanRaw ->
-                BOOLEAN_EVAL_NODE_COMPARATOR.compare(
-                        (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
-                )
-        ));
-    }
-
-    private static EvalNode processRelationComparatorHelper(AstType astType, int compareResult) {
-        switch (astType) {
-            case AST_LT:
-                return new BooleanEvalNode(compareResult < 0);
-            case AST_GT:
-                return new BooleanEvalNode(compareResult > 0);
-            case AST_LE:
-                return new BooleanEvalNode(compareResult <= 0);
-            case AST_GE:
-                return new BooleanEvalNode(compareResult >= 0);
-            case AST_EQ:
-                return new BooleanEvalNode(compareResult == 0);
-            case AST_NEQ:
-                return new BooleanEvalNode(compareResult != 0);
-        }
-        throw new RuntimeException("Unknown type for this case");
-    }
-
 }

@@ -3,8 +3,9 @@
     "name": "expressions",
     "cases": [
       {
-        "input": "{{if 1 || 2 && 3 | 4 & 2}}{{/if}}",
-        "expectedAST": "[29,[24,[29],[7,1,[6,2,[30,3,[32,4,2]]]]]]"
+        "input": "{{if 1 || 2 && 3 | 4 & 2}}ololo{{/if}}",
+        "expectedAST": "[29,[24,[29,\"ololo\"],[7,1,[6,2,[30,3,[32,4,2]]]]]]",
+        "expectedResult": "ololo"
       },
       {
         "input": "{{ 1+1 ",

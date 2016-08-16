@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.bevaluator;
+package ru.histone.v2.java_compiler.bcompiler.data;
+
+
+import ru.histone.v2.evaluator.node.EvalNode;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * @author Alexey Nevinsky
  */
-public class HistoneClassLoader extends ClassLoader {
+public interface MacroFunction extends Function<List<CompletableFuture<EvalNode>>, CompletableFuture<EvalNode>> {
 }

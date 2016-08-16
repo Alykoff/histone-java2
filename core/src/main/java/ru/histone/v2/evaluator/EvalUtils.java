@@ -19,10 +19,12 @@ package ru.histone.v2.evaluator;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.slf4j.Logger;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
+import ru.histone.v2.exceptions.StopExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
@@ -243,5 +245,15 @@ public class EvalUtils {
             i++;
         }
         return true;
+    }
+
+    public static java.util.function.Function<Throwable, EvalNode> checkThrowable(Logger log) {
+        return e -> {
+            if (e.getCause() instanceof StopExecutionException) {
+                throw (StopExecutionException) e.getCause();
+            }
+            log.error(e.getMessage(), e);
+            return EvalUtils.createEvalNode(null);
+        };
     }
 }

@@ -16,68 +16,51 @@
 
 package ru.histone.v2;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testng.Assert;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
-import ru.histone.v2.evaluator.resource.loader.DataLoader;
-import ru.histone.v2.evaluator.resource.loader.FileLoader;
-import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.java_compiler.bcompiler.Compiler;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
-import ru.histone.v2.parser.Parser;
+import ru.histone.v2.parser.SsaOptimizer;
+import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.property.DefaultPropertyHolder;
-import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.support.ByteClassLoader;
 import ru.histone.v2.utils.AstJsonProcessor;
+import ru.histone.v2.utils.RttiUtils;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import static ru.histone.v2.acceptance.TestUtils.US_LOCALE;
 
 /**
  * @author Alexey Nevinsky
  */
-public class SimpleCompilerTest {
-
-    private static final Locale US_LOCALE = Locale.US;
-    protected static ExecutorService executor = Executors.newFixedThreadPool(20);
-    protected static RunTimeTypeInfo rtti;
-    protected static Evaluator evaluator;
-    protected static Parser parser;
-
-    @BeforeAll
-    public static void setUp() {
-        parser = new Parser();
-        evaluator = new Evaluator();
-
-        SchemaResourceLoader loader = new SchemaResourceLoader();
-        loader.addLoader(new DataLoader());
-        loader.addLoader(new HttpLoader(executor));
-        loader.addLoader(new FileLoader());
-
-        rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
-//        rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
-//        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
-    }
+public class SimpleCompilerTest extends BaseCompilerTest {
 
 
-    // "input": "{{'10' - 2}}"
+    // "input": "{{for x in [1,2,3,4,5,6,7,8,9,10]}}{{if x > 7}}{{true}} {{elseif x > 5}}{{false}} {{else}}{{\"ha\"}} {{/if}}{{/for}}"
     // "expectedAST": "[29,[10,\"10\",2]]"
     // "expectedResult": "8"
     @Test
     public void doTest() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        String expectedAST = "[29,[9,\"foo-\",null]]";
-        String expectedResult = "foo-null";
+        String expectedAST = "[29,[10,\"10\",2]]";
+        String expectedResult = "8";
 
         Compiler compiler = new Compiler();
-        byte[] classBytes = compiler.compile("Template1", AstJsonProcessor.read(expectedAST));
+
+        AstNode tree = AstJsonProcessor.read(expectedAST);
+        SsaOptimizer optimizer = new SsaOptimizer();
+        optimizer.process(tree);
+
+        expectedAST = AstJsonProcessor.write(tree);
+
+        byte[] classBytes = compiler.compile("Template1", tree);
         Map<String, byte[]> classes = Collections.singletonMap("Template1", classBytes);
 
         ByteClassLoader loader = new ByteClassLoader(new URL[]{}, getClass().getClassLoader(), classes);
@@ -87,11 +70,39 @@ public class SimpleCompilerTest {
 
         Assert.assertEquals(template.getStringAst(), expectedAST);
 
-        Context context = Context.createRoot("", US_LOCALE, rtti, new DefaultPropertyHolder());
+        String baseURI = "acceptance/simple/function/global";
 
-        String result = (String) template.render(context).join().getValue();
+        Context context = Context.createRoot(baseURI, US_LOCALE, rtti, new DefaultPropertyHolder());
 
+//        if (testCase.getContext() != null) {
+//        for (Map.Entry<String, Object> entry : getMap().entrySet()) {
+//            if (entry.getKey().equals("this")) {
+//                context.put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+//            } else {
+//                context.getVars().put(entry.getKey(), CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+//            }
+//        }
+//        }
+
+        String result = template.render(context)
+                .thenCompose(v -> RttiUtils.callToString(context, v))
+                .thenApply(n -> ((StringEvalNode) n).getValue())
+                .join();
         Assert.assertEquals(result, expectedResult);
     }
 
+    private Map<String, Object> getMap() {
+        Map<String, Object> res = new HashMap<>();
+
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("0", 1L);
+        values.put("1", 2L);
+        values.put("2", 3L);
+
+        res.put("items", values);
+
+        Map<String, Object> t = new HashMap<>();
+        t.put("this", res);
+        return t;
+    }
 }

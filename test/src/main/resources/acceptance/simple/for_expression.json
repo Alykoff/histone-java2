@@ -445,24 +445,30 @@
       {
         "inputFile": "for1.tpl",
         "context": {
-          "some_condition": true
+          "this": {
+            "some_condition": true
+          }
         },
         "expectedResult": "    collection is empty and some_condition"
       },
       {
         "inputFile": "for1.tpl",
         "context": {
-          "some_condition": false
+          "this": {
+            "some_condition": false
+          }
         },
         "expectedResult": "    collection is empty"
       },
       {
         "inputFile": "for2.tpl",
         "context": {
-          "collection": {
-            "foo": 1,
-            "bar": 2,
-            "x": 3
+          "this": {
+            "collection": {
+              "foo": 1,
+              "bar": 2,
+              "x": 3
+            }
           }
         },
         "expectedResult": "    1    2    3    foo = 1    bar = 2    x = 3"

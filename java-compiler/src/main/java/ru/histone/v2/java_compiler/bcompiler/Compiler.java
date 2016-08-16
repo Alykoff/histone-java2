@@ -69,10 +69,6 @@ public class Compiler {
         return res;
     }
 
-    public boolean isSimpleTemplate(AstNode node) {
-        return false;
-    }
-
     public JavaFile createFile(String name, AstNode root) throws IOException {
         JavaFile javaFile = JavaFile
                 .builder("ru.histone.v2.acceptance", createClass(name, root))
@@ -110,7 +106,7 @@ public class Compiler {
                 .addParameter(Context.class, "ctx")
                 .returns(CompletableFuture.class);
 
-        builder = templateProcessor.process(builder, root);
+        templateProcessor.processTemplate(builder, root);
 
         MethodSpec res = builder.build();
         return res;

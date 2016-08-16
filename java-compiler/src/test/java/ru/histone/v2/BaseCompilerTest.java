@@ -18,30 +18,37 @@ package ru.histone.v2;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.TestFactory;
-import ru.histone.v2.acceptance.HistoneTestCase;
+import org.junit.jupiter.api.extension.ExtendWith;
+import ru.histone.v2.acceptance.StringParamResolver;
+import ru.histone.v2.acceptance.TestRunner;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.java_compiler.java_evaluator.JavaHistoneClassLoader;
+import ru.histone.v2.java_compiler.java_evaluator.function.JavaMacroCall;
+import ru.histone.v2.java_compiler.java_evaluator.function.JavaRequire;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
+import ru.histone.v2.support.CompilerTestConsumer;
 import ru.histone.v2.support.StopExecutionExceptionFunction;
 import ru.histone.v2.support.ThrowExceptionFunction;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-//@ExtendWith(StringParamResolver.class)
-//@CasePack("simple")
-public class HistoneTest {
+/**
+ * @author Alexey Nevinsky
+ */
+@ExtendWith(StringParamResolver.class)
+public class BaseCompilerTest {
 
     protected static ExecutorService executor = Executors.newFixedThreadPool(20);
     protected static RunTimeTypeInfo rtti;
@@ -50,33 +57,29 @@ public class HistoneTest {
 
 
     @BeforeAll
-    public static void doInitSuite() {
+    public static void doInitSuite() throws MalformedURLException {
         parser = new Parser();
         evaluator = new Evaluator();
 
         SchemaResourceLoader loader = new SchemaResourceLoader();
-        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
-        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
-        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        loader.addLoader(new DataLoader());
+        loader.addLoader(new HttpLoader(executor));
+        loader.addLoader(new FileLoader());
+        loader.addLoader(new JavaHistoneClassLoader(new URL("file:///")));
 
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
+        rtti.register(HistoneType.T_MACRO, new JavaMacroCall(executor, loader, evaluator, parser));
+        rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser));
+//        for (HistoneType type : HistoneType.values()) {
+//            rtti.register(type, new JavaGetMethod());
+//        }
         rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
         rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
     }
 
-    @TestFactory
-    public Stream<DynamicTest> loadCases() throws IOException, URISyntaxException {
-        final List<DynamicTest> result = new ArrayList<>();
-        final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCases("simple");
-        for (HistoneTestCase histoneTestCase : histoneTestCases) {
-            for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
-                DynamicTest test = DynamicTest.dynamicTest("Expression: " + testCase.getInput(),
-                        () -> {
-                            TestRunner.doTest(testCase.getInput(), rtti, testCase, evaluator, parser);
-                        });
-                result.add(test);
-            }
-        }
-        return result.stream();
+    public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
+        TestRunner runner = new TestRunner();
+        CompilerTestConsumer consumer = new CompilerTestConsumer(rtti);
+        return runner.loadCases(param, consumer);
     }
 }

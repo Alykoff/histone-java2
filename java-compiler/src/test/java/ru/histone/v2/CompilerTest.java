@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.bevaluator;
+package ru.histone.v2;
+
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
+import ru.histone.v2.acceptance.CasePack;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.stream.Stream;
 
 /**
  * @author Alexey Nevinsky
  */
-public class BEvaluator {
+@CasePack("simple")
+public class CompilerTest extends BaseCompilerTest {
 
-
+    @TestFactory
+    @Override
+    public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
+        return super.loadCases(param);
+    }
 }

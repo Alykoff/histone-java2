@@ -2,7 +2,7 @@
 {{var collection = null}}
 {{for key:value in collection}}
     {{value}}
-{{elseif some_condition}}
+{{elseif this.some_condition}}
     collection is empty and some_condition
 {{else}}
     collection is empty

@@ -153,15 +153,15 @@ public class MacroCall extends AbstractFunction implements Serializable {
     // if macro is wrapped global function:
     // body := [AST_CALL, [AST_GLOBAL], METHOD_NAME],
     // body := [22, [4], METHOD_NAME]
-    private CompletableFuture<EvalNode> callWrappedGlobalFunction(Context context, List<EvalNode> args, AstNode body) {
+    protected CompletableFuture<EvalNode> callWrappedGlobalFunction(Context context, List<EvalNode> args, AstNode body) {
         final ExpAstNode bodyExt = (ExpAstNode) body;
         final StringAstNode methodNameNode = bodyExt.getNode(METHOD_NAME_INDEX_IN_WRAPPED_MACRO_BODY);
         final String methodName = methodNameNode.getValue();
         return context.call(methodName, args);
     }
 
-    private CompletableFuture<EvalNode> callWrappedValueFunction(Context context, List<EvalNode> args, ExpAstNode body,
-                                                                 EvalNode result) {
+    protected CompletableFuture<EvalNode> callWrappedValueFunction(Context context, List<EvalNode> args, ExpAstNode body,
+                                                                   EvalNode result) {
         final String functionName = ((StringAstNode) body.getNode(METHOD_NAME_INDEX_IN_WRAPPED_MACRO_BODY)).getValue();
         List<EvalNode> arguments = new ArrayList<>();
         arguments.add(result);

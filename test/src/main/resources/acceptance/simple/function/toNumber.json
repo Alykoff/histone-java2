@@ -182,12 +182,7 @@
       {
         "input": "a {{'.3E-2' -> toNumber()}} b",
         "expectedResult": "a 0.003 b"
-      }
-    ]
-  },
-  {
-    "name": "string -> toNumber",
-    "cases": [
+      },
       {
         "input": "{{var a = getDate}}{{var b = a -> toNumber -> toDate}}{{a=b}}",
         "expectedResult": "true"

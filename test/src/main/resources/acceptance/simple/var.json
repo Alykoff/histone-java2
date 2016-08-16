@@ -215,6 +215,10 @@
       {
         "input": "{{var x}}{{null}}{{/var}}{{x->isString}}",
         "expectedResult": "true"
+      },
+      {
+        "input": "{{var a=6, b=7}}{{a}}{{b}}",
+        "expectedResult": "67"
       }
     ]
   }

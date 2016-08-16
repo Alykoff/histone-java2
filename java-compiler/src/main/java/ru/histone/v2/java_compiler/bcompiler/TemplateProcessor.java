@@ -41,7 +41,7 @@ public class TemplateProcessor {
         addStatement(params, "CompletableFuture<StringBuilder> csb0 = CompletableFuture.completedFuture(new StringBuilder())");
         processNode(params);
         if (!checkReturnNode(((ExpAstNode) root).getNodes())) {
-            addStatement(params, "return $T.asString(ctx, csb0)", StdLibrary.class);
+            addStatement(params, "return std.asString(ctx, csb0)");
         }
     }
 
@@ -136,13 +136,13 @@ public class TemplateProcessor {
             case AST_MACRO:
                 processMacroNode(params.addMacroCtx().addCtx().incMacro());
                 break;
-//            case AST_RETURN:
-//                processReturnNode(expNode, context);
+            case AST_RETURN:
+                processReturnNode(params);
             case AST_NODES:
                 processNodes(params.addMacroCtx().addCtx().incMacro());
                 break;
             case AST_NODELIST:
-                processNodeList(params);
+                processNodeList(params, false);
                 break;
             case AST_BOR:
                 processBorNode(params);
@@ -164,8 +164,14 @@ public class TemplateProcessor {
         }
     }
 
+    private void processReturnNode(Params params) {
+        addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
+        processNode(params);
+        addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+    }
+
     private void processBorNode(Params params) {
-        addCode(params, "StdLibrary.processBorNode(");
+        addCode(params, "std.processBorNode(");
         processNode(params.withNode(0));
         addCode(params, " ,");
         processNode(params.withNode(1));
@@ -173,7 +179,7 @@ public class TemplateProcessor {
     }
 
     private void processBxorNode(Params params) {
-        addCode(params, "StdLibrary.processBxorNode(");
+        addCode(params, "std.processBxorNode(");
         processNode(params.withNode(0));
         addCode(params, " ,");
         processNode(params.withNode(1));
@@ -181,7 +187,7 @@ public class TemplateProcessor {
     }
 
     private void processBandNode(Params params) {
-        addCode(params, "StdLibrary.processBandNode(");
+        addCode(params, "std.processBandNode(");
         processNode(params.withNode(0));
         addCode(params, " ,");
         processNode(params.withNode(1));
@@ -189,7 +195,7 @@ public class TemplateProcessor {
     }
 
     private void processLogical(Params params, boolean negateCheck) {
-        addCode(params, "StdLibrary.processLogicalNode(");
+        addCode(params, "std.processLogicalNode(");
         processNode(params.withNode(0));
         addCode(params, " ,");
         processNode(params.withNode(1));
@@ -238,7 +244,7 @@ public class TemplateProcessor {
     private void processTernary(Params params) {
         ExpAstNode node = (ExpAstNode) params.node;
 
-        addCode(params, "StdLibrary.toBoolean(");
+        addCode(params, "std.toBoolean(");
         processNode(params.with(node.getNode(0)));
         addCode(params, ") \n? ");
         processNode(params.with(node.getNode(1)));
@@ -261,7 +267,7 @@ public class TemplateProcessor {
     }
 
     private void processNotNode(Params params) {
-        addCode(params, "StdLibrary.asBooleanNot(ctx, ");
+        addCode(params, "std.asBooleanNot(ctx, ");
         processNode(params.withNode(0));
         addCode(params, ")");
 
@@ -270,7 +276,7 @@ public class TemplateProcessor {
     private void processMacroNode(Params params) {
         ExpAstNode node = (ExpAstNode) params.node;
 
-        addCode(params, "StdLibrary.toMacro(args%s -> {\n", params.macroCounter.count);
+        addCode(params, "std.toMacro(args%s -> {\n", params.macroCounter.count);
         addCode(params, "CompletableFuture<$T> csb%s = CompletableFuture.completedFuture(new StringBuilder());\n", StringBuilder.class, params.macroCtxNum);
         addCode(params, "CompletableFuture<$T> v%s0 = args%s.get(0);\n", EvalNode.class, params.ctxNum - (Long) value(node.getNode(0)), params.macroCounter.count);
 
@@ -298,7 +304,7 @@ public class TemplateProcessor {
         }
         processNode(params.withNode(1));
         if (!node.getNode(1).hasValue() && !checkReturnNode(((ExpAstNode) node.getNode(1)).getNodes())) {
-            addStatement(params, "return $T.asString(ctx, csb%s)", StdLibrary.class, params.macroCtxNum);
+            addStatement(params, "return std.asString(ctx, csb%s)", params.macroCtxNum);
         }
 
         addCode(params, "}, " + argsSize + ")");
@@ -326,14 +332,14 @@ public class TemplateProcessor {
         addStatement(params, "int i%s = -1", params.ctxNum);
         addCode(params, "while (");
         if (params.node.size() > 1) {
-            addCode(params, "StdLibrary.toBoolean(");
+            addCode(params, "std.toBoolean(");
             processNode(params.withNode(1));
             addCode(params, ")");
         } else {
             addCode(params, "true");
         }
         addCode(params, ") {\n");
-        addStatement(params, "$T self%s = StdLibrary.constructWhileSelfValue(++i%s)",
+        addStatement(params, "$T self%s = std.constructWhileSelfValue(++i%s)",
                 MapEvalNode.class, params.ctxNum, params.ctxNum);
         addStatement(params, "CompletableFuture<$T> v%s0 = CompletableFuture.completedFuture(self%s)",
                 EvalNode.class, params.ctxNum, params.ctxNum);
@@ -359,7 +365,7 @@ public class TemplateProcessor {
 
 
         beginControlFlow(params, "while (index%s < size%s)", params.forCtxNumber, params.ctxNum);
-        addStatement(params, "MapEvalNode self%s = StdLibrary.constructForSelfValue(arr%s, index%s, ((MapEvalNode) arrObj%s).getValue().size() -1)",
+        addStatement(params, "MapEvalNode self%s = std.constructForSelfValue(arr%s, index%s, ((MapEvalNode) arrObj%s).getValue().size() -1)",
                 MapEvalNode.class, params.ctxNum, params.ctxNum, params.forCtxNumber, params.loopCounter.count);
         addStatement(params, "CompletableFuture<EvalNode> v%s0 = CompletableFuture.completedFuture(self%s)", params.ctxNum, params.ctxNum);
         if (hasKey) {
@@ -382,7 +388,7 @@ public class TemplateProcessor {
         //todo replace with if node
         if (n.size() > startIndex) {
             for (int i = 0; i < (n.size() - startIndex) / 2; i++) {
-                addCode(params, "} else if (StdLibrary.toBoolean(");
+                addCode(params, "} else if (std.toBoolean(");
                 processNode(params.withNode(2 * i + startIndex + 1));
                 addCode(params, ")) {\n");
                 processNode(params.withNode(2 * i + startIndex).addCtx());
@@ -433,7 +439,7 @@ public class TemplateProcessor {
             if (i != 0) {
                 addCode(params, "} else ");
             }
-            addCode(params, "if (StdLibrary.toBoolean(");
+            addCode(params, "if (std.toBoolean(");
             processNode(params.withNode(2 * i + 1));
             addCode(params, ")) {\n");
             if (((ExpAstNode) params.node).getNode(2 * i).hasValue()) {
@@ -445,14 +451,18 @@ public class TemplateProcessor {
         }
         if (n.size() % 2 == 1) {
             addCode(params, "} else {\n");
-            processNode(params.withNode(n.size() - 1).addCtx());
-            //todo do logic if node is simple string
+            if (((ExpAstNode) params.node).getNode(n.size() - 1).hasValue()) {
+                ExpAstNode node = new ExpAstNode(AstType.AST_NODELIST, ((ExpAstNode) params.node).getNode(n.size() - 1));
+                processNode(params.with(node));
+            } else {
+                processNode(params.withNode(n.size() - 1).addCtx());
+            }
         }
         addCode(params, "}\n");
     }
 
     private void processRelation(Params params) {
-        addCode(params, "StdLibrary.%s(ctx, ", getRelationMethod((ExpAstNode) params.node));
+        addCode(params, "std.%s(ctx, ", getRelationMethod((ExpAstNode) params.node));
         processNode(params.withNode(0));
         addCode(params, ",");
         processNode(params.withNode(1));
@@ -463,7 +473,7 @@ public class TemplateProcessor {
     private void processArrayNode(Params params) {
         ExpAstNode n = (ExpAstNode) params.node;
         if (CollectionUtils.isEmpty(n.getNodes())) {
-            addCode(params, "$T.array()", StdLibrary.class);
+            addCode(params, "std.array()");
             return;
         }
         if (n.getNode(0).getType() == AstType.AST_VAR) {
@@ -471,7 +481,7 @@ public class TemplateProcessor {
 //            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EvalUtils.createEvalNode(null));
         }
 
-        addCode(params, "$T.array(", StdLibrary.class);
+        addCode(params, "std.array(");
         for (int i = 0; i < n.size(); i++) {
             processNode(params.withNode(i));
             if (i != n.size() - 1) {
@@ -485,8 +495,7 @@ public class TemplateProcessor {
     private void processCall(Params params) {
         CallExpAstNode callNode = (CallExpAstNode) params.node;
         if (callNode.getCallType() == CallType.SIMPLE) {
-            addCode(params, "$T.simpleCall(ctx,", StdLibrary.class);
-            //todo
+            addCode(params, "std.simpleCall(ctx,");
             if (callNode.size() == 2) {
                 if (callNode.getNode(0).getType() == AstType.AST_GLOBAL) {
                     addCode(params, "\"" + ((ValueNode) callNode.getNode(1)).getValue() + "\", $T.singletonList(", Collections.class);
@@ -511,10 +520,10 @@ public class TemplateProcessor {
             addCode(params, ")");
         } else if (callNode.getCallType() == CallType.RTTI_M_GET) {
             if (callNode.getNode(0).getType() == AstType.AST_THIS) {
-                addCode(params, "StdLibrary.getFromCtx(ctx, ");
+                addCode(params, "std.getFromCtx(ctx, ");
                 processNode(params.withNode(1));
             } else {
-                addCode(params, "StdLibrary.mGet(ctx, ");
+                addCode(params, "std.mGet(ctx, ");
                 for (int i = 0; i < callNode.size(); i++) {
                     processNode(params.withNode(i));
                     if (i != callNode.size() - 1) {
@@ -524,7 +533,7 @@ public class TemplateProcessor {
             }
             addCode(params, ")");
         } else if (!(callNode.getNode(0) instanceof ValueNode)) {
-            addCode(params, "StdLibrary.mCall(ctx, ");
+            addCode(params, "std.mCall(ctx, ");
             for (int i = 0; i < callNode.size(); i++) {
                 processNode(params.withNode(i));
                 if (i != callNode.size() - 1) {
@@ -540,7 +549,7 @@ public class TemplateProcessor {
 
     private void processArithmetical(Params params) {
         ExpAstNode n = (ExpAstNode) params.node;
-        addCode(params, "StdLibrary.%s(ctx, ", getArithmeticalMethod(n));
+        addCode(params, "std.%s(ctx, ", getArithmeticalMethod(n));
         processNode(params.withNode(0));
 
         if (CollectionUtils.isNotEmpty(n.getNodes()) && n.getNodes().size() == 2) {
@@ -591,70 +600,37 @@ public class TemplateProcessor {
         ExpAstNode n = (ExpAstNode) params.node;
         addCode(params, "(($T) args%s -> {", MacroFunction.class, params.macroCounter.count);
         addCode(params, "CompletableFuture<$T> csb%s = CompletableFuture.completedFuture(new StringBuilder());\n", StringBuilder.class, params.macroCtxNum);
-        if (checkReturnNode(n.getNodes())) {
-            for (AstNode node : n.getNodes()) {
-                if (node.getType() == AstType.AST_RETURN) {
-//                    addCode(params, "return ");
-//                    processNode(params.with(((ExpAstNode) node).getNode(0)));
-//                    addCode(params, ";\n");
 
-                    addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
-                    processNode(params.with(node).withNode(0));
-                    addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
-                    break;
-                }
-                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
-                    processNode(params);
-                    break;
-                }
-                processNodeInNodeList(params.with(node));
-            }
-        } else {
-            for (AstNode node : n.getNodes()) {
-                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
-                    processNode(params.with(node));
-                    break;
-                }
-                processNodeInNodeList(params.with(node));
-            }
-            addStatement(params, "return $T.asString(ctx, csb%s)", StdLibrary.class, params.macroCtxNum);
-        }
-
+        processNodeList(params, true);
         addCode(params, "}).apply($T.emptyList())", Collections.class);
     }
 
-    private void processNodeList(Params params) {
+    private void processNodeList(Params params, boolean returnIsNeeded) {
         ExpAstNode n = (ExpAstNode) params.node;
-        if (checkReturnNode(n.getNodes())) {
-            for (AstNode node : n.getNodes()) {
-                if (node.getType() == AstType.AST_RETURN) {
-                    addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
-                    processNode(params.with(node).withNode(0));
-                    addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
-                    break;
-                }
-                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
-                    processNode(params.with(node));
-                    break;
-                }
-                processNodeInNodeList(params.with(node));
+        for (AstNode node : n.getNodes()) {
+            if (node.getType() == AstType.AST_RETURN) {
+//                    processNode(params.with(node).withNode(0));
+                addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
+                processNode(params.with(node).withNode(0));
+                addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+                break;
             }
-        } else {
-            for (AstNode node : n.getNodes()) {
-                if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
-                    processNode(params.with(node));
-                    break;
-                }
-                processNodeInNodeList(params.with(node));
+            if (node.getType() == AstType.AST_CONTINUE || node.getType() == AstType.AST_BREAK) {
+                processNode(params.with(node));
+                break;
             }
+            processNodeInNodeList(params.with(node));
         }
 
+        if (!checkReturnNode(n.getNodes()) && returnIsNeeded) {
+            addStatement(params, "return std.asString(ctx, csb%s)", params.macroCtxNum);
+        }
     }
 
     private void processNodeInNodeList(Params params) {
         if (isPrintNode(params.node)) {
             addCode(params, "csb%s = ", params.macroCtxNum);
-            addCode(params, "$T.append(ctx, csb%s, ", StdLibrary.class, params.macroCtxNum);
+            addCode(params, "std.append(ctx, csb%s, ", params.macroCtxNum);
             processNode(params);
             addCode(params, ")");
             addCode(params, ";\n");

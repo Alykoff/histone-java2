@@ -26,6 +26,7 @@ import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 import ru.histone.v2.java_compiler.java_evaluator.JavaHistoneClassLoader;
 import ru.histone.v2.java_compiler.java_evaluator.function.JavaMacroCall;
 import ru.histone.v2.java_compiler.java_evaluator.function.JavaRequire;
@@ -54,6 +55,7 @@ public class BaseCompilerTest {
     protected static RunTimeTypeInfo rtti;
     protected static Evaluator evaluator;
     protected static Parser parser;
+    protected static StdLibrary library;
 
 
     @BeforeAll
@@ -67,19 +69,18 @@ public class BaseCompilerTest {
         loader.addLoader(new FileLoader());
         loader.addLoader(new JavaHistoneClassLoader(new URL("file:///")));
 
+        library = new StdLibrary();
+
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
         rtti.register(HistoneType.T_MACRO, new JavaMacroCall(executor, loader, evaluator, parser));
-        rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser));
-//        for (HistoneType type : HistoneType.values()) {
-//            rtti.register(type, new JavaGetMethod());
-//        }
+        rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser, library));
         rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
         rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
     }
 
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
         TestRunner runner = new TestRunner();
-        CompilerTestConsumer consumer = new CompilerTestConsumer(rtti);
+        CompilerTestConsumer consumer = new CompilerTestConsumer(rtti, library);
         return runner.loadCases(param, consumer);
     }
 }

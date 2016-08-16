@@ -40,9 +40,12 @@ import java.util.concurrent.CompletableFuture;
  */
 public class Compiler {
 
-    public static final String GET_STRING_AST_METHOD_NAME = "getStringAst";
-    public static final String RENDER_METHOD_NAME = "render";
-    private String AST_TREE_NAME = "AST_TREE";
+    private static final String GET_STRING_AST_METHOD_NAME = "getStringAst";
+    private static final String RENDER_METHOD_NAME = "render";
+    private static final String AST_TREE_NAME = "AST_TREE";
+
+    private static final String STD_LIBRARY_NAME = "std";
+    private static final String SET_STD_LIBRARY_METHOD_NAME = "setStdLibrary";
 
     private TemplateProcessor templateProcessor = new TemplateProcessor();
 
@@ -91,6 +94,8 @@ public class Compiler {
         TypeSpec spec = TypeSpec.classBuilder(templateName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(Template.class)
+                .addField(createSdtLibraryField())
+                .addMethod(createSetStdLibraryMethod())
                 .addField(createAstTreeField(root))
                 .addMethod(createGetAstTreeMethod())
                 .addMethod(createRenderMethod(root))
@@ -109,6 +114,24 @@ public class Compiler {
         templateProcessor.processTemplate(builder, root);
 
         MethodSpec res = builder.build();
+        return res;
+    }
+
+    private FieldSpec createSdtLibraryField() {
+        FieldSpec res = FieldSpec
+                .builder(StdLibrary.class, STD_LIBRARY_NAME, Modifier.PRIVATE)
+                .build();
+        return res;
+    }
+
+    private MethodSpec createSetStdLibraryMethod() {
+        MethodSpec res = MethodSpec
+                .methodBuilder(SET_STD_LIBRARY_METHOD_NAME)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addParameter(StdLibrary.class, STD_LIBRARY_NAME)
+                .addStatement("this." + STD_LIBRARY_NAME + " = " + STD_LIBRARY_NAME)
+                .build();
         return res;
     }
 

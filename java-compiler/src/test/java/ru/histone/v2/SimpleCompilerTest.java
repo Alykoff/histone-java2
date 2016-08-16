@@ -21,6 +21,7 @@ import org.testng.Assert;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.java_compiler.bcompiler.Compiler;
+import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.AstNode;
@@ -66,7 +67,10 @@ public class SimpleCompilerTest extends BaseCompilerTest {
         ByteClassLoader loader = new ByteClassLoader(new URL[]{}, getClass().getClassLoader(), classes);
         Class<?> t = loader.loadClass("Template1");
 
+        StdLibrary library = new StdLibrary();
+
         Template template = (Template) t.newInstance();
+        template.setStdLibrary(library);
 
         Assert.assertEquals(template.getStringAst(), expectedAST);
 

@@ -52,24 +52,24 @@ public class StdLibrary {
 
     private static final NodesComparator comparator = new NodesComparator(); //todo do init in constructor and remove static modificator
 
-    public static CompletableFuture<EvalNode> sub(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> sub(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return doArithmetic(first, second, (x, y) -> x - y);
     }
 
-    public static CompletableFuture<EvalNode> mod(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> mod(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return doArithmetic(first, second, (x, y) -> x % y);
     }
 
-    public static CompletableFuture<EvalNode> mul(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> mul(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return doArithmetic(first, second, (x, y) -> x * y);
     }
 
-    public static CompletableFuture<EvalNode> div(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> div(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return doArithmetic(first, second, (x, y) -> x / y);
     }
 
-    private static CompletableFuture<EvalNode> doArithmetic(CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second,
-                                                            DoubleBinaryOperator sup) {
+    private CompletableFuture<EvalNode> doArithmetic(CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second,
+                                                     DoubleBinaryOperator sup) {
         return AsyncUtils.sequence(first, second)
                 .thenCompose(l -> {
                     EvalNode left = l.get(0);
@@ -94,7 +94,7 @@ public class StdLibrary {
                 });
     }
 
-    private static Optional<Double> getValue(EvalNode node) { // TODO duplicate ???
+    private Optional<Double> getValue(EvalNode node) { // TODO duplicate ???
         if (node.getType() == HistoneType.T_STRING) {
             return ParserUtils.tryDouble(((StringEvalNode) node).getValue());
         } else {
@@ -102,20 +102,20 @@ public class StdLibrary {
         }
     }
 
-    public static boolean toBoolean(CompletableFuture<EvalNode> node) {
+    public boolean toBoolean(CompletableFuture<EvalNode> node) {
         return nodeAsBoolean(node.join());
     }
 
-    public static CompletableFuture<EvalNode> arr(Object... args) {
+    public CompletableFuture<EvalNode> arr(Object... args) {
         return null;
     }
 
-    public static boolean bool(CompletableFuture<EvalNode> apply) {
+    public boolean bool(CompletableFuture<EvalNode> apply) {
         return false;
     }
 
-    public static CompletableFuture<StringBuilder> append(Context ctx, CompletableFuture<StringBuilder> csb,
-                                                          CompletableFuture<EvalNode> var) {
+    public CompletableFuture<StringBuilder> append(Context ctx, CompletableFuture<StringBuilder> csb,
+                                                   CompletableFuture<EvalNode> var) {
         if (var == null) {
             return csb;
         }
@@ -126,15 +126,15 @@ public class StdLibrary {
                 );
     }
 
-    public static CompletableFuture<EvalNode> asString(Context ctx, CompletableFuture<StringBuilder> csb) {
+    public CompletableFuture<EvalNode> asString(Context ctx, CompletableFuture<StringBuilder> csb) {
         return csb.thenCompose(sb -> RttiUtils.callToString(ctx, EvalUtils.createEvalNode(sb.toString())));
     }
 
-    public static CompletableFuture<EvalNode> asBooleanNot(Context context, CompletableFuture<EvalNode> node) {
+    public CompletableFuture<EvalNode> asBooleanNot(Context context, CompletableFuture<EvalNode> node) {
         return node.thenCompose(n -> EvalUtils.getValue(!nodeAsBoolean(n)));
     }
 
-    public static CompletableFuture<EvalNode> add(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> add(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return AsyncUtils.sequence(first, second).thenCompose(lr -> {
             EvalNode left = lr.get(0);
             EvalNode right = lr.get(1);
@@ -167,7 +167,7 @@ public class StdLibrary {
         });
     }
 
-    public static CompletableFuture<EvalNode> uSub(Context ctx, CompletableFuture<EvalNode> v) {
+    public CompletableFuture<EvalNode> uSub(Context ctx, CompletableFuture<EvalNode> v) {
         return v.thenApply(n -> {
             if (n instanceof LongEvalNode) {
                 final Long value = ((LongEvalNode) n).getValue();
@@ -197,15 +197,10 @@ public class StdLibrary {
      * @param nodes arguments for create map
      * @return completable future of result map
      */
-    public static CompletableFuture<EvalNode> array(CompletableFuture<EvalNode>... nodes) {
+    public CompletableFuture<EvalNode> array(CompletableFuture<EvalNode>... nodes) {
         if (nodes.length == 0) {
             return completedFuture(new MapEvalNode(new LinkedHashMap<>(0)));
         }
-        //todo
-//        if (node.getNode(0).getType() == AstType.AST_VAR) {
-//            return evalAllNodesOfCurrent(node, context).thenApply(evalNodes -> EvalUtils.createEvalNode(null));
-//        }
-
         return AsyncUtils.sequence(nodes)
                 .thenApply(nodeList -> {
                     Map<String, EvalNode> map = new LinkedHashMap<>();
@@ -223,12 +218,12 @@ public class StdLibrary {
      * @param nodes array of nodes: нулевой элемент - переменная, у которой получаем какое-то значение, остальные - аргументы.
      * @return
      */
-    public static CompletableFuture<EvalNode> mGet(Context ctx, CompletableFuture<EvalNode>... nodes) {
+    public CompletableFuture<EvalNode> mGet(Context ctx, CompletableFuture<EvalNode>... nodes) {
         return AsyncUtils.sequence(nodes)
                 .thenCompose(nodeList -> ctx.call(nodeList.get(0), RttiMethod.RTTI_M_GET.getId(), nodeList));
     }
 
-    public static CompletableFuture<EvalNode> simpleCall(Context ctx, String functionName, List<CompletableFuture<EvalNode>> args) {
+    public CompletableFuture<EvalNode> simpleCall(Context ctx, String functionName, List<CompletableFuture<EvalNode>> args) {
         return AsyncUtils.sequence(args)
                 .thenCompose(argList -> {
                     if (argList.size() >= 1) {
@@ -239,7 +234,7 @@ public class StdLibrary {
                 .exceptionally(EvalUtils.checkThrowable(LOG));
     }
 
-    public static CompletableFuture<EvalNode> mCall(Context ctx, CompletableFuture<EvalNode> valueNode, CompletableFuture<EvalNode>... nodes) {
+    public CompletableFuture<EvalNode> mCall(Context ctx, CompletableFuture<EvalNode> valueNode, CompletableFuture<EvalNode>... nodes) {
 //        final CompletableFuture<EvalNode> valueNode;
 //        if (!(callNode.getNode(0) instanceof CallExpAstNode)) {
 //            valueNode = evaluateNode(callNode.getNode(0), context);
@@ -270,31 +265,31 @@ public class StdLibrary {
                 );
     }
 
-    public static CompletableFuture<EvalNode> lt(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> lt(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return comparator.processRelation(first, second, AstType.AST_LT, ctx);
     }
 
-    public static CompletableFuture<EvalNode> eq(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> eq(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return comparator.processRelation(first, second, AstType.AST_EQ, ctx);
     }
 
-    public static CompletableFuture<EvalNode> ge(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> ge(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return comparator.processRelation(first, second, AstType.AST_GE, ctx);
     }
 
-    public static CompletableFuture<EvalNode> gt(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> gt(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return comparator.processRelation(first, second, AstType.AST_GT, ctx);
     }
 
-    public static CompletableFuture<EvalNode> le(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> le(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return comparator.processRelation(first, second, AstType.AST_LE, ctx);
     }
 
-    public static CompletableFuture<EvalNode> neq(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> neq(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return comparator.processRelation(first, second, AstType.AST_NEQ, ctx);
     }
 
-    public static MapEvalNode constructForSelfValue(MapEvalNode array, int currentIndex, int lastIndex) {
+    public MapEvalNode constructForSelfValue(MapEvalNode array, int currentIndex, int lastIndex) {
         List<Map.Entry<String, EvalNode>> nodes = new ArrayList<>(array.getValue().entrySet());
 
         Map<String, EvalNode> res = new LinkedHashMap<>();
@@ -305,14 +300,14 @@ public class StdLibrary {
         return (MapEvalNode) EvalUtils.createEvalNode(res);
     }
 
-    public static MapEvalNode constructWhileSelfValue(int currentIndex) {
+    public MapEvalNode constructWhileSelfValue(int currentIndex) {
         Map<String, EvalNode> res = new LinkedHashMap<>();
         res.put(Constants.SELF_WHILE_ITERATION, EvalUtils.createEvalNode(currentIndex));
 //        res.put(Constants.SELF_WHILE_CONDITION, nodes.get(currentIndex).getValue());
         return (MapEvalNode) EvalUtils.createEvalNode(res);
     }
 
-    public static CompletableFuture<EvalNode> toMacro(MacroFunction macroFunction, long argsSize) {
+    public CompletableFuture<EvalNode> toMacro(MacroFunction macroFunction, long argsSize) {
         List<String> args = new ArrayList<>();
         for (int i = 1; i <= argsSize; i++) {
             args.add(i + "");
@@ -323,7 +318,7 @@ public class StdLibrary {
         return CompletableFuture.completedFuture(new MacroEvalNode(f));
     }
 
-    public static CompletableFuture<EvalNode> getFromCtx(Context ctx, CompletableFuture<EvalNode> nameNode) {
+    public CompletableFuture<EvalNode> getFromCtx(Context ctx, CompletableFuture<EvalNode> nameNode) {
         return AsyncUtils.sequence(ctx.getValue(Constants.THIS_CONTEXT_VALUE), nameNode)
                 .thenApply(list -> {
                     EvalNode fromCtx = list.get(0);
@@ -335,7 +330,7 @@ public class StdLibrary {
                 });
     }
 
-    public static CompletableFuture<EvalNode> processLogicalNode(CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second, boolean negateCheck) {
+    public CompletableFuture<EvalNode> processLogicalNode(CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second, boolean negateCheck) {
         return first.thenCompose(f -> {
             if (nodeAsBoolean(f) ^ negateCheck) {
                 return CompletableFuture.completedFuture(f);
@@ -344,24 +339,24 @@ public class StdLibrary {
         });
     }
 
-    public static CompletableFuture<EvalNode> processBorNode(CompletableFuture<EvalNode> first,
-                                                             CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> processBorNode(CompletableFuture<EvalNode> first,
+                                                      CompletableFuture<EvalNode> second) {
         return processBitwiseNode(first, second, (a, b) -> a | b);
     }
 
-    public static CompletableFuture<EvalNode> processBxorNode(CompletableFuture<EvalNode> first,
-                                                              CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> processBxorNode(CompletableFuture<EvalNode> first,
+                                                       CompletableFuture<EvalNode> second) {
         return processBitwiseNode(first, second, (a, b) -> a ^ b);
     }
 
-    public static CompletableFuture<EvalNode> processBandNode(CompletableFuture<EvalNode> first,
-                                                              CompletableFuture<EvalNode> second) {
+    public CompletableFuture<EvalNode> processBandNode(CompletableFuture<EvalNode> first,
+                                                       CompletableFuture<EvalNode> second) {
         return processBitwiseNode(first, second, (a, b) -> a & b);
     }
 
-    private static CompletableFuture<EvalNode> processBitwiseNode(CompletableFuture<EvalNode> firstFuture,
-                                                                  CompletableFuture<EvalNode> secondFuture,
-                                                                  BiFunction<Long, Long, Long> function) {
+    private CompletableFuture<EvalNode> processBitwiseNode(CompletableFuture<EvalNode> firstFuture,
+                                                           CompletableFuture<EvalNode> secondFuture,
+                                                           BiFunction<Long, Long, Long> function) {
         return AsyncUtils.sequence(firstFuture, secondFuture)
                 .thenApply(f -> {
                     long first = 0;

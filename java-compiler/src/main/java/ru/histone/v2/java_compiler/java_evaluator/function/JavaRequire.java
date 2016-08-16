@@ -25,6 +25,7 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.ResourceLoadException;
 import ru.histone.v2.exceptions.StopExecutionException;
+import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
@@ -41,8 +42,11 @@ import java.util.concurrent.Executor;
  */
 public class JavaRequire extends Require {
 
-    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
+    private StdLibrary library;
+
+    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, StdLibrary library) {
         super(executor, resourceLoader, evaluator, parser);
+        this.library = library;
     }
 
     @Override
@@ -67,6 +71,7 @@ public class JavaRequire extends Require {
                         Class tplClass = (Class) res.getContent();
 
                         Template tpl = (Template) tplClass.newInstance();
+                        tpl.setStdLibrary(library);
 
                         Context ctx = createCtx(context, res.getBaseHref(), params);
                         return tpl.render(ctx);

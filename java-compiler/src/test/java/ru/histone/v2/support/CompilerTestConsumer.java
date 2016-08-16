@@ -22,6 +22,7 @@ import ru.histone.v2.acceptance.HistoneTestCase;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.node.StringEvalNode;
+import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.property.DefaultPropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -43,9 +44,11 @@ import static ru.histone.v2.acceptance.TestUtils.checkException;
 public class CompilerTestConsumer implements Consumer<HistoneTestCase.Case> {
 
     private RunTimeTypeInfo rtti;
+    private StdLibrary stdLibrary;
 
-    public CompilerTestConsumer(RunTimeTypeInfo rtti) {
+    public CompilerTestConsumer(RunTimeTypeInfo rtti, StdLibrary stdLibrary) {
         this.rtti = rtti;
+        this.stdLibrary = stdLibrary;
     }
 
     @Override
@@ -57,6 +60,7 @@ public class CompilerTestConsumer implements Consumer<HistoneTestCase.Case> {
             Class<?> t = loader.loadClass(testCase.getInputClass());
 
             Template template = (Template) t.newInstance();
+            template.setStdLibrary(stdLibrary);
 
             if (StringUtils.isNotBlank(testCase.getExpectedAST())) {
                 Assertions.assertEquals(template.getStringAst(), testCase.getExpectedAST());

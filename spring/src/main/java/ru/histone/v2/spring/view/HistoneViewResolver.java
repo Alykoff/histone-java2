@@ -1,9 +1,8 @@
 package ru.histone.v2.spring.view;
 
-import org.springframework.util.Assert;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
-import ru.histone.v2.Histone;
+import ru.histone.v2.spring.HistoneSpringEngine;
 import ru.histone.v2.spring.processors.DefaultHistoneProcessingExceptionProcessor;
 import ru.histone.v2.spring.processors.HistoneProcessingExceptionProcessor;
 import ru.histone.v2.spring.processors.HistoneTemplatePostProcessor;
@@ -23,14 +22,15 @@ public class HistoneViewResolver extends UrlBasedViewResolver {
     private static final String DEFAULT_ENCODING = "UTF-8";
     protected String templateLocation = "";
     protected String encoding;
-    protected Histone histone;
+    protected HistoneSpringEngine histone;
     protected HistoneProcessingExceptionProcessor processorChain = initExceptionProcessingChain();
     protected List<HistoneTemplatePostProcessor> postProcessors = Collections.emptyList();
 
     @PostConstruct
     public void postConstruct() {
-        Histone histone = getApplicationContext().getBean(Histone.class);
-        Assert.notNull(histone, "Histone bean should present in Application Context");
+        if (histone == null) {
+            this.histone = getApplicationContext().getBean(HistoneSpringEngine.class);
+        }
     }
 
     @Override
@@ -82,11 +82,11 @@ public class HistoneViewResolver extends UrlBasedViewResolver {
         this.encoding = encoding;
     }
 
-    public Histone getHistone() {
+    public HistoneSpringEngine getHistone() {
         return histone;
     }
 
-    public void setHistone(Histone histone) {
+    public void setHistone(HistoneSpringEngine histone) {
         this.histone = histone;
     }
 

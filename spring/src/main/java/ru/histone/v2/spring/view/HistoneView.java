@@ -4,10 +4,10 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.view.AbstractUrlBasedView;
-import ru.histone.v2.HistoneEngine;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.spring.HistoneSpringEngine;
 import ru.histone.v2.spring.processors.HistoneProcessingExceptionProcessor;
 import ru.histone.v2.spring.processors.HistoneTemplatePostProcessor;
 
@@ -26,7 +26,7 @@ public class HistoneView extends AbstractUrlBasedView {
     private static final Logger log = LoggerFactory.getLogger(HistoneView.class);
     protected String encoding;
     protected String templateLocation;
-    protected HistoneEngine histone;
+    protected HistoneSpringEngine histone;
     protected HistoneProcessingExceptionProcessor histoneProcessingExceptionProcessor;
     protected List<HistoneTemplatePostProcessor> histoneTemplatePostProcessors;
 
@@ -90,11 +90,11 @@ public class HistoneView extends AbstractUrlBasedView {
         this.encoding = encoding;
     }
 
-    public HistoneEngine getHistone() {
+    public HistoneSpringEngine getHistone() {
         return histone;
     }
 
-    public void setHistone(HistoneEngine histone) {
+    public void setHistone(HistoneSpringEngine histone) {
         this.histone = histone;
     }
 

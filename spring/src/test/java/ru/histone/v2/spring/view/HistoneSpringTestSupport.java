@@ -10,6 +10,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import ru.histone.v2.Histone;
+import ru.histone.v2.spring.HistoneSpringEngine;
 import ru.histone.v2.spring.processors.HistoneTemplatePostProcessor;
 import ru.histone.v2.spring.view.config.HistoneTestConfig;
 
@@ -30,7 +31,7 @@ public abstract class HistoneSpringTestSupport {
     @Autowired
     protected WebApplicationContext webApplicationContext;
     @Autowired
-    protected Histone histone;
+    protected HistoneSpringEngine histone;
 
     protected MockMvc mockMvc;
 
@@ -44,7 +45,7 @@ public abstract class HistoneSpringTestSupport {
                 .setViewResolvers(viewResolver).build();
     }
 
-    protected HistoneViewResolver histoneViewResolver(Histone histone) {
+    protected HistoneViewResolver histoneViewResolver(HistoneSpringEngine histone) {
         HistoneViewResolver histoneViewResolver = new HistoneViewResolver();
         histoneViewResolver.setHistone(histone);
         histoneViewResolver.setPrefix("/WEB-INF/templates/");

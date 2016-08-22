@@ -39,7 +39,7 @@ public class HistoneView extends AbstractUrlBasedView {
             String templateData = postProcessTemplate(
                     histone.processTemplate(templatePath, getUrl(), filterHistoneParams(model), encoding), request, response
             );
-            baos.write(templateData.getBytes());
+            baos.write(templateData.getBytes(encoding));
             writeToResponse(response, baos);
             long endTime = System.currentTimeMillis();
             log.trace("Page processed for " + (endTime - startTime) + "ms");

@@ -72,6 +72,10 @@ public class Histone implements HistoneEngine {
     }
 
     public Histone(Executor executor) {
+        initializeHistone(executor);
+    }
+
+    protected void initializeHistone(Executor executor) {
         logger.info("================================================================");
         logger.info("Initializing Histone2 engine, implementation: " + getClass() + ". With executor: " + executor.getClass());
         this.evaluator = new Evaluator();

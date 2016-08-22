@@ -26,15 +26,16 @@ public class HistoneSpring extends Histone implements HistoneSpringEngine, Servl
     protected ServletContext servletContext;
 
     public HistoneSpring() {
-        this(new ForkJoinPool());
+        super(new ForkJoinPool());
     }
 
     public HistoneSpring(Locale locale, Executor executor) {
-        this(executor);
+        super(executor);
         this.locale = locale;
     }
 
-    public HistoneSpring(Executor executor) {
+    @Override
+    protected void initializeHistone(Executor executor) {
         logger.info("================================================================");
         logger.info("Initializing Histone2 engine, implementation: " + getClass() + ". With executor: " + executor.getClass());
         this.evaluator = new Evaluator();

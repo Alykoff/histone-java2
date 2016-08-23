@@ -348,9 +348,9 @@ public class TemplateProcessor {
 
     private void processForNode(Params params) {
 //        final String arrObjName = "arrObj" + params.ctxNum;
-        addCode(params, "$T arrObj%s = ", EvalNode.class, params.loopCounter.count);
+        addCode(params, "$T arrObj%s = (", EvalNode.class, params.loopCounter.count);
         processNode(params.withNode(3).decCtx());
-        addCode(params, ".join();\n");
+        addCode(params, ").join();\n");
         beginControlFlow(params, "if (arrObj%s instanceof $T && ((MapEvalNode) arrObj%s).getValue().size() > 0)", MapEvalNode.class, params.loopCounter.count, params.loopCounter.count);
         addStatement(params, "$T arr%s = (MapEvalNode) arrObj%s", MapEvalNode.class, params.ctxNum, params.loopCounter.count);
         addStatement(params, "$T index%s = 0", Integer.class, params.forCtxNumber);

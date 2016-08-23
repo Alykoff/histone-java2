@@ -82,6 +82,10 @@
       {
         "input": "a {{var x = [\r\n bla: 'dd', 2\r\n, 3\r\n]}} b",
         "expectedResult": "a  b"
+      },
+      {
+        "input": "{{var cond = '1', arr1 = [id: '1'], arr2 = [id: '2']}}{{for s in cond = '1' ? arr1 : arr2}}{{s}}{{/for}}",
+        "expectedResult": "1"
       }
     ]
   }

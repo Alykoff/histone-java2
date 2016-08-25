@@ -50,8 +50,8 @@ public class SimpleCompilerTest extends BaseCompilerTest {
     // "expectedResult": "8"
     @Test
     public void doTest() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        String expectedAST = "[29,[10,\"10\",2]]";
-        String expectedResult = "8";
+        String expectedAST = "[29,[23,[1,\"1\",\"id\"],1],[23,[1,\"2\",\"id\"],2],[25,null,1,[29,[21,0,1]],[8,[19,\"1\",\"1\"],[21,0,1],[21,0,2]]]]";
+        String expectedResult = "1";
 
         Compiler compiler = new Compiler();
 

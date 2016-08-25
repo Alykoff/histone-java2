@@ -138,7 +138,7 @@ public class Histone implements HistoneEngine {
     }
 
 
-    private Context createContext(String baseUri, Map<String, Object> params) {
+    protected Context createContext(String baseUri, Map<String, Object> params) {
         Context ctx = Context.createRoot(baseUri, locale, runTimeTypeInfo, propertyHolder);
         ctx.put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(params)));
         return ctx;

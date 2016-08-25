@@ -55,14 +55,13 @@ public class JavaRequire extends Require {
         checkMaxArgsLength(args, 2);
         checkTypes(args.get(0), 0, Collections.singletonList(HistoneType.T_STRING), Collections.singletonList(String.class));
 
-        final String url = getValue(args, 0);
+        String url = getValue(args, 0);
         final Object params = getValue(args, 1, null);
 
         URI uri = URI.create(url);
         if (StringUtils.isBlank(uri.getScheme())) {
-            String fullPath = PathUtils.resolveUrl(url, context.getBaseUri());
-            fullPath = "fullPathClass://" + fullPath;
-            uri = URI.create(fullPath);
+            String fullUri = PathUtils.resolveUrl(url, context.getBaseUri());
+            uri = URI.create("fullPathClass://" + fullUri);
         }
 
         return resourceLoader.load(uri.toString(), context.getBaseUri(), Collections.emptyMap())

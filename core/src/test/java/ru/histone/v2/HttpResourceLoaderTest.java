@@ -22,10 +22,8 @@ import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.extension.ExtendWith;
-import ru.histone.v2.support.CasePack;
-import ru.histone.v2.support.JerseyServerResource;
-import ru.histone.v2.support.StringParamResolver;
+import ru.histone.v2.acceptance.CasePack;
+import ru.histone.v2.acceptance.JerseyServerResource;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,19 +33,11 @@ import java.util.stream.Stream;
 /**
  * @author Alexey Nevinsky
  */
-@ExtendWith(StringParamResolver.class)
 @CasePack("http")
 public class HttpResourceLoaderTest extends HistoneTest {
 
     private final String BASE_URI = "http://127.0.0.1:4442/";
     private Server server;
-
-    //    @BeforeEach
-    public void setUp() throws Exception {
-        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
-        server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
-        Log.setLog(new StdErrLog());
-    }
 
     @TestFactory
     @Override
@@ -68,14 +58,5 @@ public class HttpResourceLoaderTest extends HistoneTest {
                         }
                     }
                 }));
-    }
-
-    //    @AfterEach
-    public void tearDown() throws Exception {
-        try {
-            server.stop();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

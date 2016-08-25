@@ -43,6 +43,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class HttpLoader implements Loader {
 
+    public static final String HTTP_SCHEME = "http";
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpLoader.class);
 
     private static final String[] PROHIBITED_HEADERS = {"accept-charset", "accept-encoding", "access-control-request-headers",
@@ -65,6 +66,11 @@ public class HttpLoader implements Loader {
                     Resource res = new HistoneStringResource(s, url.toString(), ContentType.TEXT.getId());
                     return res;
                 });
+    }
+
+    @Override
+    public String getScheme() {
+        return HTTP_SCHEME;
     }
 
     protected <T> CompletableFuture<T> doRequest(URI url, Map<String, Object> params, Class<T> clazz) {

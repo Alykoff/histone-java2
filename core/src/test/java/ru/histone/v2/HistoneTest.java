@@ -18,23 +18,23 @@ package ru.histone.v2;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import ru.histone.v2.acceptance.StringParamResolver;
+import ru.histone.v2.acceptance.TestRunner;
 import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.function.StopExecutionExceptionFunction;
-import ru.histone.v2.evaluator.function.ThrowExceptionFunction;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.function.StopExecutionExceptionFunction;
+import ru.histone.v2.function.ThrowExceptionFunction;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
-import ru.histone.v2.support.HistoneTestCase;
-import ru.histone.v2.support.TestRunner;
+import ru.histone.v2.support.CoreTestConsumer;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 /**
  * @author Alexey Nevinsky
  */
+@ExtendWith(StringParamResolver.class)
 public class HistoneTest {
 
     protected static ExecutorService executor = Executors.newFixedThreadPool(20);
@@ -55,10 +56,10 @@ public class HistoneTest {
         parser = new Parser();
         evaluator = new Evaluator();
 
-        SchemaResourceLoader loader = new SchemaResourceLoader(executor);
-        loader.addLoader(SchemaResourceLoader.DATA_SCHEME, new DataLoader());
-        loader.addLoader(SchemaResourceLoader.HTTP_SCHEME, new HttpLoader(executor));
-        loader.addLoader(SchemaResourceLoader.FILE_SCHEME, new FileLoader());
+        SchemaResourceLoader loader = new SchemaResourceLoader();
+        loader.addLoader(new DataLoader());
+        loader.addLoader(new HttpLoader(executor));
+        loader.addLoader(new FileLoader());
 
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
         rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
@@ -66,17 +67,8 @@ public class HistoneTest {
     }
 
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
-        final List<DynamicTest> result = new ArrayList<>();
-        final List<HistoneTestCase> histoneTestCases = TestRunner.loadTestCases(param);
-        for (HistoneTestCase histoneTestCase : histoneTestCases) {
-            for (HistoneTestCase.Case testCase : histoneTestCase.getCases()) {
-                DynamicTest test = DynamicTest.dynamicTest("Expression: " + testCase.getInput(),
-                        () -> {
-                            TestRunner.doTest(testCase.getInput(), rtti, testCase, evaluator, parser);
-                        });
-                result.add(test);
-            }
-        }
-        return result.stream();
+        TestRunner runner = new TestRunner();
+        CoreTestConsumer consumer = new CoreTestConsumer(parser, rtti, evaluator);
+        return runner.loadCases(param, consumer);
     }
 }

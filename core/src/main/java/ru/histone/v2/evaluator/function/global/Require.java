@@ -57,7 +57,7 @@ public class Require extends AbstractFunction {
         return doExecute(context, clearGlobal(args));
     }
 
-    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
+    protected CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         checkMinArgsLength(args, 1);
         checkMaxArgsLength(args, 2);
         checkTypes(args.get(0), 0, Collections.singletonList(HistoneType.T_STRING), Collections.singletonList(String.class));

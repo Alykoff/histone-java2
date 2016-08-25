@@ -26,26 +26,27 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+
+import static ru.histone.v2.evaluator.resource.loader.DataLoader.DATA_SCHEME;
 
 /**
  * @author Alexey Nevinsky
  */
 public class SchemaResourceLoader implements HistoneResourceLoader {
-    public static final String HTTP_SCHEME = "http";
-    public static final String FILE_SCHEME = "file";
-    public static final String DATA_SCHEME = "data";
-    private static final Logger log = LoggerFactory.getLogger(SchemaResourceLoader.class);
-    private final Executor executor;
-    private final Map<String, Loader> loaders;
 
-    public SchemaResourceLoader(Executor executor) {
-        this.executor = executor;
+    private static final Logger log = LoggerFactory.getLogger(SchemaResourceLoader.class);
+    protected final Map<String, Loader> loaders;
+
+    public SchemaResourceLoader() {
         loaders = new HashMap<>();
     }
 
     public void addLoader(String scheme, Loader loader) {
         loaders.put(scheme, loader);
+    }
+
+    public void addLoader(Loader loader) {
+        loaders.put(loader.getScheme(), loader);
     }
 
     @Override
@@ -74,10 +75,13 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
             URI loadUri;
             try {
-                if (!DATA_SCHEME.equals(uri.getScheme())) {
-                    loadUri = makeFullLocation(href, baseHref);
-                } else {
-                    loadUri = makeFullLocation(href, "");
+                switch (uri.getScheme()) {
+                    case DATA_SCHEME:
+                        loadUri = makeFullLocation(href, "");
+                        break;
+                    default:
+                        loadUri = makeFullLocation(href, baseHref);
+                        break;
                 }
             } catch (IllegalAccessException e) {
                 throw new ResourceLoadException(e.getMessage(), e);
@@ -106,7 +110,6 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
         if (baseLocation != null) {
             baseLocation = baseLocation.replace("\\", "/");
-//            baseLocation = baseLocation.replace("file://", "file:/");
         }
         URI baseLocationURI = (baseLocation != null) ? URI.create(baseLocation) : null;
 
@@ -120,29 +123,5 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
         return locationURI;
     }
-
-//    private class RedirectStrategy extends DefaultRedirectStrategy {
-//        @Override
-//        public boolean isRedirected(
-//                final HttpRequest request,
-//                final HttpResponse response,
-//                final HttpContext context) throws ProtocolException {
-//            if (request == null) {
-//                throw new IllegalArgumentException("HTTP request may not be null");
-//            }
-//            if (response == null) {
-//                throw new IllegalArgumentException("HTTP response may not be null");
-//            }
-//
-//            int statusCode = response.getStatusLine().getStatusCode();
-//            String method = request.getRequestLine().getMethod();
-//            Header locationHeader = response.getFirstHeader("location");
-//            if (301 <= statusCode && statusCode <= 399) {
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        }
-//    }
 
 }

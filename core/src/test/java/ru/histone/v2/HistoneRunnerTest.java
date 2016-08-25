@@ -16,8 +16,8 @@
 
 package ru.histone.v2;
 
-import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.Collections;
 
@@ -27,17 +27,17 @@ import java.util.Collections;
 public class HistoneRunnerTest {
 
     @Test
-    public void doTest() {
+    public void testWithEmptyParameters() {
         Histone histone = new Histone();
         String res = histone.process("{{'Hello World!'}}", "", Collections.emptyMap());
-        Assert.assertEquals("Hello World!", res);
+        Assertions.assertEquals("Hello World!", res);
     }
 
     @Test
-    public void doTest1() {
+    public void testWithoutParameters() {
         Histone histone = new Histone();
         String res = histone.process("{{'Hello World!'}}");
-        Assert.assertEquals("Hello World!", res);
+        Assertions.assertEquals("Hello World!", res);
     }
 
 }

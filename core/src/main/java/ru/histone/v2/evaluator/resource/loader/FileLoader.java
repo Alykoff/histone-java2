@@ -32,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class FileLoader implements Loader {
+
+    public static final String FILE_SCHEME = "file";
     private final static Logger LOG = LoggerFactory.getLogger(FileLoader.class);
 
     @Override
@@ -40,6 +42,11 @@ public class FileLoader implements Loader {
         BOMInputStream bomStream = readBomStream(url, stream);
         Resource res = new HistoneStreamResource(bomStream, url.toString(), ContentType.TEXT.getId());
         return CompletableFuture.completedFuture(res);
+    }
+
+    @Override
+    public String getScheme() {
+        return FILE_SCHEME;
     }
 
     private BOMInputStream readBomStream(URI location, InputStream stream) {
@@ -63,11 +70,11 @@ public class FileLoader implements Loader {
                 stream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
                 LOG.error(e.getMessage(), e);
-                stream = EmptyInputStream.INSTANCE;
+                throw new RuntimeException(e);
             }
         } else {
             LOG.error(String.format("Can't read file '%s'", location.toString()));
-            stream = EmptyInputStream.INSTANCE;
+            throw new RuntimeException(new FileNotFoundException(String.format("Can't read file '%s'", location.toString())));
         }
         return stream;
     }

@@ -1,0 +1,225 @@
+[
+  {
+    "name": "variable defenition",
+    "ignore": [
+      {
+        "input": "a {{var x = 10}} f",
+        "expectedAST": "[31,\"a \",[1,[25,\"x\",10]],\" f\"]"
+      },
+      {
+        "input": "a {{var x = -10}} f",
+        "expectedAST": "[31,\"a \",[1,[25,\"x\",[14,10]]],\" f\"]"
+      },
+      {
+        "input": "a {{var x}} b {{/var}} c",
+        "expectedAST": "[31,\"a \",[25,\"x\",[30,\" b \"]],\" c\"]",
+        "expectedResult": "a  c"
+      },
+      {
+        "input": "a {{var simple = 10}} b {{simple}} c",
+        "expectedAST": "[31,\"a \",[1,[25,\"simple\",10]],\" b \",[21,\"simple\"],\" c\"]",
+        "expectedResult": "a  b 10 c"
+      },
+      {
+        "input": "a {{var simple = -10}} b {{simple}} c",
+        "expectedAST": "[31,\"a \",[1,[25,\"simple\",[14,10]]],\" b \",[21,\"simple\"],\" c\"]",
+        "expectedResult": "a  b -10 c"
+      },
+      {
+        "input": "a {{var extended}} b {{/var}} c {{extended}} d",
+        "expectedAST": "[31,\"a \",[25,\"extended\",[30,\" b \"]],\" c \",[21,\"extended\"],\" d\"]",
+        "expectedResult": "a  c  b  d"
+      }
+    ],
+    "cases": [
+      {
+        "input": "{{var name = 10",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "{{var name 10",
+        "expectedException": {
+          "line": "1",
+          "expected": "}}",
+          "found": "10"
+        }
+      },
+      {
+        "input": "a {{var this = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "this"
+        }
+      },
+      {
+        "input": "a {{var self = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "self"
+        }
+      },
+      {
+        "input": "a {{var x}} blablabla",
+        "expectedException": {
+          "line": "1",
+          "expected": "{{/var}}",
+          "found": "EOF"
+        }
+      },
+      {
+        "input": "a {{var x = 6, d=7}}",
+        "expectedResult": "a "
+      },
+      {
+        "input": "a {{var x =7, y}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "=",
+          "found": "}}"
+        }
+      },
+      {
+        "input": "a {{var x =7,}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "}}"
+        }
+      },
+      {
+        "input": "a {{var global = 10}} f",
+        "expectedException": {
+          "line": "1",
+          "expected": "IDENTIFIER",
+          "found": "global"
+        }
+      },
+      {
+        "input": "{{var x = 10}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x = sadfdasf}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x = null}}{{x}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{var x = true}}{{x}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x = false}}{{x}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var x = 10}}{{x}}",
+        "expectedResult": "10"
+      },
+      {
+        "input": "{{var x = \"string\"}}{{x}}",
+        "expectedResult": "string"
+      },
+      {
+        "input": "{{var x = [1, 2, 3]}}{{x}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{var x = [foo:\"bar\"]}}{{x}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x = [foo: undefined]}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x = [foo:\"bar\"]}}{{x}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x = [foo:\"bar\", other: undefined]}}{{x}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x}}{{/var}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x}}{{/var}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x}}something{{/var}}{{x}}",
+        "expectedResult": "something"
+      },
+      {
+        "input": "{{var x}}{{safsdaf}}{{/var}}{{x}}",
+        "expectedResult": ""
+      },
+      {
+        "input": "{{var x}}{{null}}{{/var}}{{x}}",
+        "expectedResult": "null"
+      },
+      {
+        "input": "{{var x}}{{true}}{{/var}}{{x}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{false}}{{/var}}{{x}}",
+        "expectedResult": "false"
+      },
+      {
+        "input": "{{var x}}{{12}}{{/var}}{{x}}",
+        "expectedResult": "12"
+      },
+      {
+        "input": "{{var x}}{{'string'}}{{/var}}{{x}}",
+        "expectedResult": "string"
+      },
+      {
+        "input": "{{var x}}{{[1, 2, 3]}}{{/var}}{{x}}",
+        "expectedResult": "1 2 3"
+      },
+      {
+        "input": "{{var x}}{{[foo:\"bar\"]}}{{/var}}{{x}}",
+        "expectedResult": "bar"
+      },
+      {
+        "input": "{{var x}}{{var f = 10}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{@getDate}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{macro b}}{{/macro}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{/reg/}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var x}}{{10}}{{/var}}{{x->toJSON}}",
+        "expectedResult": "\"10\""
+      },
+      {
+        "input": "{{var x}}{{null}}{{/var}}{{x->isString}}",
+        "expectedResult": "true"
+      },
+      {
+        "input": "{{var a=6, b=7}}{{a}}{{b}}",
+        "expectedResult": "67"
+      }
+    ]
+  }
+]

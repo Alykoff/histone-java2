@@ -30,9 +30,9 @@ public class AsyncUtils {
         CompletableFuture<Void> allDoneFuture =
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
         return allDoneFuture.thenApply(v ->
-                        futures.stream().
-                                map(CompletableFuture::join).
-                                collect(Collectors.<T>toList())
+                futures.stream().
+                        map(CompletableFuture::join).
+                        collect(Collectors.<T>toList())
         );
     }
 
@@ -40,11 +40,11 @@ public class AsyncUtils {
         CompletableFuture<Void> allDoneFuture =
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
         return allDoneFuture.thenApply(v ->
-                        new LinkedList<>(
-                                futures.stream().
-                                        map(CompletableFuture::join).
-                                        collect(Collectors.<T>toList())
-                        )
+                new LinkedList<>(
+                        futures.stream().
+                                map(CompletableFuture::join).
+                                collect(Collectors.<T>toList())
+                )
         );
     }
 
@@ -53,8 +53,8 @@ public class AsyncUtils {
                 CompletableFuture.allOf(futures);
 
         return allDoneFuture.thenApply(v -> Arrays.asList(futures).stream()
-                        .map(CompletableFuture::join)
-                        .collect(Collectors.<T>toList())
+                .map(CompletableFuture::join)
+                .collect(Collectors.<T>toList())
         );
     }
 

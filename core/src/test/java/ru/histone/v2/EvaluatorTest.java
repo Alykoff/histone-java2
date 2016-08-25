@@ -18,9 +18,7 @@ package ru.histone.v2;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.extension.ExtendWith;
-import ru.histone.v2.support.CasePack;
-import ru.histone.v2.support.StringParamResolver;
+import ru.histone.v2.acceptance.CasePack;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -29,12 +27,11 @@ import java.util.stream.Stream;
 /**
  * @author Alexey Nevinsky on 25.12.2015.
  */
-@ExtendWith(StringParamResolver.class)
 @CasePack("simple")
 public class EvaluatorTest extends HistoneTest {
 
-    @TestFactory
     @Override
+    @TestFactory
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
         return super.loadCases(param);
     }

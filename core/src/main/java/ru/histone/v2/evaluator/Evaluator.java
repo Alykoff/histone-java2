@@ -23,23 +23,18 @@ import org.slf4j.LoggerFactory;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
-import ru.histone.v2.evaluator.global.BooleanEvalNodeComparator;
-import ru.histone.v2.evaluator.global.NumberComparator;
-import ru.histone.v2.evaluator.global.StringEvalNodeLenComparator;
-import ru.histone.v2.evaluator.global.StringEvalNodeStrongComparator;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.HistoneException;
+import ru.histone.v2.exceptions.StopExecutionException;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
 import ru.histone.v2.utils.AsyncUtils;
-import ru.histone.v2.utils.DateUtils;
 import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -47,7 +42,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static ru.histone.v2.evaluator.EvalUtils.*;
+import static ru.histone.v2.evaluator.EvalUtils.isNumberNode;
+import static ru.histone.v2.evaluator.EvalUtils.nodeAsBoolean;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 
@@ -59,13 +55,13 @@ import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
  */
 public class Evaluator implements Serializable {
 
-    public static final String SELF_WHILE_PARAM_ITERATION = "iteration";
-    public static final String SELF_WHILE_PARAM_CONDITION = "condition";
-    private static final Comparator<Number> NUMBER_COMPARATOR = new NumberComparator();
-    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_LEN_COMPARATOR = new StringEvalNodeLenComparator();
-    private static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
-    private static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private final NodesComparator comparator;
+
+    public Evaluator() {
+        comparator = new NodesComparator();
+    }
 
     public String process(ExpAstNode node, Context context) {
         return processFuture(node, context).join();
@@ -117,10 +113,9 @@ public class Evaluator implements Serializable {
             case AST_GT:
             case AST_LE:
             case AST_GE:
-                return processRelation(expNode, context, STRING_EVAL_NODE_LEN_COMPARATOR);
             case AST_EQ:
             case AST_NEQ:
-                return processRelation(expNode, context, STRING_EVAL_NODE_STRONG_COMPARATOR);
+                return processRelation(expNode, context);
             case AST_REF:
                 return processReferenceNode(expNode, context);
             case AST_CALL:
@@ -251,9 +246,9 @@ public class Evaluator implements Serializable {
             final CompletableFuture<EvalNode> fieldNode = evaluateNode(callNode.getNode(1), context);
             return valueNode
                     .thenCompose(value -> fieldNode
-                                    .thenCompose(fieldName ->
-                                                    context.call(value, RttiMethod.RTTI_M_GET.getId(), Arrays.asList(value, fieldName))
-                                    )
+                            .thenCompose(fieldName ->
+                                    context.call(value, RttiMethod.RTTI_M_GET.getId(), Arrays.asList(value, fieldName))
+                            )
                     );
         } else if (callNode.getCallType() == CallType.RTTI_M_CALL) {
             return processMethodCall(context, callNode);
@@ -285,19 +280,19 @@ public class Evaluator implements Serializable {
                 .collect(Collectors.toList()));
         return valueNode
                 .thenCompose(value -> argsFuture
-                                .thenCompose(args -> {
-                                            if (value.getType() == HistoneType.T_MACRO) {
-                                                List<EvalNode> arguments = new ArrayList<>();
-                                                arguments.add(value);
-                                                arguments.addAll(args);
-                                                return context.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
-                                            }
-                                            if (value.getType() != HistoneType.T_STRING) {
-                                                return EvalUtils.getValue(null);
-                                            }
-                                            return context.call((String) value.getValue(), args);
-                                        }
-                                )
+                        .thenCompose(args -> {
+                                    if (value.getType() == HistoneType.T_MACRO) {
+                                        List<EvalNode> arguments = new ArrayList<>();
+                                        arguments.add(value);
+                                        arguments.addAll(args);
+                                        return context.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
+                                    }
+                                    if (value.getType() != HistoneType.T_STRING) {
+                                        return EvalUtils.getValue(null);
+                                    }
+                                    return context.call((String) value.getValue(), args);
+                                }
+                        )
                 );
     }
 
@@ -317,7 +312,8 @@ public class Evaluator implements Serializable {
                         }
                         return evaluateNode(expNode.getNode(0), context)
                                 .thenCompose(value -> context.call(value, name, Collections.singletonList(value)));
-                    });
+                    })
+                    .exceptionally(checkThrowable());
         }
 
         CompletableFuture<List<EvalNode>> nodesFuture = evalAllNodesOfCurrent(expNode, context);
@@ -329,7 +325,17 @@ public class Evaluator implements Serializable {
             args.add(value);
             args.addAll(nodes.subList(2, nodes.size()));
             return context.call(value, name, args);
-        });
+        }).exceptionally(checkThrowable());
+    }
+
+    private java.util.function.Function<Throwable, EvalNode> checkThrowable() {
+        return e -> {
+            if (e.getCause() instanceof StopExecutionException) {
+                throw (StopExecutionException) e.getCause();
+            }
+            LOG.error(e.getMessage(), e);
+            return EvalUtils.createEvalNode(null);
+        };
     }
 
     private CompletableFuture<EvalNode> processWhileNode(ExpAstNode expNode, Context context) {
@@ -372,8 +378,8 @@ public class Evaluator implements Serializable {
     private Context createWhileContext(Context context, EvalNode condition, long counter) {
         Context iterableContext = context.createNew();
         final Map<String, EvalNode> selfVars = new LinkedHashMap<>();
-        selfVars.put(SELF_WHILE_PARAM_ITERATION, EvalUtils.createEvalNode(counter));
-        selfVars.put(SELF_WHILE_PARAM_CONDITION, condition);
+        selfVars.put(Constants.SELF_WHILE_ITERATION, EvalUtils.createEvalNode(counter));
+        selfVars.put(Constants.SELF_WHILE_CONDITION, condition);
         iterableContext.put(Constants.SELF_CONTEXT_NAME, EvalUtils.getValue(selfVars));
         return iterableContext;
     }
@@ -419,13 +425,13 @@ public class Evaluator implements Serializable {
         CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
         CompletableFuture<List<EvalNode>> leftRightDone = AsyncUtils.sequence(keyVarName, valueVarName);
         CompletableFuture<EvalNode> res = leftRightDone.thenCompose(keyValueNames ->
-                        iterate(
-                                expNode,
-                                context,
-                                objToIterate,
-                                keyValueNames.get(0),
-                                keyValueNames.get(1)
-                        )
+                iterate(
+                        expNode,
+                        context,
+                        objToIterate,
+                        keyValueNames.get(0),
+                        keyValueNames.get(1)
+                )
         );
         return res.thenApply(node -> {
             if (node.getType() == HistoneType.T_BREAK) {
@@ -556,8 +562,7 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
         if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
-            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode ->
-            {
+            return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode -> {
                 if (isNumberNode(leftNode) || leftNode.getType() == HistoneType.T_STRING) {
                     Double lValue = getValue(leftNode).orElse(null);
                     if (lValue != null) {
@@ -604,126 +609,12 @@ public class Evaluator implements Serializable {
         }
     }
 
-    // ==============================
-    // =========== Relation =========
-    // ==============================
-    private CompletableFuture<EvalNode> processRelation(
-            ExpAstNode node, Context context, Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final CompletableFuture<List<EvalNode>> leftRightDone = evalAllNodesOfCurrent(node, context);
-        return leftRightDone.thenCompose(evalNodeList -> {
-            final EvalNode left = evalNodeList.get(0);
-            final EvalNode right = evalNodeList.get(1);
-            final CompletableFuture<Integer> compareResultRaw = compareNodes(left, right, context, stringNodeComparator);
-
-            return compareResultRaw.thenApply(compareResult ->
-                            processRelationComparatorHelper(node.getType(), compareResult)
-            );
-        });
+    private CompletableFuture<EvalNode> processRelation(ExpAstNode node, Context context) {
+        CompletableFuture<EvalNode> left = evaluateNode(node.getNode(0), context);
+        CompletableFuture<EvalNode> right = evaluateNode(node.getNode(1), context);
+        return comparator.processRelation(left, right, node.getType(), context);
     }
 
-    private CompletableFuture<Integer> compareNodes(
-            EvalNode left, EvalNode right, Context context,
-            Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final CompletableFuture<Integer> result;
-        if (isStringNode(left) && isNumberNode(right)) {
-            final StringEvalNode stringLeft = (StringEvalNode) left;
-            if (isNumeric(stringLeft)) {
-                result = processRelationNumberHelper(left, right);
-            } else {
-                result = processRelationToString(stringLeft, right, context, stringNodeComparator, false);
-            }
-        } else if (isNumberNode(left) && isStringNode(right)) {
-            final StringEvalNode stringRight = (StringEvalNode) right;
-            if (isNumeric(stringRight)) {
-                result = processRelationNumberHelper(left, right);
-            } else {
-                result = processRelationToString(stringRight, left, context, stringNodeComparator, true);
-            }
-        } else if (left.hasAdditionalType(HistoneType.T_DATE) && right.hasAdditionalType(HistoneType.T_DATE)) {
-            LocalDateTime leftValue = DateUtils.createDate(((DateEvalNode) left).getValue());
-            LocalDateTime rightValue = DateUtils.createDate(((DateEvalNode) right).getValue());
-            //leftValue and rightValue always has value, bcz functions which create DateEvalNode checks it
-            // or return EmptyEvalNode
-            result = CompletableFuture.completedFuture(leftValue.compareTo(rightValue));
-        } else if (!isNumberNode(left) || !isNumberNode(right)) {
-            if (isStringNode(left) && isStringNode(right)) {
-                result = processRelationStringHelper(left, right, stringNodeComparator);
-            } else {
-                result = processRelationBooleanHelper(left, right, context);
-            }
-        } else {
-            result = processRelationNumberHelper(left, right);
-        }
-        return result;
-    }
-
-    private CompletableFuture<Integer> processRelationToString(
-            StringEvalNode left, EvalNode right, Context context,
-            Comparator<StringEvalNode> stringNodeComparator, boolean isInvert
-    ) {
-        final CompletableFuture<EvalNode> rightFuture = RttiUtils.callToString(context, right);
-        final int inverter = isInvert ? -1 : 1;
-        return rightFuture.thenApply(stringRight ->
-                        inverter * stringNodeComparator.compare(left, (StringEvalNode) stringRight)
-        );
-    }
-
-    private CompletableFuture<Integer> processRelationStringHelper(
-            EvalNode left, EvalNode right, Comparator<StringEvalNode> stringNodeComparator
-    ) {
-        final StringEvalNode stringRight = (StringEvalNode) right;
-        final StringEvalNode stringLeft = (StringEvalNode) left;
-        return completedFuture(
-                stringNodeComparator.compare(stringLeft, stringRight)
-        );
-    }
-
-    private CompletableFuture<Integer> processRelationNumberHelper(
-            EvalNode left, EvalNode right
-    ) {
-        final Number rightValue = getNumberValue(right);
-        final Number leftValue = getNumberValue(left);
-        return completedFuture(
-                NUMBER_COMPARATOR.compare(leftValue, rightValue)
-        );
-    }
-
-    private CompletableFuture<Integer> processRelationBooleanHelper(
-            EvalNode left, EvalNode right, Context context
-    ) {
-        final CompletableFuture<EvalNode> leftF = RttiUtils.callToBoolean(context, left);
-        final CompletableFuture<EvalNode> rightF = RttiUtils.callToBoolean(context, right);
-
-        return leftF.thenCompose(leftBooleanRaw -> rightF.thenApply(rightBooleanRaw ->
-                        BOOLEAN_EVAL_NODE_COMPARATOR.compare(
-                                (BooleanEvalNode) leftBooleanRaw, (BooleanEvalNode) rightBooleanRaw
-                        )
-        ));
-    }
-
-    private EvalNode processRelationComparatorHelper(AstType astType, int compareResult) {
-        switch (astType) {
-            case AST_LT:
-                return new BooleanEvalNode(compareResult < 0);
-            case AST_GT:
-                return new BooleanEvalNode(compareResult > 0);
-            case AST_LE:
-                return new BooleanEvalNode(compareResult <= 0);
-            case AST_GE:
-                return new BooleanEvalNode(compareResult >= 0);
-            case AST_EQ:
-                return new BooleanEvalNode(compareResult == 0);
-            case AST_NEQ:
-                return new BooleanEvalNode(compareResult != 0);
-        }
-        throw new RuntimeException("Unknown type for this case");
-    }
-
-    // ==============================
-    // ======= End Relation =========
-    // ==============================
     private CompletableFuture<EvalNode> processBorNode(ExpAstNode node, Context context) {
         return processBitwiseNode(node, context, (a, b) -> a | b);
     }
@@ -954,13 +845,13 @@ public class Evaluator implements Serializable {
         }
 
         return evaluateNode(conditionNode, context).thenCompose(condNode ->
-                        RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
-                            if (predicate) {
-                                return evaluateNode(bodyNode, context.createNew());
-                            } else {
-                                return processIfNodeHelper(node, context, i + 2);
-                            }
-                        })
+                RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
+                    if (predicate) {
+                        return evaluateNode(bodyNode, context.createNew());
+                    } else {
+                        return processIfNodeHelper(node, context, i + 2);
+                    }
+                })
         );
     }
 

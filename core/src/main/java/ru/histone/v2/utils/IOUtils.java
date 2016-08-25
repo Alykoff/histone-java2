@@ -28,6 +28,10 @@ import java.text.MessageFormat;
  */
 public class IOUtils {
     public static String readStringFromResource(Resource resource, String path) throws ResourceLoadException {
+        return readStringFromResource(resource, path, "UTF-8");
+    }
+
+    public static String readStringFromResource(Resource resource, String path, String encoding) throws ResourceLoadException {
         try {
             if (resource == null) {
                 throw new ResourceLoadException(String.format("Can't load resource by path: %s.", path));
@@ -37,7 +41,7 @@ public class IOUtils {
             if (resource instanceof HistoneStringResource) {
                 content = ((HistoneStringResource) resource).getContent();
             } else if (resource instanceof HistoneStreamResource) {
-                content = org.apache.commons.io.IOUtils.toString(((HistoneStreamResource) resource).getContent(), "UTF-8");
+                content = org.apache.commons.io.IOUtils.toString(((HistoneStreamResource) resource).getContent(), encoding);
             } else {
                 throw new ResourceLoadException(MessageFormat.format("Unsupported resource class: {0}", resource.getClass()));
             }

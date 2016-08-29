@@ -16,68 +16,61 @@
 
 package ru.histone.v2.java_compiler.java_evaluator;
 
-import ru.histone.v2.parser.node.AstNode;
-import ru.histone.v2.parser.node.ExpAstNode;
-import ru.histone.v2.parser.node.StringAstNode;
-import ru.histone.v2.utils.PathUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
+import ru.histone.v2.java_compiler.bcompiler.data.Template;
 
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Alexey Nevinsky
  */
-public class JavaHistoneClassRegistry {
+public class JavaHistoneClassRegistry implements HistoneClassRegistry {
 
-    private Map<Path, String> pathsMap = new ConcurrentHashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(JavaHistoneClassRegistry.class);
 
-    private Path basePath;
+    private final ClassLoader classLoader;
+    private final Path basePath;
+    private final StdLibrary stdLibrary;
 
-    public JavaHistoneClassRegistry(Path basePath) {
-        this.basePath = basePath;
+    public JavaHistoneClassRegistry(URL basePath, StdLibrary stdLibrary) {
+        this.basePath = Paths.get(URI.create(basePath.toString()));
+        classLoader = new URLClassLoader(new URL[]{basePath}, JavaHistoneClassRegistry.class.getClassLoader());
+        this.stdLibrary = stdLibrary;
     }
 
-    public void processAst(Path tplPath, AstNode node) {
-        if (node.hasValue()) {
-            return;
+    @Override
+    public Template loadInstance(String className) {
+        try {
+            Class<?> t = classLoader.loadClass(className);
+
+            Template tpl = (Template) t.newInstance();
+            tpl.setStdLibrary(stdLibrary);
+            return tpl;
+        } catch (ClassNotFoundException e) {
+            LOG.error("Error", e);
+            return null;
+        } catch (InstantiationException e) {
+            LOG.error("Error", e);
+            return null;
+        } catch (IllegalAccessException e) {
+            LOG.error("Error", e);
+            return null;
         }
-
-        if (checkCallIsRequire((ExpAstNode) node)) {
-            processRequireNode(tplPath, (ExpAstNode) node);
-        } else {
-            for (AstNode n : ((ExpAstNode) node).getNodes()) {
-                processAst(tplPath, n);
-            }
-        }
     }
 
-    private void processRequireNode(Path tplPath, ExpAstNode node) {
-        String requirePath = ((StringAstNode) node.getNode(2)).getValue();
-        Path p = Paths.get(PathUtils.resolveUrl(requirePath, tplPath.toString()));
-        Path relativeClassPath = basePath.relativize(p);
-
-        String name = "Template" + relativeClassPath.getFileName().toString().replace(".", "");
-        String className = "class://" + relativeClassPath.getParent().toString().replace("/", ".") + "." + name;
-        pathsMap.putIfAbsent(relativeClassPath, className);
-
-        node.getNodes().set(2, new StringAstNode(className));
+    @Override
+    public String getOriginBasePath() {
+        return basePath.toString();
     }
 
-    private boolean checkCallIsRequire(ExpAstNode node) {
-        if (node.size() < 3) {
-            return false;
-        }
-
-        AstNode fNameNode = node.getNode(1);
-        return fNameNode.hasValue()
-                && fNameNode instanceof StringAstNode
-                && ((StringAstNode) fNameNode).getValue() != null
-                && ((StringAstNode) fNameNode).getValue().equals("require");
-    }
-
-    public String getClassName(Path path) {
-        return null;
+    @Override
+    public String getRealBasePath() {
+        return basePath.toString();
     }
 }

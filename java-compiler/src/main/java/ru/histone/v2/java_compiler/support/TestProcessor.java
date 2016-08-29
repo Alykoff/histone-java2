@@ -24,7 +24,6 @@ import ru.histone.v2.acceptance.HistoneTestCase;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.java_compiler.bcompiler.Compiler;
-import ru.histone.v2.java_compiler.java_evaluator.JavaHistoneClassRegistry;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.AstNode;
@@ -94,7 +93,7 @@ public class TestProcessor {
                             String className = compileTemplates(
                                     compiler, packageName, classesDirPath, root, jsonFilePath.getFileName().toString(), -1
                             );
-                            String classDef = "class://" + className;
+                            String classDef = "class:" + className;
                             Files.write(jsonFilePath, classDef.getBytes());
                         } else {
                             Files.write(jsonFilePath, "".getBytes());
@@ -117,7 +116,7 @@ public class TestProcessor {
 
         Stream<String> stringStream = Files.lines(jsonFilePath);
 
-        JavaHistoneClassRegistry registry = new JavaHistoneClassRegistry(testClassesPath);
+        TestProcessorClassRegistry registry = new TestProcessorClassRegistry(testClassesPath);
 
         List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
         for (HistoneTestCase cases : histoneCases) {

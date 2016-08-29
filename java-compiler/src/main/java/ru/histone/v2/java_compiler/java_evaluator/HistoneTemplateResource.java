@@ -17,27 +17,28 @@
 package ru.histone.v2.java_compiler.java_evaluator;
 
 import ru.histone.v2.evaluator.resource.Resource;
+import ru.histone.v2.java_compiler.bcompiler.data.Template;
 
 import java.io.IOException;
 
 /**
  * @author Alexey Nevinsky
  */
-public class JavaHistoneClassResource implements Resource<Class> {
+public class HistoneTemplateResource implements Resource<Template> {
 
-    private final Class templateClass;
+    public static final String CONTENT_TYPE = "template";
+
+    private final Template instance;
     private final String baseHref;
-    private final String contentType;
 
-    public JavaHistoneClassResource(Class templateClass, String baseHref, String contentType) {
-        this.templateClass = templateClass;
+    public HistoneTemplateResource(Template instance, String baseHref) {
+        this.instance = instance;
         this.baseHref = baseHref;
-        this.contentType = contentType;
     }
 
     @Override
-    public Class getContent() throws IOException {
-        return templateClass;
+    public Template getContent() throws IOException {
+        return instance;
     }
 
     @Override
@@ -47,11 +48,11 @@ public class JavaHistoneClassResource implements Resource<Class> {
 
     @Override
     public String getContentType() {
-        return contentType;
+        return CONTENT_TYPE;
     }
 
     @Override
     public void close() throws IOException {
-
+        //do nothing
     }
 }

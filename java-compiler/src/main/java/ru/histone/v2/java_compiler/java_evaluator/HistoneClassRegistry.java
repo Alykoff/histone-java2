@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.java_evaluator.function;
+package ru.histone.v2.java_compiler.java_evaluator;
+
+import ru.histone.v2.java_compiler.bcompiler.data.Template;
 
 /**
- * todo
- *
  * @author Alexey Nevinsky
  */
-public class JavaEval {
+public interface HistoneClassRegistry {
+    Template loadInstance(String className);
+
+    String getOriginBasePath();
+
+    String getRealBasePath();
 }

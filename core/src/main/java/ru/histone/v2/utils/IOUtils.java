@@ -21,6 +21,7 @@ import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.exceptions.ResourceLoadException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 
 /**
@@ -54,4 +55,18 @@ public class IOUtils {
             throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
         }
     }
+
+    public static BOMInputStream readBomStream(java.net.URI location, InputStream stream) {
+        BOMInputStream bomStream;
+        try {
+            bomStream = new BOMInputStream(stream);
+            if (bomStream.getBOM() != BOMInputStream.BOM.NONE) {
+                bomStream.skipBOM();
+            }
+        } catch (IOException e) {
+            throw new ResourceLoadException(String.format("Error with BOMInputStream for file '%s'", location.toString()));
+        }
+        return bomStream;
+    }
+
 }

@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.java_evaluator.function;
+package ru.histone.v2.java_compiler.support;
 
 /**
- * todo
- *
  * @author Alexey Nevinsky
  */
-public class JavaEval {
+public class TemplateFileUtils {
+
+    public static String classNameToFilePath(String className) {
+        return null;
+    }
+
+    public static String fileNameToClassName(String fileName) {
+        return null;
+    }
+
 }

@@ -21,12 +21,31 @@ package ru.histone.v2.java_compiler.support;
  */
 public class TemplateFileUtils {
 
-    public static String classNameToFilePath(String className) {
-        return null;
+    public static final String JAVA_EXTENSION = ".java";
+
+    public static String getSimpleClassName(final String className) {
+        String strForName = clearJavaExtension(className);
+        int dotIndex = strForName.lastIndexOf(".");
+        if (dotIndex != -1) {
+            return strForName.substring(dotIndex + 1);
+        }
+        return strForName;
     }
 
-    public static String fileNameToClassName(String fileName) {
-        return null;
+    private static String clearJavaExtension(final String input) {
+        String strToPath = input;
+        if (strToPath.endsWith(JAVA_EXTENSION)) {
+            strToPath = strToPath.substring(0, strToPath.length() - 5);
+        }
+        return strToPath;
     }
 
+    public static String getPackageName(final String className) {
+        String strForName = clearJavaExtension(className);
+        int dotIndex = strForName.lastIndexOf(".");
+        if (dotIndex != -1) {
+            return strForName.substring(0, dotIndex);
+        }
+        return strForName;
+    }
 }

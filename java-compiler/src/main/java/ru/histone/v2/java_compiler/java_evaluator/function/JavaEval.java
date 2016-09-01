@@ -16,10 +16,82 @@
 
 package ru.histone.v2.java_compiler.java_evaluator.function;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.function.global.Eval;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.exceptions.ResourceLoadException;
+import ru.histone.v2.exceptions.StopExecutionException;
+import ru.histone.v2.java_compiler.bcompiler.data.Template;
+import ru.histone.v2.java_compiler.java_evaluator.loader.JavaHistoneRawTemplateLoader;
+import ru.histone.v2.parser.Parser;
+import ru.histone.v2.rtti.HistoneType;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
 /**
- * todo
- *
  * @author Alexey Nevinsky
  */
-public class JavaEval {
+public class JavaEval extends Eval {
+    public JavaEval(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
+        super(executor, resourceLoader, evaluator, parser);
+    }
+
+    protected CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+        EvalNode templateNode = args.get(0);
+        if (templateNode.getType() != HistoneType.T_STRING) {
+            return EvalUtils.getValue(null);
+        }
+
+        String template = (String) templateNode.getValue();
+
+        final EvalNode params;
+        if (args.size() >= 2) {
+            params = args.get(1);
+        } else {
+            params = EvalUtils.createEvalNode(null);
+        }
+
+        final String baseUri;
+        if (args.size() > 2 && args.get(2).getType() == HistoneType.T_STRING) {
+            baseUri = (String) args.get(2).getValue();
+        } else {
+            baseUri = context.getBaseUri();
+        }
+
+        String className = "ru.histone.generated.Tpl$" + DigestUtils.sha512Hex(template);
+
+        URI uri = URI.create("rawTpl:" + className);
+
+        Map<String, Object> loadParams = Collections.singletonMap(JavaHistoneRawTemplateLoader.PARAM_KEY, template);
+
+        return resourceLoader.load(uri.toString(), baseUri, loadParams)
+                .thenCompose(res -> {
+                    try {
+                        Template tpl = (Template) res.getContent();
+
+                        Context ctx = createCtx(context, baseUri, params);
+                        return tpl.render(ctx);
+                    } catch (Exception e) {
+                        throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
+                    }
+                })
+                .exceptionally(e -> {
+                    if (e.getCause() instanceof StopExecutionException) {
+                        throw (StopExecutionException) e.getCause();
+                    }
+                    logger.error(e.getMessage(), e);
+                    return EvalUtils.createEvalNode(null);
+                });
+    }
 }

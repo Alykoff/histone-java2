@@ -54,7 +54,7 @@ public class Eval extends AbstractFunction {
         return doExecute(context, clearGlobal(args));
     }
 
-    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
+    protected CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode templateNode = args.get(0);
         if (templateNode.getType() != HistoneType.T_STRING) {
             return EvalUtils.getValue(null);
@@ -82,10 +82,7 @@ public class Eval extends AbstractFunction {
     protected ExpAstNode processTemplate(String template, String baseURI) {
         if (EvalUtils.isAst(template)) {
             try {
-                ExpAstNode root = AstJsonProcessor.read(template);
-                SsaOptimizer optimizer = new SsaOptimizer();
-                optimizer.process(root);
-                return root;
+                return AstJsonProcessor.read(template);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

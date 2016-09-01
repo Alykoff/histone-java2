@@ -26,13 +26,13 @@ import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
+import ru.histone.v2.java_compiler.bcompiler.Compiler;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 import ru.histone.v2.java_compiler.java_evaluator.HistoneClassRegistry;
 import ru.histone.v2.java_compiler.java_evaluator.JavaHistoneClassRegistry;
-import ru.histone.v2.java_compiler.java_evaluator.JavaHistoneTemplateLoader;
-import ru.histone.v2.java_compiler.java_evaluator.function.JavaLoadText;
-import ru.histone.v2.java_compiler.java_evaluator.function.JavaMacroCall;
-import ru.histone.v2.java_compiler.java_evaluator.function.JavaRequire;
+import ru.histone.v2.java_compiler.java_evaluator.loader.JavaHistoneRawTemplateLoader;
+import ru.histone.v2.java_compiler.java_evaluator.loader.JavaHistoneTemplateLoader;
+import ru.histone.v2.java_compiler.java_evaluator.function.*;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -67,20 +67,24 @@ public class BaseCompilerTest {
         evaluator = new Evaluator();
         library = new StdLibrary();
 
-        HistoneClassRegistry registry = new JavaHistoneClassRegistry(new URL("file:///"), library);
+        Compiler histoneTranslator = new Compiler();
+        HistoneClassRegistry registry = new JavaHistoneClassRegistry(new URL("file:///"), library, parser, histoneTranslator);
 
         SchemaResourceLoader loader = new SchemaResourceLoader();
         loader.addLoader(new DataLoader());
         loader.addLoader(new HttpLoader(executor));
         loader.addLoader(new FileLoader());
         loader.addLoader(new JavaHistoneTemplateLoader(registry));
+        loader.addLoader(new JavaHistoneRawTemplateLoader(registry));
 
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
         rtti.register(HistoneType.T_MACRO, new JavaMacroCall(executor, loader, evaluator, parser));
-        rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser, library));
-        rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
-        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
+        rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser));
         rtti.register(HistoneType.T_GLOBAL, new JavaLoadText(executor, loader, evaluator, parser));
+        rtti.register(HistoneType.T_GLOBAL, new JavaLoadJson(executor, loader, evaluator, parser));
+        rtti.register(HistoneType.T_GLOBAL, new JavaEval(executor, loader, evaluator, parser));
+        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
+        rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
     }
 
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {

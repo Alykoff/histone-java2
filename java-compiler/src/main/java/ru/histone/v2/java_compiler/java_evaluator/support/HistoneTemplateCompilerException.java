@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.java_evaluator;
+package ru.histone.v2.java_compiler.java_evaluator.support;
 
-import ru.histone.v2.java_compiler.bcompiler.data.Template;
-
-import javax.tools.JavaFileObject;
-import java.util.Collection;
+import ru.histone.v2.exceptions.HistoneException;
 
 /**
  * @author Alexey Nevinsky
  */
-public interface HistoneClassRegistry {
-    Template loadInstance(String className);
+public class HistoneTemplateCompilerException extends HistoneException {
 
-    Template loadInstanceFromTpl(String name, String tpl);
+    public HistoneTemplateCompilerException() {
+    }
 
-    String getOriginBasePath();
+    public HistoneTemplateCompilerException(String message) {
+        super(message);
+    }
 
-    String getRealBasePath();
+    public HistoneTemplateCompilerException(Throwable cause) {
+        super(cause);
+    }
 
-    void add(String className, JavaFileObject file);
-
-    void remove(final String qualifiedClassName);
-
-    Collection<? extends JavaFileObject> files();
+    public HistoneTemplateCompilerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

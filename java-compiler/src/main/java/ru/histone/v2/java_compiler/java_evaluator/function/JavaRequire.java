@@ -43,11 +43,8 @@ import java.util.concurrent.Executor;
  */
 public class JavaRequire extends Require {
 
-    private StdLibrary library;
-
-    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, StdLibrary library) {
+    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
         super(executor, resourceLoader, evaluator, parser);
-        this.library = library;
     }
 
     @Override

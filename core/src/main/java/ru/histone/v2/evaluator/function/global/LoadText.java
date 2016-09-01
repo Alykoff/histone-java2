@@ -90,20 +90,10 @@ public class LoadText extends AbstractFunction {
         }
 
         String json = (String) RttiUtils.callToJSON(context, requestMap).join().getValue();
-        Object obj = fromJSON(json);
+        Object obj = IOUtils.fromJSON(json);
         if (obj instanceof Map) {
             return (Map<String, Object>) obj;
         }
         return Collections.emptyMap();
-    }
-
-    protected Object fromJSON(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            return mapper.readValue(json, Object.class);
-        } catch (IOException e) {
-            throw new FunctionExecutionException(e.getMessage(), e);
-        }
     }
 }

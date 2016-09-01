@@ -126,6 +126,7 @@
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                     <argLine>${surefireArgLine}</argLine>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
                 <dependencies>
                     <dependency>

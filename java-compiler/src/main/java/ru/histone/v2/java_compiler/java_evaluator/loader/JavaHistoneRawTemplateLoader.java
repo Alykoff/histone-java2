@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.java_compiler.java_evaluator;
+package ru.histone.v2.java_compiler.java_evaluator.loader;
 
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.evaluator.resource.loader.Loader;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
-import ru.histone.v2.java_compiler.support.TemplateFileUtils;
+import ru.histone.v2.java_compiler.java_evaluator.HistoneClassRegistry;
+import ru.histone.v2.java_compiler.java_evaluator.HistoneTemplateResource;
 
 import java.net.URI;
 import java.util.Map;
@@ -28,28 +30,26 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Alexey Nevinsky
  */
-public class JavaHistoneTemplateLoader implements Loader {
-
-    public static final String CLASS_SCHEME = "class";
+public class JavaHistoneRawTemplateLoader implements Loader {
+    public static final String RAW_TPL_SCHEME = "rawTpl";
+    public static final String PARAM_KEY = "rawTpl";
 
     protected HistoneClassRegistry classRegistry;
 
-    public JavaHistoneTemplateLoader(HistoneClassRegistry classRegistry) {
+    public JavaHistoneRawTemplateLoader(HistoneClassRegistry classRegistry) {
         this.classRegistry = classRegistry;
     }
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
-        String className = url.toString().replace(CLASS_SCHEME + ":", "");
-        String classFileName = TemplateFileUtils.classNameToFilePath(className);
+    public CompletableFuture<Resource> loadResource(URI uri, Map<String, Object> params) {
+        String className = uri.toString().replace(RAW_TPL_SCHEME + ":", "");
+        String templatePath = "";
+        String tpl = (String) params.get(PARAM_KEY);
 
-        String templatePath = classRegistry.getOriginBasePath() + classFileName;
-
-        return loadClass(className, templatePath);
-    }
-
-    protected CompletableFuture<Resource> loadClass(String className, String templatePath) {
-        Template t = classRegistry.loadInstance(className);
+        Template t = classRegistry.loadInstanceFromTpl(className, tpl);
+        if (t == null) {
+            throw new FunctionExecutionException("Failed to load template '" + className + "'");
+        }
 
         HistoneTemplateResource resource = new HistoneTemplateResource(t, templatePath);
         return CompletableFuture.completedFuture(resource);
@@ -57,6 +57,6 @@ public class JavaHistoneTemplateLoader implements Loader {
 
     @Override
     public String getScheme() {
-        return CLASS_SCHEME;
+        return RAW_TPL_SCHEME;
     }
 }

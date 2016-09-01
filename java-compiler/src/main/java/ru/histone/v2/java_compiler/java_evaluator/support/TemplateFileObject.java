@@ -35,12 +35,12 @@ public class TemplateFileObject extends SimpleJavaFileObject {
     private final CharSequence source;
     private ByteArrayOutputStream byteCode;
 
-    TemplateFileObject(final String className, final CharSequence source) {
+    public TemplateFileObject(final String className, final CharSequence source) {
         super(URI.create(className + JAVA_EXTENSION), Kind.SOURCE);
         this.source = source;
     }
 
-    TemplateFileObject(final String className, final Kind kind) {
+    public TemplateFileObject(final String className, final Kind kind) {
         super(URI.create(className + JAVA_EXTENSION), kind);
         source = null;
     }

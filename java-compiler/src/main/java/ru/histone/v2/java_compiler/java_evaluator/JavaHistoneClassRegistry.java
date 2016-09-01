@@ -16,6 +16,8 @@
 
 package ru.histone.v2.java_compiler.java_evaluator;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.java_compiler.bcompiler.Compiler;
@@ -34,13 +36,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static ru.histone.v2.java_compiler.support.TemplateFileUtils.JAVA_EXTENSION;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexey Nevinsky
@@ -49,132 +49,114 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(JavaHistoneClassRegistry.class);
 
-    private final ClassLoader classLoader;
     private final Path basePath;
     private final StdLibrary stdLibrary;
     private final HistoneTemplateCompiler compiler;
 
-    private final Map<String, ReadWriteLock> locks = new ConcurrentHashMap<>();
-    private final Map<String, JavaFileObject> classes = new HashMap<>();
-    private final Map<String, Template> instances = new HashMap<>();
+    protected final Map<String, RegistryObj> data = new ConcurrentHashMap<>();
+//    protected final Object globalLock = new Object();
+//
+//    protected final Map<String, ReadWriteLock> locks = new ConcurrentHashMap<>();
+//    protected final Map<String, JavaFileObject> classes = new ConcurrentHashMap<>();
+//    protected final Map<String, Template> instances = new ConcurrentHashMap<>();
 
     private final URL[] baseURL;
 
     public JavaHistoneClassRegistry(URL basePath, StdLibrary stdLibrary, Parser parser, Compiler histoneTranslator) {
         baseURL = new URL[]{basePath};
         this.basePath = Paths.get(URI.create(basePath.toString()));
-        classLoader = new URLClassLoader(baseURL, JavaHistoneClassRegistry.class.getClassLoader());
         this.stdLibrary = stdLibrary;
         this.compiler = new HistoneTemplateCompiler(this, parser, histoneTranslator);
     }
 
     @Override
     public Template loadInstance(String className) {
-        locks.putIfAbsent(className, new ReentrantReadWriteLock());
-        ReadWriteLock lock = locks.get(className);
-
-        lock.readLock().lock();
-        try {
-            Template t = instances.get(className);
-            if (t != null) {
-                return t;
-            }
-        } finally {
-            lock.readLock().unlock();
+        RegistryObj obj = getOrCreateLock(className);
+        if (obj.instance != null) {
+            return obj.instance;
         }
 
-        lock.readLock().lock();
+        obj.lock.writeLock().lock();
         try {
             URLClassLoader tmp = new URLClassLoader(baseURL, getClass().getClassLoader());
-            return loadTemplateByClassName(className, tmp);
+            Template t = loadTemplateByClassName(className, tmp);
+            obj.instance = t;
+            return t;
         } finally {
-            lock.readLock().unlock();
+            obj.lock.writeLock().unlock();
         }
     }
 
     @Override
-    public void add(String qualifiedClassName, JavaFileObject javaFile) {
-        locks.putIfAbsent(qualifiedClassName, new ReentrantReadWriteLock());
-        ReadWriteLock lock = locks.get(qualifiedClassName);
-        lock.writeLock().lock();
+    public void add(String className, JavaFileObject javaFile) {
+        RegistryObj obj = getOrCreateLock(className);
+        obj.lock.writeLock().lock();
         try {
-
-            classes.put(qualifiedClassName, javaFile);
-            instances.remove(qualifiedClassName);
+            obj.instance = null;
+            obj.file = javaFile;
         } finally {
-            lock.writeLock().unlock();
+            obj.lock.writeLock().unlock();
         }
     }
 
     @Override
     public Collection<? extends JavaFileObject> files() {
-        return Collections.unmodifiableCollection(classes.values());
+        return Collections.unmodifiableCollection(data.values().stream()
+                .filter(x -> x.file != null)
+                .map(x -> x.file)
+                .collect(Collectors.toList())
+        );
     }
 
     @Override
-    public void remove(final String qualifiedClassName) {
-        ReadWriteLock lock = locks.get(qualifiedClassName);
-        if (lock == null) {
-            return;
-        }
-
-        lock.writeLock().lock();
-        try {
-
-            classes.remove(qualifiedClassName);
-            instances.remove(qualifiedClassName);
-            locks.remove(qualifiedClassName);
-        } finally {
-            lock.writeLock().unlock();
-        }
+    public void remove(final String className) {
+        RegistryObj obj = data.get(className);
+        data.remove(className, obj);
     }
 
     @Override
     public Template loadInstanceFromTpl(String className, String tpl) {
-        locks.putIfAbsent(className, new ReentrantReadWriteLock());
-        ReadWriteLock lock = locks.get(className);
-
-        Template t;
-
-        lock.readLock().lock();
-        try {
-            t = instances.get(className);
-            if (t != null) {
-                return t;
-            }
-        } finally {
-            lock.readLock().unlock();
-        }
-
-
-        lock.writeLock().lock();
+        RegistryObj obj = getOrCreateLock(className);
+        obj.lock.writeLock().lock();
         try {
             String javaCode;
             try {
                 javaCode = compiler.translate(className, tpl);
             } catch (IOException e) {
                 LOG.error("Error translate tpl '" + className + "'", e);
-                locks.remove(className);
+                data.remove(className, obj);
                 return null;
             }
 
             Map<String, String> classesObjects = Collections.singletonMap(className, javaCode);
             compiler.compile(classesObjects);
 
-            JavaFileObject file = classes.get(className);
+            JavaFileObject file = obj.file;
             if (file != null) {
-                t = loadTemplateFromFile(file, className);
+                Template t = loadTemplateFromFile(file, className);
+                obj.instance = t;
                 if (t != null) {
                     return t;
                 }
             }
-            locks.remove(className);
+            data.remove(className, obj);
             return null;
         } finally {
-            lock.writeLock().unlock();
+            obj.lock.writeLock().unlock();
         }
     }
 
+    private RegistryObj getOrCreateLock(String className) {
+        return data.compute(className, (k, v) -> v == null ? new RegistryObj() : v);
+    }
+
+    /**
+     * Method without locking. You must use lock from locks map then you will use this method
+     *
+     * @param file
+     * @param className
+     * @return instance of template
+     */
     protected Template loadTemplateFromFile(JavaFileObject file, String className) {
         TemplateFileObject castedFile = (TemplateFileObject) file;
         URLClassLoader tmp = new URLClassLoader(baseURL, getClass().getClassLoader()) {
@@ -195,9 +177,6 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
         try {
             Template t = (Template) tmp.loadClass(className).newInstance();
             t.setStdLibrary(stdLibrary);
-
-            instances.put(className, t);
-
             return t;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             LOG.error(e.getMessage(), e);
@@ -213,5 +192,35 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
     @Override
     public String getRealBasePath() {
         return basePath.toString();
+    }
+
+    protected static class RegistryObj {
+        volatile ReadWriteLock lock;
+        volatile JavaFileObject file;
+        volatile Template instance;
+
+        public RegistryObj() {
+            lock = new ReentrantReadWriteLock();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RegistryObj that = (RegistryObj) o;
+
+            return new EqualsBuilder()
+                    .append(lock, that.lock)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(lock)
+                    .toHashCode();
+        }
     }
 }

@@ -31,7 +31,7 @@ public class HistoneFileManager extends ForwardingJavaFileManager<JavaFileManage
     private final HistoneClassRegistry registry;
     private Map<URI, JavaFileObject> fileObjects = new HashMap<>();
 
-    protected HistoneFileManager(JavaFileManager fileManager, HistoneClassRegistry registry) {
+    public HistoneFileManager(JavaFileManager fileManager, HistoneClassRegistry registry) {
         super(fileManager);
         this.registry = registry;
     }

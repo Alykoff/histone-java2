@@ -146,7 +146,7 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
         }
     }
 
-    private RegistryObj getOrCreateLock(String className) {
+    protected RegistryObj getOrCreateLock(String className) {
         return data.compute(className, (k, v) -> v == null ? new RegistryObj() : v);
     }
 
@@ -195,9 +195,9 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
     }
 
     protected static class RegistryObj {
-        volatile ReadWriteLock lock;
-        volatile JavaFileObject file;
-        volatile Template instance;
+        public volatile ReadWriteLock lock;
+        public volatile JavaFileObject file;
+        public volatile Template instance;
 
         public RegistryObj() {
             lock = new ReentrantReadWriteLock();

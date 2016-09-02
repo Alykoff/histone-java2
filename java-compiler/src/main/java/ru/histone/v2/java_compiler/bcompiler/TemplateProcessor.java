@@ -165,7 +165,14 @@ public class TemplateProcessor {
                 break;
             case AST_BREAK:
                 processBreakNode(params);
+                break;
+            case AST_NOP:
+                processNopeNode(params);
         }
+    }
+
+    private void processNopeNode(Params params) {
+        addCode(params, "$T.getValue(null)", EvalUtils.class);
     }
 
     private void processReturnNode(Params params) {

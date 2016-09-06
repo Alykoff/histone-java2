@@ -148,12 +148,18 @@ public class Evaluator implements Serializable {
                 return processBreakContinueNode(expNode, false);
             case AST_BREAK:
                 return processBreakContinueNode(expNode, true);
+            case AST_NOP:
+                return processNopNode();
             case AST_BNOT:
             case AST_BLS:
             case AST_BRS:
                 break;
         }
         throw new HistoneException("Unknown AST Histone Type: " + node.getType());
+    }
+
+    private CompletableFuture<EvalNode> processNopNode() {
+        return EvalUtils.getValue(null);
     }
 
     private CompletableFuture<EvalNode> processBreakContinueNode(ExpAstNode expNode, boolean isBreak) {

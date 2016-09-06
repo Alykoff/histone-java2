@@ -147,7 +147,7 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
     }
 
     protected RegistryObj getOrCreateLock(String className) {
-        return data.compute(className, (k, v) -> v == null ? new RegistryObj() : v);
+        return data.computeIfAbsent(className, k -> new RegistryObj());
     }
 
     /**

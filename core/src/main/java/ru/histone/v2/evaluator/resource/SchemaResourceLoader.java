@@ -75,13 +75,18 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
             URI loadUri;
             try {
-                switch (uri.getScheme()) {
-                    case DATA_SCHEME:
-                        loadUri = makeFullLocation(href, "");
-                        break;
-                    default:
-                        loadUri = makeFullLocation(href, baseHref);
-                        break;
+                if (uri.getScheme() == null) {
+                    loadUri = URI.create("file://" + fullLocation);
+                    uri.setScheme("file");
+                } else {
+                    switch (uri.getScheme()) {
+                        case DATA_SCHEME:
+                            loadUri = makeFullLocation(href, "");
+                            break;
+                        default:
+                            loadUri = makeFullLocation(href, baseHref);
+                            break;
+                    }
                 }
             } catch (IllegalAccessException e) {
                 throw new ResourceLoadException(e.getMessage(), e);

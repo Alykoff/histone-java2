@@ -70,7 +70,7 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasP
 
     private Integer convertToIndex(String str) {
         try {
-            return Integer.parseInt(str);
+            return Integer.valueOf(str);
         } catch (NumberFormatException e) {
             return null;
         }

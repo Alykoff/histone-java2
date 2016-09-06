@@ -54,10 +54,6 @@ public class EvalUtils {
         return true;
     }
 
-    public static Double parseDouble(String value) throws NumberFormatException {
-        return Double.parseDouble(value);
-    }
-
     public static Optional<Integer> tryPureIntegerValue(EvalNode node) {
         if (!(isNumberNode(node) || node instanceof StringEvalNode)) {
             return Optional.empty();
@@ -74,7 +70,7 @@ public class EvalUtils {
             return Optional.ofNullable(value).map(Long::intValue);
         } else if (node instanceof StringEvalNode) {
             try {
-                final double value = Double.parseDouble(((StringEvalNode) node).getValue());
+                final double value = Double.valueOf(((StringEvalNode) node).getValue());
                 if (isInteger(value)) {
                     return Optional.of(value).map(Double::intValue);
                 } else {
@@ -104,7 +100,7 @@ public class EvalUtils {
         } else if (node instanceof LongEvalNode) {
             return ((LongEvalNode) node).getValue();
         } else if (node instanceof StringEvalNode) {
-            return Double.parseDouble(((StringEvalNode) node).getValue());
+            return Double.valueOf(((StringEvalNode) node).getValue());
         } else {
             throw new NotImplementedException("");
         }
@@ -124,7 +120,7 @@ public class EvalUtils {
 
     public static boolean isNumeric(String v) {
         try {
-            final Double value = parseDouble(v);
+            final Double value = Double.valueOf(v);
             return !Double.isNaN(value) && Double.isFinite(value);
         } catch (NumberFormatException e) {
             return false;
@@ -140,12 +136,6 @@ public class EvalUtils {
         }
         if (object instanceof Boolean) {
             return new BooleanEvalNode((Boolean) object);
-        }
-        if (object instanceof Integer) {
-            return new LongEvalNode(((Integer) object).longValue());
-        }
-        if (object instanceof Float) {
-            return new DoubleEvalNode(((Float) object).doubleValue());
         }
         if (object instanceof Double) {
             return new DoubleEvalNode((Double) object);
@@ -167,6 +157,12 @@ public class EvalUtils {
         }
         if (object instanceof EvalNode) {
             return (EvalNode) object;
+        }
+        if (object instanceof Float) {
+            return new DoubleEvalNode(((Float) object).doubleValue());
+        }
+        if (object instanceof Integer) {
+            return new LongEvalNode(((Integer) object).longValue());
         }
         throw new HistoneException("Didn't resolve object class: " + object.getClass());
     }

@@ -21,7 +21,8 @@ import java.util.concurrent.ForkJoinPool;
 /**
  * @author Aleksander Melnichnikov
  */
-public class HistoneSpring extends Histone implements HistoneSpringEngine, ServletContextAware {
+public class
+HistoneSpring extends Histone implements HistoneSpringEngine, ServletContextAware {
 
     protected ServletContext servletContext;
 
@@ -36,6 +37,13 @@ public class HistoneSpring extends Histone implements HistoneSpringEngine, Servl
 
     @Override
     protected void initializeHistone(Executor executor) {
+        logger.info("================================================================");
+        logger.info("  _    _ _____  _____ _______ ____  _   _ ______  \n" +
+                " | |  | |_   _|/ ____|__   __/ __ \\| \\ | |  ____| \n" +
+                " | |__| | | | | (___    | | | |  | |  \\| | |__    \n" +
+                " |  __  | | |  \\___ \\   | | | |  | | . ` |  __|   \n" +
+                " | |  | |_| |_ ____) |  | | | |__| | |\\  | |____  \n" +
+                " |_|  |_|_____|_____/   |_|  \\____/|_| \\_|______| ");
         logger.info("================================================================");
         logger.info("Initializing Histone2 engine, implementation: " + getClass() + ". With executor: " + executor.getClass());
         this.evaluator = new Evaluator();

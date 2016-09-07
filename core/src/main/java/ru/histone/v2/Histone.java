@@ -80,21 +80,21 @@ public class Histone implements HistoneEngine {
     }
 
     protected void printVersion() {
-        String versionString = "";
+     /*   String versionString = "";
         try (InputStream is = new FileInputStream("version.properties")) {
             Properties properties = new Properties();
             properties.load(is);
             versionString = properties.getProperty("histone.version")
                     != null ? "v" + properties.getProperty("histone.version") : "";
         } catch (IOException ignore) {
-        }
+        }*/
         logger.info("================================================================");
         logger.info("  _    _ _____  _____ _______ ____  _   _ ______  \n" +
                 " | |  | |_   _|/ ____|__   __/ __ \\| \\ | |  ____| \n" +
                 " | |__| | | | | (___    | | | |  | |  \\| | |__    \n" +
                 " |  __  | | |  \\___ \\   | | | |  | | . ` |  __|   \n" +
                 " | |  | |_| |_ ____) |  | | | |__| | |\\  | |____  \n" +
-                " |_|  |_|_____|_____/   |_|  \\____/|_| \\_|______|" + versionString);
+                " |_|  |_|_____|_____/   |_|  \\____/|_| \\_|______|");
         logger.info("================================================================");
     }
 

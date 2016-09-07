@@ -21,8 +21,7 @@ import java.util.concurrent.ForkJoinPool;
 /**
  * @author Aleksander Melnichnikov
  */
-public class
-HistoneSpring extends Histone implements HistoneSpringEngine, ServletContextAware {
+public class HistoneSpring extends Histone implements HistoneSpringEngine, ServletContextAware {
 
     protected ServletContext servletContext;
 

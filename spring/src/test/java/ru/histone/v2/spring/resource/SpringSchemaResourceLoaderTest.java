@@ -1,11 +1,8 @@
 package ru.histone.v2.spring.resource;
 
 import org.apache.commons.io.IOUtils;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.testng.annotations.BeforeTest;
+import org.junit.Before;
+import org.junit.Test;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.spring.resource.loader.ServletContextLoader;
 
@@ -14,7 +11,9 @@ import java.io.IOException;
 import java.util.Collections;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +26,7 @@ public class SpringSchemaResourceLoaderTest {
     private static final String INPUT_STREAM_CONTENT = "<div>content</div>";
     private ServletContext servletContextMock;
 
-    @BeforeEach
+    @Before
     public void initMocks() {
         servletContextMock = mock(ServletContext.class);
         when(servletContextMock.getResourceAsStream(PATH_SERVLET_CONTEXT_RESOURCE))
@@ -71,7 +70,7 @@ public class SpringSchemaResourceLoaderTest {
     }
 
     @Test
-    public void testLoad() throws IOException {
+    public void testLoad() throws IOException{
         SpringSchemaResourceLoader resourceLoader = new SpringSchemaResourceLoader();
         resourceLoader.addLoader(new ServletContextLoader(servletContextMock));
         Resource resource = resourceLoader.load(PATH_SERVLET_CONTEXT_RESOURCE, null, null).join();

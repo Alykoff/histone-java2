@@ -1,6 +1,6 @@
 package ru.histone.v2.spring.view;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.View;
 import ru.histone.v2.spring.processors.DefaultHistoneProcessingExceptionProcessor;

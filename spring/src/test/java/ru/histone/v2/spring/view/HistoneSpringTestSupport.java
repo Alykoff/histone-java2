@@ -1,6 +1,6 @@
 package ru.histone.v2.spring.view;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -9,6 +9,7 @@ import org.springframework.test.context.web.AnnotationConfigWebContextLoader;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+import ru.histone.v2.Histone;
 import ru.histone.v2.spring.HistoneSpringEngine;
 import ru.histone.v2.spring.processors.HistoneTemplatePostProcessor;
 import ru.histone.v2.spring.view.config.HistoneTestConfig;
@@ -34,7 +35,7 @@ public abstract class HistoneSpringTestSupport {
 
     protected MockMvc mockMvc;
 
-    @BeforeEach
+    @Before
     public void before() throws Exception {
         this.mockMvc = webAppContextSetup(this.webApplicationContext).build();
         HistoneSpringTestController histoneSpringTestController = new HistoneSpringTestController();

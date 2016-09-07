@@ -1,6 +1,6 @@
 package ru.histone.v2.spring.processors;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import ru.histone.v2.exceptions.ParserException;
 
 import javax.servlet.http.HttpServletRequest;

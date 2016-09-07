@@ -1,6 +1,6 @@
 package ru.histone.v2.spring.resource.loader;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.evaluator.resource.loader.Loader;
 

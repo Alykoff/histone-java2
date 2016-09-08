@@ -119,7 +119,7 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
         URI baseLocationURI = (baseLocation != null) ? URI.create(baseLocation) : null;
 
         if (!locationURI.isAbsolute() && baseLocation != null) {
-            locationURI = baseLocationURI.resolve(locationURI.normalize());
+            locationURI = URI.create(PathUtils.resolveUrl(locationURI.toString(), baseLocationURI.toString()));
         }
 
         if (!locationURI.isAbsolute()) {

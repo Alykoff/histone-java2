@@ -35,13 +35,10 @@ import ru.histone.v2.property.PropertyHolder;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 import ru.histone.v2.utils.AstJsonProcessor;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
@@ -89,12 +86,12 @@ public class Histone implements HistoneEngine {
         } catch (IOException ignore) {
         }*/
         logger.info("================================================================");
-        logger.info("  _    _ _____  _____ _______ ____  _   _ ______  \n" +
-                " | |  | |_   _|/ ____|__   __/ __ \\| \\ | |  ____| \n" +
-                " | |__| | | | | (___    | | | |  | |  \\| | |__    \n" +
-                " |  __  | | |  \\___ \\   | | | |  | | . ` |  __|   \n" +
-                " | |  | |_| |_ ____) |  | | | |__| | |\\  | |____  \n" +
-                " |_|  |_|_____|_____/   |_|  \\____/|_| \\_|______|");
+        logger.info("  _    _ _____  _____ _______ ____  _   _ ______  \n");
+        logger.info(" | |  | |_   _|/ ____|__   __/ __ \\| \\ | |  ____| \n");
+        logger.info(" | |__| | | | | (___    | | | |  | |  \\| | |__    \n");
+        logger.info(" |  __  | | |  \\___ \\   | | | |  | | . ` |  __|   \n");
+        logger.info(" | |  | |_| |_ ____) |  | | | |__| | |\\  | |____  \n");
+        logger.info(" |_|  |_|_____|_____/   |_|  \\____/|_| \\_|______|");
         logger.info("================================================================");
     }
 

@@ -173,7 +173,7 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
         return loadTemplateByClassName(className, tmp);
     }
 
-    private Template loadTemplateByClassName(String className, URLClassLoader tmp) {
+    protected Template loadTemplateByClassName(String className, URLClassLoader tmp) {
         try {
             Template t = (Template) tmp.loadClass(className).newInstance();
             t.setStdLibrary(stdLibrary);

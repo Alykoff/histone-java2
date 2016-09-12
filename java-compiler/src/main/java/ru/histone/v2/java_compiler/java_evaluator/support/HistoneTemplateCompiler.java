@@ -49,7 +49,7 @@ public class HistoneTemplateCompiler {
     private final HistoneClassRegistry registry;
     private final HistoneFileManager fileManager;
     private final JavaCompiler compiler;
-    private final DiagnosticCollector<JavaFileObject> diagnostics;
+    private DiagnosticCollector<JavaFileObject> diagnostics;
     private final Parser parser;
     private final Compiler histoneTranslator;
 
@@ -97,6 +97,7 @@ public class HistoneTemplateCompiler {
         options.add("-classpath");
         options.add(classPath);
 
+        diagnostics = new DiagnosticCollector<>();
         // Get a CompilationTask from the compiler and compile the sources
         final JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, options, null, sources);
         final Boolean result = task.call();

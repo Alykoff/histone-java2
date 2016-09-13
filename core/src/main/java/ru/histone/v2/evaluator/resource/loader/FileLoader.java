@@ -20,10 +20,13 @@ import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStreamResource;
 import ru.histone.v2.evaluator.resource.Resource;
-import ru.histone.v2.exceptions.ResourceLoadException;
 import ru.histone.v2.utils.BOMInputStream;
+import ru.histone.v2.utils.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -33,13 +36,13 @@ import java.util.concurrent.CompletableFuture;
  */
 public class FileLoader implements Loader {
 
-    public static final String FILE_SCHEME = "file";
     private final static Logger LOG = LoggerFactory.getLogger(FileLoader.class);
+    public static final String FILE_SCHEME = "file";
 
     @Override
     public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
         InputStream stream = readFile(url);
-        BOMInputStream bomStream = readBomStream(url, stream);
+        BOMInputStream bomStream = IOUtils.readBomStream(url, stream);
         Resource res = new HistoneStreamResource(bomStream, url.toString(), ContentType.TEXT.getId());
         return CompletableFuture.completedFuture(res);
     }
@@ -49,20 +52,7 @@ public class FileLoader implements Loader {
         return FILE_SCHEME;
     }
 
-    private BOMInputStream readBomStream(URI location, InputStream stream) {
-        BOMInputStream bomStream;
-        try {
-            bomStream = new BOMInputStream(stream);
-            if (bomStream.getBOM() != BOMInputStream.BOM.NONE) {
-                bomStream.skipBOM();
-            }
-        } catch (IOException e) {
-            throw new ResourceLoadException(String.format("Error with BOMInputStream for file '%s'", location.toString()));
-        }
-        return bomStream;
-    }
-
-    private InputStream readFile(URI location) {
+    protected InputStream readFile(URI location) {
         InputStream stream;
         File file = new File(location);
         if (file.exists() && file.isFile() && file.canRead()) {

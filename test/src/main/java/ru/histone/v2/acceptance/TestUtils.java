@@ -28,7 +28,7 @@ public class TestUtils {
     public static final Locale US_LOCALE = Locale.US;
 
     private static String normalizeLineEndings(String value) {
-        return value.replaceAll("\\r\\n", "\n");
+        return value != null ? value.replaceAll("\\r\\n", "\n") : null;
     }
 
     public static void assertEquals(String expected, String actual) {

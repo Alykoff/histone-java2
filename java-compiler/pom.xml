@@ -21,7 +21,7 @@
     <parent>
         <artifactId>parent-histone-java-v2</artifactId>
         <groupId>com.github.megafonweblab.histone</groupId>
-        <version>1.4.1</version>
+        <version>1.5.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>java-compiler</artifactId>
@@ -126,6 +126,7 @@
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                     <argLine>${surefireArgLine}</argLine>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
                 <dependencies>
                     <dependency>

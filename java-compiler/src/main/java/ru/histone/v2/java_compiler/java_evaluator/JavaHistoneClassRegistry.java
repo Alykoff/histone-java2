@@ -16,68 +16,211 @@
 
 package ru.histone.v2.java_compiler.java_evaluator;
 
-import ru.histone.v2.parser.node.AstNode;
-import ru.histone.v2.parser.node.ExpAstNode;
-import ru.histone.v2.parser.node.StringAstNode;
-import ru.histone.v2.utils.PathUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.histone.v2.java_compiler.bcompiler.Compiler;
+import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
+import ru.histone.v2.java_compiler.bcompiler.data.Template;
+import ru.histone.v2.java_compiler.java_evaluator.support.HistoneTemplateCompiler;
+import ru.histone.v2.java_compiler.java_evaluator.support.TemplateFileObject;
+import ru.histone.v2.parser.Parser;
 
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexey Nevinsky
  */
-public class JavaHistoneClassRegistry {
+public class JavaHistoneClassRegistry implements HistoneClassRegistry {
 
-    private Map<Path, String> pathsMap = new ConcurrentHashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(JavaHistoneClassRegistry.class);
 
-    private Path basePath;
+    private final Path basePath;
+    private final StdLibrary stdLibrary;
+    private final HistoneTemplateCompiler compiler;
 
-    public JavaHistoneClassRegistry(Path basePath) {
-        this.basePath = basePath;
+    protected final Map<String, RegistryObj> data = new ConcurrentHashMap<>();
+//    protected final Object globalLock = new Object();
+//
+//    protected final Map<String, ReadWriteLock> locks = new ConcurrentHashMap<>();
+//    protected final Map<String, JavaFileObject> classes = new ConcurrentHashMap<>();
+//    protected final Map<String, Template> instances = new ConcurrentHashMap<>();
+
+    private final URL[] baseURL;
+
+    public JavaHistoneClassRegistry(URL basePath, StdLibrary stdLibrary, Parser parser, Compiler histoneTranslator) {
+        baseURL = new URL[]{basePath};
+        this.basePath = Paths.get(URI.create(basePath.toString()));
+        this.stdLibrary = stdLibrary;
+        this.compiler = new HistoneTemplateCompiler(this, parser, histoneTranslator);
     }
 
-    public void processAst(Path tplPath, AstNode node) {
-        if (node.hasValue()) {
-            return;
+    @Override
+    public Template loadInstance(String className) {
+        RegistryObj obj = getOrCreateLock(className);
+        if (obj.instance != null) {
+            return obj.instance;
         }
 
-        if (checkCallIsRequire((ExpAstNode) node)) {
-            processRequireNode(tplPath, (ExpAstNode) node);
-        } else {
-            for (AstNode n : ((ExpAstNode) node).getNodes()) {
-                processAst(tplPath, n);
+        obj.lock.writeLock().lock();
+        try {
+            URLClassLoader tmp = new URLClassLoader(baseURL, getClass().getClassLoader());
+            Template t = loadTemplateByClassName(className, tmp);
+            obj.instance = t;
+            return t;
+        } finally {
+            obj.lock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public void add(String className, JavaFileObject javaFile) {
+        RegistryObj obj = getOrCreateLock(className);
+        obj.lock.writeLock().lock();
+        try {
+            obj.instance = null;
+            obj.file = javaFile;
+        } finally {
+            obj.lock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public Collection<? extends JavaFileObject> files() {
+        return Collections.unmodifiableCollection(data.values().stream()
+                .filter(x -> x.file != null)
+                .map(x -> x.file)
+                .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public void remove(final String className) {
+        RegistryObj obj = data.get(className);
+        data.remove(className, obj);
+    }
+
+    @Override
+    public Template loadInstanceFromTpl(String className, String tpl) {
+        RegistryObj obj = getOrCreateLock(className);
+        obj.lock.writeLock().lock();
+        try {
+            String javaCode;
+            try {
+                javaCode = compiler.translate(className, tpl);
+            } catch (IOException e) {
+                LOG.error("Error translate tpl '" + className + "'", e);
+                data.remove(className, obj);
+                return null;
             }
+
+            Map<String, String> classesObjects = Collections.singletonMap(className, javaCode);
+            compiler.compile(classesObjects);
+
+            JavaFileObject file = obj.file;
+            if (file != null) {
+                Template t = loadTemplateFromFile(file, className);
+                obj.instance = t;
+                if (t != null) {
+                    return t;
+                }
+            }
+            data.remove(className, obj);
+            return null;
+        } finally {
+            obj.lock.writeLock().unlock();
         }
     }
 
-    private void processRequireNode(Path tplPath, ExpAstNode node) {
-        String requirePath = ((StringAstNode) node.getNode(2)).getValue();
-        Path p = Paths.get(PathUtils.resolveUrl(requirePath, tplPath.toString()));
-        Path relativeClassPath = basePath.relativize(p);
-
-        String name = "Template" + relativeClassPath.getFileName().toString().replace(".", "");
-        String className = "class://" + relativeClassPath.getParent().toString().replace("/", ".") + "." + name;
-        pathsMap.putIfAbsent(relativeClassPath, className);
-
-        node.getNodes().set(2, new StringAstNode(className));
+    protected RegistryObj getOrCreateLock(String className) {
+        return data.computeIfAbsent(className, k -> new RegistryObj());
     }
 
-    private boolean checkCallIsRequire(ExpAstNode node) {
-        if (node.size() < 3) {
-            return false;
+    /**
+     * Method without locking. You must use lock from locks map then you will use this method
+     *
+     * @param file
+     * @param className
+     * @return instance of template
+     */
+    protected Template loadTemplateFromFile(JavaFileObject file, String className) {
+        TemplateFileObject castedFile = (TemplateFileObject) file;
+        URLClassLoader tmp = new URLClassLoader(baseURL, getClass().getClassLoader()) {
+            @Override
+            public Class<?> loadClass(String name) throws ClassNotFoundException {
+                if (className.equals(name)) {
+                    byte[] bytes = castedFile.getByteCode();
+                    return defineClass(className, bytes, 0, bytes.length);
+                }
+                return super.loadClass(name);
+            }
+        };
+
+        return loadTemplateByClassName(className, tmp);
+    }
+
+    protected Template loadTemplateByClassName(String className, URLClassLoader tmp) {
+        try {
+            Template t = (Template) tmp.loadClass(className).newInstance();
+            t.setStdLibrary(stdLibrary);
+            return t;
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            LOG.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getOriginBasePath() {
+        return basePath.toString();
+    }
+
+    @Override
+    public String getRealBasePath() {
+        return basePath.toString();
+    }
+
+    protected static class RegistryObj {
+        public volatile ReadWriteLock lock;
+        public volatile JavaFileObject file;
+        public volatile Template instance;
+
+        public RegistryObj() {
+            lock = new ReentrantReadWriteLock();
         }
 
-        AstNode fNameNode = node.getNode(1);
-        return fNameNode.hasValue()
-                && fNameNode instanceof StringAstNode
-                && ((StringAstNode) fNameNode).getValue() != null
-                && ((StringAstNode) fNameNode).getValue().equals("require");
-    }
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
 
-    public String getClassName(Path path) {
-        return null;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RegistryObj that = (RegistryObj) o;
+
+            return new EqualsBuilder()
+                    .append(lock, that.lock)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(lock)
+                    .toHashCode();
+        }
     }
 }

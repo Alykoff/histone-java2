@@ -21,6 +21,8 @@ import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.EntityArrays;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
 import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.parser.Optimizer;
+import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.*;
 
 import java.io.IOException;
@@ -48,10 +50,12 @@ public class AstJsonProcessor {
         }
     };
 
+    //todo add AstOptimizer here
     public static ExpAstNode read(String str) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         List ast = objectMapper.readValue(str, List.class);
         AstNode res = convert(ast);
+        new SsaOptimizer().process(res);
         return (ExpAstNode) res;
     }
 

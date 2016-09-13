@@ -37,6 +37,10 @@ import java.util.regex.Pattern;
  */
 public class TemplateProcessor {
     public void processTemplate(MethodSpec.Builder builder, AstNode root) {
+        if (root.getType() != AstType.AST_NODELIST) {
+            root = new ExpAstNode(AstType.AST_NODELIST, root);
+        }
+
         Params params = new Params(builder, root);
         addStatement(params, "CompletableFuture<StringBuilder> csb0 = CompletableFuture.completedFuture(new StringBuilder())");
         processNode(params);
@@ -45,7 +49,7 @@ public class TemplateProcessor {
         }
     }
 
-    public void processNode(Params params) {
+    private void processNode(Params params) {
         if (params.node == null) {
             return;
         }
@@ -161,12 +165,19 @@ public class TemplateProcessor {
                 break;
             case AST_BREAK:
                 processBreakNode(params);
+                break;
+            case AST_NOP:
+                processNopeNode(params);
         }
+    }
+
+    private void processNopeNode(Params params) {
+        addCode(params, "$T.getValue(null)", EvalUtils.class);
     }
 
     private void processReturnNode(Params params) {
         addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
-        processNode(params);
+        processNode(params.withNode(0));
         addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
     }
 

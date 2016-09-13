@@ -86,6 +86,11 @@
       {
         "input": "{{var cond = '1', arr1 = [id: '1'], arr2 = [id: '2']}}{{for s in cond = '1' ? arr1 : arr2}}{{s}}{{/for}}",
         "expectedResult": "1"
+      },
+      {
+        "inputAST": "[27,\"ololo\"]",
+        "expectedAST": "[27,\"ololo\"]",
+        "expectedResult": "ololo"
       }
     ]
   }

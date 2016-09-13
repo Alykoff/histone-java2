@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.github.megafonweblab.histone</groupId>
         <artifactId>parent-histone-java-v2</artifactId>
-        <version>1.4.1</version>
+        <version>1.5.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>histone-java-v2</artifactId>
@@ -177,6 +177,19 @@
                         <version>1.0.0-M2</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.1.10</version>
+                <configuration>
+                    <targetClasses>
+                        <param>ru.histone.v2*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>ru.histone.v2*</param>
+                    </targetTests>
+                </configuration>
             </plugin>
         </plugins>
     </build>

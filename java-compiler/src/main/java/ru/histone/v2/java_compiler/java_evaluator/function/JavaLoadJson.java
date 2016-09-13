@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.evaluator.function.global;
+package ru.histone.v2.java_compiler.java_evaluator.function;
 
-import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
@@ -26,7 +25,6 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.utils.IOUtils;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -34,9 +32,8 @@ import java.util.concurrent.Executor;
 /**
  * @author Alexey Nevinsky
  */
-public class LoadJson extends LoadText {
-
-    public LoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
+public class JavaLoadJson extends JavaLoadText {
+    public JavaLoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
         super(executor, loader, evaluator, parser);
     }
 
@@ -47,7 +44,7 @@ public class LoadJson extends LoadText {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return super.execute(context, clearGlobal(args))
+        return super.execute(context, args)
                 .thenApply(IOUtils::convertToJson)
                 .exceptionally(ex -> {
                     logger.error(ex.getMessage(), ex);

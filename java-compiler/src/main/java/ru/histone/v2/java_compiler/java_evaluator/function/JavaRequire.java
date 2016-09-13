@@ -23,6 +23,7 @@ import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.global.Require;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.exceptions.ResourceLoadException;
 import ru.histone.v2.exceptions.StopExecutionException;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
@@ -42,11 +43,8 @@ import java.util.concurrent.Executor;
  */
 public class JavaRequire extends Require {
 
-    private StdLibrary library;
-
-    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, StdLibrary library) {
+    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
         super(executor, resourceLoader, evaluator, parser);
-        this.library = library;
     }
 
     @Override
@@ -60,21 +58,17 @@ public class JavaRequire extends Require {
 
         URI uri = URI.create(url);
         if (StringUtils.isBlank(uri.getScheme())) {
-            String fullUri = PathUtils.resolveUrl(url, context.getBaseUri());
-            uri = URI.create("fullPathClass://" + fullUri);
+            String fullUri = PathUtils.resolveUrl(url, context.getBaseUri()).replace(FileLoader.FILE_SCHEME + ":", "fullPathClass:");
+            uri = URI.create(fullUri);
         }
 
         return resourceLoader.load(uri.toString(), context.getBaseUri(), Collections.emptyMap())
                 .thenCompose(res -> {
                     try {
-                        Class tplClass = (Class) res.getContent();
-
-                        Template tpl = (Template) tplClass.newInstance();
-                        tpl.setStdLibrary(library);
+                        Template tpl = (Template) res.getContent();
 
                         Context ctx = createCtx(context, res.getBaseHref(), params);
                         return tpl.render(ctx);
-
                     } catch (Exception e) {
                         throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
                     }

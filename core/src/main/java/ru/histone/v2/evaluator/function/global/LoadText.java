@@ -15,7 +15,6 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
@@ -29,7 +28,6 @@ import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.IOUtils;
 import ru.histone.v2.utils.RttiUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

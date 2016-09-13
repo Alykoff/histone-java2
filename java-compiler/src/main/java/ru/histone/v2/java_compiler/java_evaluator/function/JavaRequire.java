@@ -26,7 +26,6 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.exceptions.ResourceLoadException;
 import ru.histone.v2.exceptions.StopExecutionException;
-import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;

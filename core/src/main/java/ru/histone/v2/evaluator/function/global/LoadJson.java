@@ -16,7 +16,6 @@
 
 package ru.histone.v2.evaluator.function.global;
 
-import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
@@ -26,7 +25,6 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.utils.IOUtils;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;

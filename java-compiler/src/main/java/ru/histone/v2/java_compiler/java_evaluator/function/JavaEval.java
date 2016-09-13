@@ -22,7 +22,6 @@ import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.global.Eval;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.exceptions.ResourceLoadException;

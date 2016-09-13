@@ -24,7 +24,6 @@ import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
-import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.rtti.HistoneType;

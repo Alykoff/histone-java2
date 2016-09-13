@@ -21,7 +21,6 @@ import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.EntityArrays;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
 import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.parser.Optimizer;
 import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.*;
 

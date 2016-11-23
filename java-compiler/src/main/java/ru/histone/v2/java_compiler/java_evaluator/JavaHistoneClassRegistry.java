@@ -49,18 +49,12 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(JavaHistoneClassRegistry.class);
 
-    private final Path basePath;
-    private final StdLibrary stdLibrary;
-    private final HistoneTemplateCompiler compiler;
+    protected final Path basePath;
+    protected final StdLibrary stdLibrary;
+    protected HistoneTemplateCompiler compiler;
 
     protected final Map<String, RegistryObj> data = new ConcurrentHashMap<>();
-//    protected final Object globalLock = new Object();
-//
-//    protected final Map<String, ReadWriteLock> locks = new ConcurrentHashMap<>();
-//    protected final Map<String, JavaFileObject> classes = new ConcurrentHashMap<>();
-//    protected final Map<String, Template> instances = new ConcurrentHashMap<>();
-
-    private final URL[] baseURL;
+    protected final URL[] baseURL;
 
     public JavaHistoneClassRegistry(URL basePath, StdLibrary stdLibrary, Parser parser, Compiler histoneTranslator) {
         baseURL = new URL[]{basePath};

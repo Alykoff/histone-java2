@@ -86,16 +86,11 @@ public class HistoneTemplateCompiler {
             }
         }
 
-        URL[] urls = ((URLClassLoader) (registry.getClass().getClassLoader())).getURLs();
-        String classPath = "";
-        for (URL classUrl : urls) {
-            classPath += ":" + classUrl.toString();
-        }
 
         //todo replace to common class Loader
         List<String> options = new ArrayList<>();
         options.add("-classpath");
-        options.add(classPath);
+        options.add(getClassPathForCompile());
 
         diagnostics = new DiagnosticCollector<>();
         // Get a CompilationTask from the compiler and compile the sources
@@ -109,6 +104,15 @@ public class HistoneTemplateCompiler {
             }
             throw new HistoneTemplateCompilerException("Compilation failed. Causes: " + cause);
         }
+    }
+
+    protected String getClassPathForCompile() {
+        URL[] urls = ((URLClassLoader) (registry.getClass().getClassLoader())).getURLs();
+        String classPath = "";
+        for (URL classUrl : urls) {
+            classPath += ":" + classUrl.toString();
+        }
+        return classPath;
     }
 
     public String translate(String baseURI, String inputStr) throws IOException {

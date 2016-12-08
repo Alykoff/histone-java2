@@ -111,7 +111,7 @@
         "expectedResult": "--1"
       },
       {
-        "input": "--{{var now = getDate->toDate.month}}{{var x = getDate->toDate('+1M').month}}{{(now - x)->toAbs}}",
+        "input": "--{{var now = getDate->toDate.year}}{{var x = getDate->toDate('+1Y').year}}{{(now - x)->toAbs}}",
         "expectedResult": "--1"
       },
       {

@@ -25,6 +25,10 @@
       {
         "input": "--{{\"foobar\"->replace(/[ao]/g, => 10)}}",
         "expectedResult": "--f1010b10r"
+      },
+      {
+        "input": "--{{'a b a c d e ololo'->replace(/\\w\\s(\\w)\\s(\\w)/g, (string, tag, value) => '>'+string + '|' +  tag + '|' +value+ '<')}}##",
+        "expectedResult": "-->a b a|b|a< >c d e|d|e< ololo##"
       }
     ]
   }

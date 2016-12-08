@@ -26,7 +26,7 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.RttiUtils;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -84,8 +84,12 @@ public class StringReplace extends AbstractFunction {
                         sb.append(str.substring(lastIndex, matcher.start()));
                     }
                     String found = matcher.group();
-                    Context ctx = context.cloneEmpty();
-                    List<EvalNode> macroArgs = Arrays.asList(replaceNode, new BooleanEvalNode(true), EvalUtils.createEvalNode(found));
+                    List<EvalNode> macroArgs = new ArrayList<>();
+                    macroArgs.add(replaceNode);
+                    macroArgs.add(new BooleanEvalNode(true));
+                    for (int gIndex = 0; gIndex <= matcher.groupCount(); gIndex++) {
+                        macroArgs.add(EvalUtils.createEvalNode(matcher.group(gIndex)));
+                    }
                     EvalNode val = context.macroCall(macroArgs).join();
                     String macroResult = (String) RttiUtils.callToString(context, val).join().getValue();
                     sb.append(macroResult);

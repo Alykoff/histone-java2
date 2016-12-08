@@ -34,10 +34,10 @@ public class ConcreteTest extends HistoneTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("-3");
+        testCase.setExpectedResult("-->a b a|b|a< >c d e|d|e< ololo");
         //        testCase.setContext(getMap());
         //        testCase.setExpectedAST("[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]");
-        testCase.setInput("{{(-3.14)->getMethod('toCeil')->call()}}");
+        testCase.setInput("--{{'a b a c d e ololo'->replace(/\\w\\s(\\w)\\s(\\w)/g, (string, tag, value) => '>'+string + '|' +  tag + '|' +value+ '<')}}");
         new CoreTestConsumer(parser, rtti, evaluator).accept(testCase);
     }
 

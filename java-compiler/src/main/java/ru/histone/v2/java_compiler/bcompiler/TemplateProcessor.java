@@ -20,7 +20,6 @@ import com.squareup.javapoet.MethodSpec;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import ru.histone.v2.Constants;
-import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.GlobalEvalNode;
@@ -58,23 +57,23 @@ public class TemplateProcessor {
             ValueNode valueNode = (ValueNode) params.node;
             Object v = valueNode.getValue();
             if (v == null) {
-                params.builder.addCode("$T.getValue($T.NULL)", EvalUtils.class, ObjectUtils.class);
+                params.builder.addCode("cnv.getValue($T.NULL)", ObjectUtils.class);
                 return;
             }
 
             if (v instanceof String) {
-                params.builder.addCode("$T.getValue($S)", EvalUtils.class, v);
+                params.builder.addCode("cnv.getValue($S)", v);
                 return;
             } else if (valueNode instanceof DoubleAstNode) {
                 if (((Double) v).isInfinite() || ((Double) v).isNaN()) {
-                    params.builder.addCode("$T.getValue($T.NULL)", EvalUtils.class, ObjectUtils.class);
+                    params.builder.addCode("cnv.getValue($T.NULL)", ObjectUtils.class);
                     return;
                 }
             } else if (valueNode instanceof LongAstNode) {
-                params.builder.addCode("$T.getValue(" + v + "L)", EvalUtils.class);
+                params.builder.addCode("cnv.getValue(" + v + "L)");
                 return;
             }
-            params.builder.addCode("$T.getValue(" + v + ")", EvalUtils.class);
+            params.builder.addCode("cnv.getValue(" + v + ")");
             return;
         }
 
@@ -172,13 +171,13 @@ public class TemplateProcessor {
     }
 
     private void processNopeNode(Params params) {
-        addCode(params, "$T.getValue(null)", EvalUtils.class);
+        addCode(params, "cnv.getValue(null)");
     }
 
     private void processReturnNode(Params params) {
         addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
         processNode(params.withNode(0));
-        addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+        addCode(params, ")\n.exceptionally(cnv.checkThrowable(null));\n");
     }
 
     private void processBorNode(Params params) {
@@ -239,7 +238,7 @@ public class TemplateProcessor {
         final String exp = expNode.getValue();
         final Pattern pattern = Pattern.compile(exp, flags);
 
-        addCode(params, "$T.getValue(", EvalUtils.class);
+        addCode(params, "cnv.getValue(");
         addCode(params, "new $T(", HistoneRegex.class);
         params.builder.addCode("$L, $L, $L, $T.compile($S, $L)))", isGlobal, isIgnoreCase, isMultiline, Pattern.class, exp, flags);
 //        addCode(params, "%s, %s, %s, $T.compile(\"%s\", %s)))", Pattern.class, isGlobal, isIgnoreCase, isMultiline, exp, flags);
@@ -263,7 +262,7 @@ public class TemplateProcessor {
         if (node.size() > 2) {
             processNode(params.with(node.getNode(2)));
         } else {
-            addCode(params, "EvalUtils.getValue(null)", EvalUtils.class);
+            addCode(params, "cnv.getValue(null)");
         }
     }
 
@@ -378,11 +377,11 @@ public class TemplateProcessor {
                 MapEvalNode.class, params.ctxNum, params.ctxNum, params.forCtxNumber, params.loopCounter.count);
         addStatement(params, "CompletableFuture<EvalNode> v%s0 = CompletableFuture.completedFuture(self%s)", params.ctxNum, params.ctxNum);
         if (hasKey) {
-            addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(\"key\"))",
+            addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(cnv, \"key\"))",
                     params.ctxNum, value(n.getNode(0)), params.ctxNum);
         }
         if (hasValue) {
-            addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(\"value\"))",
+            addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(cnv, \"value\"))",
                     params.ctxNum, value(n.getNode(1)), params.ctxNum);
         }
 
@@ -616,7 +615,7 @@ public class TemplateProcessor {
                     //                    processNode(params.with(node).withNode(0));
                     addCode(params, "return csb%s.thenCompose(r%s -> ", params.macroCtxNum, params.macroCtxNum);
                     processNode(params.with(node).withNode(0));
-                    addCode(params, ")\n.exceptionally($T.checkThrowable(null));\n", EvalUtils.class);
+                    addCode(params, ")\n.exceptionally(cnv.checkThrowable(null));\n");
                 } else {
                     processNode(params.with(node));
                 }

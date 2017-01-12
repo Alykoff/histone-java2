@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 import org.apache.commons.lang3.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
@@ -46,6 +46,10 @@ import java.util.concurrent.CompletableFuture;
 public class ToJson extends AbstractFunction {
     public static final String NAME = "toJSON";
 
+    public ToJson(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -60,12 +64,12 @@ public class ToJson extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() == 0) {
-            return EvalUtils.getValue(ObjectUtils.NULL);
+            return converter.getValue(ObjectUtils.NULL);
         }
 
         EvalNode node = args.get(0);
         if (node.getType() == HistoneType.T_NULL) {
-            return EvalUtils.getValue("null");
+            return converter.getValue("null");
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -76,7 +80,7 @@ public class ToJson extends AbstractFunction {
             @SuppressWarnings("unchecked")
             @Override
             public void serialize(LinkedHashMap value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                boolean isArray = EvalUtils.isArray(value.keySet());
+                boolean isArray = converter.isArray(value.keySet());
 
                 if (isArray) {
                     JsonSerializer<Object> serializer = provider.findValueSerializer(Collection.class, null);
@@ -156,7 +160,7 @@ public class ToJson extends AbstractFunction {
         try {
             String res = mapper.writeValueAsString(
                     HistoneType.T_GLOBAL == node.getType() ? context.getGlobalProperties() : node.getValue());
-            return EvalUtils.getValue(res);
+            return converter.getValue(res);
         } catch (JsonProcessingException e) {
             throw new FunctionExecutionException("Failed to write object to json", e);
         }

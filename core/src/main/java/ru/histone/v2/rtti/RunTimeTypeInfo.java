@@ -18,7 +18,7 @@ package ru.histone.v2.rtti;
 
 import org.apache.commons.lang3.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.function.any.*;
@@ -54,12 +54,14 @@ public class RunTimeTypeInfo implements Irtti {
     protected final HistoneResourceLoader loader;
     protected final Evaluator evaluator;
     protected final Parser parser;
+    protected final Converter converter;
 
     public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
         this.executor = executor;
         this.loader = loader;
         this.evaluator = evaluator;
         this.parser = parser;
+        converter = new Converter();
 
         for (HistoneType type : HistoneType.values()) {
             typeMembers.put(type, new HashMap<>());
@@ -70,103 +72,107 @@ public class RunTimeTypeInfo implements Irtti {
     }
 
     private void registerCommonFunctions() {
-        registerForAlltypes(new ToJson());
-        registerForAlltypes(new ToString());
-        registerForAlltypes(new ToBoolean());
-        registerForAlltypes(new IsUndefined());
-        registerForAlltypes(new IsNull());
-        registerForAlltypes(new IsBoolean());
-        registerForAlltypes(new IsNumber());
-        registerForAlltypes(new IsInt());
-        registerForAlltypes(new IsFloat());
-        registerForAlltypes(new IsRegExp());
-        registerForAlltypes(new IsString());
-        registerForAlltypes(new IsArray());
-        registerForAlltypes(new IsMacro());
-        registerForAlltypes(new ToMacro());
-        registerForAlltypes(new ToArray());
-        registerForAlltypes(new GetFunction());
-        registerForAlltypes(new CallFunction());
-        registerForAlltypes(new HasMethod());
-        registerForAlltypes(new IsDate());
-        registerForAlltypes(new GetMethod());
+        registerForAlltypes(new ToJson(converter));
+        registerForAlltypes(new ToString(converter));
+        registerForAlltypes(new ToBoolean(converter));
+        registerForAlltypes(new IsUndefined(converter));
+        registerForAlltypes(new IsNull(converter));
+        registerForAlltypes(new IsBoolean(converter));
+        registerForAlltypes(new IsNumber(converter));
+        registerForAlltypes(new IsInt(converter));
+        registerForAlltypes(new IsFloat(converter));
+        registerForAlltypes(new IsRegExp(converter));
+        registerForAlltypes(new IsString(converter));
+        registerForAlltypes(new IsArray(converter));
+        registerForAlltypes(new IsMacro(converter));
+        registerForAlltypes(new ToMacro(converter));
+        registerForAlltypes(new ToArray(converter));
+        registerForAlltypes(new GetFunction(converter));
+        registerForAlltypes(new CallFunction(converter));
+        registerForAlltypes(new HasMethod(converter));
+        registerForAlltypes(new IsDate(converter));
+        registerForAlltypes(new GetMethod(converter));
 
-        ToNumber toNumber = new ToNumber();
+        ToNumber toNumber = new ToNumber(converter);
 
         registerCommon(HistoneType.T_BOOLEAN, toNumber);
 
-        registerCommon(HistoneType.T_NUMBER, new ToAbs());
-        registerCommon(HistoneType.T_NUMBER, new ToCeil());
-        registerCommon(HistoneType.T_NUMBER, new ToChar());
-        registerCommon(HistoneType.T_NUMBER, new ToDate());
-        registerCommon(HistoneType.T_NUMBER, new ToFloor());
-        registerCommon(HistoneType.T_NUMBER, new ToRound());
-        registerCommon(HistoneType.T_NUMBER, new ToFixed());
+        registerCommon(HistoneType.T_NUMBER, new ToAbs(converter));
+        registerCommon(HistoneType.T_NUMBER, new ToCeil(converter));
+        registerCommon(HistoneType.T_NUMBER, new ToChar(converter));
+        registerCommon(HistoneType.T_NUMBER, new ToDate(converter));
+        registerCommon(HistoneType.T_NUMBER, new ToFloor(converter));
+        registerCommon(HistoneType.T_NUMBER, new ToRound(converter));
+        registerCommon(HistoneType.T_NUMBER, new ToFixed(converter));
         registerCommon(HistoneType.T_NUMBER, toNumber);
 
-        registerCommon(HistoneType.T_ARRAY, new ArrayLength());
-        registerCommon(HistoneType.T_ARRAY, new Keys(true));
-        registerCommon(HistoneType.T_ARRAY, new Keys(false));
-        registerCommon(HistoneType.T_ARRAY, new Reverse());
-        registerCommon(HistoneType.T_ARRAY, new ArrayMap());
-        registerCommon(HistoneType.T_ARRAY, new ArrayFilter());
-        registerCommon(HistoneType.T_ARRAY, new ArraySome());
-        registerCommon(HistoneType.T_ARRAY, new ArrayEvery());
-        registerCommon(HistoneType.T_ARRAY, new ArrayJoin());
-        registerCommon(HistoneType.T_ARRAY, new ArrayLast());
-        registerCommon(HistoneType.T_ARRAY, new ArrayFirst());
-        registerCommon(HistoneType.T_ARRAY, new ArrayChunk());
-        registerCommon(HistoneType.T_ARRAY, new ArrayReduce());
-        registerCommon(HistoneType.T_ARRAY, new ArrayFind());
-        registerCommon(HistoneType.T_ARRAY, new ArrayForEach());
-        registerCommon(HistoneType.T_ARRAY, new ArrayGroup());
-        registerCommon(HistoneType.T_ARRAY, new ArraySort());
-        registerCommon(HistoneType.T_ARRAY, new ArraySlice());
-        registerCommon(HistoneType.T_ARRAY, new ArrayHtmlEntities());
-        registerCommon(HistoneType.T_ARRAY, new ArrayHas());
-        registerCommon(HistoneType.T_ARRAY, new ArrayToDate());
+        registerCommon(HistoneType.T_ARRAY, new ArrayLength(converter));
+        registerCommon(HistoneType.T_ARRAY, new Keys(converter, true));
+        registerCommon(HistoneType.T_ARRAY, new Keys(converter, false));
+        registerCommon(HistoneType.T_ARRAY, new Reverse(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayMap(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayFilter(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArraySome(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayEvery(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayJoin(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayLast(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayFirst(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayChunk(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayReduce(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayFind(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayForEach(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayGroup(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArraySort(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArraySlice(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayHtmlEntities(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayHas(converter));
+        registerCommon(HistoneType.T_ARRAY, new ArrayToDate(converter));
 
         registerCommon(HistoneType.T_DATE, toNumber);
 
-        registerCommon(HistoneType.T_GLOBAL, new Range());
-        registerCommon(HistoneType.T_GLOBAL, new LoadJson(executor, loader, evaluator, parser));
-        registerCommon(HistoneType.T_GLOBAL, new LoadText(executor, loader, evaluator, parser));
-        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadText(executor, loader, evaluator, parser));
-        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadJson(executor, loader, evaluator, parser));
-        registerCommon(HistoneType.T_GLOBAL, new GetBaseUri());
-        registerCommon(HistoneType.T_GLOBAL, new GetUniqueId());
-        registerCommon(HistoneType.T_GLOBAL, new ResolveURI());
-        registerCommon(HistoneType.T_GLOBAL, new GetWeekDayName(true));
-        registerCommon(HistoneType.T_GLOBAL, new GetWeekDayName(false));
-        registerCommon(HistoneType.T_GLOBAL, new GetMonthName(true));
-        registerCommon(HistoneType.T_GLOBAL, new GetMonthName(false));
-        registerCommon(HistoneType.T_GLOBAL, new GetRand());
-        registerCommon(HistoneType.T_GLOBAL, new GetMinMax(false));
-        registerCommon(HistoneType.T_GLOBAL, new GetMinMax(true));
-        registerCommon(HistoneType.T_GLOBAL, new GetDate());
-        registerCommon(HistoneType.T_GLOBAL, new Wait());
-        registerCommon(HistoneType.T_GLOBAL, new GetDayOfWeek());
-        registerCommon(HistoneType.T_GLOBAL, new GetDaysInMonth());
-        registerCommon(HistoneType.T_GLOBAL, new Require(executor, loader, evaluator, parser));
-        registerCommon(HistoneType.T_GLOBAL, new Eval(executor, loader, evaluator, parser));
+        registerCommon(HistoneType.T_GLOBAL, new Range(converter));
+        registerCommon(HistoneType.T_GLOBAL, new LoadJson(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new LoadText(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadText(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadJson(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new GetBaseUri(converter));
+        registerCommon(HistoneType.T_GLOBAL, new GetUniqueId(converter));
+        registerCommon(HistoneType.T_GLOBAL, new ResolveURI(converter));
+        registerCommon(HistoneType.T_GLOBAL, new GetWeekDayName(converter, true));
+        registerCommon(HistoneType.T_GLOBAL, new GetWeekDayName(converter, false));
+        registerCommon(HistoneType.T_GLOBAL, new GetMonthName(converter, true));
+        registerCommon(HistoneType.T_GLOBAL, new GetMonthName(converter, false));
+        registerCommon(HistoneType.T_GLOBAL, new GetRand(converter));
+        registerCommon(HistoneType.T_GLOBAL, new GetMinMax(converter, false));
+        registerCommon(HistoneType.T_GLOBAL, new GetMinMax(converter, true));
+        registerCommon(HistoneType.T_GLOBAL, new GetDate(converter));
+        registerCommon(HistoneType.T_GLOBAL, new Wait(converter));
+        registerCommon(HistoneType.T_GLOBAL, new GetDayOfWeek(converter));
+        registerCommon(HistoneType.T_GLOBAL, new GetDaysInMonth(converter));
+        registerCommon(HistoneType.T_GLOBAL, new Require(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new Eval(executor, loader, evaluator, parser, converter));
 
-        registerCommon(HistoneType.T_REGEXP, new Test());
+        registerCommon(HistoneType.T_REGEXP, new Test(converter));
 
-        registerCommon(HistoneType.T_STRING, new StringLength());
-        registerCommon(HistoneType.T_STRING, new Case(false));
-        registerCommon(HistoneType.T_STRING, new Case(true));
-        registerCommon(HistoneType.T_STRING, new StringHtmlEntities());
-        registerCommon(HistoneType.T_STRING, new StringCharCodeAt());
-        registerCommon(HistoneType.T_STRING, new StringReplace());
-        registerCommon(HistoneType.T_STRING, new StringSlice());
-        registerCommon(HistoneType.T_STRING, new StringSplit());
-        registerCommon(HistoneType.T_STRING, new StringStrip());
-        registerCommon(HistoneType.T_STRING, new StringToDate());
+        registerCommon(HistoneType.T_STRING, new StringLength(converter));
+        registerCommon(HistoneType.T_STRING, new Case(converter, false));
+        registerCommon(HistoneType.T_STRING, new Case(converter, true));
+        registerCommon(HistoneType.T_STRING, new StringHtmlEntities(converter));
+        registerCommon(HistoneType.T_STRING, new StringCharCodeAt(converter));
+        registerCommon(HistoneType.T_STRING, new StringReplace(converter));
+        registerCommon(HistoneType.T_STRING, new StringSlice(converter));
+        registerCommon(HistoneType.T_STRING, new StringSplit(converter));
+        registerCommon(HistoneType.T_STRING, new StringStrip(converter));
+        registerCommon(HistoneType.T_STRING, new StringToDate(converter));
         registerCommon(HistoneType.T_STRING, toNumber);
 
-        registerCommon(HistoneType.T_MACRO, new MacroCall(executor, loader, evaluator, parser));
-        registerCommon(HistoneType.T_MACRO, new MacroBind());
-        registerCommon(HistoneType.T_MACRO, new MacroExtend());
+        registerCommon(HistoneType.T_MACRO, new MacroCall(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_MACRO, new MacroBind(converter));
+        registerCommon(HistoneType.T_MACRO, new MacroExtend(converter));
+    }
+
+    public Converter getConverter() {
+        return converter;
     }
 
     private void registerForAlltypes(Function function) {
@@ -205,7 +211,7 @@ public class RunTimeTypeInfo implements Irtti {
     public CompletableFuture<EvalNode> callFunction(Context context, HistoneType type, String funcName, List<EvalNode> args) {
         final Optional<Function> fRaw = getFunc(type, funcName);
         if (!fRaw.isPresent()) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
         final Function f = fRaw.get();
         if (f.isAsync()) {

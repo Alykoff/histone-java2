@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.number;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -37,6 +37,10 @@ public class ToFixed extends AbstractFunction {
 
     public static final int DEFAULT_INDEX_OF_CUT = 0;
 
+    public ToFixed(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toFixed";
@@ -50,12 +54,12 @@ public class ToFixed extends AbstractFunction {
         double input = ((DoubleEvalNode) args.get(0)).getValue();
 
         long count = Optional.ofNullable(args.size() > 1 ? args.get(1) : null)
-                .flatMap(EvalUtils::tryPureIntegerValue)
+                .flatMap(converter::tryPureIntegerValue)
                 .filter(x -> x > 0)
                 .orElse(DEFAULT_INDEX_OF_CUT);
         final double result = Double.parseDouble(new DecimalFormat(format(count),
                 new DecimalFormatSymbols(context.getLocale())).format(input));
-        return EvalUtils.getNumberFuture(result);
+        return converter.getNumberFuture(result);
     }
 
     private String format(long count) {

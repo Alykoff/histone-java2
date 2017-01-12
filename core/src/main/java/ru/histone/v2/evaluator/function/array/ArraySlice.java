@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -39,6 +39,10 @@ public class ArraySlice extends AbstractFunction implements Serializable {
     public static final int DEFAULT_OFFSET_VALUE = 0;
     public static final int DEFAULT_LEN_VALUE = 0;
 
+    public ArraySlice(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -54,11 +58,11 @@ public class ArraySlice extends AbstractFunction implements Serializable {
         final int arrayLen = values.size();
         int offset = Optional
                 .ofNullable(args.size() > 1 ? args.get(1) : null)
-                .flatMap(EvalUtils::tryPureIntegerValue)
+                .flatMap(converter::tryPureIntegerValue)
                 .orElse(DEFAULT_OFFSET_VALUE);
         int length = Optional
                 .ofNullable(args.size() > 2 ? args.get(2) : null)
-                .flatMap(EvalUtils::tryPureIntegerValue)
+                .flatMap(converter::tryPureIntegerValue)
                 .orElse(DEFAULT_LEN_VALUE);
         if (offset < 0) {
             offset = arrayLen + offset;

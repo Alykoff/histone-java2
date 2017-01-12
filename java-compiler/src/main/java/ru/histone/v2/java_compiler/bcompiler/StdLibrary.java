@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.NodesComparator;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.node.*;
@@ -38,8 +38,6 @@ import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static ru.histone.v2.evaluator.EvalUtils.isNumberNode;
-import static ru.histone.v2.evaluator.EvalUtils.nodeAsBoolean;
 import static ru.histone.v2.utils.ParserUtils.tryDouble;
 import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 
@@ -50,7 +48,13 @@ public class StdLibrary {
 
     private static final Logger LOG = LoggerFactory.getLogger(StdLibrary.class);
 
-    private static final NodesComparator comparator = new NodesComparator(); //todo do init in constructor and remove static modificator
+    private final NodesComparator comparator;
+    private final Converter converter;
+
+    public StdLibrary(Converter converter) {
+        this.converter = converter;
+        comparator = new NodesComparator(converter);
+    }
 
     public CompletableFuture<EvalNode> sub(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
         return doArithmetic(first, second, (x, y) -> x - y);
@@ -74,23 +78,23 @@ public class StdLibrary {
                 .thenCompose(l -> {
                     EvalNode left = l.get(0);
                     EvalNode right = l.get(1);
-                    if (isNumberNode(left) || left.getType() == HistoneType.T_STRING) {
+                    if (converter.isNumberNode(left) || left.getType() == HistoneType.T_STRING) {
                         Double lValue = getValue(left).orElse(null);
                         if (lValue != null) {
-                            if (isNumberNode(right) || right.getType() == HistoneType.T_STRING) {
+                            if (converter.isNumberNode(right) || right.getType() == HistoneType.T_STRING) {
                                 Double rValue = getValue(right).orElse(null);
                                 if (rValue != null) {
                                     Double res = sup.applyAsDouble(lValue, rValue);
                                     Optional<Long> longValue = ParserUtils.tryLongNumber(res);
                                     if (longValue.isPresent()) {
-                                        return EvalUtils.getValue(longValue.get());
+                                        return converter.getValue(longValue.get());
                                     }
-                                    return EvalUtils.getValue(res);
+                                    return converter.getValue(res);
                                 }
                             }
                         }
                     }
-                    return EvalUtils.getValue(null);
+                    return converter.getValue(null);
                 });
     }
 
@@ -103,7 +107,7 @@ public class StdLibrary {
     }
 
     public boolean toBoolean(CompletableFuture<EvalNode> node) {
-        return nodeAsBoolean(node.join());
+        return converter.nodeAsBoolean(node.join());
     }
 
     public CompletableFuture<EvalNode> arr(Object... args) {
@@ -127,11 +131,11 @@ public class StdLibrary {
     }
 
     public CompletableFuture<EvalNode> asString(Context ctx, CompletableFuture<StringBuilder> csb) {
-        return csb.thenCompose(sb -> RttiUtils.callToString(ctx, EvalUtils.createEvalNode(sb.toString())));
+        return csb.thenCompose(sb -> RttiUtils.callToString(ctx, converter.createEvalNode(sb.toString())));
     }
 
     public CompletableFuture<EvalNode> asBooleanNot(Context context, CompletableFuture<EvalNode> node) {
-        return node.thenCompose(n -> EvalUtils.getValue(!nodeAsBoolean(n)));
+        return node.thenCompose(n -> converter.getValue(!converter.nodeAsBoolean(n)));
     }
 
     public CompletableFuture<EvalNode> add(Context ctx, CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second) {
@@ -139,13 +143,13 @@ public class StdLibrary {
             EvalNode left = lr.get(0);
             EvalNode right = lr.get(1);
             if (!(left.getType() == HistoneType.T_STRING || right.getType() == HistoneType.T_STRING)) {
-                final boolean isLeftNumberNode = isNumberNode(left);
-                final boolean isRightNumberNode = isNumberNode(right);
+                final boolean isLeftNumberNode = converter.isNumberNode(left);
+                final boolean isRightNumberNode = converter.isNumberNode(right);
                 if (isLeftNumberNode && isRightNumberNode) {
                     final Double res = getValue(left).orElse(null) + getValue(right).orElse(null);
-                    return EvalUtils.getNumberFuture(res);
+                    return converter.getNumberFuture(res);
                 } else if (isLeftNumberNode || isRightNumberNode) {
-                    return EvalUtils.getValue(null);
+                    return converter.getValue(null);
                 }
 
                 if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
@@ -162,7 +166,7 @@ public class StdLibrary {
             ).thenCompose(futures -> {
                 StringEvalNode l = (StringEvalNode) futures.get(0);
                 StringEvalNode r = (StringEvalNode) futures.get(1);
-                return EvalUtils.getValue(l.getValue() + r.getValue());
+                return converter.getValue(l.getValue() + r.getValue());
             });
         });
     }
@@ -187,7 +191,7 @@ public class StdLibrary {
                     return new DoubleEvalNode(-doubleOptional.get());
                 }
             }
-            return EvalUtils.createEvalNode(null);
+            return converter.createEvalNode(null);
         });
     }
 
@@ -231,7 +235,7 @@ public class StdLibrary {
                     }
                     return ctx.call(functionName, argList);
                 })
-                .exceptionally(EvalUtils.checkThrowable(LOG));
+                .exceptionally(converter.checkThrowable(LOG));
     }
 
     public CompletableFuture<EvalNode> mCall(Context ctx, CompletableFuture<EvalNode> valueNode, CompletableFuture<EvalNode>... nodes) {
@@ -246,7 +250,7 @@ public class StdLibrary {
                                         return ctx.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
                                     }
                                     if (value.getType() != HistoneType.T_STRING) {
-                                        return EvalUtils.getValue(null);
+                                        return converter.getValue(null);
                                     }
                                     return ctx.call((String) value.getValue(), args);
                                 }
@@ -282,18 +286,18 @@ public class StdLibrary {
         List<Map.Entry<String, EvalNode>> nodes = new ArrayList<>(array.getValue().entrySet());
 
         Map<String, EvalNode> res = new LinkedHashMap<>();
-        res.put(Constants.SELF_CONTEXT_KEY, EvalUtils.createEvalNode(nodes.get(currentIndex).getKey()));
+        res.put(Constants.SELF_CONTEXT_KEY, converter.createEvalNode(nodes.get(currentIndex).getKey()));
         res.put(Constants.SELF_CONTEXT_VALUE, nodes.get(currentIndex).getValue());
-        res.put(Constants.SELF_CONTEXT_CURRENT_INDEX, EvalUtils.createEvalNode(currentIndex));
-        res.put(Constants.SELF_CONTEXT_LAST_INDEX, EvalUtils.createEvalNode(lastIndex));
-        return (MapEvalNode) EvalUtils.createEvalNode(res);
+        res.put(Constants.SELF_CONTEXT_CURRENT_INDEX, converter.createEvalNode(currentIndex));
+        res.put(Constants.SELF_CONTEXT_LAST_INDEX, converter.createEvalNode(lastIndex));
+        return (MapEvalNode) converter.createEvalNode(res);
     }
 
     public MapEvalNode constructWhileSelfValue(int currentIndex) {
         Map<String, EvalNode> res = new LinkedHashMap<>();
-        res.put(Constants.SELF_WHILE_ITERATION, EvalUtils.createEvalNode(currentIndex));
+        res.put(Constants.SELF_WHILE_ITERATION, converter.createEvalNode(currentIndex));
 //        res.put(Constants.SELF_WHILE_CONDITION, nodes.get(currentIndex).getValue());
-        return (MapEvalNode) EvalUtils.createEvalNode(res);
+        return (MapEvalNode) converter.createEvalNode(res);
     }
 
     public CompletableFuture<EvalNode> toMacro(MacroFunction macroFunction, long argsSize) {
@@ -313,15 +317,15 @@ public class StdLibrary {
                     EvalNode fromCtx = list.get(0);
                     if (fromCtx instanceof HasProperties) {
                         String name = (String) list.get(1).getValue();
-                        return ((HasProperties) fromCtx).getProperty(name);
+                        return ((HasProperties) fromCtx).getProperty(converter, name);
                     }
-                    return EvalUtils.createEvalNode(null);
+                    return converter.createEvalNode(null);
                 });
     }
 
     public CompletableFuture<EvalNode> processLogicalNode(CompletableFuture<EvalNode> first, CompletableFuture<EvalNode> second, boolean negateCheck) {
         return first.thenCompose(f -> {
-            if (nodeAsBoolean(f) ^ negateCheck) {
+            if (converter.nodeAsBoolean(f) ^ negateCheck) {
                 return CompletableFuture.completedFuture(f);
             }
             return second;
@@ -352,15 +356,15 @@ public class StdLibrary {
                     if (f.get(0).getType() == HistoneType.T_NUMBER) {
                         first = (long) f.get(0).getValue();
                     } else if (f.get(0).getType() == HistoneType.T_BOOLEAN) {
-                        first = nodeAsBoolean(f.get(0)) ? 1 : 0;
+                        first = converter.nodeAsBoolean(f.get(0)) ? 1 : 0;
                     }
                     long second = 0;
                     if (f.get(1).getType() == HistoneType.T_NUMBER) {
                         second = (long) f.get(1).getValue();
                     } else if (f.get(1).getType() == HistoneType.T_BOOLEAN) {
-                        second = nodeAsBoolean(f.get(1)) ? 1 : 0;
+                        second = converter.nodeAsBoolean(f.get(1)) ? 1 : 0;
                     }
-                    return EvalUtils.createEvalNode(function.apply(first, second));
+                    return converter.createEvalNode(function.apply(first, second));
                 });
     }
 }

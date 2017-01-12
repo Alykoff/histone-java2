@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.number;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -31,6 +31,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class ToAbs extends AbstractFunction {
+    public ToAbs(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toAbs";
@@ -39,8 +43,8 @@ public class ToAbs extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.get(0) instanceof LongEvalNode) {
-            return EvalUtils.getValue(Math.abs(((LongEvalNode) args.get(0)).getValue()));
+            return converter.getValue(Math.abs(((LongEvalNode) args.get(0)).getValue()));
         }
-        return EvalUtils.getValue(Math.abs(((DoubleEvalNode) args.get(0)).getValue()));
+        return converter.getValue(Math.abs(((DoubleEvalNode) args.get(0)).getValue()));
     }
 }

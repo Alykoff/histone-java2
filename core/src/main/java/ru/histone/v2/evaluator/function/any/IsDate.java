@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.rtti.HistoneType;
@@ -29,6 +29,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class IsDate extends IsArray {
+    public IsDate(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "isDate";
@@ -36,6 +40,6 @@ public class IsDate extends IsArray {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return EvalUtils.getValue(args.get(0).hasAdditionalType(HistoneType.T_DATE));
+        return converter.getValue(args.get(0).hasAdditionalType(HistoneType.T_DATE));
     }
 }

@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import ru.histone.v2.acceptance.HistoneTestCase;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
@@ -43,12 +43,14 @@ import static ru.histone.v2.acceptance.TestUtils.checkException;
  */
 public class CompilerTestConsumer implements Consumer<HistoneTestCase.Case> {
 
-    private RunTimeTypeInfo rtti;
-    private StdLibrary stdLibrary;
+    private final RunTimeTypeInfo rtti;
+    private final StdLibrary stdLibrary;
+    private final Converter converter;
 
-    public CompilerTestConsumer(RunTimeTypeInfo rtti, StdLibrary stdLibrary) {
+    public CompilerTestConsumer(RunTimeTypeInfo rtti, StdLibrary stdLibrary, Converter converter) {
         this.rtti = rtti;
         this.stdLibrary = stdLibrary;
+        this.converter = converter;
     }
 
     @Override
@@ -61,6 +63,7 @@ public class CompilerTestConsumer implements Consumer<HistoneTestCase.Case> {
 
             Template template = (Template) t.newInstance();
             template.setStdLibrary(stdLibrary);
+            template.setConverter(converter);
 
             if (StringUtils.isNotBlank(testCase.getExpectedAST())) {
                 Assertions.assertEquals(template.getStringAst(), testCase.getExpectedAST());
@@ -70,9 +73,11 @@ public class CompilerTestConsumer implements Consumer<HistoneTestCase.Case> {
             if (testCase.getContext() != null) {
                 for (Map.Entry<String, Object> entry : testCase.getContext().entrySet()) {
                     if (entry.getKey().equals("this")) {
-                        context.put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+                        context.put("this", CompletableFuture.completedFuture(rtti.getConverter()
+                                .constructFromObject(entry.getValue())));
                     } else {
-                        context.getVars().put(entry.getKey(), CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+                        context.getVars().put(entry.getKey(), CompletableFuture.completedFuture(rtti.getConverter()
+                                .constructFromObject(entry.getValue())));
                     }
                 }
             }

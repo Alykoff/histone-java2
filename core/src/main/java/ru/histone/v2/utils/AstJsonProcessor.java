@@ -20,14 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.EntityArrays;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
-import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.parser.Optimizer;
 import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
+
+import static ru.histone.v2.utils.ParserUtils.canBeLong;
 
 /**
  * @author Alexey Nevinsky
@@ -107,7 +107,7 @@ public class AstJsonProcessor {
                     Double v = (Double) nodeValue;
                     if (v.isInfinite()) {
                         sb.append("null");
-                    } else if (EvalUtils.canBeLong((Double) nodeValue)) {
+                    } else if (canBeLong((Double) nodeValue)) {
                         sb.append(((Double) nodeValue).longValue());
                     } else {
                         sb.append(nodeValue);

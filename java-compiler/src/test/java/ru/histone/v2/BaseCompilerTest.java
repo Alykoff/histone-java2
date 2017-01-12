@@ -21,18 +21,19 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import ru.histone.v2.acceptance.StringParamResolver;
 import ru.histone.v2.acceptance.TestRunner;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
 import ru.histone.v2.evaluator.resource.loader.HttpLoader;
-import ru.histone.v2.java_compiler.bcompiler.Compiler;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
+import ru.histone.v2.java_compiler.bcompiler.Translator;
 import ru.histone.v2.java_compiler.java_evaluator.HistoneClassRegistry;
 import ru.histone.v2.java_compiler.java_evaluator.JavaHistoneClassRegistry;
+import ru.histone.v2.java_compiler.java_evaluator.function.*;
 import ru.histone.v2.java_compiler.java_evaluator.loader.JavaHistoneRawTemplateLoader;
 import ru.histone.v2.java_compiler.java_evaluator.loader.JavaHistoneTemplateLoader;
-import ru.histone.v2.java_compiler.java_evaluator.function.*;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
@@ -59,16 +60,19 @@ public class BaseCompilerTest {
     protected static Evaluator evaluator;
     protected static Parser parser;
     protected static StdLibrary library;
+    protected static Converter converter;
 
 
     @BeforeAll
     public static void doInitSuite() throws MalformedURLException {
+        converter = new Converter();
         parser = new Parser();
-        evaluator = new Evaluator();
-        library = new StdLibrary();
+        evaluator = new Evaluator(converter);
+        library = new StdLibrary(converter);
 
-        Compiler histoneTranslator = new Compiler();
-        HistoneClassRegistry registry = new JavaHistoneClassRegistry(new URL("file:///"), library, parser, histoneTranslator);
+        Translator histoneTranslator = new Translator();
+        HistoneClassRegistry registry =
+                new JavaHistoneClassRegistry(new URL("file:///"), library, parser, histoneTranslator, converter);
 
         SchemaResourceLoader loader = new SchemaResourceLoader();
         loader.addLoader(new DataLoader());
@@ -78,18 +82,18 @@ public class BaseCompilerTest {
         loader.addLoader(new JavaHistoneRawTemplateLoader(registry));
 
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
-        rtti.register(HistoneType.T_MACRO, new JavaMacroCall(executor, loader, evaluator, parser));
-        rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser));
-        rtti.register(HistoneType.T_GLOBAL, new JavaLoadText(executor, loader, evaluator, parser));
-        rtti.register(HistoneType.T_GLOBAL, new JavaLoadJson(executor, loader, evaluator, parser));
-        rtti.register(HistoneType.T_GLOBAL, new JavaEval(executor, loader, evaluator, parser));
-        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
-        rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
+        rtti.register(HistoneType.T_MACRO, new JavaMacroCall(executor, loader, evaluator, parser, converter));
+        rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser, converter));
+        rtti.register(HistoneType.T_GLOBAL, new JavaLoadText(executor, loader, evaluator, parser, converter));
+        rtti.register(HistoneType.T_GLOBAL, new JavaLoadJson(executor, loader, evaluator, parser, converter));
+        rtti.register(HistoneType.T_GLOBAL, new JavaEval(executor, loader, evaluator, parser, converter));
+        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction(converter));
+        rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction(converter));
     }
 
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
         TestRunner runner = new TestRunner();
-        CompilerTestConsumer consumer = new CompilerTestConsumer(rtti, library);
+        CompilerTestConsumer consumer = new CompilerTestConsumer(rtti, library, converter);
         return runner.loadCases(param, consumer);
     }
 }

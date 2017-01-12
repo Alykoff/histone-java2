@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
@@ -30,6 +31,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class StringHtmlEntities extends AbstractFunction {
     public static final String NAME = "htmlentities";
+
+    public StringHtmlEntities(Converter converter) {
+        super(converter);
+    }
 
     public static CompletableFuture<EvalNode> htmlEntities(EvalNode node) {
         final String value = ((StringEvalNode) node).getValue();

@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -44,7 +44,11 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
     private static final int MACRO_INDEX = 1;
     private static final int ARGS_START_INDEX = 2;
 
-    protected static CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
+    public ArrayFilter(Converter converter) {
+        super(converter);
+    }
+
+    protected CompletableFuture<List<Tuple<EvalNode, Boolean>>> calcByPredicate(Context context, List<EvalNode> args) {
         final MapEvalNode mapEvalNode = (MapEvalNode) args.get(MAP_EVAL_INDEX);
         final EvalNode valueNode;
         if (args.size() > 1) {
@@ -70,11 +74,11 @@ public class ArrayFilter extends AbstractFunction implements Serializable {
                         arguments.add(arg);
                         final CompletableFuture<EvalNode> predicateFuture = context.macroCall(arguments);
                         return predicateFuture.thenApply(predicateNode -> {
-                            final Boolean predicate = EvalUtils.nodeAsBoolean(predicateNode);
+                            final Boolean predicate = converter.nodeAsBoolean(predicateNode);
                             return Tuple.create(arg, predicate);
                         });
                     } else {
-                        final Boolean predicate = EvalUtils.nodeAsBoolean(valueNode);
+                        final Boolean predicate = converter.nodeAsBoolean(valueNode);
                         return CompletableFuture.completedFuture(Tuple.create(arg, predicate));
                     }
                 }).collect(Collectors.toList());

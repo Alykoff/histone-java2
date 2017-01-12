@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -31,6 +31,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class ToMacro extends AbstractFunction {
+    public ToMacro(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toMacro";
@@ -42,6 +46,6 @@ public class ToMacro extends AbstractFunction {
         if (res.getType() == HistoneType.T_MACRO) {
             return CompletableFuture.completedFuture(res);
         }
-        return EvalUtils.getValue(new HistoneMacro(res));
+        return converter.getValue(new HistoneMacro(res));
     }
 }

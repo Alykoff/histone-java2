@@ -21,6 +21,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import ru.histone.v2.acceptance.StringParamResolver;
 import ru.histone.v2.acceptance.TestRunner;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
@@ -49,12 +50,14 @@ public class HistoneTest {
     protected static RunTimeTypeInfo rtti;
     protected static Evaluator evaluator;
     protected static Parser parser;
+    protected static Converter converter;
 
 
     @BeforeAll
     public static void doInitSuite() {
+        converter = new Converter();
         parser = new Parser();
-        evaluator = new Evaluator();
+        evaluator = new Evaluator(converter);
 
         SchemaResourceLoader loader = new SchemaResourceLoader();
         loader.addLoader(new DataLoader());
@@ -62,8 +65,8 @@ public class HistoneTest {
         loader.addLoader(new FileLoader());
 
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
-        rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction());
-        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction());
+        rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction(converter));
+        rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction(converter));
     }
 
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {

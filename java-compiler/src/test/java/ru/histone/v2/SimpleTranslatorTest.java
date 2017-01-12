@@ -16,12 +16,13 @@
 
 package ru.histone.v2;
 
-import org.junit.jupiter.api.Test;
+
 import org.testng.Assert;
+import org.testng.annotations.Test;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.StringEvalNode;
-import ru.histone.v2.java_compiler.bcompiler.Compiler;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
+import ru.histone.v2.java_compiler.bcompiler.Translator;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.AstNode;
@@ -42,7 +43,7 @@ import static ru.histone.v2.acceptance.TestUtils.US_LOCALE;
 /**
  * @author Alexey Nevinsky
  */
-public class SimpleCompilerTest extends BaseCompilerTest {
+public class SimpleTranslatorTest extends BaseCompilerTest {
 
 
     // "input": "{{for x in [1,2,3,4,5,6,7,8,9,10]}}{{if x > 7}}{{true}} {{elseif x > 5}}{{false}} {{else}}{{\"ha\"}} {{/if}}{{/for}}"
@@ -53,7 +54,7 @@ public class SimpleCompilerTest extends BaseCompilerTest {
         String expectedAST = "[29,[22,[4],\"eval\",\"{{getBaseURI}}\",null,\"x\"]]";
         String expectedResult = "x";
 
-        Compiler compiler = new Compiler();
+        Translator translator = new Translator();
 
         AstNode tree = AstJsonProcessor.read(expectedAST);
         SsaOptimizer optimizer = new SsaOptimizer();
@@ -61,16 +62,17 @@ public class SimpleCompilerTest extends BaseCompilerTest {
 
         expectedAST = AstJsonProcessor.write(tree);
 
-        byte[] classBytes = compiler.compile("Template1", tree);
+        byte[] classBytes = translator.compile("Template1", tree);
         Map<String, byte[]> classes = Collections.singletonMap("Template1", classBytes);
 
         ByteClassLoader loader = new ByteClassLoader(new URL[]{}, getClass().getClassLoader(), classes);
         Class<?> t = loader.loadClass("Template1");
 
-        StdLibrary library = new StdLibrary();
+        StdLibrary library = new StdLibrary(converter);
 
         Template template = (Template) t.newInstance();
         template.setStdLibrary(library);
+        template.setConverter(converter);
 
         Assert.assertEquals(template.getStringAst(), expectedAST);
 
@@ -81,9 +83,9 @@ public class SimpleCompilerTest extends BaseCompilerTest {
 //        if (testCase.getContext() != null) {
 //        for (Map.Entry<String, Object> entry : getMap().entrySet()) {
 //            if (entry.getKey().equals("this")) {
-//                context.put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+//                context.put("this", CompletableFuture.completedFuture(converter.constructFromObject(entry.getValue())));
 //            } else {
-//                context.getVars().put(entry.getKey(), CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+//                context.getVars().put(entry.getKey(), CompletableFuture.completedFuture(converter.constructFromObject(entry.getValue())));
 //            }
 //        }
 //        }

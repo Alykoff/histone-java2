@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -26,10 +26,16 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static ru.histone.v2.utils.ParserUtils.canBeLong;
+
 /**
  * @author Alexey Nevinsky
  */
 public class IsFloat extends AbstractFunction {
+    public IsFloat(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "isFloat";
@@ -39,11 +45,11 @@ public class IsFloat extends AbstractFunction {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode node = args.get(0);
         if (node instanceof DoubleEvalNode) {
-            if (EvalUtils.canBeLong(((DoubleEvalNode) node).getValue())) {
-                return EvalUtils.getValue(false);
+            if (canBeLong(((DoubleEvalNode) node).getValue())) {
+                return converter.getValue(false);
             }
-            return EvalUtils.getValue(true);
+            return converter.getValue(true);
         }
-        return EvalUtils.getValue(false);
+        return converter.getValue(false);
     }
 }

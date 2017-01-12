@@ -18,11 +18,10 @@ package ru.histone.v2.java_compiler.java_evaluator.function;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.global.Eval;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.exceptions.ResourceLoadException;
@@ -43,14 +42,14 @@ import java.util.concurrent.Executor;
  * @author Alexey Nevinsky
  */
 public class JavaEval extends Eval {
-    public JavaEval(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
-        super(executor, resourceLoader, evaluator, parser);
+    public JavaEval(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, resourceLoader, evaluator, parser, converter);
     }
 
     protected CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode templateNode = args.get(0);
         if (templateNode.getType() != HistoneType.T_STRING) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         String template = (String) templateNode.getValue();
@@ -59,7 +58,7 @@ public class JavaEval extends Eval {
         if (args.size() >= 2) {
             params = args.get(1);
         } else {
-            params = EvalUtils.createEvalNode(null);
+            params = converter.createEvalNode(null);
         }
 
         final String baseUri;
@@ -91,7 +90,7 @@ public class JavaEval extends Eval {
                         throw (StopExecutionException) e.getCause();
                     }
                     logger.error(e.getMessage(), e);
-                    return EvalUtils.createEvalNode(null);
+                    return converter.createEvalNode(null);
                 });
     }
 }

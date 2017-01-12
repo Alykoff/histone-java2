@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.global.StringEvalNodeStrongComparator;
 import ru.histone.v2.evaluator.node.*;
@@ -42,6 +43,10 @@ public class ArraySort extends AbstractFunction implements Serializable {
     public static final String NAME = "sort";
     public static final StringEvalNodeStrongComparator STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
     public static final int START_BIND_INDEX = 2;
+
+    public ArraySort(Converter converter) {
+        super(converter);
+    }
 
     public static CompletableFuture<List<Entry<String, EvalNode>>> sort(
             List<CompletableFuture<Entry<String, EvalNode>>> nodes,

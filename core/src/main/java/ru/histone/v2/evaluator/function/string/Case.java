@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
@@ -32,7 +32,8 @@ public class Case extends AbstractFunction {
 
     private boolean toUpperCase;
 
-    public Case(boolean toUpperCase) {
+    public Case(Converter converter, boolean toUpperCase) {
+        super(converter);
         this.toUpperCase = toUpperCase;
     }
 
@@ -44,6 +45,6 @@ public class Case extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         String val = ((StringEvalNode) args.get(0)).getValue();
-        return EvalUtils.getValue(toUpperCase ? val.toUpperCase() : val.toLowerCase());
+        return converter.getValue(toUpperCase ? val.toUpperCase() : val.toLowerCase());
     }
 }

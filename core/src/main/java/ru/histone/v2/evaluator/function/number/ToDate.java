@@ -1,7 +1,7 @@
 package ru.histone.v2.evaluator.function.number;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -20,6 +20,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Aleksander Melnichnikov
  */
 public class ToDate extends AbstractFunction {
+    public ToDate(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toDate";
@@ -28,7 +32,7 @@ public class ToDate extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() < 1) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         long value;
@@ -46,8 +50,7 @@ public class ToDate extends AbstractFunction {
             dateTime = DateUtils.applyOffset(dateTime, offset);
         }
 
-        EvalNode node = EvalUtils.createEvalNode(DateUtils.createMapFromDate(
-                dateTime), true);
+        EvalNode node = converter.createEvalNode(DateUtils.createMapFromDate(converter, dateTime), true);
         return CompletableFuture.completedFuture(node);
     }
 }

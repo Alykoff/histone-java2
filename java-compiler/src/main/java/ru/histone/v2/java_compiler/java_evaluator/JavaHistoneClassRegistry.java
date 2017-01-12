@@ -20,8 +20,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.histone.v2.java_compiler.bcompiler.Compiler;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
+import ru.histone.v2.java_compiler.bcompiler.Translator;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.java_compiler.java_evaluator.support.HistoneTemplateCompiler;
 import ru.histone.v2.java_compiler.java_evaluator.support.TemplateFileObject;
@@ -51,15 +52,18 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
 
     protected final Path basePath;
     protected final StdLibrary stdLibrary;
+    protected final Converter converter;
     protected HistoneTemplateCompiler compiler;
 
     protected final Map<String, RegistryObj> data = new ConcurrentHashMap<>();
     protected final URL[] baseURL;
 
-    public JavaHistoneClassRegistry(URL basePath, StdLibrary stdLibrary, Parser parser, Compiler histoneTranslator) {
+    public JavaHistoneClassRegistry(URL basePath, StdLibrary stdLibrary, Parser parser, Translator histoneTranslator,
+                                    Converter converter) {
         baseURL = new URL[]{basePath};
         this.basePath = Paths.get(URI.create(basePath.toString()));
         this.stdLibrary = stdLibrary;
+        this.converter = converter;
         this.compiler = new HistoneTemplateCompiler(this, parser, histoneTranslator);
     }
 
@@ -171,6 +175,7 @@ public class JavaHistoneClassRegistry implements HistoneClassRegistry {
         try {
             Template t = (Template) tmp.loadClass(className).newInstance();
             t.setStdLibrary(stdLibrary);
+            t.setConverter(converter);
             return t;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             LOG.error(e.getMessage(), e);

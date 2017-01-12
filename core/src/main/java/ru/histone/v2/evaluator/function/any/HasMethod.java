@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -30,6 +30,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class HasMethod extends AbstractFunction {
+    public HasMethod(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "hasMethod";
@@ -38,11 +42,11 @@ public class HasMethod extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() < 2) {
-            return EvalUtils.getValue(false);
+            return converter.getValue(false);
         }
 
         EvalNode v = args.get(0);
         return RttiUtils.callToString(context, args.get(1))
-                .thenApply(methodName -> EvalUtils.createEvalNode(context.findFunction(v, (String) methodName.getValue())));
+                .thenApply(methodName -> converter.createEvalNode(context.findFunction(v, (String) methodName.getValue())));
     }
 }

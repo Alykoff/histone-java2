@@ -114,7 +114,7 @@ public class Context implements Cloneable {
     }
 
     public CompletableFuture<EvalNode> getValue(String key) {
-        return vars.getOrDefault(key, EvalUtils.getValue(null));
+        return vars.getOrDefault(key, rttiInfo.getConverter().getValue(null));
     }
 
     public Context getParent() {

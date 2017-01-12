@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -38,14 +38,18 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
     private static final int SPLIT_SIZE_INDEX = 1;
     private static final int DEFAULT_CHUNK_SIZE = 1;
 
+    public ArrayChunk(Converter converter) {
+        super(converter);
+    }
+
     @SuppressWarnings("unchecked")
-    private static List<Map<String, EvalNode>> chunk(Map<String, EvalNode> original, int n) {
+    private List<Map<String, EvalNode>> chunk(Map<String, EvalNode> original, int n) {
         if (n < 1) {
             throw new IllegalArgumentException("Chunk size should be non zero positive value");
         }
         int i = -1;
         Map<String, EvalNode> partition = Collections.EMPTY_MAP;
-        boolean isArray = EvalUtils.isArray(original.keySet());
+        boolean isArray = converter.isArray(original.keySet());
         final List<Map<String, EvalNode>> partitions = new ArrayList<>();
         for (Map.Entry<String, EvalNode> entry : original.entrySet()) {
             if (++i % n == 0) {
@@ -71,18 +75,18 @@ public class ArrayChunk extends AbstractFunction implements Serializable {
             splitSizeValue = RttiUtils
                     .callToNumber(context, args.get(SPLIT_SIZE_INDEX))
                     .thenApply(x -> {
-                        Optional<Integer> result = EvalUtils.tryPureIntegerValue(x).filter(v -> v > 0);
+                        Optional<Integer> result = converter.tryPureIntegerValue(x).filter(v -> v > 0);
                         return !result.isPresent() ? Optional.of(DEFAULT_CHUNK_SIZE) : result;
                     });
         }
         return splitSizeValue.thenApply(sizeOptional ->
-                        sizeOptional.map(size -> {
-                            final List<EvalNode> chunkedValues = chunk(mapEvalNode.getValue(), size)
-                                    .stream()
-                                    .map(MapEvalNode::new)
-                                    .collect(Collectors.toList());
-                            return new MapEvalNode(chunkedValues);
-                        }).orElse(mapEvalNode)
+                sizeOptional.map(size -> {
+                    final List<EvalNode> chunkedValues = chunk(mapEvalNode.getValue(), size)
+                            .stream()
+                            .map(MapEvalNode::new)
+                            .collect(Collectors.toList());
+                    return new MapEvalNode(chunkedValues);
+                }).orElse(mapEvalNode)
         );
     }
 }

@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -34,6 +34,10 @@ import static ru.histone.v2.utils.ParserUtils.tryIntNumber;
  * @author Alexey Nevinsky
  */
 public class GetDaysInMonth extends AbstractFunction {
+    public GetDaysInMonth(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "getDaysInMonth";
@@ -46,7 +50,7 @@ public class GetDaysInMonth extends AbstractFunction {
 
     protected CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         if (args.size() < 2) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         final Optional<Integer> yearOptional = tryIntNumber(args.get(0).getValue())
@@ -64,9 +68,9 @@ public class GetDaysInMonth extends AbstractFunction {
             if (dayOfWeek == 0) {
                 dayOfWeek = 7;
             }
-            return EvalUtils.getValue(dayOfWeek);
+            return converter.getValue(dayOfWeek);
         } catch (IllegalArgumentException e) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
     }
 }

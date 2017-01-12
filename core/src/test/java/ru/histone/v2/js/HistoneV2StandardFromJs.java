@@ -18,6 +18,7 @@ package ru.histone.v2.js;
 
 import com.google.common.base.Charsets;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.exceptions.HistoneException;
@@ -57,7 +58,8 @@ public class HistoneV2StandardFromJs {
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(20);
-            final Evaluator evaluator = new Evaluator();
+            final Converter converter = new Converter();
+            final Evaluator evaluator = new Evaluator(converter);
             final Parser parser = new Parser();
             RunTimeTypeInfo rtti = new RunTimeTypeInfo(executor, new SchemaResourceLoader(), evaluator, parser);
 

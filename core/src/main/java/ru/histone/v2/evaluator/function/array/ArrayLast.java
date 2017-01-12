@@ -1,6 +1,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -14,6 +15,10 @@ import java.util.concurrent.CompletableFuture;
 public class ArrayLast extends ArrayIndexAware {
     private static final String NAME = "last";
     private static final int ARRAY_INDEX = 0;
+
+    public ArrayLast(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {

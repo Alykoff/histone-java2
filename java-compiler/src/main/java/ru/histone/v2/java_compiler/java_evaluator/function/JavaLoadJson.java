@@ -17,13 +17,12 @@
 package ru.histone.v2.java_compiler.java_evaluator.function;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
-import ru.histone.v2.utils.IOUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -33,8 +32,8 @@ import java.util.concurrent.Executor;
  * @author Alexey Nevinsky
  */
 public class JavaLoadJson extends JavaLoadText {
-    public JavaLoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
-        super(executor, loader, evaluator, parser);
+    public JavaLoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, loader, evaluator, parser, converter);
     }
 
     @Override
@@ -45,10 +44,10 @@ public class JavaLoadJson extends JavaLoadText {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         return super.execute(context, args)
-                .thenApply(IOUtils::convertToJson)
+                .thenApply(this::convertToJson)
                 .exceptionally(ex -> {
                     logger.error(ex.getMessage(), ex);
-                    return EvalUtils.createEvalNode(null);
+                    return converter.createEvalNode(null);
                 });
     }
 }

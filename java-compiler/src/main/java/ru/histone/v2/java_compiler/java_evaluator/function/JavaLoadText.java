@@ -19,7 +19,7 @@ package ru.histone.v2.java_compiler.java_evaluator.function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.global.LoadText;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -46,8 +46,8 @@ public class JavaLoadText extends LoadText {
 
     private static final Logger LOG = LoggerFactory.getLogger(JavaLoadText.class);
 
-    public JavaLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
-        super(executor, loader, evaluator, parser);
+    public JavaLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, loader, evaluator, parser, converter);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class JavaLoadText extends LoadText {
 
     private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         if (args.size() < 1 || args.get(0).getType() != HistoneType.T_STRING) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         return AsyncUtils.initFuture().thenCompose(ignore -> {
@@ -76,7 +76,7 @@ public class JavaLoadText extends LoadText {
                     })
                     .thenApply(resource -> {
                         if (resource == null) {
-                            return EvalUtils.createEvalNode(null);
+                            return converter.createEvalNode(null);
                         }
 
                         if (resource.getContentType().equals(HistoneTemplateResource.CONTENT_TYPE)) {
@@ -84,7 +84,7 @@ public class JavaLoadText extends LoadText {
                         }
 
                         String content = IOUtils.readStringFromResource(resource, path);
-                        return EvalUtils.createEvalNode(content);
+                        return converter.createEvalNode(content);
                     });
         });
     }
@@ -92,10 +92,10 @@ public class JavaLoadText extends LoadText {
     protected EvalNode loadAST(Resource resource) {
         try {
             Template t = (Template) resource.getContent();
-            return EvalUtils.createEvalNode(t.getStringAst());
+            return converter.createEvalNode(t.getStringAst());
         } catch (IOException e) {
             LOG.error("Failed to getting ast-tree", e);
-            return EvalUtils.createEvalNode(null);
+            return converter.createEvalNode(null);
         }
     }
 }

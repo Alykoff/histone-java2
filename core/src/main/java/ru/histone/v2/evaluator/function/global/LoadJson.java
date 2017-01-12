@@ -16,17 +16,14 @@
 
 package ru.histone.v2.evaluator.function.global;
 
-import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
-import ru.histone.v2.utils.IOUtils;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -36,8 +33,8 @@ import java.util.concurrent.Executor;
  */
 public class LoadJson extends LoadText {
 
-    public LoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
-        super(executor, loader, evaluator, parser);
+    public LoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, loader, evaluator, parser, converter);
     }
 
     @Override
@@ -48,10 +45,10 @@ public class LoadJson extends LoadText {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         return super.execute(context, clearGlobal(args))
-                .thenApply(IOUtils::convertToJson)
+                .thenApply(this::convertToJson)
                 .exceptionally(ex -> {
                     logger.error(ex.getMessage(), ex);
-                    return EvalUtils.createEvalNode(null);
+                    return converter.createEvalNode(null);
                 });
     }
 }

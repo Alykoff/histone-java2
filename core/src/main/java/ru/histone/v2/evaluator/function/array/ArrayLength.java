@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -33,6 +33,10 @@ public class ArrayLength extends AbstractFunction {
 
     public static final String NAME = "length";
 
+    public ArrayLength(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -41,6 +45,6 @@ public class ArrayLength extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         Map<String, Object> map = (Map<String, Object>) args.get(0).getValue();
-        return EvalUtils.getValue((long) map.size());
+        return converter.getValue((long) map.size());
     }
 }

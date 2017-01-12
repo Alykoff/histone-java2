@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.number;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -28,10 +28,16 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static ru.histone.v2.utils.ParserUtils.isInteger;
+
 /**
  * @author Alexey Nevinsky
  */
 public class ToChar extends AbstractFunction {
+    public ToChar(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toChar";
@@ -44,8 +50,8 @@ public class ToChar extends AbstractFunction {
             value = ((LongEvalNode) args.get(0)).getValue().intValue();
         } else {
             Double d = ((DoubleEvalNode) args.get(0)).getValue();
-            if (!EvalUtils.isInteger(d)) {
-                return EvalUtils.getValue(null);
+            if (!isInteger(d)) {
+                return converter.getValue(null);
             }
             value = d.intValue();
         }

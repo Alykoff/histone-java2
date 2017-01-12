@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
@@ -31,6 +31,10 @@ import java.util.concurrent.CompletableFuture;
 public class StringLength extends AbstractFunction {
     public static final String NAME = "length";
 
+    public StringLength(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -39,6 +43,6 @@ public class StringLength extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         String val = ((StringEvalNode) args.get(0)).getValue();
-        return EvalUtils.getValue((long) val.length());
+        return converter.getValue((long) val.length());
     }
 }

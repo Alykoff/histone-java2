@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Assertions;
 import ru.histone.v2.acceptance.ExpectedException;
 import ru.histone.v2.acceptance.HistoneTestCase;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.parser.Parser;
@@ -78,9 +77,11 @@ public class CoreTestConsumer implements Consumer<HistoneTestCase.Case> {
                 if (testCase.getContext() != null) {
                     for (Map.Entry<String, Object> entry : testCase.getContext().entrySet()) {
                         if (entry.getKey().equals("this")) {
-                            context.put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+                            context.put("this", CompletableFuture.completedFuture(rtti.getConverter()
+                                    .constructFromObject(entry.getValue())));
                         } else {
-                            context.getVars().put(entry.getKey(), CompletableFuture.completedFuture(EvalUtils.constructFromObject(entry.getValue())));
+                            context.getVars().put(entry.getKey(), CompletableFuture.completedFuture(rtti.getConverter()
+                                    .constructFromObject(entry.getValue())));
                         }
                     }
                 }

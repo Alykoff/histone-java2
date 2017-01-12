@@ -19,7 +19,7 @@ package ru.histone.v2.evaluator.function.any;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.*;
@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static ru.histone.v2.utils.ParserUtils.canBeLong;
+
 /**
  * @author Alexey Nevinsky
  */
@@ -42,6 +44,10 @@ public class ToString extends AbstractFunction {
     public static final String ARRAY_HISTONE_VIEW_DELIMITER = " ";
     public static final String GLOBAL_OBJECT_STRING_REPRESENTATION = "(Global)";
 
+    public ToString(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -49,7 +55,7 @@ public class ToString extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return executeHelper(context, args).thenCompose(EvalUtils::getValue);
+        return executeHelper(context, args).thenCompose(converter::getValue);
     }
 
     private CompletableFuture<String> executeHelper(Context context, List<EvalNode> args) throws FunctionExecutionException {
@@ -75,7 +81,7 @@ public class ToString extends AbstractFunction {
                 final Number numberValue = (Number) node.getValue();
                 if (numberValue instanceof Double) {
                     final Double doubleValue = (Double) numberValue;
-                    final String stringValue = EvalUtils.canBeLong(doubleValue)
+                    final String stringValue = canBeLong(doubleValue)
                             ? String.valueOf(doubleValue.longValue())
                             : processPureDouble(doubleValue);
                     return CompletableFuture.completedFuture(stringValue);
@@ -165,9 +171,9 @@ public class ToString extends AbstractFunction {
         }
         final CompletableFuture<List<String>> valuesListFuture = AsyncUtils.sequence(valuesRawListFuture);
         return valuesListFuture.thenApply(x ->
-                        x.stream()
-                                .filter(StringUtils::isNotEmpty)
-                                .collect(Collectors.joining(ARRAY_HISTONE_VIEW_DELIMITER))
+                x.stream()
+                        .filter(StringUtils::isNotEmpty)
+                        .collect(Collectors.joining(ARRAY_HISTONE_VIEW_DELIMITER))
         );
     }
 }

@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -35,8 +35,8 @@ public class GetWeekDayName extends LocaleFunction {
 
     private boolean isShort;
 
-    public GetWeekDayName(boolean isShort) {
-        super();
+    public GetWeekDayName(Converter converter, boolean isShort) {
+        super(converter);
         this.isShort = isShort;
     }
 
@@ -68,6 +68,6 @@ public class GetWeekDayName extends LocaleFunction {
             sb.append("LONG");
         }
         sb.append("_").append(id);
-        return EvalUtils.getValue(properties.getProperty(sb.toString()));
+        return converter.getValue(properties.getProperty(sb.toString()));
     }
 }

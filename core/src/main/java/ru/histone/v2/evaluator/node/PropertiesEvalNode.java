@@ -15,6 +15,7 @@
  */
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.exceptions.HistoneException;
 
 import java.util.LinkedHashMap;
@@ -36,7 +37,7 @@ public abstract class PropertiesEvalNode<T> extends EvalNode<T> implements HasPr
 
 
     @Override
-    public EvalNode getProperty(Object propertyName) throws HistoneException {
+    public EvalNode getProperty(Converter converter, Object propertyName) throws HistoneException {
         return this.extArgs.get(propertyName + "");
     }
 }

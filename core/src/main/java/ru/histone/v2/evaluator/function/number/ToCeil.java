@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.number;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -30,6 +30,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class ToCeil extends AbstractFunction {
+    public ToCeil(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toCeil";
@@ -39,7 +43,7 @@ public class ToCeil extends AbstractFunction {
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.get(0) instanceof DoubleEvalNode) {
             Double v = Math.ceil(((DoubleEvalNode) args.get(0)).getValue());
-            return EvalUtils.getNumberFuture(v);
+            return converter.getNumberFuture(v);
         }
         return CompletableFuture.completedFuture(args.get(0));
     }

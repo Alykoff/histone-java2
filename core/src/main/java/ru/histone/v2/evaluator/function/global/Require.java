@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -37,14 +37,16 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import static ru.histone.v2.utils.ParserUtils.isAst;
+
 /**
  * Function loads histone template from specified file and evaluating it.
  *
  * @author Alexey Nevinsky
  */
 public class Require extends AbstractFunction {
-    public Require(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
-        super(executor, resourceLoader, evaluator, parser);
+    public Require(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, resourceLoader, evaluator, parser, converter);
     }
 
     @Override
@@ -83,12 +85,12 @@ public class Require extends AbstractFunction {
                         throw (StopExecutionException) e.getCause();
                     }
                     logger.error(e.getMessage(), e);
-                    return EvalUtils.createEvalNode(null);
+                    return converter.createEvalNode(null);
                 });
     }
 
     protected ExpAstNode processTemplate(String template, Resource res) {
-        if (EvalUtils.isAst(template)) {
+        if (isAst(template)) {
             try {
                 ExpAstNode root = AstJsonProcessor.read(template);
                 SsaOptimizer optimizer = new SsaOptimizer();

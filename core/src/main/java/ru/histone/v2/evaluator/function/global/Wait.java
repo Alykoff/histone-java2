@@ -1,7 +1,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -23,6 +23,10 @@ public class Wait extends AbstractFunction {
     private static final int MILLS_ARG_INDEX = 0;
     private static final int PARAMS_FOR_MACRO_ARG_START_INDEX = 2;
 
+    public Wait(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -38,11 +42,11 @@ public class Wait extends AbstractFunction {
         // wait(mills: Number, macros: () -> T): T
         // wait(mills: Number, notMacros: T): T
         if (args.isEmpty()) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         final EvalNode millsNode = args.get(MILLS_ARG_INDEX);
-        final int mills = EvalUtils
+        final int mills = converter
                 .tryPureIntegerValue(millsNode)
                 .filter(x -> x >= 0)
                 .orElse(DEFAULT_MILLS_VALUE);
@@ -53,7 +57,7 @@ public class Wait extends AbstractFunction {
         }
 
         if (args.size() == 1) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         final EvalNode callbackNode = args.get(MACRO_ARG_INDEX);

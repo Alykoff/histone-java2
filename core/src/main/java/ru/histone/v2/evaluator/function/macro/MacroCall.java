@@ -18,7 +18,7 @@ package ru.histone.v2.evaluator.function.macro;
 
 import ru.histone.v2.Constants;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
@@ -51,8 +51,8 @@ public class MacroCall extends AbstractFunction implements Serializable {
     private static final int MACRO_NODE_INDEX = 0;
     private static final int METHOD_NAME_INDEX_IN_WRAPPED_MACRO_BODY = 1;
 
-    public MacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
-        super(executor, resourceLoader, evaluator, parser);
+    public MacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, resourceLoader, evaluator, parser, converter);
     }
 
     private HistoneMacro getMacro(List<EvalNode> args) {
@@ -63,13 +63,13 @@ public class MacroCall extends AbstractFunction implements Serializable {
     protected CompletableFuture<EvalNode> createSelfObject(EvalNode macro, String baseURI, List<EvalNode> args) {
         Map<String, EvalNode> res = new LinkedHashMap<>();
         res.put(Constants.SELF_CONTEXT_CALLEE, macro);
-        res.put(Constants.SELF_CONTEXT_CALLER, EvalUtils.createEvalNode(baseURI));
-        res.put(Constants.SELF_CONTEXT_ARGUMENTS, EvalUtils.constructFromObject(args));
+        res.put(Constants.SELF_CONTEXT_CALLER, converter.createEvalNode(baseURI));
+        res.put(Constants.SELF_CONTEXT_ARGUMENTS, converter.constructFromObject(args));
 
-        return EvalUtils.getValue(res);
+        return converter.getValue(res);
     }
 
-    protected static List<EvalNode> getParams(List<EvalNode> args) {
+    protected List<EvalNode> getParams(List<EvalNode> args) {
         final List<EvalNode> params = new ArrayList<>();
         int start = 1;
         boolean isUnwrapArgsArrays = true;
@@ -88,7 +88,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
                 final List<EvalNode> innerArgs = node.getValue()
                         .values()
                         .stream()
-                        .map(EvalUtils::createEvalNode)
+                        .map(converter::createEvalNode)
                         .collect(Collectors.toList());
                 params.addAll(innerArgs);
             } else {
@@ -132,7 +132,7 @@ public class MacroCall extends AbstractFunction implements Serializable {
             } else if (defaultsVars.containsKey(argName)) {
                 param = defaultsVars.get(argName);
             } else {
-                param = EvalUtils.getValue(null);
+                param = converter.getValue(null);
             }
             currentContext.put(argName, param);
         }

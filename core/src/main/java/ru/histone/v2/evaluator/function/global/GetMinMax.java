@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.global.NumberComparator;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -36,7 +36,8 @@ public class GetMinMax extends AbstractFunction {
 
     private final boolean isMin;
 
-    public GetMinMax(boolean isMin) {
+    public GetMinMax(Converter converter, boolean isMin) {
+        super(converter);
         this.isMin = isMin;
     }
 
@@ -52,7 +53,7 @@ public class GetMinMax extends AbstractFunction {
 
     private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         if (args.isEmpty()) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         Number max = null;
@@ -77,10 +78,10 @@ public class GetMinMax extends AbstractFunction {
             }
         }
         if (max == null) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
-        return EvalUtils.getValue(max);
+        return converter.getValue(max);
     }
 
     private Number findMax(Number max, EvalNode values) {

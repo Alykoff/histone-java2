@@ -17,8 +17,8 @@
 package ru.histone.v2;
 
 
+import org.junit.jupiter.api.Test;
 import org.testng.Assert;
-import org.testng.annotations.Test;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
@@ -51,8 +51,9 @@ public class SimpleTranslatorTest extends BaseCompilerTest {
     // "expectedResult": "8"
     @Test
     public void doTest() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        String expectedAST = "[29,[22,[4],\"eval\",\"{{getBaseURI}}\",null,\"x\"]]";
-        String expectedResult = "x";
+        String expectedAST = "[29,[23,6,0],[23,9,0],[21,0,0]]";
+//        String expectedAST = "[29,[23,9,0],[21,0,0]]";
+        String expectedResult = "9";
 
         Translator translator = new Translator();
 

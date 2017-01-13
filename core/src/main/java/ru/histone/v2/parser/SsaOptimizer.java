@@ -31,11 +31,11 @@ public class SsaOptimizer {
 
     public void process(AstNode root) {
         enter();
-        processNode(root);
+        processNode(root, null);
         leave();
     }
 
-    private void processNode(AstNode node) {
+    private void processNode(AstNode node, AstNode parent) {
         if (node.hasValue()) {
             return;
         }
@@ -44,40 +44,46 @@ public class SsaOptimizer {
 
         switch (node.getType()) {
             case AST_VAR: {
-                processNode(currentNode.getNode(0));
+                processNode(currentNode.getNode(0), currentNode);
                 ValueNode n = currentNode.getNode(1);
-                Long id = getVarName(n.getValue() + "");
+                AstNode unusedNodeWithSameName = varAlreadyExistsAndUsed(n.getValue() + "");
+                if (unusedNodeWithSameName != null) {
+                    ((ExpAstNode) parent).getNodes().remove(unusedNodeWithSameName);
+                }
+                Long id = getVarName(n.getValue() + "", currentNode);
                 currentNode.setNode(1, new LongAstNode(id));
             }
             break;
             case AST_NODES: {
                 enter();
-                processNodes(currentNode.getNodes());
+                processNodes(currentNode.getNodes(), currentNode);
                 leave();
             }
             break;
             case AST_WHILE: {
                 if (currentNode.size() > 1) {
-                    processNode(currentNode.getNode(1));
+                    processNode(currentNode.getNode(1), currentNode);
                 }
 
                 enter();
                 getVarName(Constants.SELF_CONTEXT_NAME);
-                processNode(currentNode.getNode(0)); //bcz we don't need to process condition node in current scope
+                processNode(currentNode.getNode(0), currentNode); //bcz we don't need to process condition node in current scope
                 leave();
             }
             break;
             case AST_REF: {
                 ValueNode n = currentNode.getNode(1);
                 LongAstNode scopeDiff = currentNode.getNode(0);
+                Tuple<Long, Long> refId;
+
                 if (n instanceof StringAstNode) {
-                    Tuple<Long, Long> refId = getRefPair(scopeDiff.getValue(), ((StringAstNode) currentNode.getNode(1)).getValue());
-                    currentNode.setNode(1, new LongAstNode(refId.getRight()));
+                    refId = getRefPair(scopeDiff.getValue(), ((StringAstNode) currentNode.getNode(1)).getValue());
                 } else {
-                    Tuple<Long, Long> refId = getRefPair(scopeDiff.getValue(), n.getValue() + "");
-                    if (refId != null) {
-                        currentNode.setNode(1, new LongAstNode(refId.getRight()));
-                    }
+                    refId = getRefPair(scopeDiff.getValue(), n.getValue() + "");
+                }
+
+                if (refId != null) {
+                    currentNode.setNode(1, new LongAstNode(refId.getRight()));
                 }
             }
             break;
@@ -90,7 +96,7 @@ public class SsaOptimizer {
                 if (((ValueNode) currentNode.getNode(1)).getValue() != null) {
                     getVarName(((ValueNode) currentNode.getNode(1)).getValue() + "");
                 }
-                processNode(currentNode.getNode(2));
+                processNode(currentNode.getNode(2), currentNode);
                 leave();
 
                 int i = 3;
@@ -99,10 +105,10 @@ public class SsaOptimizer {
                 while ((n = currentNode.getNode(i)) != null) {
                     if (i % 2 == 0) {
                         enter();
-                        processNode(n);
+                        processNode(n, currentNode);
                         leave();
                     } else {
-                        processNode(n);
+                        processNode(n, currentNode);
                     }
                     i++;
                 }
@@ -118,7 +124,7 @@ public class SsaOptimizer {
                     }
                 }
 
-                processNode(currentNode.getNode(1));
+                processNode(currentNode.getNode(1), currentNode);
                 leave();
             }
             break;
@@ -129,24 +135,24 @@ public class SsaOptimizer {
                 while ((n = currentNode.getNode(i)) != null) {
                     if (i % 2 == 0) {
                         enter();
-                        processNode(n);
+                        processNode(n, currentNode);
                         leave();
                     } else {
-                        processNode(n);
+                        processNode(n, currentNode);
                     }
                     i++;
                 }
             }
             break;
             default: {
-                processNodes(currentNode.getNodes());
+                processNodes(currentNode.getNodes(), currentNode);
             }
         }
     }
 
-    private void processNodes(List<AstNode> nodes) {
+    private void processNodes(List<AstNode> nodes, AstNode parent) {
         for (AstNode node : nodes) {
-            processNode(node);
+            processNode(node, parent);
         }
     }
 
@@ -158,20 +164,34 @@ public class SsaOptimizer {
         scopes.pop();
     }
 
-
     private Long getVarName(String varName) {
+        return getVarName(varName, null);
+    }
+
+    private Long getVarName(String varName, AstNode node) {
         Scope scope = scopes.peek();
 
         Var var = scope.vars.get(varName);
         if (var == null) {
             var = new Var();
             var.addName(scope.counter++);
+            var.node = node;
             scope.vars.put(varName, var);
         } else if (var.used) {
             var.addName(scope.counter++);
+            var.node = node;
         }
 
         return var.lastName();
+    }
+
+    private AstNode varAlreadyExistsAndUsed(String varName) {
+        Scope scope = scopes.peek();
+        Var var = scope.vars.get(varName);
+        if (var != null && !var.used) {
+            return var.node;
+        }
+        return null;
     }
 
     private Tuple<Long, Long> getRefPair(long scopeDiff, final String name) {
@@ -204,6 +224,7 @@ public class SsaOptimizer {
     private static class Var {
         private boolean used = false;
         private List<Long> names = new ArrayList<>();
+        private AstNode node;
 
         void addName(Long name) {
             names.add(name);

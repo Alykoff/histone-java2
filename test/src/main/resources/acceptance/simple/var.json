@@ -219,6 +219,10 @@
       {
         "input": "{{var a=6, b=7}}{{a}}{{b}}",
         "expectedResult": "67"
+      },
+      {
+        "input": "{{var a = 1}}{{var a = 2}}{{a}}",
+        "expectedResult": "2"
       }
     ]
   }

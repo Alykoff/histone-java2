@@ -35,7 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -45,10 +44,10 @@ public class LoadText extends AbstractFunction {
 
     public static final String CACHE_PREFIX = "histoneCache://";
 
-    protected ConcurrentMap<String, CompletableFuture<EvalNode>> cache;
+    protected Map<String, CompletableFuture<EvalNode>> cache;
 
     public LoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
-                    Converter converter, ConcurrentMap<String, CompletableFuture<EvalNode>> cache) {
+                    Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
         super(executor, loader, evaluator, parser, converter);
         this.cache = cache;
     }
@@ -76,8 +75,7 @@ public class LoadText extends AbstractFunction {
         }
         Map<String, Object> params = getParamsMap(context, requestMap);
 
-
-        if (Boolean.TRUE.equals(params.get("cache"))) {
+        if (cache != null && Boolean.TRUE.equals(params.get("cache"))) {
             String key = CACHE_PREFIX + path;
             return cache.computeIfAbsent(key, k -> loadResource(context, path, params));
         }

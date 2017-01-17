@@ -33,7 +33,6 @@ import ru.histone.v2.utils.IOUtils;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -44,7 +43,7 @@ public class JavaLoadText extends LoadText {
     private static final Logger LOG = LoggerFactory.getLogger(JavaLoadText.class);
 
     public JavaLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
-                        Converter converter, ConcurrentMap<String, CompletableFuture<EvalNode>> cache) {
+                        Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
         super(executor, loader, evaluator, parser, converter, cache);
     }
 

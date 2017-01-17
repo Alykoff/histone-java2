@@ -353,7 +353,8 @@ public class Evaluator implements Serializable {
         final AstNode conditionNode = isConditionExists
                 ? expNode.getNode(conditionIndex)
                 : new BooleanAstNode(true);
-        return CompletableFuture.supplyAsync(() -> {
+
+        return AsyncUtils.initFuture().thenApply(ignore -> {
             final StringBuilder acc = new StringBuilder();
             long counter = 0;
             while (true) {
@@ -378,7 +379,7 @@ public class Evaluator implements Serializable {
                 counter++;
             }
             return converter.createEvalNode(acc.toString());
-        }, context.getExecutor());
+        });
     }
 
     private Context createWhileContext(Context context, EvalNode condition, long counter) {

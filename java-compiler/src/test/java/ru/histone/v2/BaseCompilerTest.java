@@ -23,6 +23,7 @@ import ru.histone.v2.acceptance.StringParamResolver;
 import ru.histone.v2.acceptance.TestRunner;
 import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
+import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
 import ru.histone.v2.evaluator.resource.loader.DataLoader;
 import ru.histone.v2.evaluator.resource.loader.FileLoader;
@@ -45,8 +46,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 /**
@@ -61,6 +61,7 @@ public class BaseCompilerTest {
     protected static Parser parser;
     protected static StdLibrary library;
     protected static Converter converter;
+    protected static ConcurrentMap<String, CompletableFuture<EvalNode>> cache;
 
 
     @BeforeAll
@@ -69,6 +70,7 @@ public class BaseCompilerTest {
         parser = new Parser();
         evaluator = new Evaluator(converter);
         library = new StdLibrary(converter);
+        cache = new ConcurrentHashMap<>();
 
         Translator histoneTranslator = new Translator();
         HistoneClassRegistry registry =
@@ -84,8 +86,8 @@ public class BaseCompilerTest {
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);
         rtti.register(HistoneType.T_MACRO, new JavaMacroCall(executor, loader, evaluator, parser, converter));
         rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser, converter));
-        rtti.register(HistoneType.T_GLOBAL, new JavaLoadText(executor, loader, evaluator, parser, converter));
-        rtti.register(HistoneType.T_GLOBAL, new JavaLoadJson(executor, loader, evaluator, parser, converter));
+        rtti.register(HistoneType.T_GLOBAL, new JavaLoadText(executor, loader, evaluator, parser, converter, cache));
+        rtti.register(HistoneType.T_GLOBAL, new JavaLoadJson(executor, loader, evaluator, parser, converter, cache));
         rtti.register(HistoneType.T_GLOBAL, new JavaEval(executor, loader, evaluator, parser, converter));
         rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction(converter));
         rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction(converter));

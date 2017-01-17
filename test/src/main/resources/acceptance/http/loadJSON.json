@@ -742,5 +742,18 @@
         "expectedResult": "a application/x-www-form-urlencoded b"
       }
     ]
+  },
+  {
+    "name": "global.loadJSON with cache",
+    "cases": [
+      {
+        "input": "a {{var a = [loadJSON('http://127.0.0.1:4442/testCache').requestCount + loadJSON('http://127.0.0.1:4442/testCache').requestCount]}}{{a = 1}} b",
+        "expectedResult": "a true b"
+      },
+      {
+        "input": "a ololo {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} || {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} b",
+        "expectedResult": "a ololo 0 || 0 b"
+      }
+    ]
   }
 ]

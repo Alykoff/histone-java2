@@ -22,10 +22,24 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * An abstraction for loading resource
+ *
  * @author Alexey Nevinsky
  */
 public interface Loader {
+    /**
+     * Method returns future of resource, which was load by url and params
+     *
+     * @param url    for loading
+     * @param params of loading
+     * @return loaded resource
+     */
     CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params);
 
+    /**
+     * Method returns scheme of current implementation
+     *
+     * @return current scheme
+     */
     String getScheme();
 }

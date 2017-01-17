@@ -26,7 +26,6 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.IOUtils;
 import ru.histone.v2.utils.RttiUtils;
 
@@ -36,14 +35,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 /**
  * @author Alexey Nevinsky
  */
 public class LoadText extends AbstractFunction {
-    public LoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser, Converter converter) {
+
+    public static final String CACHE_PREFIX = "histoneCache://";
+
+    protected ConcurrentMap<String, CompletableFuture<EvalNode>> cache;
+
+    public LoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
+                    Converter converter, ConcurrentMap<String, CompletableFuture<EvalNode>> cache) {
         super(executor, loader, evaluator, parser, converter);
+        this.cache = cache;
     }
 
     @Override
@@ -61,29 +68,37 @@ public class LoadText extends AbstractFunction {
             return converter.getValue(null);
         }
 
-        return AsyncUtils.initFuture().thenCompose(ignore -> {
-            String path = getValue(args, 0);
-            EvalNode requestMap = null;
-            if (args.size() > 1) {
-                requestMap = args.get(1);
-            }
+        final String path = getValue(args, 0);
 
-            Map<String, Object> params = getParamsMap(context, requestMap);
+        EvalNode requestMap = null;
+        if (args.size() > 1) {
+            requestMap = args.get(1);
+        }
+        Map<String, Object> params = getParamsMap(context, requestMap);
 
-            return resourceLoader.load(path, context.getBaseUri(), params)
-                    .exceptionally(ex -> {
-                        logger.error("Error", ex);
-                        return null;
-                    })
-                    .thenApply(resource -> {
-                        if (resource == null) {
-                            return converter.createEvalNode(null);
-                        }
 
-                        String content = IOUtils.readStringFromResource(resource, path);
-                        return converter.createEvalNode(content);
-                    });
-        });
+        if (Boolean.TRUE.equals(params.get("cache"))) {
+            String key = CACHE_PREFIX + path;
+            return cache.computeIfAbsent(key, k -> loadResource(context, path, params));
+        }
+
+        return loadResource(context, path, params);
+    }
+
+    protected CompletableFuture<EvalNode> loadResource(Context context, String path, Map<String, Object> params) {
+        return resourceLoader.load(path, context.getBaseUri(), params)
+                .exceptionally(ex -> {
+                    logger.error("Error", ex);
+                    return null;
+                })
+                .thenApply(resource -> {
+                    if (resource == null) {
+                        return converter.createEvalNode(null);
+                    }
+
+                    String content = IOUtils.readStringFromResource(resource, path);
+                    return converter.createEvalNode(content);
+                });
     }
 
     protected Map<String, Object> getParamsMap(Context context, EvalNode requestMap) {

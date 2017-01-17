@@ -38,6 +38,7 @@ import ru.histone.v2.utils.AsyncUtils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -55,6 +56,7 @@ public class RunTimeTypeInfo implements Irtti {
     protected final Evaluator evaluator;
     protected final Parser parser;
     protected final Converter converter;
+    protected ConcurrentMap<String, CompletableFuture<EvalNode>> cache;
 
     public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
         this.executor = executor;
@@ -62,6 +64,7 @@ public class RunTimeTypeInfo implements Irtti {
         this.evaluator = evaluator;
         this.parser = parser;
         converter = new Converter();
+        cache = new ConcurrentHashMap<>();
 
         for (HistoneType type : HistoneType.values()) {
             typeMembers.put(type, new HashMap<>());
@@ -131,10 +134,10 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(HistoneType.T_DATE, toNumber);
 
         registerCommon(HistoneType.T_GLOBAL, new Range(converter));
-        registerCommon(HistoneType.T_GLOBAL, new LoadJson(executor, loader, evaluator, parser, converter));
-        registerCommon(HistoneType.T_GLOBAL, new LoadText(executor, loader, evaluator, parser, converter));
-        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadText(executor, loader, evaluator, parser, converter));
-        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadJson(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new LoadJson(executor, loader, evaluator, parser, converter, cache));
+        registerCommon(HistoneType.T_GLOBAL, new LoadText(executor, loader, evaluator, parser, converter, cache));
+        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadText(executor, loader, evaluator, parser, converter, cache));
+        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadJson(executor, loader, evaluator, parser, converter, cache));
         registerCommon(HistoneType.T_GLOBAL, new GetBaseUri(converter));
         registerCommon(HistoneType.T_GLOBAL, new GetUniqueId(converter));
         registerCommon(HistoneType.T_GLOBAL, new ResolveURI(converter));

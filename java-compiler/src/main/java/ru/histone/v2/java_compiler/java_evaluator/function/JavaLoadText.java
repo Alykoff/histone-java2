@@ -25,18 +25,15 @@ import ru.histone.v2.evaluator.function.global.LoadText;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.evaluator.resource.Resource;
-import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.java_compiler.java_evaluator.HistoneTemplateResource;
 import ru.histone.v2.parser.Parser;
-import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.IOUtils;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -46,47 +43,30 @@ public class JavaLoadText extends LoadText {
 
     private static final Logger LOG = LoggerFactory.getLogger(JavaLoadText.class);
 
-    public JavaLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser, Converter converter) {
-        super(executor, loader, evaluator, parser, converter);
+    public JavaLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
+                        Converter converter, ConcurrentMap<String, CompletableFuture<EvalNode>> cache) {
+        super(executor, loader, evaluator, parser, converter, cache);
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return doExecute(context, clearGlobal(args));
-    }
+    protected CompletableFuture<EvalNode> loadResource(Context context, String path, Map<String, Object> params) {
+        return resourceLoader.load(path, context.getBaseUri(), params)
+                .exceptionally(ex -> {
+                    logger.error("Error", ex);
+                    return null;
+                })
+                .thenApply(resource -> {
+                    if (resource == null) {
+                        return converter.createEvalNode(null);
+                    }
 
-    private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
-        if (args.size() < 1 || args.get(0).getType() != HistoneType.T_STRING) {
-            return converter.getValue(null);
-        }
+                    if (resource.getContentType().equals(HistoneTemplateResource.CONTENT_TYPE)) {
+                        return loadAST(resource);
+                    }
 
-        return AsyncUtils.initFuture().thenCompose(ignore -> {
-            String path = getValue(args, 0);
-            EvalNode requestMap = null;
-            if (args.size() > 1) {
-                requestMap = args.get(1);
-            }
-
-            Map<String, Object> params = getParamsMap(context, requestMap);
-
-            return resourceLoader.load(path, context.getBaseUri(), params)
-                    .exceptionally(ex -> {
-                        logger.error("Error", ex);
-                        return null;
-                    })
-                    .thenApply(resource -> {
-                        if (resource == null) {
-                            return converter.createEvalNode(null);
-                        }
-
-                        if (resource.getContentType().equals(HistoneTemplateResource.CONTENT_TYPE)) {
-                            return loadAST(resource);
-                        }
-
-                        String content = IOUtils.readStringFromResource(resource, path);
-                        return converter.createEvalNode(content);
-                    });
-        });
+                    String content = IOUtils.readStringFromResource(resource, path);
+                    return converter.createEvalNode(content);
+                });
     }
 
     protected EvalNode loadAST(Resource resource) {

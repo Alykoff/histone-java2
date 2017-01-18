@@ -753,6 +753,14 @@
       {
         "input": "a ololo {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} || {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} b",
         "expectedResult": "a ololo 0 || 0 b"
+      },
+      {
+        "input": "a ololo {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount}}{{a = 1}} b",
+        "expectedResult": "a ololo false b"
+      },
+      {
+        "input": "a ololo {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo1']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo2']]).requestCount}}{{a = 1}} b",
+        "expectedResult": "a ololo true b"
       }
     ]
   }

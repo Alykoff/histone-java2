@@ -88,6 +88,8 @@ public class BaseCompilerTest {
         rtti.register(HistoneType.T_GLOBAL, new JavaRequire(executor, loader, evaluator, parser, converter));
         rtti.register(HistoneType.T_GLOBAL, new JavaLoadText(executor, loader, evaluator, parser, converter, cache));
         rtti.register(HistoneType.T_GLOBAL, new JavaLoadJson(executor, loader, evaluator, parser, converter, cache));
+        rtti.register(HistoneType.T_GLOBAL, new AsyncJavaLoadText(executor, loader, evaluator, parser, converter, cache));
+        rtti.register(HistoneType.T_GLOBAL, new AsyncJavaLoadJson(executor, loader, evaluator, parser, converter, cache));
         rtti.register(HistoneType.T_GLOBAL, new JavaEval(executor, loader, evaluator, parser, converter));
         rtti.register(HistoneType.T_GLOBAL, new StopExecutionExceptionFunction(converter));
         rtti.register(HistoneType.T_GLOBAL, new ThrowExceptionFunction(converter));

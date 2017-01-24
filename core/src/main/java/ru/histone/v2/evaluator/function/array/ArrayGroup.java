@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.*;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -44,6 +44,10 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
         return xKey.compareTo(yKey);
     };
     private static final int MACRO_INDEX = 1;
+
+    public ArrayGroup(Converter converter) {
+        super(converter);
+    }
 
     private static CompletableFuture<Map<String, List<EvalNode>>> groupBy(
             Context context,
@@ -97,7 +101,7 @@ public class ArrayGroup extends AbstractFunction implements Serializable {
                     .thenCompose(stringKey -> {
                         Map<String, EvalNode> resMap = new HashMap<>();
                         resMap.put(stringKey, arrayNode);
-                        return EvalUtils.getValue(resMap);
+                        return converter.getValue(resMap);
                     });
         }
         final CompletableFuture<MacroEvalNode> macroFuture =

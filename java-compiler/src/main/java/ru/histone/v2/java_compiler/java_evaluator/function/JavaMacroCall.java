@@ -17,7 +17,7 @@
 package ru.histone.v2.java_compiler.java_evaluator.function;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.macro.MacroCall;
@@ -40,8 +40,8 @@ import java.util.concurrent.Executor;
  * @author Alexey Nevinsky
  */
 public class JavaMacroCall extends MacroCall implements Serializable {
-    public JavaMacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
-        super(executor, resourceLoader, evaluator, parser);
+    public JavaMacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, resourceLoader, evaluator, parser, converter);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class JavaMacroCall extends MacroCall implements Serializable {
             } else if (defaultsVars.containsKey(argName)) {
                 param = defaultsVars.get(argName);
             } else {
-                param = EvalUtils.getValue(null);
+                param = converter.getValue(null);
             }
             macroArgs.add(param);
 //            currentContext.put(argName, param);

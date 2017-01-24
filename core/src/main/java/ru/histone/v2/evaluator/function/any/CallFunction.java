@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -33,6 +33,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class CallFunction extends AbstractFunction {
+    public CallFunction(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return RttiMethod.RTTI_M_CALL.getId();
@@ -48,6 +52,6 @@ public class CallFunction extends AbstractFunction {
             arguments.addAll(args.subList(1, args.size()));
             return context.macroCall(arguments);
         }
-        return EvalUtils.getValue(null);
+        return converter.getValue(null);
     }
 }

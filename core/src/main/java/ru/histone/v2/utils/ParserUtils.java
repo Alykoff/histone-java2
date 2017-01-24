@@ -22,6 +22,7 @@ import ru.histone.v2.parser.node.ExpAstNode;
 import ru.histone.v2.parser.node.StringAstNode;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * @author Alexey Nevinsky on 12.01.2016.
@@ -108,5 +109,21 @@ public class ParserUtils {
             }
             return Optional.empty();
         });
+    }
+
+    public static boolean isInteger(Double value) {
+        return value != null
+                && value % 1 == 0
+                && value >= Integer.MIN_VALUE
+                && value <= Integer.MAX_VALUE;
+    }
+
+    public static boolean canBeLong(Double v) {
+        return v % 1 == 0 && v <= Long.MAX_VALUE && v >= Long.MIN_VALUE;
+    }
+
+    public static boolean isAst(String template) {
+        Pattern pattern = Pattern.compile("^\\s*\\[\\s*[0-9]+.*\\]\\s*$");
+        return pattern.matcher(template).matches();
     }
 }

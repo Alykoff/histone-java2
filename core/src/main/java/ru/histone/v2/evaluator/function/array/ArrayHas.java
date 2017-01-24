@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -31,6 +31,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class ArrayHas extends AbstractFunction {
+    public ArrayHas(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "has";
@@ -39,7 +43,7 @@ public class ArrayHas extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() < 2) {
-            return EvalUtils.getValue(false);
+            return converter.getValue(false);
         }
 
 
@@ -48,6 +52,6 @@ public class ArrayHas extends AbstractFunction {
 
         String key = (String) RttiUtils.callToString(context, valueNode).join().getValue();
 
-        return EvalUtils.getValue(map.getValue().containsKey(key));
+        return converter.getValue(map.getValue().containsKey(key));
     }
 }

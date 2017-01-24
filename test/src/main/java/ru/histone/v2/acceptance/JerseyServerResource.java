@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +48,9 @@ public class JerseyServerResource {
     @Context
     private ContainerRequest request;
 
+    private volatile AtomicInteger counter = new AtomicInteger();
+    private volatile AtomicInteger counter1 = new AtomicInteger();
+
     @GET
     public String get() throws JsonProcessingException {
         return getResString();
@@ -62,8 +66,8 @@ public class JerseyServerResource {
         Map<String, Object> res = new HashMap<>();
         res.put("path", "/" + uri.getPath());
         res.put("query", uri.getQueryParameters().entrySet().stream()
-                        .map(e -> e.getKey() + "=" + e.getValue().get(0))
-                        .collect(Collectors.joining("&"))
+                .map(e -> e.getKey() + "=" + e.getValue().get(0))
+                .collect(Collectors.joining("&"))
         );
         res.put("method", request.getMethod());
         res.put("headers", request.getHeaders().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0))));
@@ -151,5 +155,15 @@ public class JerseyServerResource {
     @Path("redirect:200")
     public Response redirectHEAD() {
         return Response.temporaryRedirect(URI.create("/")).build();
+    }
+
+    @GET
+    @Path("testCache")
+    public String testCache(final @Context ContainerRequest request) throws JsonProcessingException {
+        request.getMethod();
+        int i = counter1.getAndIncrement();
+        Map<String, Object> res = Collections.singletonMap("requestCount", i);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(res);
     }
 }

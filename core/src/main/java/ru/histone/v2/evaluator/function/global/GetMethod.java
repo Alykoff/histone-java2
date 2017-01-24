@@ -2,7 +2,7 @@ package ru.histone.v2.evaluator.function.global;
 
 import org.apache.commons.lang3.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -22,6 +22,10 @@ import java.util.concurrent.CompletableFuture;
 public class GetMethod extends AbstractFunction {
     public static final String NAME = "getMethod";
 
+    public GetMethod(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -30,7 +34,7 @@ public class GetMethod extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.isEmpty()) {
-            return EvalUtils.getValue(ObjectUtils.NULL);
+            return converter.getValue(ObjectUtils.NULL);
         }
 
         if (args.size() == 1) {
@@ -45,7 +49,7 @@ public class GetMethod extends AbstractFunction {
 
         return RttiUtils.callToStringResult(context, args.get(1)).thenCompose(name -> {
             if (!context.findFunction(args.get(0), name)) {
-                return EvalUtils.getValue(ObjectUtils.NULL);
+                return converter.getValue(ObjectUtils.NULL);
             }
 
             HistoneMacro macro = new HistoneMacro(
@@ -65,7 +69,7 @@ public class GetMethod extends AbstractFunction {
     private CompletableFuture<EvalNode> createGlobalWrapper(Context context, EvalNode node) {
         return RttiUtils.callToStringResult(context, node).thenCompose(name -> {
             if (!context.findFunction(name)) {
-                return EvalUtils.getValue(ObjectUtils.NULL);
+                return converter.getValue(ObjectUtils.NULL);
             }
             return CompletableFuture.completedFuture(
                     new MacroEvalNode(new HistoneMacro(

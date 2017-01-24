@@ -18,7 +18,7 @@ package ru.histone.v2.evaluator.function.string;
 
 import org.apache.commons.lang3.tuple.Pair;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -38,6 +38,10 @@ import java.util.regex.Pattern;
  * @author Alexey Nevinsky
  */
 public class StringToDate extends AbstractFunction {
+    public StringToDate(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toDate";
@@ -46,7 +50,7 @@ public class StringToDate extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() < 2) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         String value = getValue(args, 0);
@@ -54,14 +58,14 @@ public class StringToDate extends AbstractFunction {
 
         LocalDateTime dateTime = parseDate(value, format);
         if (dateTime == null) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
         if (args.size() >= 3 && args.get(2).getType() == HistoneType.T_STRING) {
             final String offset = (String) args.get(2).getValue();
             dateTime = DateUtils.applyOffset(dateTime, offset);
         }
 
-        EvalNode node = EvalUtils.createEvalNode(DateUtils.createMapFromDate(dateTime), true);
+        EvalNode node = converter.createEvalNode(DateUtils.createMapFromDate(converter, dateTime), true);
         return CompletableFuture.completedFuture(node);
     }
 

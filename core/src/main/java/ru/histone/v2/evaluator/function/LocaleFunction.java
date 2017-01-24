@@ -15,6 +15,8 @@
  */
 package ru.histone.v2.evaluator.function;
 
+import ru.histone.v2.evaluator.Converter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +41,8 @@ public abstract class LocaleFunction extends AbstractFunction {
 
     protected ConcurrentMap<String, Properties> props;
 
-    public LocaleFunction() {
+    public LocaleFunction(Converter converter) {
+        super(converter);
         props = new ConcurrentHashMap<>();
         loadDefaultProperties();
         loadProperties();

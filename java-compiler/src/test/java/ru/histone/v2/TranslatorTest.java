@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * @author Alexey Nevinsky
  */
 @CasePack("simple")
-public class CompilerTest extends BaseCompilerTest {
+public class TranslatorTest extends BaseCompilerTest {
 
     @TestFactory
     @Override

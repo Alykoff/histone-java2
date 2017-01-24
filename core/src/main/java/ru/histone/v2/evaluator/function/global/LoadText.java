@@ -15,8 +15,12 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -24,11 +28,12 @@ import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.rtti.HistoneType;
-import ru.histone.v2.utils.AsyncUtils;
 import ru.histone.v2.utils.IOUtils;
 import ru.histone.v2.utils.RttiUtils;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -38,8 +43,16 @@ import java.util.concurrent.Executor;
  * @author Alexey Nevinsky
  */
 public class LoadText extends AbstractFunction {
-    public LoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
-        super(executor, loader, evaluator, parser);
+
+    public static final String CACHE_PREFIX = "histoneCache://";
+
+    protected Map<String, CompletableFuture<EvalNode>> cache;
+    protected ObjectMapper mapper = new ObjectMapper();
+
+    public LoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
+                    Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
+        super(executor, loader, evaluator, parser, converter);
+        this.cache = cache;
     }
 
     @Override
@@ -54,32 +67,53 @@ public class LoadText extends AbstractFunction {
 
     private CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) {
         if (args.size() < 1 || args.get(0).getType() != HistoneType.T_STRING) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
-        return AsyncUtils.initFuture().thenCompose(ignore -> {
-            String path = getValue(args, 0);
-            EvalNode requestMap = null;
-            if (args.size() > 1) {
-                requestMap = args.get(1);
+        final String path = getValue(args, 0);
+
+        EvalNode requestMap = null;
+        if (args.size() > 1) {
+            requestMap = args.get(1);
+        }
+        Map<String, Object> params = getParamsMap(context, requestMap);
+
+        if (cache != null) {
+            if (Boolean.TRUE.equals(params.get("cache"))) {
+                return loadResourceFromCache(path, context, path, params);
+            } else if ("fullCheck".equals(params.get("cache"))) {
+                try {
+                    String paramsStr = mapper.writeValueAsString(params);
+                    String key = DigestUtils.sha512Hex((paramsStr + path).getBytes());
+                    return loadResourceFromCache(key, context, path, params);
+                } catch (JsonProcessingException e) {
+                    throw new FunctionExecutionException(e.getMessage(), e);
+                }
             }
+        }
+        return loadResource(context, path, params);
+    }
 
-            Map<String, Object> params = getParamsMap(context, requestMap);
+    private CompletableFuture<EvalNode> loadResourceFromCache(String cacheKey, Context context, String path,
+                                                              Map<String, Object> params) {
+        String key = CACHE_PREFIX + cacheKey;
+        return cache.computeIfAbsent(key, k -> loadResource(context, path, params));
+    }
 
-            return resourceLoader.load(path, context.getBaseUri(), params)
-                    .exceptionally(ex -> {
-                        logger.error("Error", ex);
-                        return null;
-                    })
-                    .thenApply(resource -> {
-                        if (resource == null) {
-                            return EvalUtils.createEvalNode(null);
-                        }
+    protected CompletableFuture<EvalNode> loadResource(Context context, String path, Map<String, Object> params) {
+        return resourceLoader.load(path, context.getBaseUri(), params)
+                .exceptionally(ex -> {
+                    logger.error("Error", ex);
+                    return null;
+                })
+                .thenApply(resource -> {
+                    if (resource == null) {
+                        return converter.createEvalNode(null);
+                    }
 
-                        String content = IOUtils.readStringFromResource(resource, path);
-                        return EvalUtils.createEvalNode(content);
-                    });
-        });
+                    String content = IOUtils.readStringFromResource(resource, path);
+                    return converter.createEvalNode(content);
+                });
     }
 
     protected Map<String, Object> getParamsMap(Context context, EvalNode requestMap) {
@@ -88,10 +122,32 @@ public class LoadText extends AbstractFunction {
         }
 
         String json = (String) RttiUtils.callToJSON(context, requestMap).join().getValue();
-        Object obj = IOUtils.fromJSON(json);
+        Object obj = fromJSON(json);
         if (obj instanceof Map) {
             return (Map<String, Object>) obj;
         }
         return Collections.emptyMap();
+    }
+
+    protected EvalNode convertToJson(EvalNode res) {
+        String str = (String) res.getValue();
+        Object json;
+        if (StringUtils.isEmpty(str)) {
+            return converter.createEvalNode(null);
+        } else if (StringUtils.isNotEmpty(str)) {
+            json = fromJSON(str);
+        } else {
+            json = new LinkedHashMap<String, EvalNode>();
+        }
+
+        return converter.constructFromObject(json);
+    }
+
+    protected Object fromJSON(String json) {
+        try {
+            return mapper.readValue(json, Object.class);
+        } catch (IOException e) {
+            throw new FunctionExecutionException(e.getMessage(), e);
+        }
     }
 }

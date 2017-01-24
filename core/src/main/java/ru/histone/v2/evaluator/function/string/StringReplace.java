@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
@@ -37,6 +37,10 @@ import java.util.regex.Pattern;
  */
 public class StringReplace extends AbstractFunction {
     public static final String NAME = "replace";
+
+    public StringReplace(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {
@@ -70,9 +74,9 @@ public class StringReplace extends AbstractFunction {
             if (replaceNode.getType() != HistoneType.T_MACRO) {
                 String replaceStr = (String) RttiUtils.callToString(context, replaceNode).join().getValue();
                 if (isGlobal) {
-                    return EvalUtils.getValue(matcher.replaceAll(replaceStr));
+                    return converter.getValue(matcher.replaceAll(replaceStr));
                 } else {
-                    return EvalUtils.getValue(matcher.replaceFirst(replaceStr));
+                    return converter.getValue(matcher.replaceFirst(replaceStr));
                 }
             } else {
                 int lastIndex = 0;
@@ -88,7 +92,7 @@ public class StringReplace extends AbstractFunction {
                     macroArgs.add(replaceNode);
                     macroArgs.add(new BooleanEvalNode(true));
                     for (int gIndex = 0; gIndex <= matcher.groupCount(); gIndex++) {
-                        macroArgs.add(EvalUtils.createEvalNode(matcher.group(gIndex)));
+                        macroArgs.add(converter.createEvalNode(matcher.group(gIndex)));
                     }
                     EvalNode val = context.macroCall(macroArgs).join();
                     String macroResult = (String) RttiUtils.callToString(context, val).join().getValue();
@@ -100,21 +104,21 @@ public class StringReplace extends AbstractFunction {
                     sb.append(str.substring(lastIndex, str.length()));
                 }
 
-                return EvalUtils.getValue(sb.toString());
+                return converter.getValue(sb.toString());
             }
         } else {
             if (searchNode.getType() == HistoneType.T_REGEXP) {
                 HistoneRegex regex = (HistoneRegex) searchNode.getValue();
                 Matcher matcher = regex.getPattern().matcher(str);
                 if (regex.isGlobal()) {
-                    return EvalUtils.getValue(matcher.replaceAll(""));
+                    return converter.getValue(matcher.replaceAll(""));
                 } else {
-                    return EvalUtils.getValue(matcher.replaceFirst(""));
+                    return converter.getValue(matcher.replaceFirst(""));
                 }
             }
 
             String replaced = str.replaceAll((String) RttiUtils.callToString(context, searchNode).join().getValue(), "");
-            return EvalUtils.getValue(replaced);
+            return converter.getValue(replaced);
         }
     }
 }

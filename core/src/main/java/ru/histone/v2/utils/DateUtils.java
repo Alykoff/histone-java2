@@ -1,7 +1,7 @@
 package ru.histone.v2.utils;
 
 import org.apache.commons.lang3.StringUtils;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.node.EvalNode;
 
 import java.io.Serializable;
@@ -93,23 +93,23 @@ public class DateUtils implements Serializable {
         return result;
     }
 
-    public static Map<String, EvalNode> createMapFromDate(LocalDateTime date) {
+    public static Map<String, EvalNode> createMapFromDate(Converter converter, LocalDateTime date) {
         final Map<String, EvalNode> res = new LinkedHashMap<>();
-        res.put("day", EvalUtils.createEvalNode(date.getDayOfMonth()));
-        res.put("month", EvalUtils.createEvalNode(date.getMonthValue()));
-        res.put("year", EvalUtils.createEvalNode(date.getYear()));
-        res.put("hour", EvalUtils.createEvalNode(date.getHour()));
-        res.put("minute", EvalUtils.createEvalNode(date.getMinute()));
-        res.put("second", EvalUtils.createEvalNode(date.getSecond()));
+        res.put("day", converter.createEvalNode(date.getDayOfMonth()));
+        res.put("month", converter.createEvalNode(date.getMonthValue()));
+        res.put("year", converter.createEvalNode(date.getYear()));
+        res.put("hour", converter.createEvalNode(date.getHour()));
+        res.put("minute", converter.createEvalNode(date.getMinute()));
+        res.put("second", converter.createEvalNode(date.getSecond()));
 
         return res;
     }
 
-    public static LocalDateTime createDate(Map<String, EvalNode> map) {
+    public static LocalDateTime createDate(Converter converter, Map<String, EvalNode> map) {
         EvalNode yearNode = map.get("year");
         final int yearValue;
         if (yearNode != null) {
-            Optional<Integer> year = EvalUtils.tryPureIntegerValue(yearNode);
+            Optional<Integer> year = converter.tryPureIntegerValue(yearNode);
             if (year.isPresent()) {
                 yearValue = year.get();
             } else {
@@ -122,7 +122,7 @@ public class DateUtils implements Serializable {
         EvalNode monthNode = map.get("month");
         final int monthValue;
         if (monthNode != null) {
-            ProcessResult res = processValue(monthNode, 0, 13);
+            ProcessResult res = processValue(converter, monthNode, 0, 13);
             if (res.future != null) {
                 return null;
             }
@@ -137,7 +137,7 @@ public class DateUtils implements Serializable {
         EvalNode dayNode = map.get("day");
         final int dayValue;
         if (dayNode != null) {
-            ProcessResult res = processValue(dayNode, 0, daysCount + 1);
+            ProcessResult res = processValue(converter, dayNode, 0, daysCount + 1);
             if (res.future != null) {
                 return null;
             }
@@ -149,7 +149,7 @@ public class DateUtils implements Serializable {
         EvalNode hourNode = map.get("hour");
         final int hourValue;
         if (hourNode != null) {
-            ProcessResult res = processValue(hourNode, -1, 24);
+            ProcessResult res = processValue(converter, hourNode, -1, 24);
             if (res.future != null) {
                 return null;
             }
@@ -161,7 +161,7 @@ public class DateUtils implements Serializable {
         EvalNode minuteNode = map.get("minute");
         final int minuteValue;
         if (minuteNode != null) {
-            ProcessResult res = processValue(minuteNode, -1, 60);
+            ProcessResult res = processValue(converter, minuteNode, -1, 60);
             if (res.future != null) {
                 return null;
             }
@@ -173,7 +173,7 @@ public class DateUtils implements Serializable {
         EvalNode secondNode = map.get("second");
         final int secondValue;
         if (secondNode != null) {
-            ProcessResult res = processValue(secondNode, -1, 60);
+            ProcessResult res = processValue(converter, secondNode, -1, 60);
             if (res.future != null) {
                 return null;
             }
@@ -187,12 +187,12 @@ public class DateUtils implements Serializable {
     }
 
 
-    private static ProcessResult processValue(EvalNode node, int minValue, int maxValue) {
-        Optional<Integer> value = EvalUtils.tryPureIntegerValue(node);
+    private static ProcessResult processValue(Converter converter, EvalNode node, int minValue, int maxValue) {
+        Optional<Integer> value = converter.tryPureIntegerValue(node);
         if (value.isPresent() && value.get() > minValue && value.get() < maxValue) {
             return new ProcessResult(value.get());
         } else {
-            return new ProcessResult(EvalUtils.getValue(null));
+            return new ProcessResult(converter.getValue(null));
         }
     }
 

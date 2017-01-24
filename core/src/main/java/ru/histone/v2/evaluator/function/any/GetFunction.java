@@ -18,7 +18,7 @@ package ru.histone.v2.evaluator.function.any;
 
 import org.apache.commons.collections.CollectionUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.GlobalEvalNode;
@@ -33,6 +33,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class GetFunction extends AbstractFunction {
+    public GetFunction(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return RttiMethod.RTTI_M_GET.getId();
@@ -43,21 +47,21 @@ public class GetFunction extends AbstractFunction {
         EvalNode value = args.get(0);
         if (value instanceof GlobalEvalNode) {
             if (CollectionUtils.isNotEmpty(args) && args.size() == 2) {
-                return EvalUtils.getValue(args.get(1).getValue() instanceof String
+                return converter.getValue(args.get(1).getValue() instanceof String
                         ? context.getGlobalProperties().get(args.get(1).getValue()) : null);
             }
         }
 
         if (value instanceof HasProperties) {
             Object propName = args.get(1).getValue();
-            EvalNode res = ((HasProperties) value).getProperty(propName);
+            EvalNode res = ((HasProperties) value).getProperty(converter, propName);
             if (res != null) {
                 return CompletableFuture.completedFuture(res);
             }
 
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
-        return EvalUtils.getValue(null);
+        return converter.getValue(null);
     }
 }

@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -33,6 +33,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class GetDate extends LocaleFunction {
+    public GetDate(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "getDate";
@@ -50,7 +54,7 @@ public class GetDate extends LocaleFunction {
             dateTime = DateUtils.applyOffset(dateTime, value);
         }
 
-        EvalNode node = EvalUtils.createEvalNode(DateUtils.createMapFromDate(dateTime), true);
+        EvalNode node = converter.createEvalNode(DateUtils.createMapFromDate(converter, dateTime), true);
         return CompletableFuture.completedFuture(node);
     }
 }

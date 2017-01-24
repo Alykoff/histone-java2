@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -31,6 +32,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ArraySome extends ArrayFilter implements Serializable {
     public static final String NAME = "some";
+
+    public ArraySome(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {

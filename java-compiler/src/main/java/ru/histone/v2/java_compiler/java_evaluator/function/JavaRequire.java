@@ -18,7 +18,7 @@ package ru.histone.v2.java_compiler.java_evaluator.function;
 
 import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.global.Require;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -42,8 +42,8 @@ import java.util.concurrent.Executor;
  */
 public class JavaRequire extends Require {
 
-    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
-        super(executor, resourceLoader, evaluator, parser);
+    public JavaRequire(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, resourceLoader, evaluator, parser, converter);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class JavaRequire extends Require {
                         throw (StopExecutionException) e.getCause();
                     }
                     logger.error(e.getMessage(), e);
-                    return EvalUtils.createEvalNode(null);
+                    return converter.createEvalNode(null);
                 });
     }
 }

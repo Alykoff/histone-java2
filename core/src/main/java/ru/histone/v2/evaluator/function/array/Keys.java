@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
@@ -38,7 +38,8 @@ public class Keys extends AbstractFunction {
 
     private boolean isKeys;
 
-    public Keys(boolean isKeys) {
+    public Keys(Converter converter, boolean isKeys) {
+        super(converter);
         this.isKeys = isKeys;
     }
 
@@ -65,6 +66,6 @@ public class Keys extends AbstractFunction {
             i++;
         }
 
-        return EvalUtils.getValue(res);
+        return converter.getValue(res);
     }
 }

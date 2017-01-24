@@ -21,6 +21,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.java_compiler.bcompiler.data.Template;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.utils.AstJsonProcessor;
@@ -38,16 +39,19 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Alexey Nevinsky
  */
-public class Compiler {
+public class Translator {
 
-    private static final String GET_STRING_AST_METHOD_NAME = "getStringAst";
-    private static final String RENDER_METHOD_NAME = "render";
-    private static final String AST_TREE_NAME = "AST_TREE";
+    protected static final String GET_STRING_AST_METHOD_NAME = "getStringAst";
+    protected static final String RENDER_METHOD_NAME = "render";
+    protected static final String AST_TREE_NAME = "AST_TREE";
 
-    private static final String STD_LIBRARY_NAME = "std";
-    private static final String SET_STD_LIBRARY_METHOD_NAME = "setStdLibrary";
+    protected static final String CONVERTER_NAME = "cnv";
+    protected static final String SET_CONVERTER_METHOD_NAME = "setConverter";
 
-    private TemplateProcessor templateProcessor = new TemplateProcessor();
+    protected static final String STD_LIBRARY_NAME = "std";
+    protected static final String SET_STD_LIBRARY_METHOD_NAME = "setStdLibrary";
+
+    protected TemplateProcessor templateProcessor = new TemplateProcessor();
 
     /**
      * Method compiles AST-tree to java-bytecode.
@@ -75,8 +79,6 @@ public class Compiler {
     public JavaFile createFile(String name, AstNode root) throws IOException {
         JavaFile javaFile = JavaFile
                 .builder("ru.histone.v2.acceptance", createClass(name, root))
-                //todo check this
-//                .addStaticImport(StdLibrary.class)
                 .build();
         return javaFile;
     }
@@ -84,8 +86,6 @@ public class Compiler {
     public JavaFile createFile(String packageName, String name, AstNode root) throws IOException {
         JavaFile javaFile = JavaFile
                 .builder(packageName, createClass(name, root))
-                //todo check this
-//                .addStaticImport(StdLibrary.class)
                 .build();
         return javaFile;
     }
@@ -95,7 +95,9 @@ public class Compiler {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(Template.class)
                 .addField(createSdtLibraryField())
+                .addField(createConverterField())
                 .addMethod(createSetStdLibraryMethod())
+                .addMethod(createSetConverterMethod())
                 .addField(createAstTreeField(root))
                 .addMethod(createGetAstTreeMethod())
                 .addMethod(createRenderMethod(root))
@@ -114,6 +116,24 @@ public class Compiler {
         templateProcessor.processTemplate(builder, root);
 
         MethodSpec res = builder.build();
+        return res;
+    }
+
+    private FieldSpec createConverterField() {
+        FieldSpec res = FieldSpec
+                .builder(Converter.class, CONVERTER_NAME, Modifier.PRIVATE)
+                .build();
+        return res;
+    }
+
+    private MethodSpec createSetConverterMethod() {
+        MethodSpec res = MethodSpec
+                .methodBuilder(SET_CONVERTER_METHOD_NAME)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addParameter(Converter.class, CONVERTER_NAME)
+                .addStatement("this.$L = $L", CONVERTER_NAME, CONVERTER_NAME)
+                .build();
         return res;
     }
 

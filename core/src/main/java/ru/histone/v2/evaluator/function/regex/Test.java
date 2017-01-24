@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.regex;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -35,6 +35,10 @@ import java.util.regex.Pattern;
 public class Test extends AbstractFunction implements Serializable {
     public static final String NAME = "test";
 
+    public Test(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -45,7 +49,7 @@ public class Test extends AbstractFunction implements Serializable {
         try {
             final HistoneRegex regexHistone = (HistoneRegex) args.get(0).getValue();
             if (args.size() < 2) {
-                return EvalUtils.getValue(false);
+                return converter.getValue(false);
             }
             final EvalNode evalNode = args.get(1);
             final String exp = String.valueOf(evalNode.getValue());
@@ -55,7 +59,7 @@ public class Test extends AbstractFunction implements Serializable {
             final Matcher matcher = pattern.matcher(exp);
             final boolean result = matcher.find();
 
-            return EvalUtils.getValue(result);
+            return converter.getValue(result);
         } catch (Exception e) {
             throw new FunctionExecutionException(e);
         }

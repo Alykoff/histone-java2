@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -34,13 +34,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import static ru.histone.v2.utils.ParserUtils.isAst;
+
 /**
  * @author Alexey Nevinsky
  */
 public class Eval extends AbstractFunction {
 
-    public Eval(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
-        super(executor, resourceLoader, evaluator, parser);
+    public Eval(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, Converter converter) {
+        super(executor, resourceLoader, evaluator, parser, converter);
     }
 
     @Override
@@ -56,12 +58,12 @@ public class Eval extends AbstractFunction {
     protected CompletableFuture<EvalNode> doExecute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         EvalNode templateNode = args.get(0);
         if (templateNode.getType() != HistoneType.T_STRING) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         String template = (String) templateNode.getValue();
 
-        EvalNode params = EvalUtils.createEvalNode(null);
+        EvalNode params = converter.createEvalNode(null);
         if (args.size() >= 2) {
             params = args.get(1);
         }
@@ -79,7 +81,7 @@ public class Eval extends AbstractFunction {
     }
 
     protected ExpAstNode processTemplate(String template, String baseURI) {
-        if (EvalUtils.isAst(template)) {
+        if (isAst(template)) {
             try {
                 return AstJsonProcessor.read(template);
             } catch (IOException e) {

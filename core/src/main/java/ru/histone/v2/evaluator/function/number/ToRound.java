@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.number;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -31,6 +31,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class ToRound extends AbstractFunction {
+    public ToRound(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toRound";
@@ -42,6 +46,6 @@ public class ToRound extends AbstractFunction {
             return CompletableFuture.completedFuture(args.get(0));
         }
         Double v = ((DoubleEvalNode) args.get(0)).getValue();
-        return EvalUtils.getValue((long) Math.round(v));
+        return converter.getValue((long) Math.round(v));
     }
 }

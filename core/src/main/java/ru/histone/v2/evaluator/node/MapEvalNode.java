@@ -16,7 +16,7 @@
 
 package ru.histone.v2.evaluator.node;
 
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
 
@@ -77,7 +77,7 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasP
     }
 
     @Override
-    public EvalNode getProperty(Object propertyName) throws HistoneException {
+    public EvalNode getProperty(Converter converter, Object propertyName) throws HistoneException {
         final String property;
         if (propertyName instanceof String) {
             property = (String) propertyName;
@@ -88,10 +88,6 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasP
         if (value.containsKey(property)) {
             return value.get(property);
         }
-//        final Optional<Integer> propertyIntOptional = tryIntNumber(property);
-//        if (propertyIntOptional.isPresent()) {
-//            return value.get(propertyIntOptional.get().toString());
-//        }
-        return EvalUtils.createEvalNode(null);
+        return converter.createEvalNode(null);
     }
 }

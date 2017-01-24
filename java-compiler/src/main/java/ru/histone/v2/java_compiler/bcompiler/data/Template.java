@@ -17,6 +17,7 @@
 package ru.histone.v2.java_compiler.bcompiler.data;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
 
@@ -31,4 +32,6 @@ public interface Template {
     String getStringAst();
 
     void setStdLibrary(StdLibrary stdLibrary);
+
+    void setConverter(Converter converter);
 }

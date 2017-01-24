@@ -52,7 +52,7 @@ public class AsyncUtils {
         CompletableFuture<Void> allDoneFuture =
                 CompletableFuture.allOf(futures);
 
-        return allDoneFuture.thenApply(v -> Arrays.asList(futures).stream()
+        return allDoneFuture.thenApply(v -> Arrays.stream(futures)
                 .map(CompletableFuture::join)
                 .collect(Collectors.<T>toList())
         );

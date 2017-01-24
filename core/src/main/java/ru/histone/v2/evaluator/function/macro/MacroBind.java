@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.macro;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -33,6 +34,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class MacroBind extends AbstractFunction implements Serializable {
     public static final String NAME = "bind";
+
+    public MacroBind(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {

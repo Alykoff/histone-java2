@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.RegexEvalNode;
@@ -39,6 +39,10 @@ public class StringSplit extends AbstractFunction {
     public static final String DEFAULT_SEPARATOR = "";
     public static final int ELEMENT_INDEX = 0;
     public static final int SEPARATOR_INDEX = 1;
+
+    public StringSplit(Converter converter) {
+        super(converter);
+    }
 
     private static String[] getSplitArray(List<EvalNode> args, String value) {
         return Optional.of(args)
@@ -73,7 +77,7 @@ public class StringSplit extends AbstractFunction {
         final String value = ((StringEvalNode) args.get(ELEMENT_INDEX)).getValue();
         final String[] separator = getSplitArray(args, value);
         return CompletableFuture.completedFuture(
-                EvalUtils.constructFromList(
+                converter.constructFromList(
                         Arrays.asList(separator)
                 )
         );

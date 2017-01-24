@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -32,6 +32,10 @@ public class GetRand extends AbstractFunction {
 
     private static final long MAX = Integer.toUnsignedLong(Integer.MAX_VALUE);
     private static final long MIN = 0;
+
+    public GetRand(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {
@@ -59,6 +63,6 @@ public class GetRand extends AbstractFunction {
 
     private CompletableFuture<EvalNode> getRandom(long min, long max) {
         Double res = Math.floor(Math.random() * (max - min + 1)) + min;
-        return EvalUtils.getValue(res.longValue());
+        return converter.getValue(res.longValue());
     }
 }

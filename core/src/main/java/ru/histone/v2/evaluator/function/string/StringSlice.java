@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
@@ -32,8 +32,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public class StringSlice extends AbstractFunction {
     public static final String NAME = "slice";
-    public static final int DEFALUT_START = 0;
-    public static final CompletableFuture<EvalNode> EMPTY_RESULT = CompletableFuture.completedFuture(EvalUtils.createEvalNode(""));
+    private static final int DEFALUT_START = 0;
+
+    public StringSlice(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {
@@ -45,13 +48,13 @@ public class StringSlice extends AbstractFunction {
         final String value = ((StringEvalNode) args.get(0)).getValue();
         final int strLen = value.length();
         final Optional<Integer> startRaw = args.size() > 1
-                ? EvalUtils.tryPureIntegerValue(args.get(1))
+                ? converter.tryPureIntegerValue(args.get(1))
                 : Optional.of(DEFALUT_START);
         final Optional<Integer> lengthRaw = args.size() > 2
-                ? EvalUtils.tryPureIntegerValue(args.get(2))
+                ? converter.tryPureIntegerValue(args.get(2))
                 : Optional.of(strLen);
         if (!startRaw.isPresent() || !lengthRaw.isPresent()) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         int start = startRaw.get();
@@ -62,7 +65,7 @@ public class StringSlice extends AbstractFunction {
             start = 0;
         }
         if (start >= strLen) {
-            return EMPTY_RESULT;
+            return CompletableFuture.completedFuture(converter.createEvalNode(""));
         }
 
         int length = lengthRaw.get();
@@ -78,7 +81,7 @@ public class StringSlice extends AbstractFunction {
         }
 
         return CompletableFuture.completedFuture(
-                EvalUtils.createEvalNode(value.substring(start, end))
+                converter.createEvalNode(value.substring(start, end))
         );
     }
 }

@@ -16,9 +16,11 @@
 
 package ru.histone.v2.evaluator.node;
 
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
+
+import static ru.histone.v2.utils.ParserUtils.isInteger;
 
 /**
  * @author Alexey Nevinsky
@@ -37,24 +39,24 @@ public class StringEvalNode extends EvalNode<String> implements HasProperties {
     }
 
     @Override
-    public EvalNode getProperty(Object propertyName) throws HistoneException {
+    public EvalNode getProperty(Converter converter, Object propertyName) throws HistoneException {
         final int size = value.length();
         if (!(propertyName instanceof Double) && !(propertyName instanceof Long)) {
             return null;
         }
         final int indexRaw;
         if (propertyName instanceof Double) {
-            if (EvalUtils.isInteger((Double) propertyName)) {
+            if (isInteger((Double) propertyName)) {
                 indexRaw = ((Double) propertyName).intValue();
             } else {
-                return EvalUtils.createEvalNode(null);
+                return converter.createEvalNode(null);
             }
         } else { // Long
             indexRaw = ((Long) propertyName).intValue();
         }
 
         if (indexRaw >= size || size + indexRaw <= 0) {
-            return EvalUtils.createEvalNode(null);
+            return converter.createEvalNode(null);
         }
 
         final int index;
@@ -63,6 +65,6 @@ public class StringEvalNode extends EvalNode<String> implements HasProperties {
         } else {
             index = indexRaw;
         }
-        return EvalUtils.createEvalNode(value.charAt(index) + "");
+        return converter.createEvalNode(value.charAt(index) + "");
     }
 }

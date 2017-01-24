@@ -17,7 +17,7 @@ package ru.histone.v2.evaluator.function.global;
 
 import org.apache.commons.lang3.tuple.Pair;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.LocaleFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -36,8 +36,8 @@ public class GetMonthName extends LocaleFunction {
 
     private boolean isShort;
 
-    public GetMonthName(boolean isShort) {
-        super();
+    public GetMonthName(Converter converter, boolean isShort) {
+        super(converter);
         this.isShort = isShort;
     }
 
@@ -74,6 +74,6 @@ public class GetMonthName extends LocaleFunction {
         sb.append(isShort ? "SHORT" : "LONG").append("_").append(id).append("_");
         String defaultValue = properties.getProperty(sb.toString() + "0");
         String value = properties.getProperty(sb.toString() + type);
-        return EvalUtils.getValue(value != null ? value : defaultValue);
+        return converter.getValue(value != null ? value : defaultValue);
     }
 }

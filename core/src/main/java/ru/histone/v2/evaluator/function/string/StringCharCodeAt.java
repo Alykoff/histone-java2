@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.LongEvalNode;
@@ -34,6 +34,10 @@ import java.util.concurrent.CompletableFuture;
 public class StringCharCodeAt extends AbstractFunction {
     public static final String NAME = "charCodeAt";
 
+    public StringCharCodeAt(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -42,12 +46,12 @@ public class StringCharCodeAt extends AbstractFunction {
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
         if (args.size() < 2) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
-        final Optional<Integer> indexOptional = EvalUtils.tryPureIntegerValue(args.get(1));
+        final Optional<Integer> indexOptional = converter.tryPureIntegerValue(args.get(1));
         if (!indexOptional.isPresent()) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
         final String value = ((StringEvalNode) args.get(0)).getValue();
         int index = indexOptional.get();
@@ -57,6 +61,6 @@ public class StringCharCodeAt extends AbstractFunction {
             final int character = (int) value.charAt(index);
             return CompletableFuture.completedFuture(new LongEvalNode(character));
         }
-        return EvalUtils.getValue(null);
+        return converter.getValue(null);
     }
 }

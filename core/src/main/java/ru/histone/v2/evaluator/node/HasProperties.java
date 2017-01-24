@@ -16,11 +16,12 @@
 
 package ru.histone.v2.evaluator.node;
 
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.exceptions.HistoneException;
 
 /**
  * @author Gali Alykoff
  */
 public interface HasProperties {
-    EvalNode getProperty(Object propertyName) throws HistoneException;
+    EvalNode getProperty(Converter converter, Object propertyName) throws HistoneException;
 }

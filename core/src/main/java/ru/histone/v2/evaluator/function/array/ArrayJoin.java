@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -40,6 +41,10 @@ public class ArrayJoin extends AbstractFunction implements Serializable {
     public static final String NAME = "join";
     private static final int MAP_EVAL_INDEX = 0;
     private static final int ARGS_START_INDEX = 1;
+
+    public ArrayJoin(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {

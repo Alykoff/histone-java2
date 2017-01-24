@@ -19,7 +19,7 @@ package ru.histone.v2.evaluator.function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.Function;
 import ru.histone.v2.evaluator.node.DoubleEvalNode;
@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import static ru.histone.v2.utils.ParserUtils.isInteger;
+
 /**
  * @author Alexey Nevinsky
  */
@@ -46,18 +48,19 @@ public abstract class AbstractFunction implements Function {
     protected final Evaluator evaluator;
     protected final Parser parser;
 
-    protected AbstractFunction() {
-        executor = null;
-        resourceLoader = null;
-        evaluator = null;
-        parser = null;
+    protected final Converter converter;
+
+    protected AbstractFunction(Converter converter) {
+        this(null, null, null, null, converter);
     }
 
-    protected AbstractFunction(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser) {
+    protected AbstractFunction(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator,
+                               Parser parser, Converter converter) {
         this.executor = executor;
         this.resourceLoader = resourceLoader;
         this.evaluator = evaluator;
         this.parser = parser;
+        this.converter = converter;
     }
 
     /**
@@ -118,11 +121,11 @@ public abstract class AbstractFunction implements Function {
             return defValue;
         }
 
-        if (node instanceof DoubleEvalNode && !EvalUtils.isInteger(((DoubleEvalNode) node).getValue())) {
+        if (node instanceof DoubleEvalNode && !isInteger(((DoubleEvalNode) node).getValue())) {
             return defValue;
         }
 
-        Number number = EvalUtils.getNumberValue(node);
+        Number number = converter.getNumberValue(node);
         return number.longValue();
     }
 
@@ -146,7 +149,7 @@ public abstract class AbstractFunction implements Function {
             return macroCtx;
         }
 
-        EvalNode node = EvalUtils.constructFromObject(params);
+        EvalNode node = converter.constructFromObject(params);
         macroCtx.put("this", CompletableFuture.completedFuture(node));
         return macroCtx;
     }

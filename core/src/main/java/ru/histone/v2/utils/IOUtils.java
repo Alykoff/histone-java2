@@ -15,20 +15,14 @@
  */
 package ru.histone.v2.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import ru.histone.v2.evaluator.EvalUtils;
-import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneStreamResource;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
-import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.exceptions.ResourceLoadException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.LinkedHashMap;
 
 /**
  * @author Alexey Nevinsky
@@ -73,29 +67,5 @@ public class IOUtils {
             throw new ResourceLoadException(String.format("Error with BOMInputStream for file '%s'", location.toString()));
         }
         return bomStream;
-    }
-
-    public static EvalNode convertToJson(EvalNode res) {
-        String str = (String) res.getValue();
-        Object json;
-        if (StringUtils.isEmpty(str)) {
-            return EvalUtils.createEvalNode(null);
-        } else if (StringUtils.isNotEmpty(str)) {
-            json = fromJSON(str);
-        } else {
-            json = new LinkedHashMap<String, EvalNode>();
-        }
-
-        return EvalUtils.constructFromObject(json);
-    }
-
-    public static Object fromJSON(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            return mapper.readValue(json, Object.class);
-        } catch (IOException e) {
-            throw new FunctionExecutionException(e.getMessage(), e);
-        }
     }
 }

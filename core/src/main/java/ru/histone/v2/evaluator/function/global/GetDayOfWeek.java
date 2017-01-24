@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EmptyEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -33,6 +33,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class GetDayOfWeek extends AbstractFunction {
+    public GetDayOfWeek(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "getDayOfWeek";
@@ -45,7 +49,7 @@ public class GetDayOfWeek extends AbstractFunction {
 
     private CompletableFuture<EvalNode> doExecute(List<EvalNode> args) {
         if (args.size() < 3) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         Calendar c = Calendar.getInstance();
@@ -81,6 +85,6 @@ public class GetDayOfWeek extends AbstractFunction {
             dayOfWeek = 7;
         }
 
-        return EvalUtils.getValue(dayOfWeek);
+        return converter.getValue(dayOfWeek);
     }
 }

@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static ru.histone.v2.evaluator.EvalUtils.*;
 
 /**
  * @author Alexey Nevinsky
@@ -47,6 +46,12 @@ public class NodesComparator {
     protected static final Comparator<StringEvalNode> STRING_EVAL_NODE_LEN_COMPARATOR = new StringEvalNodeLenComparator();
     protected static final Comparator<StringEvalNode> STRING_EVAL_NODE_STRONG_COMPARATOR = new StringEvalNodeStrongComparator();
     protected static final Comparator<BooleanEvalNode> BOOLEAN_EVAL_NODE_COMPARATOR = new BooleanEvalNodeComparator();
+
+    private Converter converter;
+
+    public NodesComparator(Converter converter) {
+        this.converter = converter;
+    }
 
     public CompletableFuture<EvalNode> processRelation(CompletableFuture<EvalNode> leftFuture,
                                                        CompletableFuture<EvalNode> rightFuture,
@@ -71,28 +76,28 @@ public class NodesComparator {
     private CompletableFuture<Integer> compareNodes(EvalNode left, EvalNode right, Context context,
                                                     Comparator<StringEvalNode> stringNodeComparator) {
         final CompletableFuture<Integer> result;
-        if (isStringNode(left) && isNumberNode(right)) {
+        if (converter.isStringNode(left) && converter.isNumberNode(right)) {
             final StringEvalNode stringLeft = (StringEvalNode) left;
-            if (isNumeric(stringLeft)) {
+            if (converter.isNumeric(stringLeft)) {
                 result = processRelationNumberHelper(left, right);
             } else {
                 result = processRelationToString(stringLeft, right, context, stringNodeComparator, false);
             }
-        } else if (isNumberNode(left) && isStringNode(right)) {
+        } else if (converter.isNumberNode(left) && converter.isStringNode(right)) {
             final StringEvalNode stringRight = (StringEvalNode) right;
-            if (isNumeric(stringRight)) {
+            if (converter.isNumeric(stringRight)) {
                 result = processRelationNumberHelper(left, right);
             } else {
                 result = processRelationToString(stringRight, left, context, stringNodeComparator, true);
             }
         } else if (left.hasAdditionalType(HistoneType.T_DATE) && right.hasAdditionalType(HistoneType.T_DATE)) {
-            LocalDateTime leftValue = DateUtils.createDate(((DateEvalNode) left).getValue());
-            LocalDateTime rightValue = DateUtils.createDate(((DateEvalNode) right).getValue());
+            LocalDateTime leftValue = DateUtils.createDate(converter, ((DateEvalNode) left).getValue());
+            LocalDateTime rightValue = DateUtils.createDate(converter, ((DateEvalNode) right).getValue());
             //leftValue and rightValue always has value, bcz functions which create DateEvalNode checks it
             // or return EmptyEvalNode
             result = CompletableFuture.completedFuture(leftValue.compareTo(rightValue));
-        } else if (!isNumberNode(left) || !isNumberNode(right)) {
-            if (isStringNode(left) && isStringNode(right)) {
+        } else if (!converter.isNumberNode(left) || !converter.isNumberNode(right)) {
+            if (converter.isStringNode(left) && converter.isStringNode(right)) {
                 result = processRelationStringHelper(left, right, stringNodeComparator);
             } else {
                 result = processRelationBooleanHelper(left, right, context);
@@ -126,8 +131,8 @@ public class NodesComparator {
     private CompletableFuture<Integer> processRelationNumberHelper(
             EvalNode left, EvalNode right
     ) {
-        final Number rightValue = getNumberValue(right);
-        final Number leftValue = getNumberValue(left);
+        final Number rightValue = converter.getNumberValue(right);
+        final Number leftValue = converter.getNumberValue(left);
         return completedFuture(
                 NUMBER_COMPARATOR.compare(leftValue, rightValue)
         );

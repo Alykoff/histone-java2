@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -43,7 +43,11 @@ public class ArrayFind extends AbstractFunction implements Serializable {
     public static final int START_BIND_INDEX = 3;
     private static final int MACRO_INDEX = 1;
 
-    public static CompletableFuture<EvalNode> find(
+    public ArrayFind(Converter converter) {
+        super(converter);
+    }
+
+    public CompletableFuture<EvalNode> find(
             Context context,
             MacroEvalNode macro,
             MapEvalNode values,
@@ -51,10 +55,10 @@ public class ArrayFind extends AbstractFunction implements Serializable {
             boolean keyAsResult
     ) {
         if (nodes.size() == 0) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
         final Map.Entry<String, EvalNode> first = nodes.get(0);
-        return RttiUtils.callMacro(context, macro, new BooleanEvalNode(false), first.getValue(), EvalUtils.createEvalNode(first.getKey()), values)
+        return RttiUtils.callMacro(context, macro, new BooleanEvalNode(false), first.getValue(), converter.createEvalNode(first.getKey()), values)
                 .thenCompose(resultMacro -> RttiUtils.callToBooleanResult(context, resultMacro))
                 .thenCompose(predicate -> {
                             if (predicate) {
@@ -65,9 +69,9 @@ public class ArrayFind extends AbstractFunction implements Serializable {
                 );
     }
 
-    private static EvalNode getResultForPredicate(Map.Entry<String, EvalNode> entry, boolean keyAsResult) {
+    private EvalNode getResultForPredicate(Map.Entry<String, EvalNode> entry, boolean keyAsResult) {
         if (keyAsResult) {
-            return EvalUtils.createEvalNode(entry.getKey());
+            return converter.createEvalNode(entry.getKey());
         }
         return entry.getValue();
     }
@@ -88,7 +92,7 @@ public class ArrayFind extends AbstractFunction implements Serializable {
                 .collect(Collectors.toList());
 
         if (args.size() <= MACRO_INDEX || values.size() == 0) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         final EvalNode rawMacroNode = args.get(MACRO_INDEX);
@@ -106,7 +110,7 @@ public class ArrayFind extends AbstractFunction implements Serializable {
                                 if (predicate) {
                                     return getResultForPredicate(values.get(0), keyAsResult);
                                 }
-                                return EvalUtils.createEvalNode(null);
+                        return converter.createEvalNode(null);
                             }
                     );
         }

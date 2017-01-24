@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -29,6 +29,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class GetUniqueId extends AbstractFunction {
+    public GetUniqueId(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "getUniqueId";
@@ -36,6 +40,6 @@ public class GetUniqueId extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return EvalUtils.getValue(UUID.randomUUID().toString());
+        return converter.getValue(UUID.randomUUID().toString());
     }
 }

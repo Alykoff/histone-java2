@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * @author Alexey Nevinsky
  */
 @CasePack("http")
-public class HttpCompilerTest extends BaseCompilerTest {
+public class HttpTranslatorTest extends BaseCompilerTest {
 
     private final String BASE_URI = "http://127.0.0.1:4442/";
     private Server server;

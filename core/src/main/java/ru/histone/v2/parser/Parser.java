@@ -17,12 +17,12 @@
 package ru.histone.v2.parser;
 
 import org.apache.commons.lang3.StringUtils;
-import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.exceptions.SyntaxErrorException;
 import ru.histone.v2.exceptions.UnexpectedTokenException;
 import ru.histone.v2.parser.node.*;
+import ru.histone.v2.parser.node.AstType;
 import ru.histone.v2.parser.tokenizer.*;
 import ru.histone.v2.utils.AstJsonProcessor;
 import ru.histone.v2.utils.ParserUtils;
@@ -886,7 +886,7 @@ public class Parser {
 
     private AstNode getDoubleValue(TokenizerWrapper wrapper) {
         Double value = Double.parseDouble(wrapper.next().first().getValue());
-        if (EvalUtils.isInteger(value)) {
+        if (ParserUtils.isInteger(value)) {
             return new LongAstNode(value.longValue());
         }
         return new DoubleAstNode(value);

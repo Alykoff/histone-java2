@@ -16,7 +16,7 @@
 package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -30,6 +30,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class ResolveURI extends AbstractFunction {
+    public ResolveURI(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "resolveURI";
@@ -50,8 +54,8 @@ public class ResolveURI extends AbstractFunction {
                 baseUri = getValue(args, 1);
             }
             String res = PathUtils.resolveUrl(getValue(args, 0) + "", baseUri);
-            return EvalUtils.getValue(res);
+            return converter.getValue(res);
         }
-        return EvalUtils.getValue(null);
+        return converter.getValue(null);
     }
 }

@@ -18,7 +18,7 @@ package ru.histone.v2.evaluator.function.array;
 
 import org.apache.commons.lang3.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -40,6 +40,10 @@ public class ArrayMap extends AbstractFunction implements Serializable {
     public static final int MACRO_INDEX = 1;
     public static final int ARGS_START_INDEX = 2;
 
+    public ArrayMap(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -55,7 +59,7 @@ public class ArrayMap extends AbstractFunction implements Serializable {
         final List<CompletableFuture<EvalNode>> mapResultRaw = new ArrayList<>(mapEvalNode.getValue().size());
         for (Map.Entry<String, EvalNode> entry : mapEvalNode.getValue().entrySet()) {
             if (node == null) {
-                mapResultRaw.add(EvalUtils.getValue(ObjectUtils.NULL));
+                mapResultRaw.add(converter.getValue(ObjectUtils.NULL));
                 continue;
             }
 
@@ -70,7 +74,7 @@ public class ArrayMap extends AbstractFunction implements Serializable {
                 arguments.add(param);
             }
             arguments.add(entry.getValue());
-            arguments.add(EvalUtils.createEvalNode(entry.getKey()));
+            arguments.add(converter.createEvalNode(entry.getKey()));
             arguments.add(mapEvalNode);
             mapResultRaw.add(context.macroCall(arguments));
         }

@@ -17,6 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -30,6 +31,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ArrayForEach extends AbstractFunction implements Serializable {
     public static final String NAME = "forEach";
+
+    public ArrayForEach(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {

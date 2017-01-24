@@ -18,7 +18,7 @@ package ru.histone.v2.evaluator.function.array;
 
 import org.apache.commons.lang3.ObjectUtils;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.BooleanEvalNode;
 import ru.histone.v2.evaluator.node.EvalNode;
@@ -44,6 +44,10 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
     private static final int CALLABLE_LIST_INDEX = 0;
     private static final int MACRO_INDEX = 1;
     private static final int START_BIND_VARS_INDEX = 3;
+
+    public ArrayReduce(Converter converter) {
+        super(converter);
+    }
 
     public static CompletableFuture<MacroEvalNode> getMacroWithBindFuture(Context context, List<EvalNode> args, int startBindIndex) {
         final int size = args.size();
@@ -90,7 +94,7 @@ public class ArrayReduce extends AbstractFunction implements Serializable {
         final MapEvalNode array = (MapEvalNode) args.get(CALLABLE_LIST_INDEX);
         final List<EvalNode> valuesList = new ArrayList<>(array.getValue().values());
         if (valuesList.isEmpty()) {
-            return EvalUtils.getValue(ObjectUtils.NULL);
+            return converter.getValue(ObjectUtils.NULL);
         }
 
         final int size = args.size();

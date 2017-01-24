@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -33,6 +33,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class ArrayToDate extends AbstractFunction {
+    public ArrayToDate(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "toDate";
@@ -46,9 +50,9 @@ public class ArrayToDate extends AbstractFunction {
 
         Map<String, EvalNode> map = getValue(args, 0);
 
-        LocalDateTime dateTime = DateUtils.createDate(map);
+        LocalDateTime dateTime = DateUtils.createDate(converter, map);
         if (dateTime == null) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         if (args.size() >= 2 && args.get(1).getType() == HistoneType.T_STRING) {
@@ -56,7 +60,7 @@ public class ArrayToDate extends AbstractFunction {
             dateTime = DateUtils.applyOffset(dateTime, value);
         }
 
-        EvalNode node = EvalUtils.createEvalNode(DateUtils.createMapFromDate(dateTime), true);
+        EvalNode node = converter.createEvalNode(DateUtils.createMapFromDate(converter, dateTime), true);
         return CompletableFuture.completedFuture(node);
     }
 

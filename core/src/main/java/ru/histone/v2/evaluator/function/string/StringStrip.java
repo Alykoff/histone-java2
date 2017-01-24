@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.string;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.StringEvalNode;
@@ -32,6 +32,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class StringStrip extends AbstractFunction {
     public static final String NAME = "strip";
+
+    public StringStrip(Converter converter) {
+        super(converter);
+    }
 
     @Override
     public String getName() {
@@ -48,7 +52,7 @@ public class StringStrip extends AbstractFunction {
         }
 
         if (value.length() == 0) {
-            return EvalUtils.getValue(value);
+            return converter.getValue(value);
         }
         int head = 0;
         int tail = value.length();
@@ -61,6 +65,6 @@ public class StringStrip extends AbstractFunction {
             tail--;
         }
 
-        return EvalUtils.getValue(value.substring(head, tail));
+        return converter.getValue(value.substring(head, tail));
     }
 }

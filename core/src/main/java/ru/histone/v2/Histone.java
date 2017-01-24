@@ -19,7 +19,7 @@ package ru.histone.v2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.evaluator.resource.SchemaResourceLoader;
@@ -43,6 +43,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 
+import static ru.histone.v2.utils.ParserUtils.isAst;
+
 /**
  * @author Alexey Nevinsky
  */
@@ -56,6 +58,7 @@ public class Histone implements HistoneEngine {
     protected Executor executor;
     protected Locale locale;
     protected PropertyHolder propertyHolder;
+    protected Converter converter;
 
     public Histone() {
         this(new ForkJoinPool());
@@ -97,7 +100,8 @@ public class Histone implements HistoneEngine {
 
     protected void initializeHistone(Executor executor) {
         logger.info("Initializing Histone2 engine, implementation: " + getClass() + ". With executor: " + executor.getClass());
-        this.evaluator = new Evaluator();
+        this.converter = new Converter();
+        this.evaluator = new Evaluator(this.converter);
         this.parser = new Parser();
         this.executor = executor;
         this.propertyHolder = new DefaultPropertyHolder();
@@ -106,6 +110,10 @@ public class Histone implements HistoneEngine {
         this.runTimeTypeInfo = new RunTimeTypeInfo(executor, resourceLoader, evaluator, parser);
         logger.info("Initialization finished");
         logger.info("================================================================");
+    }
+
+    public void setConverter(Converter converter) {
+        this.converter = converter;
     }
 
     public String process(String template, String baseUri, Map<String, Object> params) {
@@ -119,7 +127,7 @@ public class Histone implements HistoneEngine {
 
     public ExpAstNode parseTemplateToAST(String templateData, String baseURI) {
         try {
-            if (EvalUtils.isAst(templateData)) {
+            if (isAst(templateData)) {
                 ExpAstNode root = AstJsonProcessor.read(templateData);
                 SsaOptimizer optimizer = new SsaOptimizer();
                 optimizer.process(root);
@@ -159,7 +167,7 @@ public class Histone implements HistoneEngine {
 
     protected Context createContext(String baseUri, Map<String, Object> params) {
         Context ctx = Context.createRoot(baseUri, locale, runTimeTypeInfo, propertyHolder);
-        ctx.put("this", CompletableFuture.completedFuture(EvalUtils.constructFromObject(params)));
+        ctx.put("this", CompletableFuture.completedFuture(converter.constructFromObject(params)));
         return ctx;
     }
 }

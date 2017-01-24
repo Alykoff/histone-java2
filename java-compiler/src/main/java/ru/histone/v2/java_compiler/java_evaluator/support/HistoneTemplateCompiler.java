@@ -20,14 +20,14 @@ import com.squareup.javapoet.JavaFile;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.ParserException;
-import ru.histone.v2.java_compiler.bcompiler.Compiler;
+import ru.histone.v2.java_compiler.bcompiler.Translator;
 import ru.histone.v2.java_compiler.java_evaluator.HistoneClassRegistry;
 import ru.histone.v2.java_compiler.support.TemplateFileUtils;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.node.AstNode;
 import ru.histone.v2.utils.AstJsonProcessor;
+import ru.histone.v2.utils.ParserUtils;
 
 import javax.tools.*;
 import java.io.IOException;
@@ -51,9 +51,9 @@ public class HistoneTemplateCompiler {
     private final JavaCompiler compiler;
     private DiagnosticCollector<JavaFileObject> diagnostics;
     private final Parser parser;
-    private final Compiler histoneTranslator;
+    private final Translator histoneTranslator;
 
-    public HistoneTemplateCompiler(HistoneClassRegistry registry, Parser parser, Compiler histoneTranslator) {
+    public HistoneTemplateCompiler(HistoneClassRegistry registry, Parser parser, Translator histoneTranslator) {
         this.registry = registry;
         this.parser = parser;
         this.histoneTranslator = histoneTranslator;
@@ -117,7 +117,7 @@ public class HistoneTemplateCompiler {
 
     public String translate(String baseURI, String inputStr) throws IOException {
         AstNode root;
-        if (EvalUtils.isAst(inputStr)) {
+        if (ParserUtils.isAst(inputStr)) {
             root = AstJsonProcessor.read(inputStr);
         } else {
             try {

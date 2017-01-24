@@ -1,6 +1,6 @@
 package ru.histone.v2.evaluator.function.array;
 
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
@@ -18,6 +18,10 @@ import java.util.stream.Collectors;
 public abstract class ArrayIndexAware extends AbstractFunction implements Serializable {
 
 
+    public ArrayIndexAware(Converter converter) {
+        super(converter);
+    }
+
     protected CompletableFuture<EvalNode> getNodeByIndex(MapEvalNode arrayNode, int index) throws FunctionExecutionException {
         final List<Map.Entry<String, EvalNode>> values = arrayNode
                 .getValue()
@@ -25,7 +29,7 @@ public abstract class ArrayIndexAware extends AbstractFunction implements Serial
                 .stream()
                 .collect(Collectors.toList());
         if (values.size() == 0) {
-            return EvalUtils.getValue(null);
+            return converter.getValue(null);
         }
 
         return CompletableFuture.completedFuture(values.get(index).getValue());

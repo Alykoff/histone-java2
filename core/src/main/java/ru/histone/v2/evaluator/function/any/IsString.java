@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.any;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -30,6 +30,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class IsString extends AbstractFunction {
+    public IsString(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "isString";
@@ -37,6 +41,6 @@ public class IsString extends AbstractFunction {
 
     @Override
     public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        return EvalUtils.getValue(args.get(0).getType() == HistoneType.T_STRING);
+        return converter.getValue(args.get(0).getType() == HistoneType.T_STRING);
     }
 }

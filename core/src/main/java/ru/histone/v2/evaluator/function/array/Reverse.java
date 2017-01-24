@@ -17,7 +17,7 @@
 package ru.histone.v2.evaluator.function.array;
 
 import ru.histone.v2.evaluator.Context;
-import ru.histone.v2.evaluator.EvalUtils;
+import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.function.AbstractFunction;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -30,6 +30,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexey Nevinsky
  */
 public class Reverse extends AbstractFunction {
+    public Reverse(Converter converter) {
+        super(converter);
+    }
+
     @Override
     public String getName() {
         return "reverse";
@@ -50,6 +54,6 @@ public class Reverse extends AbstractFunction {
                 res.put(entry.getKey(), entry.getValue());
             }
         }
-        return EvalUtils.getValue(res);
+        return converter.getValue(res);
     }
 }

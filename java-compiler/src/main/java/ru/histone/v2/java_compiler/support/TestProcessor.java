@@ -21,9 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.javapoet.JavaFile;
 import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.acceptance.HistoneTestCase;
-import ru.histone.v2.evaluator.EvalUtils;
 import ru.histone.v2.exceptions.ParserException;
-import ru.histone.v2.java_compiler.bcompiler.Compiler;
+import ru.histone.v2.java_compiler.bcompiler.Translator;
 import ru.histone.v2.parser.Parser;
 import ru.histone.v2.parser.SsaOptimizer;
 import ru.histone.v2.parser.node.AstNode;
@@ -39,6 +38,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ru.histone.v2.utils.ParserUtils.isAst;
+
 /**
  * @author Alexey Nevinsky
  */
@@ -52,7 +53,7 @@ public class TestProcessor {
         ObjectMapper mapper = new ObjectMapper();
         TypeReference type = new TypeReference<List<HistoneTestCase>>() {
         };
-        Compiler compiler = new Compiler();
+        Translator translator = new Translator();
         Parser parser = new Parser();
 
         Path jsonBaseDirPath = Paths.get(URI.create("file://" + baseDir + TEST_JSON_LOCATION));
@@ -71,12 +72,12 @@ public class TestProcessor {
             try {
                 if (!Files.isDirectory(jsonFilePath)) {
                     if (jsonFilePath.toString().endsWith(".json")) {
-                        root = processTestFile(mapper, type, compiler, parser, jsonBaseDirPath, classesDirPath, testClassesDirPath, jsonFilePath, root);
+                        root = processTestFile(mapper, type, translator, parser, jsonBaseDirPath, classesDirPath, testClassesDirPath, jsonFilePath, root);
                     } else if (jsonFilePath.toString().endsWith("tpl")) {
                         print("Compiling template '%s'...", getPathFromBaseDir(jsonBaseDirPath, jsonFilePath));
 
                         String str = Files.lines(jsonFilePath).collect(Collectors.joining("\n"));
-                        if (EvalUtils.isAst(str)) {
+                        if (isAst(str)) {
                             root = AstJsonProcessor.read(str);
                             SsaOptimizer optimizer = new SsaOptimizer();
                             optimizer.process(root);
@@ -91,7 +92,7 @@ public class TestProcessor {
                         if (root != null) {
                             String packageName = createPackage(jsonBaseDirPath, jsonFilePath.getParent());
                             String className = compileTemplates(
-                                    compiler, packageName, classesDirPath, root, jsonFilePath.getFileName().toString(), -1
+                                    translator, packageName, classesDirPath, root, jsonFilePath.getFileName().toString(), -1
                             );
                             String classDef = "class:" + className;
                             Files.write(jsonFilePath, classDef.getBytes());
@@ -109,7 +110,7 @@ public class TestProcessor {
         });
     }
 
-    private AstNode processTestFile(ObjectMapper mapper, TypeReference type, Compiler compiler, Parser parser,
+    private AstNode processTestFile(ObjectMapper mapper, TypeReference type, Translator translator, Parser parser,
                                     Path jsonBaseDirPath, Path classesDirPath, Path testClassesPath, Path jsonFilePath, AstNode root)
             throws IOException {
         print("Processing file '%s'...", getPathFromBaseDir(jsonBaseDirPath, jsonFilePath));
@@ -144,7 +145,7 @@ public class TestProcessor {
                     registry.processAst(jsonFilePath, root);
 
                     String packageName = createPackage(jsonBaseDirPath, jsonFilePath.getParent());
-                    String className = compileTemplates(compiler, packageName, classesDirPath, root, cases.getName(), i);
+                    String className = compileTemplates(translator, packageName, classesDirPath, root, cases.getName(), i);
                     testCase.setInputClass(className);
                 } catch (ParserException ignore) {
                     casesToRemove.add(testCase);
@@ -174,12 +175,12 @@ public class TestProcessor {
         return res;
     }
 
-    private String compileTemplates(Compiler compiler, String packageName, Path path, AstNode root, String testName, int caseNumber)
+    private String compileTemplates(Translator translator, String packageName, Path path, AstNode root, String testName, int caseNumber)
             throws IOException {
         String number = caseNumber == -1 ? "" : caseNumber + "";
         String name = "Template" + testName.replaceAll("[\\s*\\-\\.\\(\\)\\:\\,\\'\\+\\&\\>\\{\\}\\#\\[\\]]", "") + number;
 
-        JavaFile javaFile = compiler.createFile(packageName, name, root);
+        JavaFile javaFile = translator.createFile(packageName, name, root);
         javaFile.writeTo(path);
 
         return packageName + "." + name;

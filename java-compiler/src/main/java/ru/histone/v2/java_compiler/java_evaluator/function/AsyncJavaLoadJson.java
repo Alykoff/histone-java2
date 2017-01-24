@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 MegaFon
+ * Copyright (c) 2017 MegaFon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,34 @@
  * limitations under the License.
  */
 
-package ru.histone.v2.function;
+package ru.histone.v2.java_compiler.java_evaluator.function;
 
-import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Converter;
-import ru.histone.v2.evaluator.function.AbstractFunction;
+import ru.histone.v2.evaluator.Evaluator;
 import ru.histone.v2.evaluator.node.EvalNode;
-import ru.histone.v2.exceptions.FunctionExecutionException;
+import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
+import ru.histone.v2.parser.Parser;
 
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
-public class ThrowExceptionFunction extends AbstractFunction {
-    public ThrowExceptionFunction(Converter converter) {
-        super(converter);
+/**
+ * @author Alexey Nevinsky
+ * @since 19-01-2017
+ */
+public class AsyncJavaLoadJson extends JavaLoadJson {
+    public AsyncJavaLoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser, Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
+        super(executor, loader, evaluator, parser, converter, cache);
     }
 
     @Override
     public String getName() {
-        return "throwExceptionFunction";
+        return "asyncLoadJSON";
     }
 
     @Override
-    public CompletableFuture<EvalNode> execute(Context context, List<EvalNode> args) throws FunctionExecutionException {
-        throw new FunctionExecutionException("Exception thrown");
+    public boolean isAsync() {
+        return true;
     }
 }

@@ -129,7 +129,7 @@ public class ToJson extends AbstractFunction {
                     JsonSerializer<Object> serializer = provider.findNullValueSerializer(null);
                     serializer.serialize(null, jgen, provider);
                 } else {
-                    JsonSerializer<Double> serializer = new NumberSerializers.DoubleSerializer();
+                    NumberSerializers.DoubleSerializer serializer = new NumberSerializers.DoubleSerializer(Double.class);
                     serializer.serialize(value, jgen, provider);
                 }
             }

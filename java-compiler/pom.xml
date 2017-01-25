@@ -53,6 +53,27 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>copy-acceptance-generated-test</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/generated-test-sources/ru/histone/v2
+                            </outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>../test/src/main/resources</directory>
+                                    <includes>
+                                        <include>**/*.tpl</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>copy-resources-for-tests</id>
                         <phase>process-test-resources</phase>
                         <goals>

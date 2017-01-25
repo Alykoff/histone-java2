@@ -46,6 +46,7 @@ import static ru.histone.v2.utils.ParserUtils.isAst;
 public class TestProcessor {
 
     private static final String TEST_GENERATED_CLASSES_LOCATION = "/generated-test-sources";
+    private static final String TEST_JSON_GENERATED_CLASSES_LOCATION = TEST_GENERATED_CLASSES_LOCATION + "/ru/histone/v2/acceptance";
     private static final String TEST_CLASSES_LOCATION = "/test-classes";
     private static final String TEST_JSON_LOCATION = TEST_CLASSES_LOCATION + "/ru/histone/v2/acceptance";
 
@@ -57,11 +58,44 @@ public class TestProcessor {
         Parser parser = new Parser();
 
         Path jsonBaseDirPath = Paths.get(URI.create("file://" + baseDir + TEST_JSON_LOCATION));
+        Path tplBaseDirPath = Paths.get(URI.create("file://" + baseDir + TEST_JSON_GENERATED_CLASSES_LOCATION));
         Path classesDirPath = Paths.get(URI.create("file://" + baseDir + TEST_GENERATED_CLASSES_LOCATION));
         Path testClassesDirPath = Paths.get(URI.create("file://" + baseDir + TEST_CLASSES_LOCATION));
 
         print("Start processing json-tests from '%s'", jsonBaseDirPath);
 
+        processTestFiles(mapper, type, translator, parser, jsonBaseDirPath, classesDirPath, testClassesDirPath);
+
+        processTpl(translator, parser, tplBaseDirPath, classesDirPath);
+    }
+
+//    private void walkFiles(Path path, Function<>) throws IOException {
+//        Files.walk(path).forEach(jsonFilePath -> {
+//            //todo remove this fucking hardcode
+//            if (jsonFilePath.toString().endsWith("optimize.json")) {
+//                return;
+//            }
+//
+//            AstNode root = null;
+//            try {
+//                if (!Files.isDirectory(jsonFilePath)) {
+//                    if (jsonFilePath.toString().endsWith(".json")) {
+//                        root = processTestFile(mapper, type, translator, parser, path, classesDirPath,
+//                                testClassesDirPath, jsonFilePath);
+//                    }
+//                }
+//            } catch (Exception e) {
+//                if (root != null) {
+//                    System.out.println("    Compiled template " + AstJsonProcessor.write(root));
+//                }
+//                throw new RuntimeException(e);
+//            }
+//        });
+//    }
+
+    protected void processTestFiles(ObjectMapper mapper, TypeReference type, Translator translator, Parser parser,
+                                    Path jsonBaseDirPath, Path classesDirPath, Path testClassesDirPath)
+            throws IOException {
         Files.walk(jsonBaseDirPath).forEach(jsonFilePath -> {
             //todo remove this fucking hardcode
             if (jsonFilePath.toString().endsWith("optimize.json")) {
@@ -72,33 +106,8 @@ public class TestProcessor {
             try {
                 if (!Files.isDirectory(jsonFilePath)) {
                     if (jsonFilePath.toString().endsWith(".json")) {
-                        root = processTestFile(mapper, type, translator, parser, jsonBaseDirPath, classesDirPath, testClassesDirPath, jsonFilePath, root);
-                    } else if (jsonFilePath.toString().endsWith("tpl")) {
-                        print("Compiling template '%s'...", getPathFromBaseDir(jsonBaseDirPath, jsonFilePath));
-
-                        String str = Files.lines(jsonFilePath).collect(Collectors.joining("\n"));
-                        if (isAst(str)) {
-                            root = AstJsonProcessor.read(str);
-                            SsaOptimizer optimizer = new SsaOptimizer();
-                            optimizer.process(root);
-                        } else {
-                            try {
-                                root = parser.process(str, jsonFilePath.toString());
-                            } catch (ParserException ignore) {
-                                //ignore
-                            }
-                        }
-
-                        if (root != null) {
-                            String packageName = createPackage(jsonBaseDirPath, jsonFilePath.getParent());
-                            String className = compileTemplates(
-                                    translator, packageName, classesDirPath, root, jsonFilePath.getFileName().toString(), -1
-                            );
-                            String classDef = "class:" + className;
-                            Files.write(jsonFilePath, classDef.getBytes());
-                        } else {
-                            Files.write(jsonFilePath, "".getBytes());
-                        }
+                        root = processTestFile(mapper, type, translator, parser, jsonBaseDirPath, classesDirPath,
+                                testClassesDirPath, jsonFilePath);
                     }
                 }
             } catch (Exception e) {
@@ -110,8 +119,63 @@ public class TestProcessor {
         });
     }
 
+    protected void processTpl(Translator translator, Parser parser, Path tplBaseDirPath, Path classesDirPath) throws IOException {
+        Files.walk(tplBaseDirPath).forEach(jsonFilePath -> {
+            //todo remove this fucking hardcode
+            if (jsonFilePath.toString().endsWith("optimize.json")) {
+                return;
+            }
+
+            AstNode root = null;
+            try {
+                if (!Files.isDirectory(jsonFilePath)) {
+                    if (jsonFilePath.toString().endsWith("tpl")) {
+                        print("Compiling template '%s'...", getPathFromBaseDir(tplBaseDirPath, jsonFilePath));
+                        root = createAstFromTpl(jsonFilePath, parser);
+                        writeTplClass(translator, tplBaseDirPath, classesDirPath, jsonFilePath, root);
+                    }
+                }
+            } catch (Exception e) {
+                if (root != null) {
+                    System.out.println("    Compiled template " + AstJsonProcessor.write(root));
+                }
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private AstNode createAstFromTpl(Path jsonFilePath, Parser parser) throws IOException {
+        AstNode root = null;
+        String str = Files.lines(jsonFilePath).collect(Collectors.joining("\n"));
+        if (isAst(str)) {
+            root = AstJsonProcessor.read(str);
+            SsaOptimizer optimizer = new SsaOptimizer();
+            optimizer.process(root);
+        } else {
+            try {
+                root = parser.process(str, jsonFilePath.toString());
+            } catch (ParserException ignore) {
+                //ignore
+            }
+        }
+        return root;
+    }
+
+    private void writeTplClass(Translator translator, Path tplBaseDirPath, Path classesDirPath, Path jsonFilePath, AstNode root) throws IOException {
+        if (root != null) {
+            String packageName = createPackage(tplBaseDirPath, jsonFilePath.getParent());
+            String className = compileTemplates(
+                    translator, packageName, classesDirPath, root, jsonFilePath.getFileName().toString(), -1
+            );
+            String classDef = "class:" + className;
+            Files.write(jsonFilePath, classDef.getBytes());
+        } else {
+            Files.write(jsonFilePath, "".getBytes());
+        }
+    }
+
     private AstNode processTestFile(ObjectMapper mapper, TypeReference type, Translator translator, Parser parser,
-                                    Path jsonBaseDirPath, Path classesDirPath, Path testClassesPath, Path jsonFilePath, AstNode root)
+                                    Path jsonBaseDirPath, Path classesDirPath, Path testClassesPath, Path jsonFilePath)
             throws IOException {
         print("Processing file '%s'...", getPathFromBaseDir(jsonBaseDirPath, jsonFilePath));
 
@@ -120,6 +184,7 @@ public class TestProcessor {
         TestProcessorClassRegistry registry = new TestProcessorClassRegistry(testClassesPath);
 
         List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
+        AstNode root = null;
         for (HistoneTestCase cases : histoneCases) {
             print("  Start processTemplate test '%s'", cases.getName());
 

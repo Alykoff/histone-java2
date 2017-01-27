@@ -16,6 +16,7 @@
 
 package ru.histone.v2.java_compiler.bcompiler;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.histone.v2.Constants;
@@ -230,7 +231,7 @@ public class StdLibrary {
     public CompletableFuture<EvalNode> simpleCall(Context ctx, String functionName, List<CompletableFuture<EvalNode>> args) {
         return AsyncUtils.sequence(args)
                 .thenCompose(argList -> {
-                    if (argList.size() >= 1) {
+                    if (CollectionUtils.isNotEmpty(argList)) {
                         return ctx.call(argList.get(0), functionName, argList);
                     }
                     return ctx.call(functionName, argList);

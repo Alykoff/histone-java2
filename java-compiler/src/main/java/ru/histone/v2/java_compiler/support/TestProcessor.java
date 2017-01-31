@@ -69,30 +69,6 @@ public class TestProcessor {
         processTpl(translator, parser, tplBaseDirPath, classesDirPath);
     }
 
-//    private void walkFiles(Path path, Function<>) throws IOException {
-//        Files.walk(path).forEach(jsonFilePath -> {
-//            //todo remove this fucking hardcode
-//            if (jsonFilePath.toString().endsWith("optimize.json")) {
-//                return;
-//            }
-//
-//            AstNode root = null;
-//            try {
-//                if (!Files.isDirectory(jsonFilePath)) {
-//                    if (jsonFilePath.toString().endsWith(".json")) {
-//                        root = processTestFile(mapper, type, translator, parser, path, classesDirPath,
-//                                testClassesDirPath, jsonFilePath);
-//                    }
-//                }
-//            } catch (Exception e) {
-//                if (root != null) {
-//                    System.out.println("    Compiled template " + AstJsonProcessor.write(root));
-//                }
-//                throw new RuntimeException(e);
-//            }
-//        });
-//    }
-
     protected void processTestFiles(ObjectMapper mapper, TypeReference type, Translator translator, Parser parser,
                                     Path jsonBaseDirPath, Path classesDirPath, Path testClassesDirPath)
             throws IOException {
@@ -161,7 +137,8 @@ public class TestProcessor {
         return root;
     }
 
-    private void writeTplClass(Translator translator, Path tplBaseDirPath, Path classesDirPath, Path jsonFilePath, AstNode root) throws IOException {
+    private void writeTplClass(Translator translator, Path tplBaseDirPath, Path classesDirPath, Path jsonFilePath,
+                               AstNode root) throws IOException {
         if (root != null) {
             String packageName = createPackage(tplBaseDirPath, jsonFilePath.getParent());
             String className = compileTemplates(

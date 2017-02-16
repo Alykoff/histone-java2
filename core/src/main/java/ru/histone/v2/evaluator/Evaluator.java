@@ -875,10 +875,19 @@ public class Evaluator implements Serializable {
                 final String flagStr = flagsNumNode.getValue();
 
                 isIgnoreCase = flagStr.contains("i");
+                if (isIgnoreCase) {
+                    flags |= Pattern.CASE_INSENSITIVE;
+                }
                 isMultiline = flagStr.contains("m");
+                if (isMultiline) {
+                    flags |= Pattern.MULTILINE;
+                }
                 isGlobal = flagStr.contains("g");
+                if (isGlobal) {
+                    //todo
+//                    flags |= Pattern.
+                }
             }
-
             final StringAstNode expNode = node.getNode(0);
             final String exp = expNode.getValue();
             final Pattern pattern = Pattern.compile(exp, flags);

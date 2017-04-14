@@ -252,8 +252,9 @@ public class TemplateProcessor {
     }
 
     private void processSuppressNode(Params params) {
+        addCode(params, "std.wrap(");
         processNode(params.withNode(0));
-        addCode(params, ";\n");
+        addCode(params, ");\n");
     }
 
     private void processTernary(Params params) {

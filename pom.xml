@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.megafonweblab.histone</groupId>
     <artifactId>parent-histone-java-v2</artifactId>
-    <version>1.7.2</version>
+    <version>1.7.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Histone - Java Implementation</name>
     <description>Java implementation for Histone Template Engine</description>
@@ -87,6 +87,7 @@
         <commons-collections.version>3.2.2</commons-collections.version>
         <jersey-rx-client-java8.version>2.22.1</jersey-rx-client-java8.version>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
+        <guava.version>21.0</guava.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -238,6 +239,12 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

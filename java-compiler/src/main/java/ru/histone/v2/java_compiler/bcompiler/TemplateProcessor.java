@@ -230,25 +230,31 @@ public class TemplateProcessor {
             final String flagStr = flagsNumNode.getValue();
 
             isIgnoreCase = flagStr.contains("i");
+            if (isIgnoreCase) {
+                flags |= Pattern.CASE_INSENSITIVE;
+            }
             isMultiline = flagStr.contains("m");
+            if (isMultiline) {
+                flags |= Pattern.MULTILINE;
+            }
             isGlobal = flagStr.contains("g");
+            if (isGlobal) {
+//                flags |= Pattern.;
+            }
         }
 
         final StringAstNode expNode = n.getNode(0);
         final String exp = expNode.getValue();
-        final Pattern pattern = Pattern.compile(exp, flags);
 
         addCode(params, "cnv.getValue(");
         addCode(params, "new $T(", HistoneRegex.class);
         params.builder.addCode("$L, $L, $L, $T.compile($S, $L)))", isGlobal, isIgnoreCase, isMultiline, Pattern.class, exp, flags);
-//        addCode(params, "%s, %s, %s, $T.compile(\"%s\", %s)))", Pattern.class, isGlobal, isIgnoreCase, isMultiline, exp, flags);
-
-//        return new RegexEvalNode(new HistoneRegex(isGlobal, isIgnoreCase, isMultiline, pattern));
     }
 
     private void processSuppressNode(Params params) {
+        addCode(params, "std.wrap(");
         processNode(params.withNode(0));
-        addCode(params, ";\n");
+        addCode(params, ");\n");
     }
 
     private void processTernary(Params params) {

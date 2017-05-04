@@ -368,4 +368,13 @@ public class StdLibrary {
                     return converter.createEvalNode(function.apply(first, second));
                 });
     }
+
+    /**
+     * Method uses for wrapping ternary operator
+     *
+     * @param obj ternary operator
+     */
+    public void wrap(Object obj) {
+
+    }
 }

@@ -79,6 +79,10 @@
       {
         "input": "{{57.323->isRegExp}}",
         "expectedResult": "false"
+      },
+      {
+        "input": "{{/^[a-zа-я-]{1,10}$/i->test('Test')}}",
+        "expectedResult": "true"
       }
     ]
   }

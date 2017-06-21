@@ -24,10 +24,7 @@ import ru.histone.v2.property.PropertyHolder;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -43,16 +40,26 @@ public class Context implements Cloneable {
     private String baseUri;
     private Locale locale;
     private RunTimeTypeInfo rttiInfo;
+
+    private final Map<String, CompletableFuture<EvalNode>> ctxCache;
+    private ConcurrentMap<String, Object> templateVars = new ConcurrentHashMap<>();
+
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
     private PropertyHolder<String> propertyHolder;
     private Context parent;
 
-    private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo,
-                    PropertyHolder<String> propertyHolder) {
+    private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo, PropertyHolder<String> propertyHolder,
+                    Map<String, CompletableFuture<EvalNode>> cache) {
+        ctxCache = cache;
+
         this.baseUri = baseUri;
         this.rttiInfo = rttiInfo;
         this.locale = locale;
         this.propertyHolder = propertyHolder;
+    }
+
+    private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo, PropertyHolder<String> propertyHolder) {
+        this(baseUri, locale, rttiInfo, propertyHolder, new ConcurrentHashMap<>());
     }
 
     /**
@@ -77,8 +84,7 @@ public class Context implements Cloneable {
      * @param propertyHolder holder with global properties
      * @return created root context
      */
-    public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo,
-                                     PropertyHolder<String> propertyHolder) {
+    public static Context createRoot(String baseUri, RunTimeTypeInfo rttiInfo, PropertyHolder<String> propertyHolder) {
         return new Context(baseUri, Locale.getDefault(), rttiInfo, propertyHolder);
     }
 
@@ -105,6 +111,7 @@ public class Context implements Cloneable {
     public Context createNew() {
         Context ctx = new Context(baseUri, locale, rttiInfo, propertyHolder);
         ctx.parent = this;
+        ctx.templateVars = this.templateVars;
         ctx.put(Constants.THIS_CONTEXT_VALUE, getValue(Constants.THIS_CONTEXT_VALUE));
         return ctx;
     }
@@ -131,6 +138,14 @@ public class Context implements Cloneable {
 
     public String getBaseUri() {
         return baseUri;
+    }
+
+    public ConcurrentMap<String, Object> getTemplateVars() {
+        return templateVars;
+    }
+
+    public void setTemplateVars(ConcurrentMap<String, Object> templateVars) {
+        this.templateVars = templateVars;
     }
 
     public void setBaseUri(String baseUri) {

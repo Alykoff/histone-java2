@@ -18,7 +18,6 @@ package ru.histone.v2.evaluator;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
@@ -180,8 +179,8 @@ public class Converter {
     public MapEvalNode constructFromList(List<Object> list) {
         List<EvalNode> res = new ArrayList<>(list.size());
         res.addAll(list.stream()
-                .map(this::constructFromObject)
-                .collect(Collectors.toList())
+                       .map(this::constructFromObject)
+                       .collect(Collectors.toList())
         );
         return new MapEvalNode(res);
     }
@@ -212,10 +211,6 @@ public class Converter {
 
     public CompletableFuture<EvalNode> getNumberFuture(Double v) {
         return CompletableFuture.completedFuture(getNumberNode(v));
-    }
-
-    public String escape(String str) {
-        return StringEscapeUtils.escapeHtml4(str);
     }
 
     public boolean isArray(Set<String> indexKeys) {

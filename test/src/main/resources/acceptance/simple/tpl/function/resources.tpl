@@ -1,0 +1,1 @@
+{{resource('resource1.css')}}{{require('resources1.tpl')}}{{resource('resource2.css')}}{{getResources('js')->toJSON}}{{*['resource11.js']*}}

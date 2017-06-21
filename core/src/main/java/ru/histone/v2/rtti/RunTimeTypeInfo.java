@@ -154,6 +154,8 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(HistoneType.T_GLOBAL, new GetDaysInMonth(converter));
         registerCommon(HistoneType.T_GLOBAL, new Require(executor, loader, evaluator, parser, converter));
         registerCommon(HistoneType.T_GLOBAL, new Eval(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new Resource(converter));
+        registerCommon(HistoneType.T_GLOBAL, new GetResources(converter));
 
         registerCommon(HistoneType.T_REGEXP, new Test(converter));
 
@@ -227,7 +229,7 @@ public class RunTimeTypeInfo implements Irtti {
     protected CompletableFuture<EvalNode> runAsync(Context context, List<EvalNode> args, Function f) {
         // TODO it should be more compact
         return AsyncUtils.initFuture()
-                .thenComposeAsync((x) -> f.execute(context, args), executor);
+                         .thenComposeAsync((x) -> f.execute(context, args), executor);
     }
 
     @Override

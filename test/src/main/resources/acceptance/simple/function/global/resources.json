@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Resource and GetResources function",
+    "cases": [
+      {
+        "baseURI": "",
+        "input": "{{resource('style.css', 'script.js')}}{{getResources('css')->toJSON}}{{getResources('js')->toJSON}}",
+        "expectedResult": "<noscript id=\"res_style.css\"></noscript><noscript id=\"res_script.js\"></noscript>[\"style.css\"][\"script.js\"]"
+      },
+      {
+        "input": "{{resource('test.js')}}{{require('../../tpl/function/resources.tpl')}}{{getResources('js')->toJSON}}{{resource('test.css')}}{{resource('ololo.js')}}{{getResources('css')->toJSON}}{{getResources('js')->toJSON}}",
+        "expectedResult": "<noscript id=\"res_test.js\"></noscript><noscript id=\"res_resource1.css\"></noscript><noscript id=\"res_resource2.css\"></noscript>[\"test.js\",\"resource11.js\"][]<noscript id=\"res_test.css\"></noscript><noscript id=\"res_ololo.js\"></noscript>[\"resource1.css\",\"resource11.css\",\"resource2.css\",\"test.css\"][\"ololo.js\"]"
+      },
+      {
+        "input": "{{resource('test.js')}}{{var m = require('../../tpl/function/resourcesMacro.tpl')}}{{m()}}{{getResources('js')->toJSON}}{{resource('test.css')}}{{resource('ololo.js')}}{{getResources('css')->toJSON}}{{getResources('js')->toJSON}}",
+        "expectedResult": "<noscript id=\"res_test.js\"></noscript><noscript id=\"res_getText.js\"></noscript>[\"test.js\",\"getText.js\"]<noscript id=\"res_test.css\"></noscript><noscript id=\"res_ololo.js\"></noscript>[\"test.css\"][\"ololo.js\"]"
+      }
+    ]
+  }
+]

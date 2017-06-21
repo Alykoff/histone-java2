@@ -18,6 +18,7 @@ package ru.histone.v2.acceptance;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DynamicTest;
 
 import java.io.IOException;
@@ -57,8 +58,13 @@ public class TestRunner {
                     Stream<String> stringStream = Files.lines(p);
                     List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
                     histoneCases
-                            .forEach(histoneTestCase -> histoneTestCase.getCases()
-                                    .forEach(c -> c.setBaseURI(p.toUri().toString()))
+                            .forEach(histoneTestCase -> histoneTestCase
+                                    .getCases()
+                                    .forEach(c -> {
+                                        if (c.getBaseURI() == null) {
+                                            c.setBaseURI(p.toUri().toString());
+                                        }
+                                    })
                             );
                     cases.addAll(histoneCases);
                 } else {

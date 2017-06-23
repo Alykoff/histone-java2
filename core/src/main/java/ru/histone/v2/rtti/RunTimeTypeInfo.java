@@ -16,7 +16,6 @@
 
 package ru.histone.v2.rtti;
 
-import org.apache.commons.lang3.NotImplementedException;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
@@ -58,6 +57,14 @@ public class RunTimeTypeInfo implements Irtti {
     protected final Converter converter;
     protected ConcurrentMap<String, CompletableFuture<EvalNode>> cache;
 
+    /**
+     * Creates RTTI object
+     *
+     * @param executor  for running async functions
+     * @param loader    for loading resources
+     * @param evaluator for processing templates in eval function and other
+     * @param parser    for convert string templates to AST-tree
+     */
     public RunTimeTypeInfo(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser) {
         this.executor = executor;
         this.loader = loader;
@@ -208,11 +215,6 @@ public class RunTimeTypeInfo implements Irtti {
     }
 
     @Override
-    public void unregistered(HistoneType type, String funcName) {
-        throw new NotImplementedException("");
-    }
-
-    @Override
     public CompletableFuture<EvalNode> callFunction(Context context, HistoneType type, String funcName, List<EvalNode> args) {
         final Optional<Function> fRaw = getFunc(type, funcName);
         if (!fRaw.isPresent()) {
@@ -227,9 +229,7 @@ public class RunTimeTypeInfo implements Irtti {
     }
 
     protected CompletableFuture<EvalNode> runAsync(Context context, List<EvalNode> args, Function f) {
-        // TODO it should be more compact
-        return AsyncUtils.initFuture()
-                         .thenComposeAsync((x) -> f.execute(context, args), executor);
+        return AsyncUtils.initFuture().thenComposeAsync(x -> f.execute(context, args), executor);
     }
 
     @Override
@@ -244,9 +244,5 @@ public class RunTimeTypeInfo implements Irtti {
         }
 
         return callFunction(context, node.getType(), funcName, args);
-    }
-
-    public Executor getExecutor() {
-        return executor;
     }
 }

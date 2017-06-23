@@ -70,6 +70,14 @@
       {
         "input": "{{range(-10.3, 0)}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{[1,2,3}}",
+        "expectedException": {
+          "line": "1",
+          "expected": "]",
+          "found": "}}"
+        }
       }
     ]
   }

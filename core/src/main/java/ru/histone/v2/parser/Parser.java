@@ -22,7 +22,6 @@ import ru.histone.v2.exceptions.ParserException;
 import ru.histone.v2.exceptions.SyntaxErrorException;
 import ru.histone.v2.exceptions.UnexpectedTokenException;
 import ru.histone.v2.parser.node.*;
-import ru.histone.v2.parser.node.AstType;
 import ru.histone.v2.parser.tokenizer.*;
 import ru.histone.v2.utils.AstJsonProcessor;
 import ru.histone.v2.utils.ParserUtils;
@@ -723,7 +722,7 @@ public class Parser {
                 break;
             }
             res = node.add(res)
-                    .add(getRelationalExpression(wrapper));
+                      .add(getRelationalExpression(wrapper));
         }
         return res;
     }
@@ -760,7 +759,7 @@ public class Parser {
                 break;
             }
             res = node.add(res)
-                    .add(getMultiplicativeExpression(wrapper));
+                      .add(getMultiplicativeExpression(wrapper));
         }
         return res;
     }
@@ -925,8 +924,8 @@ public class Parser {
             } else {
                 final AstNode rawKey = getExpression(wrapper);
                 final Optional<Object> rawKeyOption = Optional.of(rawKey)
-                        .filter(AstNode::hasValue)
-                        .map(node -> ((ValueNode) node).getValue());
+                                                              .filter(AstNode::hasValue)
+                                                              .map(node -> ((ValueNode) node).getValue());
 
                 final boolean isStringOrNumberValue = rawKeyOption.isPresent()
                         && (ParserUtils.isStrongString(rawKeyOption.get()) || ParserUtils.isNumber(rawKeyOption.get()))
@@ -1092,9 +1091,7 @@ public class Parser {
         return ids;
     }
 
-    private ParserException buildUnexpectedTokenException(
-            TokenizerWrapper wrapper, String expected
-    ) throws ParserException {
+    private ParserException buildUnexpectedTokenException(TokenizerWrapper wrapper, String expected) {
         Token token = wrapper.next().first();
         int line = wrapper.getLineNumber(token.getIndex());
         String value = token.getTypes().contains(Tokens.T_EOF.getId()) ? "EOF" : token.getValue();
@@ -1102,7 +1099,7 @@ public class Parser {
         return new UnexpectedTokenException(message, wrapper.getBaseURI(), line);
     }
 
-    private SyntaxErrorException buildSyntaxErrorException(TokenizerWrapper wrapper, String s) throws ParserException {
+    private SyntaxErrorException buildSyntaxErrorException(TokenizerWrapper wrapper, String s) {
         Token token = wrapper.next().first();
         int line = wrapper.getLineNumber(token.getIndex());
         return new SyntaxErrorException(s, wrapper.getBaseURI(), line);

@@ -25,7 +25,10 @@ import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.EvaluatorHelper;
 import ru.histone.v2.evaluator.NodesComparator;
 import ru.histone.v2.evaluator.data.HistoneMacro;
-import ru.histone.v2.evaluator.node.*;
+import ru.histone.v2.evaluator.node.EvalNode;
+import ru.histone.v2.evaluator.node.HasProperties;
+import ru.histone.v2.evaluator.node.MacroEvalNode;
+import ru.histone.v2.evaluator.node.MapEvalNode;
 import ru.histone.v2.java_compiler.bcompiler.data.MacroFunction;
 import ru.histone.v2.parser.node.AstType;
 import ru.histone.v2.rtti.HistoneType;
@@ -81,31 +84,22 @@ public class StdLibrary {
                              EvalNode left = l.get(0);
                              EvalNode right = l.get(1);
                              if (converter.isNumberNode(left) || left.getType() == HistoneType.T_STRING) {
-                                 Double lValue = getValue(left).orElse(null);
+                                 Double lValue = evaluatorHelper.getValue(left).orElse(null);
                                  if (lValue != null) {
                                      if (converter.isNumberNode(right) || right.getType() == HistoneType.T_STRING) {
-                                         Double rValue = getValue(right).orElse(null);
+                                         Double rValue = evaluatorHelper.getValue(right).orElse(null);
                                          if (rValue != null) {
                                              Double res = sup.applyAsDouble(lValue, rValue);
                                              Optional<Long> longValue = ParserUtils.tryLongNumber(res);
-                                             if (longValue.isPresent()) {
-                                                 return converter.getValue(longValue.get());
-                                             }
-                                             return converter.getValue(res);
+                                             return longValue
+                                                     .map(converter::getValue)
+                                                     .orElseGet(() -> converter.getValue(res));
                                          }
                                      }
                                  }
                              }
                              return converter.getValue(null);
                          });
-    }
-
-    private Optional<Double> getValue(EvalNode node) { // TODO duplicate ???
-        if (node.getType() == HistoneType.T_STRING) {
-            return ParserUtils.tryDouble(((StringEvalNode) node).getValue());
-        } else {
-            return Optional.of(Double.valueOf(node.getValue() + ""));
-        }
     }
 
     public boolean toBoolean(CompletableFuture<EvalNode> node) {

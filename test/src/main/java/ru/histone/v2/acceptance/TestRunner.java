@@ -18,7 +18,6 @@ package ru.histone.v2.acceptance;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DynamicTest;
 
 import java.io.IOException;
@@ -81,6 +80,8 @@ public class TestRunner {
             }
         }
 
+        stream.close();
+
         return cases;
     }
 
@@ -88,9 +89,11 @@ public class TestRunner {
     private static List<Path> getFiles(Path path) throws IOException {
         List<Path> files = new ArrayList<>();
         if (Files.isDirectory(path)) {
-            for (Path p : Files.newDirectoryStream(path)) {
+            DirectoryStream<Path> stream = Files.newDirectoryStream(path);
+            for (Path p : stream) {
                 files.addAll(getFiles(p));
             }
+            stream.close();
         } else {
             files.add(path);
         }

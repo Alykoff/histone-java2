@@ -50,7 +50,6 @@ public class AstJsonProcessor {
         }
     };
 
-    //todo add AstOptimizer here
     public static ExpAstNode read(String str) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         List ast = objectMapper.readValue(str, List.class);

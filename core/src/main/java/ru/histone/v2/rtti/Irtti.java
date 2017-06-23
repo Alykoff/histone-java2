@@ -32,8 +32,6 @@ public interface Irtti {
 
     void register(HistoneType type, Function func);
 
-    void unregistered(HistoneType type, String funcName);
-
     CompletableFuture<EvalNode> callFunction(Context context, HistoneType type, String funcName, List<EvalNode> args);
 
     CompletableFuture<EvalNode> callFunction(Context context, EvalNode node, String funcName, List<EvalNode> args);

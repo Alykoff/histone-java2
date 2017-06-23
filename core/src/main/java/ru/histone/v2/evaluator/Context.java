@@ -24,11 +24,13 @@ import ru.histone.v2.property.PropertyHolder;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RunTimeTypeInfo;
 
-import java.util.*;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
 
 /**
  * Evaluation context of histone
@@ -187,9 +189,5 @@ public class Context implements Cloneable {
 
     public Locale getLocale() {
         return locale;
-    }
-
-    public Executor getExecutor() {
-        return rttiInfo.getExecutor();
     }
 }

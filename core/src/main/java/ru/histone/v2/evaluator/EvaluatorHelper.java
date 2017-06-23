@@ -41,10 +41,21 @@ public class EvaluatorHelper {
 
     protected final Converter converter;
 
+    /**
+     * Creates helper
+     *
+     * @param converter for convert java value to EvalNode
+     */
     public EvaluatorHelper(Converter converter) {
         this.converter = converter;
     }
 
+    /**
+     * Processes node with unary minus, e.g. {{!a && b}}
+     *
+     * @param n for processing
+     * @return result of operation
+     */
     public EvalNode processUnaryMinus(EvalNode n) {
         if (n instanceof LongEvalNode) {
             final Long value = ((LongEvalNode) n).getValue();
@@ -67,24 +78,20 @@ public class EvaluatorHelper {
         return converter.createEvalNode(null);
     }
 
+    /**
+     * Processes summary operation of 2 nodes, e.g. {{"a" + "b"}}
+     *
+     * @param context evaluation context of current template
+     * @param lr      left and right nodes of opertaion
+     * @return operation result
+     */
     public CompletableFuture<EvalNode> processAddNodes(Context context, List<EvalNode> lr) {
         EvalNode left = lr.get(0);
         EvalNode right = lr.get(1);
-        if (!(left.getType() == HistoneType.T_STRING || right.getType() == HistoneType.T_STRING)) {
-            final boolean isLeftNumberNode = converter.isNumberNode(left);
-            final boolean isRightNumberNode = converter.isNumberNode(right);
-            if (isLeftNumberNode && isRightNumberNode) {
-                final Double res = getValue(left).orElse(null) + getValue(right).orElse(null);
-                return converter.getNumberFuture(res);
-            } else if (isLeftNumberNode || isRightNumberNode) {
-                return converter.getValue(null);
-            }
-
-            if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
-                final MapEvalNode result = new MapEvalNode(new LinkedHashMap<>());
-                result.append((MapEvalNode) left);
-                result.append((MapEvalNode) right);
-                return completedFuture(result);
+        if (left.getType() != HistoneType.T_STRING && right.getType() != HistoneType.T_STRING) {
+            final CompletableFuture<EvalNode> res = processAddNumberNodes(left, right);
+            if (res != null) {
+                return res;
             }
         }
 
@@ -96,6 +103,33 @@ public class EvaluatorHelper {
                          });
     }
 
+    protected CompletableFuture<EvalNode> processAddNumberNodes(EvalNode left, EvalNode right) {
+        final boolean isLeftNumberNode = converter.isNumberNode(left);
+        final boolean isRightNumberNode = converter.isNumberNode(right);
+        if (isLeftNumberNode && isRightNumberNode) {
+            final Double res = getValue(left).orElse(null) + getValue(right).orElse(null);
+            return converter.getNumberFuture(res);
+        }
+
+        if (isLeftNumberNode || isRightNumberNode) {
+            return converter.getValue(null);
+        }
+
+        if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
+            final MapEvalNode result = new MapEvalNode(new LinkedHashMap<>());
+            result.append((MapEvalNode) left);
+            result.append((MapEvalNode) right);
+            return completedFuture(result);
+        }
+        return null;
+    }
+
+    /**
+     * Return double value from specified node
+     *
+     * @param node with value
+     * @return double result
+     */
     public Optional<Double> getValue(EvalNode node) {
         if (node.getType() == HistoneType.T_STRING) {
             return ParserUtils.tryDouble(((StringEvalNode) node).getValue());

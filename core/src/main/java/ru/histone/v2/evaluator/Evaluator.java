@@ -30,10 +30,8 @@ import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.rtti.RttiMethod;
 import ru.histone.v2.utils.AsyncUtils;
-import ru.histone.v2.utils.ParserUtils;
 import ru.histone.v2.utils.RttiUtils;
 
-import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -42,8 +40,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static ru.histone.v2.utils.ParserUtils.tryDouble;
-import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
 
 /**
  * The main class for evaluating AST tree.
@@ -51,16 +47,18 @@ import static ru.histone.v2.utils.ParserUtils.tryLongNumber;
  * @author Alexey Nevinsky
  * @author Gali Alykoff
  */
-public class Evaluator implements Serializable {
+public class Evaluator {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final NodesComparator comparator;
+    protected final NodesComparator comparator;
+    protected final EvaluatorHelper evaluatorHelper;
     private final Converter converter;
 
     public Evaluator(Converter converter) {
         this.converter = converter;
         comparator = new NodesComparator(converter);
+        evaluatorHelper = new EvaluatorHelper(converter);
     }
 
     public String process(ExpAstNode node, Context context) {
@@ -253,7 +251,7 @@ public class Evaluator implements Serializable {
             return valueNode
                     .thenCompose(value -> fieldNode
                             .thenCompose(fieldName ->
-                                    context.call(value, RttiMethod.RTTI_M_GET.getId(), Arrays.asList(value, fieldName))
+                                                 context.call(value, RttiMethod.RTTI_M_GET.getId(), Arrays.asList(value, fieldName))
                             )
                     );
         } else if (callNode.getCallType() == CallType.RTTI_M_CALL) {
@@ -282,22 +280,22 @@ public class Evaluator implements Serializable {
 
         final List<AstNode> paramsAstNodes = callNode.getNodes().subList(1, callNode.getNodes().size());
         final CompletableFuture<List<EvalNode>> argsFuture = AsyncUtils.sequence(paramsAstNodes.stream()
-                .map(x -> evaluateNode(x, context))
-                .collect(Collectors.toList()));
+                                                                                               .map(x -> evaluateNode(x, context))
+                                                                                               .collect(Collectors.toList()));
         return valueNode
                 .thenCompose(value -> argsFuture
                         .thenCompose(args -> {
-                                    if (value.getType() == HistoneType.T_MACRO) {
-                                        List<EvalNode> arguments = new ArrayList<>();
-                                        arguments.add(value);
-                                        arguments.addAll(args);
-                                        return context.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
-                                    }
-                                    if (value.getType() != HistoneType.T_STRING) {
-                                        return converter.getValue(null);
-                                    }
-                                    return context.call((String) value.getValue(), args);
-                                }
+                                         if (value.getType() == HistoneType.T_MACRO) {
+                                             List<EvalNode> arguments = new ArrayList<>();
+                                             arguments.add(value);
+                                             arguments.addAll(args);
+                                             return context.call(value, RttiMethod.RTTI_M_CALL.getId(), arguments);
+                                         }
+                                         if (value.getType() != HistoneType.T_STRING) {
+                                             return converter.getValue(null);
+                                         }
+                                         return context.call((String) value.getValue(), args);
+                                     }
                         )
                 );
     }
@@ -432,13 +430,13 @@ public class Evaluator implements Serializable {
         CompletableFuture<EvalNode> valueVarName = evaluateNode(expNode.getNode(1), context);
         CompletableFuture<List<EvalNode>> leftRightDone = AsyncUtils.sequence(keyVarName, valueVarName);
         CompletableFuture<EvalNode> res = leftRightDone.thenCompose(keyValueNames ->
-                iterate(
-                        expNode,
-                        context,
-                        objToIterate,
-                        keyValueNames.get(0),
-                        keyValueNames.get(1)
-                )
+                                                                            iterate(
+                                                                                    expNode,
+                                                                                    context,
+                                                                                    objToIterate,
+                                                                                    keyValueNames.get(0),
+                                                                                    keyValueNames.get(1)
+                                                                            )
         );
         return res.thenApply(node -> {
             if (node.getType() == HistoneType.T_BREAK) {
@@ -534,48 +532,18 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processAddNode(ExpAstNode node, Context context) {
         CompletableFuture<List<EvalNode>> leftRight = evalAllNodesOfCurrent(node, context);
-        return leftRight.thenCompose(lr -> {
-            EvalNode left = lr.get(0);
-            EvalNode right = lr.get(1);
-            if (!(left.getType() == HistoneType.T_STRING || right.getType() == HistoneType.T_STRING)) {
-                final boolean isLeftNumberNode = converter.isNumberNode(left);
-                final boolean isRightNumberNode = converter.isNumberNode(right);
-                if (isLeftNumberNode && isRightNumberNode) {
-                    final Double res = getValue(left).orElse(null) + getValue(right).orElse(null);
-                    return converter.getNumberFuture(res);
-                } else if (isLeftNumberNode || isRightNumberNode) {
-                    return converter.getValue(null);
-                }
-
-                if (left.getType() == HistoneType.T_ARRAY && right.getType() == HistoneType.T_ARRAY) {
-                    final MapEvalNode result = new MapEvalNode(new LinkedHashMap<>());
-                    result.append((MapEvalNode) left);
-                    result.append((MapEvalNode) right);
-                    return completedFuture(result);
-                }
-            }
-
-            CompletableFuture<List<EvalNode>> lrFutures = AsyncUtils.sequence(
-                    RttiUtils.callToString(context, left),
-                    RttiUtils.callToString(context, right)
-            );
-            return lrFutures.thenCompose(futures -> {
-                StringEvalNode l = (StringEvalNode) futures.get(0);
-                StringEvalNode r = (StringEvalNode) futures.get(1);
-                return converter.getValue(l.getValue() + r.getValue());
-            });
-        });
+        return leftRight.thenCompose(lr -> evaluatorHelper.processAddNodes(context, lr));
     }
 
     private CompletableFuture<EvalNode> processArithmetical(ExpAstNode node, Context context) {
         if (CollectionUtils.isNotEmpty(node.getNodes()) && node.getNodes().size() == 2) {
             return evaluateNode(node.getNodes().get(0), context).thenCompose(leftNode -> {
                 if (converter.isNumberNode(leftNode) || leftNode.getType() == HistoneType.T_STRING) {
-                    Double lValue = getValue(leftNode).orElse(null);
+                    Double lValue = evaluatorHelper.getValue(leftNode).orElse(null);
                     if (lValue != null) {
                         return evaluateNode(node.getNodes().get(1), context).thenCompose(rightNode -> {
                             if (converter.isNumberNode(rightNode) || rightNode.getType() == HistoneType.T_STRING) {
-                                return CompletableFuture.completedFuture(getValue(rightNode).orElse(null));
+                                return CompletableFuture.completedFuture(evaluatorHelper.getValue(rightNode).orElse(null));
                             }
                             return CompletableFuture.completedFuture(null);
                         }).thenCompose(rValue -> {
@@ -606,14 +574,6 @@ public class Evaluator implements Serializable {
             });
         }
         return converter.getValue(null);
-    }
-
-    private Optional<Double> getValue(EvalNode node) { // TODO duplicate ???
-        if (node.getType() == HistoneType.T_STRING) {
-            return ParserUtils.tryDouble(((StringEvalNode) node).getValue());
-        } else {
-            return Optional.of(Double.valueOf(node.getValue() + ""));
-        }
     }
 
     private CompletableFuture<EvalNode> processRelation(ExpAstNode node, Context context) {
@@ -696,27 +656,7 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<EvalNode> processUnaryMinus(ExpAstNode node, Context context) {
         CompletableFuture<EvalNode> res = evaluateNode(node.getNode(0), context);
-        return res.thenApply(n -> {
-            if (n instanceof LongEvalNode) {
-                final Long value = ((LongEvalNode) n).getValue();
-                return new LongEvalNode(-value);
-            } else if (n instanceof DoubleEvalNode) {
-                final Double value = ((DoubleEvalNode) n).getValue();
-                return new DoubleEvalNode(-value);
-            } else if (n instanceof StringEvalNode) {
-                final String stringValue = ((StringEvalNode) n).getValue();
-                final Optional<Long> longOptional = tryLongNumber(stringValue);
-                if (longOptional.isPresent()) {
-                    return new LongEvalNode(-longOptional.get());
-                }
-
-                final Optional<Double> doubleOptional = tryDouble(stringValue);
-                if (doubleOptional.isPresent()) {
-                    return new DoubleEvalNode(-doubleOptional.get());
-                }
-            }
-            return converter.createEvalNode(null);
-        });
+        return res.thenApply(evaluatorHelper::processUnaryMinus);
     }
 
     private CompletableFuture<EvalNode> getValueNode(AstNode node) {
@@ -832,9 +772,9 @@ public class Evaluator implements Serializable {
 
     private CompletableFuture<List<EvalNode>> evalAllNodesOfCurrent(ExpAstNode node, Context context) {
         final List<CompletableFuture<EvalNode>> futures = node.getNodes()
-                .stream()
-                .map(currNode -> evaluateNode(currNode, context))
-                .collect(Collectors.toList());
+                                                              .stream()
+                                                              .map(currNode -> evaluateNode(currNode, context))
+                                                              .collect(Collectors.toList());
         return AsyncUtils.sequence(futures);
     }
 
@@ -852,13 +792,13 @@ public class Evaluator implements Serializable {
         }
 
         return evaluateNode(conditionNode, context).thenCompose(condNode ->
-                RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
-                    if (predicate) {
-                        return evaluateNode(bodyNode, context.createNew());
-                    } else {
-                        return processIfNodeHelper(node, context, i + 2);
-                    }
-                })
+                                                                        RttiUtils.callToBooleanResult(context, condNode).thenCompose(predicate -> {
+                                                                            if (predicate) {
+                                                                                return evaluateNode(bodyNode, context.createNew());
+                                                                            } else {
+                                                                                return processIfNodeHelper(node, context, i + 2);
+                                                                            }
+                                                                        })
         );
     }
 

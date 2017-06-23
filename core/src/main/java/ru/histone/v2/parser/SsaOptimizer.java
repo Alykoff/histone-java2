@@ -99,19 +99,7 @@ public class SsaOptimizer {
                 processNode(currentNode.getNode(2), currentNode);
                 leave();
 
-                int i = 3;
-
-                AstNode n;
-                while ((n = currentNode.getNode(i)) != null) {
-                    if (i % 2 == 0) {
-                        enter();
-                        processNode(n, currentNode);
-                        leave();
-                    } else {
-                        processNode(n, currentNode);
-                    }
-                    i++;
-                }
+                processIfNode(currentNode, 3);
             }
             break;
             case AST_MACRO: {
@@ -129,24 +117,27 @@ public class SsaOptimizer {
             }
             break;
             case AST_IF: {
-                int i = 0;
-
-                AstNode n;
-                while ((n = currentNode.getNode(i)) != null) {
-                    if (i % 2 == 0) {
-                        enter();
-                        processNode(n, currentNode);
-                        leave();
-                    } else {
-                        processNode(n, currentNode);
-                    }
-                    i++;
-                }
+                processIfNode(currentNode, 0);
             }
             break;
             default: {
                 processNodes(currentNode.getNodes(), currentNode);
             }
+        }
+    }
+
+    private void processIfNode(ExpAstNode currentNode, final int startNodeIndex) {
+        int index = startNodeIndex;
+        AstNode n;
+        while ((n = currentNode.getNode(index)) != null) {
+            if (index % 2 == 0) {
+                enter();
+                processNode(n, currentNode);
+                leave();
+            } else {
+                processNode(n, currentNode);
+            }
+            index++;
         }
     }
 

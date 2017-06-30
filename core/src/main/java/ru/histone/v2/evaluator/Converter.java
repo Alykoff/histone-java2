@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ import ru.histone.v2.exceptions.StopExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -158,6 +161,20 @@ public class Converter {
         if (object instanceof Integer) {
             return new LongEvalNode(((Integer) object).longValue());
         }
+
+        if (object instanceof Serializable) {
+            ObjectMapper mapper = new ObjectMapper();
+            final byte[] serialization;
+            try {
+                serialization = mapper.writeValueAsBytes(object);
+                final Map result = mapper.readValue(serialization, Map.class);
+
+                return constructFromMap(result);
+            } catch (IOException ignore) {
+                //we are ignore this exception
+            }
+        }
+
         throw new HistoneException("Didn't resolve object class: " + object.getClass());
     }
 

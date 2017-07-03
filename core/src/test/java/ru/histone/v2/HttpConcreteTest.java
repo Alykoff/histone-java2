@@ -43,9 +43,9 @@ public class HttpConcreteTest extends HistoneTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("GET");
+        testCase.setExpectedResult("true");
         testCase.setContext(getMap());
-        testCase.setInput("{{loadJSON('http://127.0.0.1:4442/', [method: 'GET']).method}}");
+        testCase.setInput("{{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['via': 123]])}}{{response -> isArray() && response.headers['via'] != '123'}}");
         try {
             final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
             server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);

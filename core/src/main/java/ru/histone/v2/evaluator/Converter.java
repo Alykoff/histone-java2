@@ -16,9 +16,9 @@
 
 package ru.histone.v2.evaluator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import ru.histone.v2.evaluator.data.HistoneMacro;
 import ru.histone.v2.evaluator.data.HistoneRegex;
@@ -28,6 +28,8 @@ import ru.histone.v2.exceptions.StopExecutionException;
 import ru.histone.v2.rtti.HistoneType;
 import ru.histone.v2.utils.ParserUtils;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -159,6 +161,20 @@ public class Converter {
         if (object instanceof Integer) {
             return new LongEvalNode(((Integer) object).longValue());
         }
+
+        if (object instanceof Serializable) {
+            ObjectMapper mapper = new ObjectMapper();
+            final byte[] serialization;
+            try {
+                serialization = mapper.writeValueAsBytes(object);
+                final Map result = mapper.readValue(serialization, Map.class);
+
+                return constructFromMap(result);
+            } catch (IOException ignore) {
+                //we are ignore this exception
+            }
+        }
+
         throw new HistoneException("Didn't resolve object class: " + object.getClass());
     }
 
@@ -180,8 +196,8 @@ public class Converter {
     public MapEvalNode constructFromList(List<Object> list) {
         List<EvalNode> res = new ArrayList<>(list.size());
         res.addAll(list.stream()
-                .map(this::constructFromObject)
-                .collect(Collectors.toList())
+                       .map(this::constructFromObject)
+                       .collect(Collectors.toList())
         );
         return new MapEvalNode(res);
     }
@@ -212,10 +228,6 @@ public class Converter {
 
     public CompletableFuture<EvalNode> getNumberFuture(Double v) {
         return CompletableFuture.completedFuture(getNumberNode(v));
-    }
-
-    public String escape(String str) {
-        return StringEscapeUtils.escapeHtml4(str);
     }
 
     public boolean isArray(Set<String> indexKeys) {

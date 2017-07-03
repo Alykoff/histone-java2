@@ -57,8 +57,13 @@ public class TestRunner {
                     Stream<String> stringStream = Files.lines(p);
                     List<HistoneTestCase> histoneCases = mapper.readValue(stringStream.collect(Collectors.joining()), type);
                     histoneCases
-                            .forEach(histoneTestCase -> histoneTestCase.getCases()
-                                    .forEach(c -> c.setBaseURI(p.toUri().toString()))
+                            .forEach(histoneTestCase -> histoneTestCase
+                                    .getCases()
+                                    .forEach(c -> {
+                                        if (c.getBaseURI() == null) {
+                                            c.setBaseURI(p.toUri().toString());
+                                        }
+                                    })
                             );
                     cases.addAll(histoneCases);
                 } else {
@@ -75,6 +80,8 @@ public class TestRunner {
             }
         }
 
+        stream.close();
+
         return cases;
     }
 
@@ -82,9 +89,11 @@ public class TestRunner {
     private static List<Path> getFiles(Path path) throws IOException {
         List<Path> files = new ArrayList<>();
         if (Files.isDirectory(path)) {
-            for (Path p : Files.newDirectoryStream(path)) {
+            DirectoryStream<Path> stream = Files.newDirectoryStream(path);
+            for (Path p : stream) {
                 files.addAll(getFiles(p));
             }
+            stream.close();
         } else {
             files.add(path);
         }

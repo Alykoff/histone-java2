@@ -75,13 +75,13 @@ public abstract class AbstractFunction implements Function {
     protected static void checkTypes(EvalNode node, int index, List<HistoneType> expectedTypes, List<Class<?>> classes) {
         if (!expectedTypes.contains(node.getType())) {
             throw new FunctionExecutionException("Argument with index '%s' must be of type '%s', but specified is '%s'",
-                    index, expectedTypes, node.getType());
+                                                 index, expectedTypes, node.getType());
         }
 
         Object value = node.getValue();
         if (!classes.contains(value.getClass())) {
             throw new FunctionExecutionException("Argument with index '%s' must be of type '%s', but specified is '%s'",
-                    index, classes, value.getClass());
+                                                 index, classes, value.getClass());
         }
     }
 
@@ -92,14 +92,14 @@ public abstract class AbstractFunction implements Function {
     protected static void checkMinArgsLength(List<EvalNode> args, int expectedCount) {
         if (args.size() < expectedCount) {
             throw new FunctionExecutionException("Expected length of arguments is '%s', but current is '%s'",
-                    expectedCount, args.size());
+                                                 expectedCount, args.size());
         }
     }
 
     protected void checkMaxArgsLength(List<EvalNode> args, int expectedCount) {
         if (args.size() > expectedCount) {
             logger.warn("Expected length of arguments is '%s', but current is '%s'. Extra arguments will be not used",
-                    expectedCount, args.size());
+                        expectedCount, args.size());
         }
     }
 
@@ -144,6 +144,7 @@ public abstract class AbstractFunction implements Function {
     protected Context createCtx(Context baseContext, String baseUri, Object params) {
         Context macroCtx = baseContext.cloneEmpty();
         macroCtx.setBaseUri(baseUri);
+        macroCtx.setTemplateVars(baseContext.getTemplateVars());
 
         if (params == null) {
             return macroCtx;

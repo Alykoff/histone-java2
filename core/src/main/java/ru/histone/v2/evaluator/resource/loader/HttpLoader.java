@@ -21,8 +21,6 @@ import org.glassfish.jersey.client.rx.RxWebTarget;
 import org.glassfish.jersey.client.rx.java8.RxCompletionStage;
 import org.glassfish.jersey.client.rx.java8.RxCompletionStageInvoker;
 import org.glassfish.jersey.message.internal.FormMultivaluedMapProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
@@ -44,7 +42,6 @@ import java.util.concurrent.ExecutorService;
 public class HttpLoader implements Loader {
 
     public static final String HTTP_SCHEME = "http";
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpLoader.class);
 
     private static final String[] PROHIBITED_HEADERS = {"accept-charset", "accept-encoding", "access-control-request-headers",
             "access-control-request-method", "connection", "content-length", "cookie", "cookie2",
@@ -62,10 +59,7 @@ public class HttpLoader implements Loader {
     @Override
     public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
         return doRequest(url, params, String.class)
-                .thenApply(s -> {
-                    Resource res = new HistoneStringResource(s, url.toString(), ContentType.TEXT.getId());
-                    return res;
-                });
+                .thenApply(s -> (Resource) new HistoneStringResource(s, url.toString(), ContentType.TEXT.getId()));
     }
 
     @Override
@@ -81,7 +75,7 @@ public class HttpLoader implements Loader {
 
         String type = MediaType.APPLICATION_FORM_URLENCODED;
         if (headers != null && headers.containsKey("Content-Type")) {
-            type = String.valueOf(headers.get("Content-Type"));
+            type = String.valueOf(headers.getFirst("Content-Type"));
         }
         MultivaluedMap<String, String> data = getData(params.get("data"));
 
@@ -121,14 +115,14 @@ public class HttpLoader implements Loader {
 
         MultivaluedMap<String, Object> res = new MultivaluedHashMap<>();
         headerMap.entrySet().stream()
-                .filter(e -> {
-                    String name = e.getKey().toLowerCase();
-                    return e.getValue() != null
-                            && name.indexOf("sec-") != 0
-                            && name.indexOf("proxy-") != 0
-                            && !Arrays.asList(PROHIBITED_HEADERS).contains(name);
-                })
-                .forEach(e -> res.putSingle(e.getKey(), e.getValue()));
+                 .filter(e -> {
+                     String name = e.getKey().toLowerCase();
+                     return e.getValue() != null
+                             && name.indexOf("sec-") != 0
+                             && name.indexOf("proxy-") != 0
+                             && !Arrays.asList(PROHIBITED_HEADERS).contains(name);
+                 })
+                 .forEach(e -> res.putSingle(e.getKey(), e.getValue()));
         return res;
     }
 
@@ -137,7 +131,7 @@ public class HttpLoader implements Loader {
         if (data != null) {
             if (data instanceof List) {
                 int i = 0;
-                for (Object obj : ((List) data)) {
+                for (Object obj : (List) data) {
                     res.putSingle(i++ + "", String.valueOf(obj));
                 }
             } else if (data instanceof Map) {
@@ -152,7 +146,6 @@ public class HttpLoader implements Loader {
     }
 
     protected RxWebTarget<RxCompletionStageInvoker> getWebTarget(URI url) {
-        //todo get default and from config
         int connectTimeout = 2000;
         int readTimeout = 4000;
 

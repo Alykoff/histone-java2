@@ -66,7 +66,7 @@ public class TestProcessor {
 
         processTestFiles(mapper, type, translator, parser, jsonBaseDirPath, classesDirPath, testClassesDirPath);
 
-        processTpl(translator, parser, tplBaseDirPath, classesDirPath);
+        processTpl(translator, parser, tplBaseDirPath, classesDirPath, classesDirPath);
     }
 
     protected void processTestFiles(ObjectMapper mapper, TypeReference type, Translator translator, Parser parser,
@@ -83,7 +83,7 @@ public class TestProcessor {
                 if (!Files.isDirectory(jsonFilePath)) {
                     if (jsonFilePath.toString().endsWith(".json")) {
                         root = processTestFile(mapper, type, translator, parser, jsonBaseDirPath, classesDirPath,
-                                testClassesDirPath, jsonFilePath);
+                                               testClassesDirPath, jsonFilePath);
                     }
                 }
             } catch (Exception e) {
@@ -95,7 +95,10 @@ public class TestProcessor {
         });
     }
 
-    protected void processTpl(Translator translator, Parser parser, Path tplBaseDirPath, Path classesDirPath) throws IOException {
+    protected void processTpl(Translator translator, Parser parser, Path tplBaseDirPath, Path classesDirPath, Path testClassesDirPath) throws IOException {
+
+        TestProcessorClassRegistry registry = new TestProcessorClassRegistry(testClassesDirPath);
+
         Files.walk(tplBaseDirPath).forEach(jsonFilePath -> {
             //todo remove this fucking hardcode
             if (jsonFilePath.toString().endsWith("optimize.json")) {
@@ -108,14 +111,17 @@ public class TestProcessor {
                     if (jsonFilePath.toString().endsWith("tpl")) {
                         print("Compiling template '%s'...", getPathFromBaseDir(tplBaseDirPath, jsonFilePath));
                         root = createAstFromTpl(jsonFilePath, parser);
+
+                        registry.processAst(jsonFilePath, root);
+
                         writeTplClass(translator, tplBaseDirPath, classesDirPath, jsonFilePath, root);
                     }
                 }
             } catch (Exception e) {
                 if (root != null) {
                     System.out.println("    Compiled template " + AstJsonProcessor.write(root));
+                    System.out.println("        Some error occured: " + e.getMessage());
                 }
-                throw new RuntimeException(e);
             }
         });
     }
@@ -232,3 +238,6 @@ public class TestProcessor {
         System.out.println(String.format(message, args));
     }
 }
+
+//<noscript id="res_test.js"></noscript><noscript id="res_resource1.css"></noscript><noscript id="res_resource2.css"></noscript>["test.js","resource11.js"][]<noscript id="res_test.css"></noscript><noscript id="res_ololo.js"></noscript>["resource1.css","resource11.css","resource2.css","test.css"]["ololo.js"]>
+//<noscript id="res_test.js"></noscript><noscript id="res_resource1.css"></noscript><noscript id="res_resource2.css"></noscript>["test.js"][]<noscript id="res_test.css"></noscript><noscript id="res_ololo.js"></noscript>["resource1.css","resource2.css","test.css"]["ololo.js"]

@@ -171,9 +171,9 @@ public class ToString extends AbstractFunction {
         }
         final CompletableFuture<List<String>> valuesListFuture = AsyncUtils.sequence(valuesRawListFuture);
         return valuesListFuture.thenApply(x ->
-                x.stream()
-                        .filter(StringUtils::isNotEmpty)
-                        .collect(Collectors.joining(ARRAY_HISTONE_VIEW_DELIMITER))
+                                                  x.stream()
+                                                   .filter(StringUtils::isNotEmpty)
+                                                   .collect(Collectors.joining(ARRAY_HISTONE_VIEW_DELIMITER))
         );
     }
 }

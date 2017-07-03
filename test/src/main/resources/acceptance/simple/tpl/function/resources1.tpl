@@ -1,0 +1,1 @@
+{{@resource('resource11.css')}}{{@resource('resource11.js')}}

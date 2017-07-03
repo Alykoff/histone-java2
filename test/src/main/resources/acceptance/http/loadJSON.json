@@ -740,6 +740,10 @@
       {
         "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z']]).headers['Content-Type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
+      },
+      {
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z'], headers: ['Content-Type':'application/json']]).headers['Content-Type']}} b",
+        "expectedResult": "a application/json b"
       }
     ]
   },

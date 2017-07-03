@@ -95,6 +95,13 @@
         "inputAST": "[27,\"ololo\"]",
         "expectedAST": "[27,\"ololo\"]",
         "expectedResult": "ololo"
+      },
+      {
+        "input": " {{\"sdsdssdds}}",
+        "expectedException": {
+          "line": "1",
+          "message": "unterminated string literal"
+        }
       }
     ]
   }

@@ -83,6 +83,10 @@
       {
         "input": "{{/^[a-zа-я-]{1,10}$/i->test('Test')}}",
         "expectedResult": "true"
+      },
+      {
+        "input": "{{/^\\+?(8|7)?([\\s()-]*[0-9][\\s()-]*){10}$/->test('+79277304997')}}",
+        "expectedResult": "true"
       }
     ]
   }

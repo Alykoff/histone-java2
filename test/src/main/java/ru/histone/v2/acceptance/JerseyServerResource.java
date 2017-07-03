@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+
 /**
  * @author Alexey Nevinsky
  */
@@ -66,15 +68,22 @@ public class JerseyServerResource {
         Map<String, Object> res = new HashMap<>();
         res.put("path", "/" + uri.getPath());
         res.put("query", uri.getQueryParameters().entrySet().stream()
-                .map(e -> e.getKey() + "=" + e.getValue().get(0))
-                .collect(Collectors.joining("&"))
+                            .map(e -> e.getKey() + "=" + e.getValue().get(0))
+                            .collect(Collectors.joining("&"))
         );
         res.put("method", request.getMethod());
         res.put("headers", request.getHeaders().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0))));
-        res.put("body", readBody());
+        res.put("body", readJson());
 
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(res);
+    }
+
+    private Map<String, String> readJson() {
+        if (APPLICATION_JSON_TYPE.equals(request.getMediaType())) {
+            return request.readEntity(Map.class);
+        }
+        return readBody();
     }
 
     private Map<String, String> readBody() {

@@ -16,13 +16,12 @@
 
 package ru.histone.v2.evaluator.data;
 
-import java.io.Serializable;
 import java.util.regex.Pattern;
 
 /**
  * @author Gali Alykoff
  */
-public class HistoneRegex implements Serializable {
+public class HistoneRegex {
     private final boolean isGlobal;
     private final boolean isIgnoreCase;
     private final boolean isMultiline;

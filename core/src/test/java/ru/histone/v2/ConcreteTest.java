@@ -34,11 +34,11 @@ public class ConcreteTest extends HistoneTest {
     public void concreteTest() throws HistoneException {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
-        testCase.setExpectedResult("<noscript id=\"res_style.css\"></noscript><noscript id=\"res_script.js\"></noscript>[\"style.css\"][\"script.js\"]");
-        testCase.setBaseURI("");
+        testCase.setExpectedResult("2");
+        testCase.setBaseURI("/alala/");
         //        testCase.setContext(getMap());
         //        testCase.setExpectedAST("[29,\"e\",[28,\" 5 \",[27,10],\" \"],\"uuu\"]");
-        testCase.setInput("{{resource('style.css', 'script.js')}}{{getResources('css')->toJSON}}{{getResources('js')->toJSON}}");
+        testCase.setInput("{{1+1}}");
         new CoreTestConsumer(parser, rtti, evaluator).accept(testCase);
     }
 

@@ -142,7 +142,7 @@ public class SsaOptimizer {
     }
 
     private void processNodes(List<AstNode> nodes, AstNode parent) {
-        for (AstNode node : nodes) {
+        for (AstNode node : new ArrayList<>(nodes)) {
             processNode(node, parent);
         }
     }

@@ -51,7 +51,7 @@ public class JerseyServerResource {
     private ContainerRequest request;
 
     private volatile AtomicInteger counter = new AtomicInteger();
-    private volatile AtomicInteger counter1 = new AtomicInteger();
+    private volatile AtomicInteger counter1 = new AtomicInteger(0);
 
     @GET
     public String get() throws JsonProcessingException {
@@ -170,7 +170,8 @@ public class JerseyServerResource {
     @Path("testCache")
     public String testCache(final @Context ContainerRequest request) throws JsonProcessingException {
         request.getMethod();
-        int i = counter1.getAndIncrement();
+        int i = counter1.incrementAndGet();
+        System.out.println("count = " + i);
         Map<String, Object> res = Collections.singletonMap("requestCount", i);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(res);

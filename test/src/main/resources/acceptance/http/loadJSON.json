@@ -756,15 +756,20 @@
       },
       {
         "input": "a ololo {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} || {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} b",
-        "expectedResult": "a ololo 0 || 0 b"
+        "expectedResult": "a ololo 1 || 1 b"
       },
       {
         "input": "a ololo {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount}}{{a = 1}} b",
         "expectedResult": "a ololo false b"
-      },
+      }
+    ]
+  },
+  {
+    "name": "calling function in AND construction",
+    "cases": [
       {
-        "input": "a ololo {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo1']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo2']]).requestCount}}{{a = 1}} b",
-        "expectedResult": "a ololo true b"
+        "input": "{{var a = loadJSON('http://127.0.0.1:4442/testCache'), b = false && loadJSON('http://127.0.0.1:4442/testCache'),ba = false && loadJSON('http://127.0.0.1:4442/testCache'),bb = false && loadJSON('http://127.0.0.1:4442/testCache')}}{{var r = a + b + ba + bb}}{{var c =  [key: loadJSON('http://127.0.0.1:4442/testCache', [data: [ololo: r]]).requestCount, r:r]}}{{c.key = 2}}",
+        "expectedResult": "true"
       }
     ]
   }

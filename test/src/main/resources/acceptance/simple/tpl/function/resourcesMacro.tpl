@@ -1,1 +1,0 @@
-{{macro getText}}{{resource('getText.js')}}{{/macro}}{{return getText}}

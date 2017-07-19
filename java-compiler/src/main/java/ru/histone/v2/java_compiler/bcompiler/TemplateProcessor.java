@@ -24,6 +24,7 @@ import ru.histone.v2.evaluator.data.HistoneRegex;
 import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.node.GlobalEvalNode;
 import ru.histone.v2.evaluator.node.MapEvalNode;
+import ru.histone.v2.java_compiler.bcompiler.data.CallWrapper;
 import ru.histone.v2.java_compiler.bcompiler.data.MacroFunction;
 import ru.histone.v2.parser.node.*;
 import ru.histone.v2.rtti.HistoneType;
@@ -94,7 +95,7 @@ public class TemplateProcessor {
                 processNotNode(params);
                 break;
             case AST_AND:
-                processLogical(params, true);
+                processLogical(params.incLogical(), true);
                 break;
             case AST_OR:
                 processLogical(params, false);
@@ -205,6 +206,20 @@ public class TemplateProcessor {
     }
 
     private void processLogical(Params params, boolean negateCheck) {
+        if (negateCheck) {
+            addCode(params, "(($T) () -> {", CallWrapper.class);
+            addCode(params, "CompletableFuture<$T> r%s1 = ", EvalNode.class, params.logicCount);
+            processNode(params.withNode(0));
+            addCode(params, ";");
+            addCode(params, "if (std.toBoolean(r%s1)) {", params.logicCount);
+            addCode(params, "return ");
+            processNode(params.withNode(1));
+            addCode(params, "; \n}");
+
+            addCode(params, "return r%s1; \n}).call()", params.logicCount);
+            return;
+        }
+
         addCode(params, "std.processLogicalNode(");
         processNode(params.withNode(0));
         addCode(params, " ,");
@@ -354,9 +369,9 @@ public class TemplateProcessor {
         }
         addCode(params, ") {\n");
         addStatement(params, "$T self%s = std.constructWhileSelfValue(++i%s)",
-                MapEvalNode.class, params.ctxNum, params.ctxNum);
+                     MapEvalNode.class, params.ctxNum, params.ctxNum);
         addStatement(params, "CompletableFuture<$T> v%s0 = CompletableFuture.completedFuture(self%s)",
-                EvalNode.class, params.ctxNum, params.ctxNum);
+                     EvalNode.class, params.ctxNum, params.ctxNum);
         processNode(params.withNode(0));
 
         addCode(params, "}\n");
@@ -380,15 +395,15 @@ public class TemplateProcessor {
 
         beginControlFlow(params, "while (index%s < size%s)", params.forCtxNumber, params.ctxNum);
         addStatement(params, "MapEvalNode self%s = std.constructForSelfValue(arr%s, index%s, ((MapEvalNode) arrObj%s).getValue().size() -1)",
-                MapEvalNode.class, params.ctxNum, params.ctxNum, params.forCtxNumber, params.loopCounter.count);
+                     MapEvalNode.class, params.ctxNum, params.ctxNum, params.forCtxNumber, params.loopCounter.count);
         addStatement(params, "CompletableFuture<EvalNode> v%s0 = CompletableFuture.completedFuture(self%s)", params.ctxNum, params.ctxNum);
         if (hasKey) {
             addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(cnv, \"key\"))",
-                    params.ctxNum, value(n.getNode(0)), params.ctxNum);
+                         params.ctxNum, value(n.getNode(0)), params.ctxNum);
         }
         if (hasValue) {
             addStatement(params, "CompletableFuture<EvalNode> v%s%s= CompletableFuture.completedFuture(self%s.getProperty(cnv, \"value\"))",
-                    params.ctxNum, value(n.getNode(1)), params.ctxNum);
+                         params.ctxNum, value(n.getNode(1)), params.ctxNum);
         }
 
         processNode(params.withNode(2));
@@ -654,7 +669,7 @@ public class TemplateProcessor {
 
     private boolean isPrintNode(AstNode node) {
         List<AstType> types = Arrays.asList(AstType.AST_FOR, AstType.AST_IF, AstType.AST_VAR, AstType.AST_CONTINUE,
-                AstType.AST_BREAK, AstType.AST_SUPPRESS, AstType.AST_WHILE);
+                                            AstType.AST_BREAK, AstType.AST_SUPPRESS, AstType.AST_WHILE);
         return !types.contains(node.getType());
     }
 
@@ -697,9 +712,9 @@ public class TemplateProcessor {
 
     private boolean checkBreakContinueNode(List<AstNode> nodes) {
         return nodes.stream()
-                .filter(n -> n.getType() == AstType.AST_BREAK || n.getType() == AstType.AST_CONTINUE)
-                .findFirst()
-                .isPresent();
+                    .filter(n -> n.getType() == AstType.AST_BREAK || n.getType() == AstType.AST_CONTINUE)
+                    .findFirst()
+                    .isPresent();
     }
 
     private static class Params {
@@ -708,6 +723,7 @@ public class TemplateProcessor {
         int macroCtxNum = 0;
         int forCtxNumber = 0;
         int ctxNum = 0;
+        int logicCount = 0;
         Counter loopCounter = new Counter();
         Counter macroCounter = new Counter();
 
@@ -723,6 +739,7 @@ public class TemplateProcessor {
             params.forCtxNumber = this.forCtxNumber;
             params.loopCounter = this.loopCounter;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             return params;
         }
 
@@ -733,6 +750,7 @@ public class TemplateProcessor {
             params.forCtxNumber = this.forCtxNumber;
             params.loopCounter = this.loopCounter;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             return params;
         }
 
@@ -743,6 +761,7 @@ public class TemplateProcessor {
             params.forCtxNumber = this.forCtxNumber;
             params.loopCounter = this.loopCounter;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             return params;
         }
 
@@ -753,6 +772,7 @@ public class TemplateProcessor {
             params.forCtxNumber = this.forCtxNumber;
             params.loopCounter = this.loopCounter;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             return params;
         }
 
@@ -763,6 +783,7 @@ public class TemplateProcessor {
             params.forCtxNumber = this.forCtxNumber;
             params.loopCounter = this.loopCounter;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             return params;
         }
 
@@ -773,6 +794,7 @@ public class TemplateProcessor {
             params.forCtxNumber = this.forCtxNumber + 1;
             params.loopCounter = this.loopCounter;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             return params;
         }
 
@@ -784,6 +806,7 @@ public class TemplateProcessor {
             params.loopCounter = this.loopCounter;
             params.loopCounter.count++;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             return params;
         }
 
@@ -794,7 +817,19 @@ public class TemplateProcessor {
             params.forCtxNumber = this.forCtxNumber;
             params.loopCounter = this.loopCounter;
             params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount;
             params.macroCounter.count++;
+            return params;
+        }
+
+        Params incLogical() {
+            Params params = new Params(this.builder, node);
+            params.macroCtxNum = this.macroCtxNum;
+            params.ctxNum = this.ctxNum;
+            params.forCtxNumber = this.forCtxNumber;
+            params.loopCounter = this.loopCounter;
+            params.macroCounter = this.macroCounter;
+            params.logicCount = this.logicCount + 1;
             return params;
         }
     }

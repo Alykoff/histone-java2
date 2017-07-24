@@ -78,7 +78,7 @@ public class BaseCompilerTest {
 
         SchemaResourceLoader loader = new SchemaResourceLoader();
         loader.addLoader(new DataLoader());
-        loader.addLoader(new HttpLoader(executor));
+        loader.addLoader(new HttpLoader());
         loader.addLoader(new FileLoader());
         loader.addLoader(new JavaHistoneTemplateLoader(registry));
         loader.addLoader(new JavaHistoneRawTemplateLoader(registry));

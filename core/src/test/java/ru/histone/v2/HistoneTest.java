@@ -61,7 +61,7 @@ public class HistoneTest {
 
         SchemaResourceLoader loader = new SchemaResourceLoader();
         loader.addLoader(new DataLoader());
-        loader.addLoader(new HttpLoader(executor));
+        loader.addLoader(new HttpLoader());
         loader.addLoader(new FileLoader());
 
         rtti = new RunTimeTypeInfo(executor, loader, evaluator, parser);

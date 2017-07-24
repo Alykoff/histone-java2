@@ -17,13 +17,15 @@
 package ru.histone.v2;
 
 
+import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.StdErrLog;
-import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.Test;
 import org.testng.Assert;
-import ru.histone.v2.acceptance.JerseyServerResource;
+import ru.histone.v2.acceptance.TestServerResource;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.node.StringEvalNode;
 import ru.histone.v2.java_compiler.bcompiler.StdLibrary;
@@ -36,8 +38,6 @@ import ru.histone.v2.support.ByteClassLoader;
 import ru.histone.v2.utils.AstJsonProcessor;
 import ru.histone.v2.utils.RttiUtils;
 
-import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,7 +56,7 @@ public class SimpleTranslatorTest extends BaseCompilerTest {
     // "expectedAST": "[29,[10,\"10\",2]]"
     // "expectedResult": "8"
     @Test
-    public void doTest() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public void doTest() throws Exception {
         String tpl = "{{var a = loadJSON('http://127.0.0.1:4442/testCache'), b = false && loadJSON('http://127.0.0.1:4442/testCache'),ba = false && loadJSON('http://127.0.0.1:4442/testCache'),bb = false && loadJSON('http://127.0.0.1:4442/testCache')}}{{var r = a + b + ba + bb}}{{var c =  [key: loadJSON('http://127.0.0.1:4442/testCache', [data: [ololo: r]]).requestCount, r:r]}}{{c.key = 2}}";
         String expectedAST = "[29,[24,[29,\"true\"],[6,[6,[6,[6,[6,[6,[15,1,3],[16,2,0]],[18,5,6]],[18,6,6]],[17,7,8]],[17,7,7]],[19,8,8]],[29,\"false\"]]]";
 //        String expectedAST = "[29,[23,9,0],[21,0,0]]";
@@ -91,8 +91,18 @@ public class SimpleTranslatorTest extends BaseCompilerTest {
 
         Context context = Context.createRoot(baseURI, US_LOCALE, rtti, new DefaultPropertyHolder());
 
-        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
-        JettyHttpContainerFactory.createServer(URI.create("http://127.0.0.1:4442/"), rc);
+        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        servletContextHandler.setContextPath("/");
+
+        // CXF Servlet
+        ServletHolder cxfServletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
+        cxfServletHolder.setInitParameter("jaxrs.serviceClasses", TestServerResource.class.getName());
+        servletContextHandler.addServlet(cxfServletHolder, "/*");
+
+
+        Server server = new Server(4442);
+        server.setHandler(servletContextHandler);
+        server.start();
         Log.setLog(new StdErrLog());
 
 

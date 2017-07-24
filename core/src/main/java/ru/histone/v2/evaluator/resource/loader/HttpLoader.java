@@ -15,17 +15,16 @@
  */
 package ru.histone.v2.evaluator.resource.loader;
 
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.rx.RxClient;
-import org.glassfish.jersey.client.rx.RxWebTarget;
-import org.glassfish.jersey.client.rx.java8.RxCompletionStage;
-import org.glassfish.jersey.client.rx.java8.RxCompletionStageInvoker;
-import org.glassfish.jersey.message.internal.FormMultivaluedMapProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import org.apache.cxf.jaxrs.provider.FormEncodingProvider;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -34,12 +33,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author Alexey Nevinsky
  */
 public class HttpLoader implements Loader {
+
+    public static final String READ_TIMEOUT = "http.receive.timeout";
+    public static final String CONNECT_TIMEOUT = "http.connection.timeout";
 
     public static final String HTTP_SCHEME = "http";
 
@@ -49,12 +50,6 @@ public class HttpLoader implements Loader {
             "transfer-encoding", "upgrade", "user-agent", "via"};
 
     private static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD");
-
-    private final ExecutorService jerseyExecutor;
-
-    public HttpLoader(ExecutorService jerseyExecutor) {
-        this.jerseyExecutor = jerseyExecutor;
-    }
 
     @Override
     public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
@@ -68,7 +63,7 @@ public class HttpLoader implements Loader {
     }
 
     protected <T> CompletableFuture<T> doRequest(URI url, Map<String, Object> params, Class<T> clazz) {
-        RxWebTarget webTarget = getWebTarget(url);
+        WebTarget webTarget = getWebTarget(url);
 
         String method = getMethod(params);
         MultivaluedMap<String, Object> headers = getHeaders(params);
@@ -88,11 +83,12 @@ public class HttpLoader implements Loader {
             entity = Entity.entity(data, type);
         }
 
-        return (CompletableFuture<T>) webTarget
-                .request()
-                .headers(headers)
-                .rx()
-                .method(method, entity, clazz);
+        return CompletableFuture.completedFuture(
+                webTarget
+                        .request()
+                        .headers(headers)
+                        .method(method, entity, clazz)
+        );
     }
 
     private String getMethod(Map<String, Object> params) {
@@ -107,20 +103,20 @@ public class HttpLoader implements Loader {
     }
 
     private MultivaluedMap<String, Object> getHeaders(Map<String, Object> params) {
+        MultivaluedMap<String, Object> res = new MultivaluedHashMap<>();
         if (!params.containsKey("headers")) {
-            return null;
+            return res;
         }
 
         Map<String, Object> headerMap = (Map<String, Object>) params.get("headers");
 
-        MultivaluedMap<String, Object> res = new MultivaluedHashMap<>();
         headerMap.entrySet().stream()
                  .filter(e -> {
-                     String name = e.getKey().toLowerCase();
+                     String name = e.getKey();
                      return e.getValue() != null
                              && name.indexOf("sec-") != 0
                              && name.indexOf("proxy-") != 0
-                             && !Arrays.asList(PROHIBITED_HEADERS).contains(name);
+                             && !Arrays.asList(PROHIBITED_HEADERS).contains(name.toLowerCase());
                  })
                  .forEach(e -> res.putSingle(e.getKey(), e.getValue()));
         return res;
@@ -145,7 +141,7 @@ public class HttpLoader implements Loader {
         return res;
     }
 
-    protected RxWebTarget<RxCompletionStageInvoker> getWebTarget(URI url) {
+    protected WebTarget getWebTarget(URI url) {
         int connectTimeout = 2000;
         int readTimeout = 4000;
 
@@ -154,13 +150,14 @@ public class HttpLoader implements Loader {
     }
 
 
-    protected RxClient<RxCompletionStageInvoker> buildClient(int connectionTimeout, int readTimeout) {
-        RxClient<RxCompletionStageInvoker> client = RxCompletionStage.newClient(jerseyExecutor);
+    protected Client buildClient(int connectionTimeout, int readTimeout) {
+        final Client client = ClientBuilder.newClient();
 
-        client.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
-        client.property(ClientProperties.READ_TIMEOUT, readTimeout);
+        client.property(CONNECT_TIMEOUT, connectionTimeout);
+        client.property(READ_TIMEOUT, readTimeout);
 
-        client.register(FormMultivaluedMapProvider.class);
+        client.register(FormEncodingProvider.class);
+        client.register(JacksonJsonProvider.class);
         return client;
     }
 }

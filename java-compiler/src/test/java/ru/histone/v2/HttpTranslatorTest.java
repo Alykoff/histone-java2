@@ -16,18 +16,18 @@
 
 package ru.histone.v2;
 
+import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.StdErrLog;
-import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import ru.histone.v2.acceptance.CasePack;
-import ru.histone.v2.acceptance.JerseyServerResource;
+import ru.histone.v2.acceptance.TestServerResource;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.stream.Stream;
 
@@ -44,20 +44,31 @@ public class HttpTranslatorTest extends BaseCompilerTest {
     @Override
     public Stream<DynamicTest> loadCases(String param) throws IOException, URISyntaxException {
         return super.loadCases(param)
-                .map(test -> DynamicTest.dynamicTest(test.getDisplayName(), () -> {
-                    try {
-                        final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
-                        server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
-                        Log.setLog(new StdErrLog());
-
-                        test.getExecutable().execute();
-                    } finally {
+                    .map(test -> DynamicTest.dynamicTest(test.getDisplayName(), () -> {
                         try {
-                            server.stop();
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+                            servletContextHandler.setContextPath("/");
+
+                            // CXF Servlet
+                            ServletHolder cxfServletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
+                            cxfServletHolder.setInitParameter("jaxrs.serviceClasses", TestServerResource.class.getName());
+                            servletContextHandler.addServlet(cxfServletHolder, "/*");
+
+
+                            server = new Server(4442);
+                            server.setHandler(servletContextHandler);
+                            server.start();
+
+                            Log.setLog(new StdErrLog());
+
+                            test.getExecutable().execute();
+                        } finally {
+                            try {
+                                server.stop();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                }));
+                    }));
     }
 }

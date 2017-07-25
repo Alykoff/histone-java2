@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.megafonweblab.histone</groupId>
     <artifactId>parent-histone-java-v2</artifactId>
-    <version>1.8.0</version>
+    <version>1.9.0</version>
     <packaging>pom</packaging>
     <name>Histone - Java Implementation</name>
     <description>Java implementation for Histone Template Engine</description>
@@ -67,7 +67,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- deps versions -->
-        <jackson.version>2.8.6</jackson.version>
+        <jackson.version>2.8.9</jackson.version>
         <apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
 
         <slf4j.version>1.7.25</slf4j.version>
@@ -85,7 +85,6 @@
         <commons-io.version>2.5</commons-io.version>
         <commons-lang3.version>3.5</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
-        <jersey-rx-client-java8.version>2.22.1</jersey-rx-client-java8.version>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <guava.version>21.0</guava.version>
     </properties>
@@ -107,18 +106,6 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.glassfish.jersey.ext.rx</groupId>
-                <artifactId>jersey-rx-client-java8</artifactId>
-                <version>${jersey-rx-client-java8.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.media</groupId>
-                <artifactId>jersey-media-json-jackson</artifactId>
-                <version>${jersey-rx-client-java8.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
@@ -148,16 +135,6 @@
             </dependency>
 
 
-            <dependency>
-                <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-                <artifactId>jersey-test-framework-provider-jetty</artifactId>
-                <version>2.22.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.test-framework</groupId>
-                <artifactId>jersey-test-framework-core</artifactId>
-                <version>2.22.1</version>
-            </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>

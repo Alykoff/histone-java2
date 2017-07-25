@@ -17,110 +17,111 @@ package ru.histone.v2.acceptance;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.glassfish.jersey.server.ContainerRequest;
 
-import javax.inject.Singleton;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 /**
  * @author Alexey Nevinsky
  */
 @Path("/")
-@Singleton
+//@Singleton
 @Produces("application/json")
 @Consumes("*/*")
-public class JerseyServerResource {
+public class TestServerResource {
 
     @Context
     private UriInfo uri;
 
     @Context
-    private ContainerRequest request;
+    private Request request;
 
-    private volatile AtomicInteger counter = new AtomicInteger();
-    private volatile AtomicInteger counter1 = new AtomicInteger();
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Providers providers;
+
+    @Context
+    private ContextResolver contextResolver;
+
+    private volatile AtomicInteger counter1 = new AtomicInteger(0);
 
     @GET
     public String get() throws JsonProcessingException {
-        return getResString();
+        return getResString(null);
     }
 
     @GET
     @Path("news")
     public String news() throws JsonProcessingException {
-        return getResString();
+        return getResString(null);
     }
 
-    private String getResString() throws JsonProcessingException {
+    private String getResString(MultivaluedMap<String, String> input) throws JsonProcessingException {
         Map<String, Object> res = new HashMap<>();
-        res.put("path", "/" + uri.getPath());
+        res.put("path", "/".equals(uri.getPath()) ? "/" : "/" + uri.getPath());
         res.put("query", uri.getQueryParameters().entrySet().stream()
                             .map(e -> e.getKey() + "=" + e.getValue().get(0))
                             .collect(Collectors.joining("&"))
         );
         res.put("method", request.getMethod());
-        res.put("headers", request.getHeaders().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0))));
-        res.put("body", readJson());
+        res.put("headers", headers.getRequestHeaders().entrySet().stream()
+                                  .collect(Collectors.toMap(Map.Entry::getKey,
+                                                            e -> e.getValue().get(0) != null ? e.getValue().get(0) : ""
+                                  ))
+        );
+        res.put("body", readJson(input));
 
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(res);
     }
 
-    private Map<String, String> readJson() {
-        if (APPLICATION_JSON_TYPE.equals(request.getMediaType())) {
-            return request.readEntity(Map.class);
+    private Map<String, String> readJson(MultivaluedMap<String, String> input) {
+        if (input != null) {
+            return input.entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey,
+                                                  e -> e.getValue().get(0) != null ? e.getValue().get(0) : ""
+                        ));
         }
-        return readBody();
-    }
-
-    private Map<String, String> readBody() {
-        MultivaluedMap<String, String> map = request.readEntity(MultivaluedMap.class);
-        if (map == null) {
-            return Collections.emptyMap();
-        }
-        Map<String, String> res = new HashMap<>(map.size());
-        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-            res.put(entry.getKey(), entry.getValue() != null ? entry.getValue().get(0) : null);
-        }
-        return res;
+        return Collections.emptyMap();
     }
 
     @POST
-    public String post() throws JsonProcessingException {
-        return getResString();
+    public String post(MultivaluedMap<String, String> input) throws JsonProcessingException {
+        return getResString(input);
     }
 
     @PUT
-    public String put() throws JsonProcessingException {
-        return getResString();
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public String put(MultivaluedMap<String, String> input) throws IOException {
+        return getResString(input);
     }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String put(String input) throws IOException {
+        return getResString(null);
+    }
+
 
     @DELETE
     public String delete() throws JsonProcessingException {
-        return getResString();
-    }
-
-    @OPTIONS
-    public String options() throws JsonProcessingException {
-        return getResString();
+        return getResString(null);
     }
 
     @HEAD
     public String head() throws JsonProcessingException {
-        return getResString();
+        return getResString(null);
     }
 
     @GET
@@ -168,9 +169,9 @@ public class JerseyServerResource {
 
     @GET
     @Path("testCache")
-    public String testCache(final @Context ContainerRequest request) throws JsonProcessingException {
-        request.getMethod();
-        int i = counter1.getAndIncrement();
+    public String testCache() throws JsonProcessingException {
+        int i = counter1.incrementAndGet();
+        System.out.println("count = " + i);
         Map<String, Object> res = Collections.singletonMap("requestCount", i);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(res);

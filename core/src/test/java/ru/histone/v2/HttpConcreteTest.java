@@ -16,18 +16,17 @@
 
 package ru.histone.v2;
 
+import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.StdErrLog;
-import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.Test;
 import ru.histone.v2.acceptance.HistoneTestCase;
-import ru.histone.v2.acceptance.JerseyServerResource;
-import ru.histone.v2.exceptions.HistoneException;
+import ru.histone.v2.acceptance.TestServerResource;
 import ru.histone.v2.support.CoreTestConsumer;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,15 +39,25 @@ public class HttpConcreteTest extends HistoneTest {
     public Server server;
 
     @Test
-    public void concreteTest() throws HistoneException {
+    public void concreteTest() throws Exception {
 
         HistoneTestCase.Case testCase = new HistoneTestCase.Case();
         testCase.setExpectedResult("true");
         testCase.setContext(getMap());
         testCase.setInput("{{var response = loadJSON('http://127.0.0.1:4442/', [headers: ['via': 123]])}}{{response -> isArray() && response.headers['via'] != '123'}}");
         try {
-            final ResourceConfig rc = new ResourceConfig(JerseyServerResource.class);
-            server = JettyHttpContainerFactory.createServer(URI.create(BASE_URI), rc);
+            ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            servletContextHandler.setContextPath("/");
+
+            // CXF Servlet
+            ServletHolder cxfServletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
+            cxfServletHolder.setInitParameter("jaxrs.serviceClasses", TestServerResource.class.getName());
+            servletContextHandler.addServlet(cxfServletHolder, "/*");
+
+            server = new Server(4442);
+            server.setHandler(servletContextHandler);
+
+            server.start();
             Log.setLog(new StdErrLog());
 
             new CoreTestConsumer(parser, rtti, evaluator).accept(testCase);

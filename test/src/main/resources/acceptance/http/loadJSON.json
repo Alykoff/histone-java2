@@ -663,51 +663,51 @@
     "comment": "make sure that the plain request data = correctly passed to the server",
     "cases": [
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: undefined]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: undefined]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: undefined]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: undefined]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: null]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: null]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: null]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: null]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: true]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: true]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: true]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: true]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: false]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: false]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: false]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: false]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 123]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 123]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 123]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 123]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 'string']).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: 'string']).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 'string']).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: 'string']).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       }
     ]
@@ -718,31 +718,31 @@
     "comment": "make sure that sending map request body switches the Content-Type request header value to application/x-www-form-urlencoded",
     "cases": [
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar']]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar']]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar']]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar']]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar bar']]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: ['foo', 'bar bar']]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar bar']]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: ['foo', 'bar bar']]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: [foo: 'bar', bar: 'x y z']]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'POST', data: [foo: 'bar', bar: 'x y z']]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z']]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z']]).headers['content-type']}} b",
         "expectedResult": "a application/x-www-form-urlencoded b"
       },
       {
-        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z'], headers: ['Content-Type':'application/json']]).headers['Content-Type']}} b",
+        "input": "a {{loadJSON('http://127.0.0.1:4442/', [method: 'PUT', data: [foo: 'bar', bar: 'x y z'], headers: ['Content-Type':'application/json']]).headers['content-type']}} b",
         "expectedResult": "a application/json b"
       }
     ]
@@ -756,15 +756,20 @@
       },
       {
         "input": "a ololo {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} || {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} b",
-        "expectedResult": "a ololo 0 || 0 b"
+        "expectedResult": "a ololo 1 || 1 b"
       },
       {
         "input": "a ololo {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount}}{{a = 1}} b",
         "expectedResult": "a ololo false b"
-      },
+      }
+    ]
+  },
+  {
+    "name": "calling function in AND construction",
+    "cases": [
       {
-        "input": "a ololo {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo1']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo2']]).requestCount}}{{a = 1}} b",
-        "expectedResult": "a ololo true b"
+        "input": "{{var a = loadJSON('http://127.0.0.1:4442/testCache'), b = false && loadJSON('http://127.0.0.1:4442/testCache'),ba = false && loadJSON('http://127.0.0.1:4442/testCache'),bb = false && loadJSON('http://127.0.0.1:4442/testCache')}}{{var r = a + b + ba + bb}}{{var c =  [key: loadJSON('http://127.0.0.1:4442/testCache', [data: [ololo: r]]).requestCount, r:r]}}{{c.key = 2}}",
+        "expectedResult": "true"
       }
     ]
   }

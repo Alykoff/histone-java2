@@ -57,6 +57,7 @@ public class HistoneTestCase {
         private ExpectedException expectedException;
         private String expectedAST;
         private Map<String, Object> context;
+        private String description;
 
         public String getInput() {
             return input;
@@ -128,6 +129,14 @@ public class HistoneTestCase {
 
         public void setInputClass(String inputClass) {
             this.inputClass = inputClass;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
     }
 

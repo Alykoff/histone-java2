@@ -426,6 +426,10 @@
       {
         "input": "{{true && throwExceptionFunction}}",
         "expectedResult": ""
+      },
+      {
+        "input": "{{false && stopExecutionExceptionFunction()}}{{param}}",
+        "expectedResult": "false"
       }
     ]
   },

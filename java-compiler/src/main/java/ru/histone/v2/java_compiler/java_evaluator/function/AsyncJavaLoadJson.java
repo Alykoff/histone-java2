@@ -18,12 +18,9 @@ package ru.histone.v2.java_compiler.java_evaluator.function;
 
 import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.parser.Parser;
 
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
@@ -31,8 +28,9 @@ import java.util.concurrent.Executor;
  * @since 19-01-2017
  */
 public class AsyncJavaLoadJson extends JavaLoadJson {
-    public AsyncJavaLoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser, Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
-        super(executor, loader, evaluator, parser, converter, cache);
+    public AsyncJavaLoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
+                             Converter converter) {
+        super(executor, loader, evaluator, parser, converter);
     }
 
     @Override

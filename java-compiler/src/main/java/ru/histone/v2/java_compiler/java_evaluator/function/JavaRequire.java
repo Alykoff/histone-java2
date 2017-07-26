@@ -61,23 +61,23 @@ public class JavaRequire extends Require {
             uri = URI.create(fullUri);
         }
 
-        return resourceLoader.load(uri.toString(), context.getBaseUri(), Collections.emptyMap())
-                .thenCompose(res -> {
-                    try {
-                        Template tpl = (Template) res.getContent();
+        return resourceLoader.load(context, uri.toString(), context.getBaseUri(), Collections.emptyMap())
+                             .thenCompose(res -> {
+                                 try {
+                                     Template tpl = (Template) res.getContent();
 
-                        Context ctx = createCtx(context, res.getBaseHref(), params);
-                        return tpl.render(ctx);
-                    } catch (Exception e) {
-                        throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
-                    }
-                })
-                .exceptionally(e -> {
-                    if (e.getCause() instanceof StopExecutionException) {
-                        throw (StopExecutionException) e.getCause();
-                    }
-                    logger.error(e.getMessage(), e);
-                    return converter.createEvalNode(null);
-                });
+                                     Context ctx = createCtx(context, res.getBaseHref(), params);
+                                     return tpl.render(ctx);
+                                 } catch (Exception e) {
+                                     throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
+                                 }
+                             })
+                             .exceptionally(e -> {
+                                 if (e.getCause() instanceof StopExecutionException) {
+                                     throw (StopExecutionException) e.getCause();
+                                 }
+                                 logger.error(e.getMessage(), e);
+                                 return converter.createEvalNode(null);
+                             });
     }
 }

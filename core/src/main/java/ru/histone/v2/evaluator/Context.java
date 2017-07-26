@@ -43,7 +43,7 @@ public class Context implements Cloneable {
     private Locale locale;
     private RunTimeTypeInfo rttiInfo;
 
-    private final Map<String, CompletableFuture<EvalNode>> ctxCache;
+    private final Map<String, CompletableFuture<?>> ctxCache;
     private ConcurrentMap<String, Object> templateVars = new ConcurrentHashMap<>();
 
     private ConcurrentMap<String, CompletableFuture<EvalNode>> vars = new ConcurrentHashMap<>();
@@ -51,7 +51,7 @@ public class Context implements Cloneable {
     private Context parent;
 
     private Context(String baseUri, Locale locale, RunTimeTypeInfo rttiInfo, PropertyHolder<String> propertyHolder,
-                    Map<String, CompletableFuture<EvalNode>> cache) {
+                    Map<String, CompletableFuture<?>> cache) {
         ctxCache = cache;
 
         this.baseUri = baseUri;
@@ -124,6 +124,10 @@ public class Context implements Cloneable {
 
     public CompletableFuture<EvalNode> getValue(String key) {
         return vars.getOrDefault(key, rttiInfo.getConverter().getValue(null));
+    }
+
+    public Map<String, CompletableFuture<?>> getCtxCache() {
+        return ctxCache;
     }
 
     public Context getParent() {

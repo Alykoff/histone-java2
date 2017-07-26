@@ -15,6 +15,7 @@
  */
 package ru.histone.v2.evaluator.resource.loader;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.Resource;
 
 import java.net.URI;
@@ -34,7 +35,7 @@ public interface Loader {
      * @param params of loading
      * @return loaded resource
      */
-    CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params);
+    CompletableFuture<Resource> loadResource(Context ctx, URI url, Map<String, Object> params);
 
     /**
      * Method returns scheme of current implementation

@@ -40,7 +40,8 @@ import java.util.concurrent.Executor;
  * @author Alexey Nevinsky
  */
 public class JavaMacroCall extends MacroCall implements Serializable {
-    public JavaMacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser, Converter converter) {
+    public JavaMacroCall(Executor executor, HistoneResourceLoader resourceLoader, Evaluator evaluator, Parser parser,
+                         Converter converter) {
         super(executor, resourceLoader, evaluator, parser, converter);
     }
 

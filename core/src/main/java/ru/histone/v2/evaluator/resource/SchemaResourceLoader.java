@@ -17,6 +17,7 @@ package ru.histone.v2.evaluator.resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.loader.Loader;
 import ru.histone.v2.exceptions.ResourceLoadException;
 import ru.histone.v2.utils.AsyncUtils;
@@ -62,7 +63,8 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
     }
 
     @Override
-    public CompletableFuture<Resource> load(String href, String baseHref, Map<String, Object> args) throws ResourceLoadException {
+    public CompletableFuture<Resource> load(Context ctx, String href, String baseHref, Map<String, Object> args)
+            throws ResourceLoadException {
         log.debug("Trying to load resource from location={}, with baseLocation={}", new Object[]{href, baseHref});
 
         return AsyncUtils.initFuture().thenCompose(ignore -> {
@@ -94,7 +96,7 @@ public class SchemaResourceLoader implements HistoneResourceLoader {
 
             Loader loader = loaders.get(uri.getScheme());
             if (loader != null) {
-                return loader.loadResource(loadUri, args);
+                return loader.loadResource(ctx, loadUri, args);
             }
 
             throw new ResourceLoadException(String.format("Unsupported scheme for resource loading: '%s'", uri.getScheme()));

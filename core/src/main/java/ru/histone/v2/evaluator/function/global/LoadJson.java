@@ -25,7 +25,6 @@ import ru.histone.v2.exceptions.FunctionExecutionException;
 import ru.histone.v2.parser.Parser;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -35,8 +34,8 @@ import java.util.concurrent.Executor;
 public class LoadJson extends LoadText {
 
     public LoadJson(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
-                    Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
-        super(executor, loader, evaluator, parser, converter, cache);
+                    Converter converter) {
+        super(executor, loader, evaluator, parser, converter);
     }
 
     @Override

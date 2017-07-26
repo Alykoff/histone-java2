@@ -68,25 +68,25 @@ public class Require extends AbstractFunction {
 
         final Object params = getValue(args, 1, null);
 
-        return resourceLoader.load(url, context.getBaseUri(), Collections.emptyMap())
-                .thenCompose(res -> {
-                    String template = IOUtils.readStringFromResource(res, url);
+        return resourceLoader.load(context, url, context.getBaseUri(), Collections.emptyMap())
+                             .thenCompose(res -> {
+                                 String template = IOUtils.readStringFromResource(res, url);
 
-                    ExpAstNode root = processTemplate(template, res);
+                                 ExpAstNode root = processTemplate(template, res);
 
-                    Context macroCtx = createCtx(context, res.getBaseHref(), params);
+                                 Context macroCtx = createCtx(context, res.getBaseHref(), params);
 
-                    CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
+                                 CompletableFuture<EvalNode> nodeFuture = evaluator.evaluateNode(root, macroCtx); // we evaluated template and add all macros and variables to context
 
-                    return nodeFuture.thenApply(EvalNode::clearReturned);
-                })
-                .exceptionally(e -> {
-                    if (e.getCause() instanceof StopExecutionException) {
-                        throw (StopExecutionException) e.getCause();
-                    }
-                    logger.error(e.getMessage(), e);
-                    return converter.createEvalNode(null);
-                });
+                                 return nodeFuture.thenApply(EvalNode::clearReturned);
+                             })
+                             .exceptionally(e -> {
+                                 if (e.getCause() instanceof StopExecutionException) {
+                                     throw (StopExecutionException) e.getCause();
+                                 }
+                                 logger.error(e.getMessage(), e);
+                                 return converter.createEvalNode(null);
+                             });
     }
 
     protected ExpAstNode processTemplate(String template, Resource res) {

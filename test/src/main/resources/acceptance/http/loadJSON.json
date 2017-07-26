@@ -751,16 +751,20 @@
     "name": "global.loadJSON with cache",
     "cases": [
       {
-        "input": "a {{var a = [loadJSON('http://127.0.0.1:4442/testCache').requestCount + loadJSON('http://127.0.0.1:4442/testCache').requestCount]}}{{a = 1}} b",
+        "input": "a {{var a = loadJSON('http://127.0.0.1:4442/testCache').requestCount + loadJSON('http://127.0.0.1:4442/testCache').requestCount}}{{a = 3}} b",
         "expectedResult": "a true b"
       },
       {
-        "input": "a ololo {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} || {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} b",
-        "expectedResult": "a ololo 1 || 1 b"
+        "input": "a {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} || {{loadJSON('http://127.0.0.1:4442/testCache', [cache: true]).requestCount}} b",
+        "expectedResult": "a 1 || 1 b"
       },
       {
-        "input": "a ololo {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount}}{{a = 1}} b",
-        "expectedResult": "a ololo false b"
+        "input": "a {{var a = loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount + loadJSON('http://127.0.0.1:4442/testCache', [cache: 'fullCheck', headers: [ololo: 'ololo']]).requestCount}}{{a = 1}} b",
+        "expectedResult": "a false b"
+      },
+      {
+        "input": "a {{var res = require('tpl/cacheTest1.tpl')}}{{res -> toJSON}} b",
+        "expectedResult": "a {\"r1\":1,\"r2\":1,\"r3\":2,\"r4\":3} b"
       }
     ]
   },

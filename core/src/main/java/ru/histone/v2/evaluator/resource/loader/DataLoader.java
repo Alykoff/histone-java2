@@ -16,6 +16,7 @@
 package ru.histone.v2.evaluator.resource.loader;
 
 import org.apache.commons.io.Charsets;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStreamResource;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
@@ -35,7 +36,7 @@ public class DataLoader implements Loader {
     public static final String DATA_SCHEME = "data";
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
+    public CompletableFuture<Resource> loadResource(Context ctx, URI url, Map<String, Object> params) {
         if (!url.toString().matches("data:(.*);(.*),(.*)")) {
             return CompletableFuture.completedFuture(null);
         }

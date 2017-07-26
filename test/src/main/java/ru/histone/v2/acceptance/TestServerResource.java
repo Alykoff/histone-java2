@@ -176,4 +176,14 @@ public class TestServerResource {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(res);
     }
+
+    @POST
+    @Path("testCache")
+    public String postTestCache() throws JsonProcessingException {
+        int i = counter1.incrementAndGet();
+        System.out.println("count = " + i);
+        Map<String, Object> res = Collections.singletonMap("requestCount", i);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(res);
+    }
 }

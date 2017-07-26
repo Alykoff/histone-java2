@@ -152,7 +152,7 @@ public class Histone implements HistoneEngine {
 
     @Override
     public String processTemplate(String templateLocation, String baseUri, Map<String, Object> params, String encoding) throws IOException {
-        try (Resource resource = resourceLoader.load(templateLocation, baseUri, params).join()) {
+        try (Resource resource = resourceLoader.load(createContext(baseUri, params), templateLocation, baseUri, params).join()) {
             ExpAstNode expAstNode = parseTemplateToAST((String) resource.getContent(), baseUri);
             return evaluateAST(templateLocation, expAstNode, params).join();
         }

@@ -43,29 +43,29 @@ public class JavaLoadText extends LoadText {
     private static final Logger LOG = LoggerFactory.getLogger(JavaLoadText.class);
 
     public JavaLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
-                        Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
-        super(executor, loader, evaluator, parser, converter, cache);
+                        Converter converter) {
+        super(executor, loader, evaluator, parser, converter);
     }
 
     @Override
     protected CompletableFuture<EvalNode> loadResource(Context context, String path, Map<String, Object> params) {
-        return resourceLoader.load(path, context.getBaseUri(), params)
-                .exceptionally(ex -> {
-                    logger.error("Error", ex);
-                    return null;
-                })
-                .thenApply(resource -> {
-                    if (resource == null) {
-                        return converter.createEvalNode(null);
-                    }
+        return resourceLoader.load(context, path, context.getBaseUri(), params)
+                             .exceptionally(ex -> {
+                                 logger.error("Error", ex);
+                                 return null;
+                             })
+                             .thenApply(resource -> {
+                                 if (resource == null) {
+                                     return converter.createEvalNode(null);
+                                 }
 
-                    if (resource.getContentType().equals(HistoneTemplateResource.CONTENT_TYPE)) {
-                        return loadAST(resource);
-                    }
+                                 if (resource.getContentType().equals(HistoneTemplateResource.CONTENT_TYPE)) {
+                                     return loadAST(resource);
+                                 }
 
-                    String content = IOUtils.readStringFromResource(resource, path);
-                    return converter.createEvalNode(content);
-                });
+                                 String content = IOUtils.readStringFromResource(resource, path);
+                                 return converter.createEvalNode(content);
+                             });
     }
 
     protected EvalNode loadAST(Resource resource) {

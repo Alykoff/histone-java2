@@ -16,6 +16,7 @@
 
 package ru.histone.v2.java_compiler.java_evaluator.loader;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.evaluator.resource.loader.Loader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -42,7 +43,7 @@ public class JavaHistoneTemplateLoader implements Loader {
     }
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
+    public CompletableFuture<Resource> loadResource(Context ctx, URI url, Map<String, Object> params) {
         String className = url.toString().replace(CLASS_SCHEME + ":", "");
         String classFileName = TemplateFileUtils.getSimpleClassName(className);
 

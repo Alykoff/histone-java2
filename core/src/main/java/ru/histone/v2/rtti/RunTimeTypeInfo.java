@@ -141,10 +141,10 @@ public class RunTimeTypeInfo implements Irtti {
         registerCommon(HistoneType.T_DATE, toNumber);
 
         registerCommon(HistoneType.T_GLOBAL, new Range(converter));
-        registerCommon(HistoneType.T_GLOBAL, new LoadJson(executor, loader, evaluator, parser, converter, cache));
-        registerCommon(HistoneType.T_GLOBAL, new LoadText(executor, loader, evaluator, parser, converter, cache));
-        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadText(executor, loader, evaluator, parser, converter, cache));
-        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadJson(executor, loader, evaluator, parser, converter, cache));
+        registerCommon(HistoneType.T_GLOBAL, new LoadJson(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new LoadText(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadText(executor, loader, evaluator, parser, converter));
+        registerCommon(HistoneType.T_GLOBAL, new AsyncLoadJson(executor, loader, evaluator, parser, converter));
         registerCommon(HistoneType.T_GLOBAL, new GetBaseUri(converter));
         registerCommon(HistoneType.T_GLOBAL, new GetUniqueId(converter));
         registerCommon(HistoneType.T_GLOBAL, new ResolveURI(converter));

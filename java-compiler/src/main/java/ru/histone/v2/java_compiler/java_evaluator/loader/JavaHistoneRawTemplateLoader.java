@@ -16,6 +16,7 @@
 
 package ru.histone.v2.java_compiler.java_evaluator.loader;
 
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.evaluator.resource.loader.Loader;
 import ru.histone.v2.exceptions.FunctionExecutionException;
@@ -41,7 +42,7 @@ public class JavaHistoneRawTemplateLoader implements Loader {
     }
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI uri, Map<String, Object> params) {
+    public CompletableFuture<Resource> loadResource(Context ctx, URI uri, Map<String, Object> params) {
         String className = uri.toString().replace(RAW_TPL_SCHEME + ":", "");
         String templatePath = "";
         String tpl = (String) params.get(PARAM_KEY);

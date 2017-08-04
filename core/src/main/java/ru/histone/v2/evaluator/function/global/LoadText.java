@@ -15,9 +15,7 @@
  */
 package ru.histone.v2.evaluator.function.global;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.Converter;
@@ -44,15 +42,11 @@ import java.util.concurrent.Executor;
  */
 public class LoadText extends AbstractFunction {
 
-    public static final String CACHE_PREFIX = "histoneCache://";
-
-    protected Map<String, CompletableFuture<EvalNode>> cache;
     protected ObjectMapper mapper = new ObjectMapper();
 
     public LoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
-                    Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
+                    Converter converter) {
         super(executor, loader, evaluator, parser, converter);
-        this.cache = cache;
     }
 
     @Override
@@ -77,43 +71,23 @@ public class LoadText extends AbstractFunction {
             requestMap = args.get(1);
         }
         Map<String, Object> params = getParamsMap(context, requestMap);
-
-        if (cache != null) {
-            if (Boolean.TRUE.equals(params.get("cache"))) {
-                return loadResourceFromCache(path, context, path, params);
-            } else if ("fullCheck".equals(params.get("cache"))) {
-                try {
-                    String paramsStr = mapper.writeValueAsString(params);
-                    String key = DigestUtils.sha512Hex((paramsStr + path).getBytes());
-                    return loadResourceFromCache(key, context, path, params);
-                } catch (JsonProcessingException e) {
-                    throw new FunctionExecutionException(e.getMessage(), e);
-                }
-            }
-        }
         return loadResource(context, path, params);
     }
 
-    private CompletableFuture<EvalNode> loadResourceFromCache(String cacheKey, Context context, String path,
-                                                              Map<String, Object> params) {
-        String key = CACHE_PREFIX + cacheKey;
-        return cache.computeIfAbsent(key, k -> loadResource(context, path, params));
-    }
-
     protected CompletableFuture<EvalNode> loadResource(Context context, String path, Map<String, Object> params) {
-        return resourceLoader.load(path, context.getBaseUri(), params)
-                .exceptionally(ex -> {
-                    logger.error("Error", ex);
-                    return null;
-                })
-                .thenApply(resource -> {
-                    if (resource == null) {
-                        return converter.createEvalNode(null);
-                    }
+        return resourceLoader.load(context, path, context.getBaseUri(), params)
+                             .exceptionally(ex -> {
+                                 logger.error("Error", ex);
+                                 return null;
+                             })
+                             .thenApply(resource -> {
+                                 if (resource == null) {
+                                     return converter.createEvalNode(null);
+                                 }
 
-                    String content = IOUtils.readStringFromResource(resource, path);
-                    return converter.createEvalNode(content);
-                });
+                                 String content = IOUtils.readStringFromResource(resource, path);
+                                 return converter.createEvalNode(content);
+                             });
     }
 
     protected Map<String, Object> getParamsMap(Context context, EvalNode requestMap) {

@@ -17,12 +17,9 @@ package ru.histone.v2.evaluator.function.global;
 
 import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.evaluator.Evaluator;
-import ru.histone.v2.evaluator.node.EvalNode;
 import ru.histone.v2.evaluator.resource.HistoneResourceLoader;
 import ru.histone.v2.parser.Parser;
 
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
@@ -32,8 +29,8 @@ import java.util.concurrent.Executor;
  */
 public class AsyncLoadText extends LoadText {
     public AsyncLoadText(Executor executor, HistoneResourceLoader loader, Evaluator evaluator, Parser parser,
-                         Converter converter, Map<String, CompletableFuture<EvalNode>> cache) {
-        super(executor, loader, evaluator, parser, converter, cache);
+                         Converter converter) {
+        super(executor, loader, evaluator, parser, converter);
     }
 
     @Override

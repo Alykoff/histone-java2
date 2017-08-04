@@ -1,6 +1,7 @@
 package ru.histone.v2.spring.resource.loader;
 
 import org.junit.Test;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.Resource;
 import ru.histone.v2.evaluator.resource.loader.Loader;
 
@@ -21,8 +22,8 @@ public class ClassPathLoaderTest {
     @SuppressWarnings("unchecked")
     public void testLoadResource_existing_0() throws Exception {
         URI existingResourceURI = URI.create("classpath:/classpath/classpathResource.tpl");
-        Resource existingResource = (Resource) classPathLoader.loadResource(existingResourceURI,
-                Collections.EMPTY_MAP).join();
+        Resource existingResource = (Resource) classPathLoader.loadResource(createCtx(), existingResourceURI,
+                                                                            Collections.EMPTY_MAP).join();
         assertNotNull(existingResource);
     }
 
@@ -30,8 +31,8 @@ public class ClassPathLoaderTest {
     @SuppressWarnings("unchecked")
     public void testLoadResource_existing_1() throws Exception {
         URI existingResourceURI = URI.create("classpath:classpath/classpathResource.tpl");
-        Resource existingResource = (Resource) classPathLoader.loadResource(existingResourceURI,
-                Collections.EMPTY_MAP).join();
+        Resource existingResource = (Resource) classPathLoader.loadResource(createCtx(), existingResourceURI,
+                                                                            Collections.EMPTY_MAP).join();
         assertNotNull(existingResource);
     }
 
@@ -40,12 +41,12 @@ public class ClassPathLoaderTest {
     public void testLoadResource_notExisting() throws Exception {
         URI notExistingResourceURI = URI.create("classpath:/classpathResourceNotExist.tpl");
         try {
-            classPathLoader.loadResource(notExistingResourceURI,
-                    Collections.EMPTY_MAP).join();
+            classPathLoader.loadResource(createCtx(), notExistingResourceURI,
+                                         Collections.EMPTY_MAP).join();
             fail("Exception should be thrown");
         } catch (Exception ex) {
             assertThat(ex.getMessage(),
-                    is("Error with ResourceInputStream for file 'classpathResourceNotExist.tpl'"));
+                       is("Error with ResourceInputStream for file 'classpathResourceNotExist.tpl'"));
         }
     }
 
@@ -53,8 +54,8 @@ public class ClassPathLoaderTest {
     @SuppressWarnings("unchecked")
     public void testLoadResource_badSchema_0() throws Exception {
         URI badSchemaURI = URI.create("file:/classpathResource.tpl");
-        Resource resource = (Resource) classPathLoader.loadResource(badSchemaURI,
-                Collections.EMPTY_MAP).join();
+        Resource resource = (Resource) classPathLoader.loadResource(createCtx(), badSchemaURI,
+                                                                    Collections.EMPTY_MAP).join();
         assertNull(resource);
     }
 
@@ -62,8 +63,12 @@ public class ClassPathLoaderTest {
     @SuppressWarnings("unchecked")
     public void testLoadResource_badSchema_1() throws Exception {
         URI badSchemaURI = URI.create("classpath/classpathResource.tpl");
-        Resource resource = (Resource) classPathLoader.loadResource(badSchemaURI,
-                Collections.EMPTY_MAP).join();
+        Resource resource = (Resource) classPathLoader.loadResource(createCtx(), badSchemaURI,
+                                                                    Collections.EMPTY_MAP).join();
         assertNull(resource);
+    }
+
+    public static Context createCtx() {
+        return Context.createRoot("", null, null, null);
     }
 }

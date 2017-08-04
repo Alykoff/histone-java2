@@ -15,11 +15,16 @@
  */
 package ru.histone.v2.evaluator.resource.loader;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.jaxrs.provider.FormEncodingProvider;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
+import ru.histone.v2.exceptions.FunctionExecutionException;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -52,10 +57,40 @@ public class HttpLoader implements Loader {
     private static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD");
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
+    public CompletableFuture<Resource> loadResource(Context ctx, URI url, Map<String, Object> params) {
+        String method = getMethod(params);
+        String path = url.getPath();
+        if (ctx.getCtxCache() != null) {
+            if (!"GET".equals(method)) {
+                ctx.getCtxCache().remove(path);
+            } else {
+                if (Boolean.TRUE.equals(params.get("cache"))) {
+                    return loadResourceFromCache(ctx, path, url, params);
+                } else if ("fullCheck".equals(params.get("cache"))) {
+                    try {
+                        String paramsStr = new ObjectMapper().writeValueAsString(params);
+                        String key = DigestUtils.sha512Hex((paramsStr + path).getBytes());
+                        return loadResourceFromCache(ctx, key, url, params);
+                    } catch (JsonProcessingException e) {
+                        throw new FunctionExecutionException(e.getMessage(), e);
+                    }
+                }
+            }
+        }
+
+        return loadRequest(url, params);
+    }
+
+    protected CompletableFuture<Resource> loadRequest(URI url, Map<String, Object> params) {
         return doRequest(url, params, String.class)
                 .thenApply(s -> (Resource) new HistoneStringResource(s, url.toString(), ContentType.TEXT.getId()));
     }
+
+
+    private CompletableFuture<Resource> loadResourceFromCache(Context ctx, String key, URI url, Map<String, Object> params) {
+        return (CompletableFuture<Resource>) ctx.getCtxCache().computeIfAbsent(key, k -> loadRequest(url, params));
+    }
+
 
     @Override
     public String getScheme() {

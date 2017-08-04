@@ -1,6 +1,7 @@
 package ru.histone.v2.spring.resource.loader;
 
 import org.apache.commons.io.IOUtils;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
@@ -30,7 +31,7 @@ public class ServletContextLoader implements Loader {
     }
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
+    public CompletableFuture<Resource> loadResource(Context ctx, URI url, Map<String, Object> params) {
         Matcher matcher = SPLIT_SLASH_PATTERN.matcher(url.getSchemeSpecificPart());
         if (matcher.find() && url.getScheme() == null) {
             String location = matcher.group(1);

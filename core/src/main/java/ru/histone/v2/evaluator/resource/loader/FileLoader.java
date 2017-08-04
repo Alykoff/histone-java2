@@ -17,6 +17,7 @@ package ru.histone.v2.evaluator.resource.loader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStreamResource;
 import ru.histone.v2.evaluator.resource.Resource;
@@ -40,7 +41,7 @@ public class FileLoader implements Loader {
     public static final String FILE_SCHEME = "file";
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
+    public CompletableFuture<Resource> loadResource(Context ctx, URI url, Map<String, Object> params) {
         InputStream stream = readFile(url);
         BOMInputStream bomStream = IOUtils.readBomStream(url, stream);
         Resource res = new HistoneStreamResource(bomStream, url.toString(), ContentType.TEXT.getId());

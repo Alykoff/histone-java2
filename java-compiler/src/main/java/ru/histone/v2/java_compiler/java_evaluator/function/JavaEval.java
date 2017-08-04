@@ -74,23 +74,23 @@ public class JavaEval extends Eval {
 
         Map<String, Object> loadParams = Collections.singletonMap(JavaHistoneRawTemplateLoader.PARAM_KEY, template);
 
-        return resourceLoader.load(uri.toString(), baseUri, loadParams)
-                .thenCompose(res -> {
-                    try {
-                        Template tpl = (Template) res.getContent();
+        return resourceLoader.load(context, uri.toString(), baseUri, loadParams)
+                             .thenCompose(res -> {
+                                 try {
+                                     Template tpl = (Template) res.getContent();
 
-                        Context ctx = createCtx(context, baseUri, params);
-                        return tpl.render(ctx);
-                    } catch (Exception e) {
-                        throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
-                    }
-                })
-                .exceptionally(e -> {
-                    if (e.getCause() instanceof StopExecutionException) {
-                        throw (StopExecutionException) e.getCause();
-                    }
-                    logger.error(e.getMessage(), e);
-                    return converter.createEvalNode(null);
-                });
+                                     Context ctx = createCtx(context, baseUri, params);
+                                     return tpl.render(ctx);
+                                 } catch (Exception e) {
+                                     throw new ResourceLoadException("Resource import failed! Resource reading error.", e);
+                                 }
+                             })
+                             .exceptionally(e -> {
+                                 if (e.getCause() instanceof StopExecutionException) {
+                                     throw (StopExecutionException) e.getCause();
+                                 }
+                                 logger.error(e.getMessage(), e);
+                                 return converter.createEvalNode(null);
+                             });
     }
 }

@@ -1,6 +1,7 @@
 package ru.histone.v2.spring.resource.loader;
 
 import org.apache.commons.io.IOUtils;
+import ru.histone.v2.evaluator.Context;
 import ru.histone.v2.evaluator.resource.ContentType;
 import ru.histone.v2.evaluator.resource.HistoneStringResource;
 import ru.histone.v2.evaluator.resource.Resource;
@@ -24,7 +25,7 @@ public class ClassPathLoader implements Loader {
     protected static final Pattern SPLIT_SLASH_PATTERN = Pattern.compile("^/*(.*)");
 
     @Override
-    public CompletableFuture<Resource> loadResource(URI url, Map<String, Object> params) {
+    public CompletableFuture<Resource> loadResource(Context ctx, URI url, Map<String, Object> params) {
         if (!url.toString().matches("classpath:/*(.*)")) {
             return CompletableFuture.completedFuture(null);
         }

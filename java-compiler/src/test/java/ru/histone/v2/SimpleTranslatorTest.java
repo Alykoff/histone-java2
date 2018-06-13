@@ -57,53 +57,55 @@ public class SimpleTranslatorTest extends BaseCompilerTest {
     // "expectedResult": "8"
     @Test
     public void doTest() throws Exception {
-        String tpl = "{{var a = loadJSON('http://127.0.0.1:4442/testCache'), b = false && loadJSON('http://127.0.0.1:4442/testCache'),ba = false && loadJSON('http://127.0.0.1:4442/testCache'),bb = false && loadJSON('http://127.0.0.1:4442/testCache')}}{{var r = a + b + ba + bb}}{{var c =  [key: loadJSON('http://127.0.0.1:4442/testCache', [data: [ololo: r]]).requestCount, r:r]}}{{c.key = 2}}";
-        String expectedAST = "[29,[24,[29,\"true\"],[6,[6,[6,[6,[6,[6,[15,1,3],[16,2,0]],[18,5,6]],[18,6,6]],[17,7,8]],[17,7,7]],[19,8,8]],[29,\"false\"]]]";
-//        String expectedAST = "[29,[23,9,0],[21,0,0]]";
-        String expectedResult = "true";
+        Server server = new Server(4442);
 
-        Translator translator = new Translator();
+        try {
+            String tpl = "{{var a = loadJSON('http://127.0.0.1:4442/testCache'), b = false && loadJSON('http://127.0.0.1:4442/testCache'),ba = false && loadJSON('http://127.0.0.1:4442/testCache'),bb = false && loadJSON('http://127.0.0.1:4442/testCache')}}{{var r = a + b + ba + bb}}{{var c =  [key: loadJSON('http://127.0.0.1:4442/testCache', [data: [ololo: r]]).requestCount, r:r]}}{{c.key = 2}}";
+            String expectedAST = "[29,[24,[29,\"true\"],[6,[6,[6,[6,[6,[6,[15,1,3],[16,2,0]],[18,5,6]],[18,6,6]],[17,7,8]],[17,7,7]],[19,8,8]],[29,\"false\"]]]";
+//        String expectedAST = "[29,[23,9,0],[21,0,0]]";
+            String expectedResult = "true";
+
+            Translator translator = new Translator();
 
 //        AstNode tree = AstJsonProcessor.read(expectedAST);
 //
-        AstNode tree = parser.process(tpl, "");
+            AstNode tree = parser.process(tpl, "");
 
-        SsaOptimizer optimizer = new SsaOptimizer();
-        optimizer.process(tree);
+            SsaOptimizer optimizer = new SsaOptimizer();
+            optimizer.process(tree);
 
-        expectedAST = AstJsonProcessor.write(tree);
+            expectedAST = AstJsonProcessor.write(tree);
 
-        byte[] classBytes = translator.compile("Template1", tree);
-        Map<String, byte[]> classes = Collections.singletonMap("Template1", classBytes);
+            byte[] classBytes = translator.compile("Template1", tree);
+            Map<String, byte[]> classes = Collections.singletonMap("Template1", classBytes);
 
-        ByteClassLoader loader = new ByteClassLoader(new URL[]{}, getClass().getClassLoader(), classes);
-        Class<?> t = loader.loadClass("Template1");
+            ByteClassLoader loader = new ByteClassLoader(new URL[]{}, getClass().getClassLoader(), classes);
+            Class<?> t = loader.loadClass("Template1");
 
-        StdLibrary library = new StdLibrary(converter);
+            StdLibrary library = new StdLibrary(converter);
 
-        Template template = (Template) t.newInstance();
-        template.setStdLibrary(library);
-        template.setConverter(converter);
+            Template template = (Template) t.newInstance();
+            template.setStdLibrary(library);
+            template.setConverter(converter);
 
-        Assert.assertEquals(template.getStringAst(), expectedAST);
+            Assert.assertEquals(template.getStringAst(), expectedAST);
 
-        String baseURI = "acceptance/simple/function/global";
+            String baseURI = "acceptance/simple/function/global";
 
-        Context context = Context.createRoot(baseURI, US_LOCALE, rtti, new DefaultPropertyHolder());
+            Context context = Context.createRoot(baseURI, US_LOCALE, rtti, new DefaultPropertyHolder());
 
-        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        servletContextHandler.setContextPath("/");
+            ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            servletContextHandler.setContextPath("/");
 
-        // CXF Servlet
-        ServletHolder cxfServletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
-        cxfServletHolder.setInitParameter("jaxrs.serviceClasses", TestServerResource.class.getName());
-        servletContextHandler.addServlet(cxfServletHolder, "/*");
+            // CXF Servlet
+            ServletHolder cxfServletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
+            cxfServletHolder.setInitParameter("jaxrs.serviceClasses", TestServerResource.class.getName());
+            servletContextHandler.addServlet(cxfServletHolder, "/*");
 
 
-        Server server = new Server(4442);
-        server.setHandler(servletContextHandler);
-        server.start();
-        Log.setLog(new StdErrLog());
+            server.setHandler(servletContextHandler);
+            server.start();
+            Log.setLog(new StdErrLog());
 
 
 //        if (testCase.getContext() != null) {
@@ -116,11 +118,16 @@ public class SimpleTranslatorTest extends BaseCompilerTest {
 //        }
 //        }
 
-        String result = template.render(context)
-                                .thenCompose(v -> RttiUtils.callToString(context, v))
-                                .thenApply(n -> ((StringEvalNode) n).getValue())
-                                .join();
-        Assert.assertEquals(result, expectedResult);
+            String result = template.render(context)
+                    .thenCompose(v -> RttiUtils.callToString(context, v))
+                    .thenApply(n -> ((StringEvalNode) n).getValue())
+                    .join();
+            Assert.assertEquals(result, expectedResult);
+        }
+        finally {
+            server.stop();
+        }
+
     }
 
     private Map<String, Object> getMap() {

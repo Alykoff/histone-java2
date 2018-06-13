@@ -16,6 +16,7 @@
 
 package ru.histone.v2.evaluator.node;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import ru.histone.v2.evaluator.Converter;
 import ru.histone.v2.exceptions.HistoneException;
 import ru.histone.v2.rtti.HistoneType;
@@ -69,9 +70,14 @@ public class MapEvalNode extends EvalNode<Map<String, EvalNode>> implements HasP
     }
 
     private Integer convertToIndex(String str) {
-        try {
-            return Integer.valueOf(str);
-        } catch (NumberFormatException e) {
+        if (NumberUtils.isCreatable(str)) {
+            try {
+                return Integer.valueOf(str);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        else {
             return null;
         }
     }
